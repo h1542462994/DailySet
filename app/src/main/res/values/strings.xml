@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">DailySet</string>
+
+    <string name="summary">概览</string>
+    <string name="daily_set">集合</string>
+    <string name="profile">我的</string>
+</resources>
