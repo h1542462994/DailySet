@@ -29,7 +29,6 @@ class MainActivity : ComponentActivity() {
         //WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
-            val seedVersion = mainViewModel.seedVersion.observeAsState()
             DailySetTheme {
                 // enable the service.
                 LocalServiceProvider(application = application, mainViewModel = mainViewModel) {

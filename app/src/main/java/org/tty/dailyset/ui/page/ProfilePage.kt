@@ -18,7 +18,7 @@ fun ProfilePage() {
     Column {
 
         Text("ProfilePage")
-        Text(text = seedVersion?.value ?: "0")
+        Text(text = seedVersion.toString())
     }
 
 }

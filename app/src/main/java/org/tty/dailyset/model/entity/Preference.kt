@@ -2,6 +2,7 @@ package org.tty.dailyset.model.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.util.*
 
 /**
  * 保存关键配置和用户的个性化配置
@@ -15,6 +16,11 @@ data class Preference(
 ) {
 
     companion object {
+        fun defaultOrValue(preference: Preference?, name: PreferenceName): String {
+            return defaultOrValue(preference, name.key)
+        }
+
+        @Suppress
         fun defaultOrValue(preference: Preference?, name: String): String {
             return if (preference != null && !preference.useDefault){
                 preference.value
@@ -32,5 +38,9 @@ data class Preference(
                 throw IllegalArgumentException("key $name is not defined.")
             }
         }
+    }
+
+    override fun toString(): String {
+        return "($name, $useDefault, $value)"
     }
 }

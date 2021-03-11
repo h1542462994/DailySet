@@ -1,14 +1,18 @@
 package org.tty.dailyset.provider
 
 import android.app.Application
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.compositionLocalOf
+import android.util.Log
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import org.tty.dailyset.MainViewModel
+import org.tty.dailyset.data.DailySetDatabaseSeeder
 import org.tty.dailyset.data.DailySetRoomDatabase
 import org.tty.dailyset.data.repository.PreferenceRepository
+import org.tty.dailyset.model.entity.Preference
+import org.tty.dailyset.model.entity.PreferenceName
 
 /**
  * Provide services for application
@@ -20,7 +24,8 @@ class DailySetApplication: Application() {
 }
 
 /**
- * provide the service [LocalServices]
+ * provide the service [LocalServices] and [LocalMainViewModel],
+ * seed the database
  */
 @Composable
 fun LocalServiceProvider(
@@ -29,11 +34,15 @@ fun LocalServiceProvider(
     content: @Composable () -> Unit
 ) {
     val dailySetApplicationService = application as DailySetApplication
+
+
+    // provides the compositionLocal
     CompositionLocalProvider(
         LocalServices provides dailySetApplicationService,
-        LocalMainViewModel provides mainViewModel
-        , content = content)
+        LocalMainViewModel provides mainViewModel,
+        content = content)
 }
+
 
 internal val LocalServices = compositionLocalOf<DailySetApplication> {
     error("No DailySetService Provided")

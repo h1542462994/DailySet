@@ -19,6 +19,6 @@ interface PreferenceDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(preference: Preference)
 
-    @Update
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun update(preference: Preference)
 }
