@@ -3,13 +3,11 @@ package org.tty.dailyset.data
 import android.content.Context
 import android.util.Log
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.liveData
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.tty.dailyset.model.dao.PreferenceDao
 import org.tty.dailyset.model.dao.UserDao
@@ -30,40 +28,33 @@ abstract class DailySetRoomDatabase: RoomDatabase() {
             super.onOpen(db)
             INSTANCE?.let { database ->
                 scope.launch {
-                    //populateDatabase(database)
-                    seed(database)
+                    populateDatabase(database)
+                    //seed(database)
                 }
             }
         }
 
+        @Deprecated("use [populateDatabase]")
         suspend fun seed(database: DailySetRoomDatabase) {
             val databaseSeeder = DailySetDatabaseSeeder(database)
             databaseSeeder.seed(0)
             databaseSeeder.up(databaseSeeder.currentVersion())
         }
 
-        @Deprecated("couldn't collect the data")
         suspend fun populateDatabase(database: DailySetRoomDatabase) {
             val seeder = DailySetDatabaseSeeder(database)
-            // TODO BUG: couldn't collect the data when onOpen(db)
-            var oldVersion = database.preferenceDao().get(PreferenceName.SEED_VERSION.key).asLiveData(context = scope.coroutineContext).value
-
-            Log.d(TAG, "oldVersion: $oldVersion")
-            seeder.seed(Preference.defaultOrValue(oldVersion, PreferenceName.SEED_VERSION).toInt())
+            // FIXED BUG: couldn't collect the data when onOpen(db)
+            var oldVersionPreference = database.preferenceDao().get(PreferenceName.SEED_VERSION.key)
+            val oldVersion = Preference.defaultOrValue(oldVersionPreference, PreferenceName.SEED_VERSION).toInt()
+            Log.d(TAG, "oldVersion: $oldVersionPreference")
             val newVersion = seeder.currentVersion()
-            Log.d(TAG, "newVersion: $newVersion")
-            if (oldVersion == null) {
-                val pref = Preference(PreferenceName.SEED_VERSION.key, false, newVersion.toString())
-                database.preferenceDao().insert(pref)
-                oldVersion = pref
-            } else {
-                val instance = oldVersion
-                instance.useDefault = false
-                instance.value = newVersion.toString()
-                database.preferenceDao().update(instance)
+            if (newVersion > oldVersion) {
+                seeder.seed(oldVersion)
             }
-            Log.d(TAG, "migratedVersion: $oldVersion")
-
+            Log.d(TAG, "newVersion: $newVersion")
+            database.preferenceDao().insert(Preference(PreferenceName.SEED_VERSION.key, false, newVersion.toString()))
+            oldVersionPreference = database.preferenceDao().get(PreferenceName.SEED_VERSION.key)
+            Log.d(TAG, "migratedVersion: $oldVersionPreference")
         }
     }
 

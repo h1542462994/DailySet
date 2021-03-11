@@ -8,7 +8,8 @@ import org.tty.dailyset.model.entity.Preference
 import org.tty.dailyset.provider.DailySetApplication
 
 class MainViewModel(private val service: DailySetApplication): ViewModel() {
-    val seedVersion: LiveData<Preference> = service.preferenceRepository.seedVersion.asLiveData()
+    val seedVersionPreference: LiveData<Preference?> = service.preferenceRepository.seedVersionPreference.asLiveData()
+    val seedVersion: LiveData<Int> = service.preferenceRepository.seedVersion.asLiveData()
 }
 
 class MainViewModelFactory(private val service: DailySetApplication): ViewModelProvider.Factory {
