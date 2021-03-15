@@ -34,7 +34,7 @@ fun MainPage() {
                         selected = tab == selectedTab,
                         onClick = { setSelectedTab(tab) },
                         alwaysShowLabel = false,
-                        selectedContentColor = MaterialTheme.colors.secondary,
+                        selectedContentColor = MaterialTheme.colors.primary,
                         unselectedContentColor = LocalPalette.current.textColor,
                     )
                 }

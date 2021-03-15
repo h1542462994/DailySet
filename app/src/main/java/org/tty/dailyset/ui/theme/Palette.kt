@@ -12,7 +12,8 @@ class Palette(
     background1: Color = Gray5,
     gray20: Color = Gray20,
     textColor: Color = Gray80,
-    gray95: Color = Gray95
+    gray95: Color = Gray95,
+    textColorTitle: Color = Pink900,
 ) {
     /**
      * if Light (242,242,242) else (51,51,51)
@@ -37,18 +38,22 @@ class Palette(
     var gray95 by mutableStateOf(gray95, structuralEqualityPolicy())
         internal set
 
+    var textColorTitle by mutableStateOf(textColorTitle, structuralEqualityPolicy())
+        internal set
 
 
     fun copy(
-        gray5: Color = this.background1,
+        background1: Color = this.background1,
         gray20: Color = this.gray20,
-        gray80: Color = this.textColor,
-        gray95: Color = this.gray95
+        textColor: Color = this.textColor,
+        gray95: Color = this.gray95,
+        textColorTitle: Color = this.textColorTitle
     ) : Palette = Palette(
-        gray5,
+        background1,
         gray20,
-        gray80,
-        gray95
+        textColor,
+        gray95,
+        textColorTitle
     )
 }
 
