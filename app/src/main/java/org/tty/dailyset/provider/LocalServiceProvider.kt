@@ -11,6 +11,7 @@ import org.tty.dailyset.MainViewModel
 import org.tty.dailyset.data.DailySetDatabaseSeeder
 import org.tty.dailyset.data.DailySetRoomDatabase
 import org.tty.dailyset.data.repository.PreferenceRepository
+import org.tty.dailyset.data.repository.UserRepository
 import org.tty.dailyset.model.entity.Preference
 import org.tty.dailyset.model.entity.PreferenceName
 
@@ -18,9 +19,10 @@ import org.tty.dailyset.model.entity.PreferenceName
  * Provide services for application
  */
 class DailySetApplication: Application() {
-    val applicationScope = CoroutineScope(SupervisorJob())
-    val database by lazy { DailySetRoomDatabase.getDatabase(this, applicationScope) }
+    private val applicationScope = CoroutineScope(SupervisorJob())
+    private val database by lazy { DailySetRoomDatabase.getDatabase(this, applicationScope) }
     val preferenceRepository by lazy { PreferenceRepository(database.preferenceDao()) }
+    val userRepository by lazy { UserRepository(database.userDao()) }
 }
 
 /**

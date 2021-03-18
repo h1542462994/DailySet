@@ -16,4 +16,18 @@ data class User (
     var token: String,
     var localUser: Boolean,
     var state: Int
-)
+){
+    companion object {
+        fun default(): User {
+            return User(
+                uid = PreferenceName.CURRENT_USER_UID.defaultValue,
+                name = PreferenceName.CURRENT_USER_UID.defaultValue,
+                nickName = "本地账户",
+                token = "",
+                localUser = true,
+                state = 0
+            )
+        }
+    }
+
+}

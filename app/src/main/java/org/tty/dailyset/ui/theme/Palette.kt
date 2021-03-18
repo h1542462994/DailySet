@@ -10,13 +10,13 @@ import androidx.compose.ui.graphics.Color
 @Stable
 class Palette(
     background1: Color = Gray5,
-    gray20: Color = Gray20,
+    textColorDetail: Color = Gray60,
     textColor: Color = Gray80,
     gray95: Color = Gray95,
-    textColorTitle: Color = Pink900,
+    textColorTitle: Color = Teal700,
 ) {
     /**
-     * if Light (242,242,242) else (51,51,51)
+     * background Level 1 Color
      */
     var background1 by mutableStateOf(background1, structuralEqualityPolicy())
         internal set
@@ -24,13 +24,14 @@ class Palette(
     /**
      * if Light (204,204,204) (20% black) else (51,51,51)
      */
-    var gray20 by mutableStateOf(gray20, structuralEqualityPolicy())
+    var textColorDetail by mutableStateOf(textColorDetail, structuralEqualityPolicy())
         internal set
     /**
-     * if Light (51,51,51) else (204,204,204)
+     * textColor .black
      */
     var textColor by mutableStateOf(textColor, structuralEqualityPolicy())
         internal set
+
 
     /**
      * if Light (13,13,13) (5% black) else (242,242,242)
@@ -38,19 +39,22 @@ class Palette(
     var gray95 by mutableStateOf(gray95, structuralEqualityPolicy())
         internal set
 
+    /**
+     * textColorTitle .primary
+     */
     var textColorTitle by mutableStateOf(textColorTitle, structuralEqualityPolicy())
         internal set
 
 
     fun copy(
         background1: Color = this.background1,
-        gray20: Color = this.gray20,
+        textColorDetail: Color = this.textColorDetail,
         textColor: Color = this.textColor,
         gray95: Color = this.gray95,
         textColorTitle: Color = this.textColorTitle
     ) : Palette = Palette(
         background1,
-        gray20,
+        textColorDetail,
         textColor,
         gray95,
         textColorTitle
