@@ -1,6 +1,7 @@
 package org.tty.dailyset.ui.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
@@ -61,12 +62,14 @@ fun ProfileMenuItem(
     title: @Composable () -> Unit,
     content: @Composable () -> Unit,
     next: Boolean = false,
+    onClick: () -> Unit = {}
 ) {
     Row(
         Modifier
             .height(56.dp)
             .fillMaxWidth()
             .background(MaterialTheme.colors.background)
+            .clickable(onClick = onClick)
     ) {
         BoxWithConstraints(
             Modifier
@@ -97,7 +100,8 @@ fun ProfileMenuItem(
         if (next) {
             Column(
                 Modifier
-                    .width(16.dp)
+                    .width(32.dp)
+                    .padding(horizontal = 8.dp)
                     .fillMaxHeight()
                     .wrapContentHeight(align = Alignment.CenterVertically)
             ){
@@ -112,13 +116,15 @@ fun ProfileMenuItem(
     icon: ImageVector,
     title: String,
     content: @Composable () -> Unit = {},
-    next: Boolean
+    next: Boolean,
+    onClick: () -> Unit = {}
 ) {
     ProfileMenuItem(
         icon = { Icon(imageVector = icon, contentDescription = null, modifier = Modifier.fillMaxSize(), tint = LocalPalette.current.textColor) },
-        title = { Text(text = title, color = LocalPalette.current.textColor, fontSize = 20.sp) },
+        title = { Text(text = title, color = LocalPalette.current.textColor, fontSize = 18.sp) },
         content = { content() },
-        next
+        next,
+        onClick
     )
 }
 
@@ -128,12 +134,14 @@ fun ProfileMenuItem(
     title: String,
     content: String,
     next: Boolean = false,
+    onClick: () -> Unit = {}
 ) {
     ProfileMenuItem(
         icon = { Icon(imageVector = icon, contentDescription = null, modifier = Modifier.fillMaxSize(), tint = LocalPalette.current.textColor) },
-        title = { Text(text = title, color = LocalPalette.current.textColor, fontSize = 20.sp) },
+        title = { Text(text = title, color = LocalPalette.current.textColor, fontSize = 18.sp) },
         content = { Text(text = content, color = LocalPalette.current.textColorDetail) },
-        next
+        next,
+        onClick
     )
 }
 

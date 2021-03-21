@@ -4,4 +4,7 @@
     <string name="summary">概览</string>
     <string name="daily_set">集合</string>
     <string name="profile">我的</string>
+    <string name="user">用户</string>
+    <string name="user_settings">用户设置</string>
+    <string name="time_table">时间表</string>
 </resources>
