@@ -1,8 +1,7 @@
 package org.tty.dailyset.data
 
-import org.tty.dailyset.model.entity.Preference
-import org.tty.dailyset.model.entity.PreferenceName
-import org.tty.dailyset.model.entity.User
+import org.tty.dailyset.model.dao.DailyCellDao
+import org.tty.dailyset.model.entity.*
 
 class DailySetDatabaseSeeder(private val database: DailySetRoomDatabase) {
     suspend fun seed(oldVersion: Int) {
@@ -17,6 +16,14 @@ class DailySetDatabaseSeeder(private val database: DailySetRoomDatabase) {
         if (oldVersion < 2) {
             database.userDao().insert(User.default())
         }
+        if (oldVersion < 3) {
+            database.userDao().insert(User.system())
+            database.dailyTableDao().update(DailyTable.default())
+            database.dailyRowDao().update(DailyRow.default())
+            DailyCell.default().forEach { cell ->
+                database.dailyCellDao().update(cell)
+            }
+        }
     }
 
     suspend fun up(newVersion: Int){
@@ -24,7 +31,7 @@ class DailySetDatabaseSeeder(private val database: DailySetRoomDatabase) {
     }
 
     fun currentVersion(): Int {
-        return 2
+        return 3
     }
 
 }

@@ -9,8 +9,7 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import org.tty.dailyset.model.dao.PreferenceDao
-import org.tty.dailyset.model.dao.UserDao
+import org.tty.dailyset.model.dao.*
 import org.tty.dailyset.model.entity.Preference
 import org.tty.dailyset.model.entity.PreferenceName
 import org.tty.dailyset.model.entity.User
@@ -20,6 +19,9 @@ import org.tty.dailyset.model.entity.User
 abstract class DailySetRoomDatabase: RoomDatabase() {
     abstract fun userDao(): UserDao
     abstract fun preferenceDao(): PreferenceDao
+    abstract fun dailyTableDao(): DailyTableDao
+    abstract fun dailyRowDao(): DailyRowDao
+    abstract fun dailyCellDao(): DailyCellDao
 
     private class DailySetDatabaseCallBack(
         private val scope: CoroutineScope

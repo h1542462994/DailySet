@@ -18,6 +18,8 @@ data class User (
     var state: Int
 ){
     companion object {
+        const val system = "#system"
+
         fun default(): User {
             return User(
                 uid = PreferenceName.CURRENT_USER_UID.defaultValue,
@@ -26,6 +28,17 @@ data class User (
                 token = "",
                 localUser = true,
                 state = 0
+            )
+        }
+
+        fun system(): User {
+            return User(
+                uid = system,
+                name = system,
+                nickName = "系统",
+                token = "",
+                localUser = false,
+                state = -1
             )
         }
     }
