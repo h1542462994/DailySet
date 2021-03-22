@@ -2,9 +2,13 @@ package org.tty.dailyset.model.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
+import org.tty.dailyset.model.converter.LongTimeStampConverter
+import org.tty.dailyset.model.converter.StringIntArrayConverter
 import java.sql.Timestamp
 
 @Entity(tableName = "daily_row")
+@TypeConverters(LongTimeStampConverter::class, StringIntArrayConverter::class)
 data class DailyRow(
     @PrimaryKey
     var uid: String,

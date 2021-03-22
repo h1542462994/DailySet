@@ -10,12 +10,10 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.tty.dailyset.model.dao.*
-import org.tty.dailyset.model.entity.Preference
-import org.tty.dailyset.model.entity.PreferenceName
-import org.tty.dailyset.model.entity.User
+import org.tty.dailyset.model.entity.*
 
 
-@Database(entities = [Preference::class, User::class], version = 1, exportSchema = false)
+@Database(entities = [Preference::class, User::class, DailyTable::class, DailyRow::class, DailyCell::class], version = DailySetRoomDatabase.currentVersion, exportSchema = false)
 abstract class DailySetRoomDatabase: RoomDatabase() {
     abstract fun userDao(): UserDao
     abstract fun preferenceDao(): PreferenceDao
@@ -66,6 +64,8 @@ abstract class DailySetRoomDatabase: RoomDatabase() {
 
         private val TAG = "DailySetRoomDatabase"
 
+        const val currentVersion = 2
+
         fun getDatabase(context: Context, scope: CoroutineScope): DailySetRoomDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -73,6 +73,7 @@ abstract class DailySetRoomDatabase: RoomDatabase() {
                     DailySetRoomDatabase::class.java,
                     "dailyset_database.db"
                 )
+                    .fallbackToDestructiveMigration() // warning: open destructive migration
                     .addCallback(DailySetDatabaseCallBack(scope))
                     .build()
                 INSTANCE = instance
