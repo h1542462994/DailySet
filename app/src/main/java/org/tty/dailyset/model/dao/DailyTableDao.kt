@@ -14,6 +14,9 @@ interface DailyTableDao {
     suspend fun update(dailyTable: DailyTable)
 
     @Query("SELECT * FROM daily_table WHERE uid = :uid LIMIT 1")
+    fun get(uid: String): DailyTRC?
+
+    @Query("SELECT * FROM daily_table WHERE uid = :uid LIMIT 1")
     fun load(uid: String): Flow<DailyTRC?>
 
     @Query("SELECT * FROM daily_table")

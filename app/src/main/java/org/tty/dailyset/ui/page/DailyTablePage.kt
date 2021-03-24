@@ -1,8 +1,11 @@
 package org.tty.dailyset.ui.page
 
-import android.util.Log
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -13,10 +16,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import org.tty.dailyset.LocalNav
 import org.tty.dailyset.R
-import org.tty.dailyset.data.scope.*
+import org.tty.dailyset.data.scope.currentDailyTable
+import org.tty.dailyset.data.scope.currentDailyTableDetail
+import org.tty.dailyset.data.scope.dailyTableSummaries
+import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.ui.component.CenterBar
 import org.tty.dailyset.ui.theme.LocalPalette
@@ -26,24 +35,38 @@ fun DailyTablePage() {
     //calculate
     val dailyTableSummaries by dailyTableSummaries()
     val currentDailyTable by currentDailyTable()
-    var dialogOpen by remember { mutableStateOf(false) }
+    var dropDownOpen by remember { mutableStateOf(false) }
 
-    if (dialogOpen) {
-
-    }
 
     Column {
         CenterBar(true, LocalNav.current.action.upPress) {
             DailyTableTitle(currentDailyTable = currentDailyTable) {
-                Log.d("UI","dialogOpen:${dialogOpen}")
-                dialogOpen = true
-                Log.d("UI","dialogOpen:${dialogOpen}")
+                dropDownOpen = true
+            }
+            DropdownMenu(offset = DpOffset(x = 0.dp, y = 56.dp), expanded = dropDownOpen, onDismissRequest = { dropDownOpen = false }) {
+                dailyTableSummaries.forEach { dailyTable ->
+                    DropdownMenuItem(onClick = { }) {
+                        Text(text = dailyTable.name)
+                    }
+                }
             }
         }
 
-        Text(text = "TimeTable")
+        DailyTableContent()
     }
 }
+
+@Composable
+fun DailyTableContent() {
+    val currentDailyTRC by currentDailyTableDetail()
+    if (currentDailyTRC != null){
+
+        Text(text = currentDailyTRC!!.dailyTable.name)
+    } else {
+        Text("null")
+    }
+}
+
 
 @Composable
 fun DailyTableTitle(currentDailyTable: DailyTable, onClick: () -> Unit = {}) {
@@ -70,11 +93,6 @@ fun DailyTableTitle(currentDailyTable: DailyTable, onClick: () -> Unit = {}) {
                 imageVector = Icons.Filled.KeyboardArrowDown, contentDescription = null, tint = LocalPalette.current.textColorDetail)
         }
     }
-}
-
-@Composable
-fun DailyTableSelector() {
-
 }
 
 @Preview

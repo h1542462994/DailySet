@@ -1,7 +1,9 @@
 package org.tty.dailyset
 
 import androidx.lifecycle.*
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.model.entity.Preference
 import org.tty.dailyset.model.entity.User
@@ -30,6 +32,13 @@ class MainViewModel(private val service: DailySetApplication): ViewModel() {
     val dailyTableSummaries = service.dailyTableRepository.dailyTableSummaries.asLiveData()
     private var _currentDailyTableUid = MutableLiveData(DailyTable.default)
     val currentDailyTableUid = _currentDailyTableUid
+
+
+    var currentDailyTRC = MutableLiveData<DailyTRC?>()
+
+    fun getTableTRC(dailyTableUid: String): DailyTRC? {
+        return service.dailyTableRepository.getDailyTRC(dailyTableUid)
+    }
 }
 
 class MainViewModelFactory(private val service: DailySetApplication): ViewModelProvider.Factory {
