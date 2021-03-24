@@ -1,7 +1,9 @@
 package org.tty.dailyset
 
 import androidx.lifecycle.*
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
@@ -11,6 +13,23 @@ import org.tty.dailyset.provider.DailySetApplication
 import org.tty.dailyset.ui.page.MainPageTabs
 
 class MainViewModel(private val service: DailySetApplication): ViewModel() {
+
+    /**
+     * Initialize and hook the LiveData
+     */
+    fun init() {
+        GlobalScope.launch {
+            currentDailyTRC.postValue(getTableTRC(DailyTable.default))
+        }
+        currentDailyTRC.observeForever {
+            GlobalScope.launch {
+                if (it != null) {
+                    currentDailyTRC.postValue(getTableTRC(it.dailyTable.uid))
+                }
+            }
+        }
+    }
+
     //region main scope
     private var _mainTab = MutableLiveData(MainPageTabs.DAILY_SET)
     val mainTab = _mainTab
@@ -36,7 +55,7 @@ class MainViewModel(private val service: DailySetApplication): ViewModel() {
 
     var currentDailyTRC = MutableLiveData<DailyTRC?>()
 
-    fun getTableTRC(dailyTableUid: String): DailyTRC? {
+    private fun getTableTRC(dailyTableUid: String): DailyTRC? {
         return service.dailyTableRepository.getDailyTRC(dailyTableUid)
     }
 }

@@ -21,7 +21,7 @@ import org.tty.dailyset.model.entity.PreferenceName
  * Provide services for application
  */
 class DailySetApplication: Application() {
-    private val applicationScope = CoroutineScope(SupervisorJob())
+    val applicationScope = CoroutineScope(SupervisorJob())
     private val database by lazy { DailySetRoomDatabase.getDatabase(this, applicationScope) }
     val preferenceRepository by lazy { PreferenceRepository(database.preferenceDao()) }
     val userRepository by lazy { UserRepository(database.userDao()) }

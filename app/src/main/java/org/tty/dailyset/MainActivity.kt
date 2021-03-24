@@ -29,11 +29,14 @@ class MainActivity : ComponentActivity() {
 
                 // enable the service.
                 LocalServiceProvider(application = application, mainViewModel = mainViewModel) {
+
                     //MainPage()
                     DailySetApp(onBackPressedDispatcher)
                 }
             }
         }
+
+        mainViewModel.init()
     }
 }
 

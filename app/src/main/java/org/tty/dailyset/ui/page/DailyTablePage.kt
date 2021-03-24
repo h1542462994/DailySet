@@ -19,7 +19,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import org.tty.dailyset.LocalNav
 import org.tty.dailyset.R
 import org.tty.dailyset.data.scope.currentDailyTable
@@ -59,9 +58,14 @@ fun DailyTablePage() {
 @Composable
 fun DailyTableContent() {
     val currentDailyTRC by currentDailyTableDetail()
-    if (currentDailyTRC != null){
-
-        Text(text = currentDailyTRC!!.dailyTable.name)
+    // get transient value
+    @Suppress
+    val c: DailyTRC? = currentDailyTRC
+    if (c != null){
+        Text(text = c.dailyTable.name)
+        Text(text = c.dailyRCs.count().toString())
+        Text(text = c.dailyRCs[0].dailyRow.counts.joinToString(","))
+        Text(text = c.dailyRCs[0].dailyCells.count().toString())
     } else {
         Text("null")
     }
