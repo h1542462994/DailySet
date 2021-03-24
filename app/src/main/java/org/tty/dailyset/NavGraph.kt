@@ -9,9 +9,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigate
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navOptions
 import org.tty.dailyset.ui.page.MainPage
-import org.tty.dailyset.ui.page.TimeTablePage
+import org.tty.dailyset.ui.page.DailyTablePage
 
 /**
  * Destination used in the ([org.tty.dailyset.DailySetApp])
@@ -37,7 +36,7 @@ fun NavGraph(startDestination: String = MainDestination.MAIN_ROUTE) {
                 MainPage()
             }
             composable(MainDestination.TIME_TABLE_ROUTE) {
-                TimeTablePage()
+                DailyTablePage()
             }
         }
 

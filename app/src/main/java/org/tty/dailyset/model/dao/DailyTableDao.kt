@@ -15,4 +15,7 @@ interface DailyTableDao {
 
     @Query("SELECT * FROM daily_table WHERE uid = :uid LIMIT 1")
     fun load(uid: String): Flow<DailyTRC?>
+
+    @Query("SELECT * FROM daily_table")
+    fun all(): Flow<List<DailyTable>>
 }

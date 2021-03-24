@@ -10,8 +10,10 @@ import kotlinx.coroutines.launch
 import org.tty.dailyset.MainViewModel
 import org.tty.dailyset.data.DailySetDatabaseSeeder
 import org.tty.dailyset.data.DailySetRoomDatabase
+import org.tty.dailyset.data.repository.DailyTableRepository
 import org.tty.dailyset.data.repository.PreferenceRepository
 import org.tty.dailyset.data.repository.UserRepository
+import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.model.entity.Preference
 import org.tty.dailyset.model.entity.PreferenceName
 
@@ -23,6 +25,7 @@ class DailySetApplication: Application() {
     private val database by lazy { DailySetRoomDatabase.getDatabase(this, applicationScope) }
     val preferenceRepository by lazy { PreferenceRepository(database.preferenceDao()) }
     val userRepository by lazy { UserRepository(database.userDao()) }
+    val dailyTableRepository by lazy { DailyTableRepository(database.dailyTableDao(), database.dailyRowDao(), database.dailyCellDao()) }
 }
 
 /**

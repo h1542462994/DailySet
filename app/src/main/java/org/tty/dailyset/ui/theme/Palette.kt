@@ -10,7 +10,7 @@ import androidx.compose.ui.graphics.Color
 @Stable
 class Palette(
     background1: Color = Gray5,
-    textColorDetail: Color = Gray60,
+    textColorDetail: Color = Gray50,
     textColor: Color = Gray80,
     gray95: Color = Gray95,
     textColorTitle: Color = Teal700,
