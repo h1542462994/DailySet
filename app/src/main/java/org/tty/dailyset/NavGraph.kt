@@ -11,6 +11,7 @@ import androidx.navigation.compose.navigate
 import androidx.navigation.compose.rememberNavController
 import org.tty.dailyset.ui.page.MainPage
 import org.tty.dailyset.ui.page.DailyTablePage
+import org.tty.dailyset.ui.page.DailyTablePreviewPage
 
 /**
  * Destination used in the ([org.tty.dailyset.DailySetApp])
@@ -18,6 +19,7 @@ import org.tty.dailyset.ui.page.DailyTablePage
 object MainDestination {
     const val MAIN_ROUTE = "main"
     const val TIME_TABLE_ROUTE = "time_table"
+    const val TIME_TABLE_PREVIEW_ROUTE = "time_table_preview"
 }
 
 @Composable
@@ -38,6 +40,9 @@ fun NavGraph(startDestination: String = MainDestination.MAIN_ROUTE) {
             composable(MainDestination.TIME_TABLE_ROUTE) {
                 DailyTablePage()
             }
+            composable(MainDestination.TIME_TABLE_PREVIEW_ROUTE) {
+                DailyTablePreviewPage()
+            }
         }
 
     }
@@ -52,6 +57,9 @@ class MainActions(navController: NavHostController) {
     }
     val toTimeTable: () -> Unit = {
         navController.navigate(MainDestination.TIME_TABLE_ROUTE)
+    }
+    val toTimeTablePreview: () -> Unit = {
+        navController.navigate(MainDestination.TIME_TABLE_PREVIEW_ROUTE)
     }
 }
 

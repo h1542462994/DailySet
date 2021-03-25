@@ -7,19 +7,14 @@ import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.MailOutline
-import androidx.compose.material.icons.filled.Phone
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.tty.dailyset.ui.theme.DailySetTheme
 import org.tty.dailyset.ui.theme.LocalPalette
 
 /**
@@ -56,38 +51,49 @@ fun ProfileMenuGroup(
     )
 }
 
+/**
+ * ProfileMenuItem, provides slots to [icon], title, content
+ */
 @Composable
 fun ProfileMenuItem(
-    icon: @Composable () -> Unit,
+    icon: (@Composable () -> Unit)? = null,
+    next: Boolean = false,
+    onClick: (() -> Unit)? = null,
     title: @Composable () -> Unit,
     content: @Composable () -> Unit,
-    next: Boolean = false,
-    onClick: () -> Unit = {},
-    showIcon: Boolean = true,
 ) {
+    var modifier1 = Modifier
+        .height(56.dp)
+        .fillMaxWidth()
+        .background(MaterialTheme.colors.background)
+    if (onClick != null){
+        modifier1 = modifier1.clickable { onClick() }
+    }
+
     Row(
-        Modifier
-            .height(56.dp)
-            .fillMaxWidth()
-            .background(MaterialTheme.colors.background)
-            .clickable(onClick = onClick)
+        modifier = modifier1
     ) {
-        if (showIcon) {
+        if (icon != null) {
             BoxWithConstraints(
                 Modifier
                     .width(56.dp)
                     .fillMaxHeight()
-                    .padding(12.dp)
+                    .padding(16.dp)
             ) {
                 icon()
             }
         }
+        var modifier2 =  Modifier
+            .weight(1f)
+            .fillMaxHeight()
+            .wrapContentHeight(align = Alignment.CenterVertically)
+        if (icon != null) {
+            modifier2 = modifier2.padding(start = 8.dp)
+        } else {
+            modifier2 = modifier2.padding(start = 24.dp)
+        }
         BoxWithConstraints(
-            Modifier
-                .weight(1f)
-                .fillMaxHeight()
-                .wrapContentHeight(align = Alignment.CenterVertically)
-                .padding(horizontal = 8.dp)
+           modifier = modifier2
         ) {
             title()
         }
@@ -100,14 +106,15 @@ fun ProfileMenuItem(
             content()
         }
 
-        if (next) {
-            Column(
-                Modifier
-                    .width(32.dp)
-                    .padding(horizontal = 8.dp)
-                    .fillMaxHeight()
-                    .wrapContentHeight(align = Alignment.CenterVertically)
-            ){
+
+        Column(
+            Modifier
+                .width(32.dp)
+                .padding(horizontal = 8.dp)
+                .fillMaxHeight()
+                .wrapContentHeight(align = Alignment.CenterVertically)
+        ){
+            if (next) {
                 Icon(imageVector = Icons.Filled.KeyboardArrowRight, contentDescription = null, tint = LocalPalette.current.textColorDetail)
             }
         }
@@ -117,68 +124,64 @@ fun ProfileMenuItem(
 @Composable
 fun ProfileMenuItem(
     icon: ImageVector,
-    title: String,
-    content: @Composable () -> Unit = {},
     next: Boolean,
-    onClick: () -> Unit = {}
+    onClick: (() -> Unit)? = null,
+    title: String,
+    content: @Composable () -> Unit = {}
 ) {
     ProfileMenuItem(
         icon = { Icon(imageVector = icon, contentDescription = null, modifier = Modifier.fillMaxSize(), tint = LocalPalette.current.textColor) },
         title = { Text(text = title, color = LocalPalette.current.textColor, fontSize = 18.sp) },
         content = { content() },
-        next,
-        onClick
+        next = next,
+        onClick = onClick
     )
 }
 
-@Composable
-fun ProfileMenuItem(
-    title: String,
-    content: @Composable () -> Unit = {},
-    next: Boolean,
-    onClick: () -> Unit = {}
-) {
-    ProfileMenuItem(
-        icon = {},
-        title = { Text(text = title, color = LocalPalette.current.textColor, fontSize = 18.sp) },
-        content = { content() },
-        next,
-        onClick,
-        showIcon = false
-    )
-}
 
 @Composable
 fun ProfileMenuItem(
     icon: ImageVector,
-    title: String,
-    content: String,
     next: Boolean = false,
-    onClick: () -> Unit = {}
+    onClick: (() -> Unit)? = null,
+    title: String,
+    content: String
 ) {
     ProfileMenuItem(
         icon = { Icon(imageVector = icon, contentDescription = null, modifier = Modifier.fillMaxSize(), tint = LocalPalette.current.textColor) },
+        next = next,
+        onClick = onClick,
         title = { Text(text = title, color = LocalPalette.current.textColor, fontSize = 18.sp) },
         content = { Text(text = content, color = LocalPalette.current.textColorDetail) },
-        next,
-        onClick
     )
 }
 
-@Preview
 @Composable
-fun ProfileMenuPreview() {
-    ProfileMenuGroup(title = "测试") {
-        ProfileMenuItem(icon = Icons.Filled.MailOutline, title = "内容1", content = "内容2", true)
-    }
+fun ProfileMenuItem(
+    next: Boolean,
+    onClick: (() -> Unit)? = null,
+    title: String,
+    content: @Composable () -> Unit = {},
+) {
+    ProfileMenuItem(
+        next = next,
+        onClick = onClick,
+        title = { Text(text = title, color = LocalPalette.current.textColor, fontSize = 18.sp) },
+        content = { content() },
+    )
 }
 
-@Preview
 @Composable
-fun ProfileMenuPreviewDark() {
-    DailySetTheme(darkTheme = true) {
-        ProfileMenuGroup(title = "测试") {
-            ProfileMenuItem(icon = Icons.Filled.MailOutline, title = "内容1", content = "内容2", true)
-        }
-    }
+fun ProfileMenuItem(
+    next: Boolean,
+    onClick: (() -> Unit)? = null,
+    title: String,
+    content: String,
+) {
+    ProfileMenuItem(
+        next = next,
+        onClick = onClick,
+        title = { Text(text = title, color = LocalPalette.current.textColor, fontSize = 18.sp) },
+        content = { Text(text = content, color = LocalPalette.current.textColorDetail) },
+    )
 }

@@ -12,7 +12,7 @@ class Palette(
     background1: Color = Gray5,
     textColorDetail: Color = Gray50,
     textColor: Color = Gray80,
-    gray95: Color = Gray95,
+    background2: Color = Gray95,
     textColorTitle: Color = Teal700,
 ) {
     /**
@@ -36,7 +36,7 @@ class Palette(
     /**
      * if Light (13,13,13) (5% black) else (242,242,242)
      */
-    var gray95 by mutableStateOf(gray95, structuralEqualityPolicy())
+    var background2 by mutableStateOf(background2, structuralEqualityPolicy())
         internal set
 
     /**
@@ -50,7 +50,7 @@ class Palette(
         background1: Color = this.background1,
         textColorDetail: Color = this.textColorDetail,
         textColor: Color = this.textColor,
-        gray95: Color = this.gray95,
+        gray95: Color = this.background2,
         textColorTitle: Color = this.textColorTitle
     ) : Palette = Palette(
         background1,

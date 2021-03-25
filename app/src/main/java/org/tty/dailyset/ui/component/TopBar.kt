@@ -105,6 +105,20 @@ fun CenterBar(
     }
 }
 
+@Composable
+fun CenterBar(
+    useBack: Boolean = false,
+    onBackPressed: () -> Unit = {},
+    content: String
+) {
+    CenterBar(
+        useBack = useBack,
+        onBackPressed = onBackPressed
+    ) {
+        Text(text = content, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+    }
+}
+
 @Preview
 @Composable
 fun TopBarPreview() {

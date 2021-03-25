@@ -7,4 +7,5 @@
     <string name="user">用户</string>
     <string name="user_settings">用户设置</string>
     <string name="time_table">时间表</string>
+    <string name="time_table_preview">时间表预览</string>
 </resources>

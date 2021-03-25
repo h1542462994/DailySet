@@ -31,15 +31,15 @@ private val LightPalette = Palette(
     background1 = Gray5,
     textColorDetail = Gray50,
     textColor = Gray80,
-    gray95 = Gray95,
+    background2 = Gray20,
     textColorTitle = Teal700,
 )
 
 private val DarkPalette = Palette(
     background1 = Gray80,
     textColorDetail = Gray40,
-    textColor = Gray20,
-    gray95 = Gray5,
+    textColor = Gray80,
+    background2 = Gray5,
     textColorTitle = Teal200
 )
 

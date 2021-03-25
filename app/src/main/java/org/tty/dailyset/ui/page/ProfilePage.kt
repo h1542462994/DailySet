@@ -60,7 +60,7 @@ fun ProfileMenuGroupUser(user: User?) {
         "${user.nickName} ${user.uid}"
     }
     ProfileMenuGroup(title = stringResource(id = R.string.user)) {
-        ProfileMenuItem(icon = Icons.Filled.Person, title = display, content = "本地账户", true)
+        ProfileMenuItem(icon = Icons.Filled.Person, title = display, content = "本地账户", next = true)
     }
 }
 
@@ -68,7 +68,7 @@ fun ProfileMenuGroupUser(user: User?) {
 @Composable
 fun ProfileMenuGroupUserSettings() {
     ProfileMenuGroup(title = stringResource(id = R.string.user_settings)) {
-        ProfileMenuItem(icon = Icons.Filled.Build, title = stringResource(id = R.string.time_table), content = "系统默认", true, LocalNav.current.action.toTimeTable)
+        ProfileMenuItem(icon = Icons.Filled.Build, title = stringResource(id = R.string.time_table), content = "系统默认", next = true, onClick = LocalNav.current.action.toTimeTable)
     }
 }
 
