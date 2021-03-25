@@ -1,9 +1,14 @@
 package org.tty.dailyset.ui.page
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
@@ -24,9 +29,10 @@ import org.tty.dailyset.R
 import org.tty.dailyset.data.scope.currentDailyTable
 import org.tty.dailyset.data.scope.currentDailyTableDetail
 import org.tty.dailyset.data.scope.dailyTableSummaries
-import org.tty.dailyset.model.entity.DailyTRC
-import org.tty.dailyset.model.entity.DailyTable
+import org.tty.dailyset.model.entity.*
 import org.tty.dailyset.ui.component.CenterBar
+import org.tty.dailyset.ui.component.ProfileMenuGroup
+import org.tty.dailyset.ui.component.ProfileMenuItem
 import org.tty.dailyset.ui.theme.LocalPalette
 
 @Composable
@@ -51,24 +57,57 @@ fun DailyTablePage() {
             }
         }
 
-        DailyTableContent()
+        val columnState = rememberLazyListState()
+        LazyColumn(state = columnState) {
+           item {
+               DailyTableContent()
+           }
+        }
+
+
     }
 }
 
 @Composable
 fun DailyTableContent() {
     val currentDailyTRC by currentDailyTableDetail()
-    // get transient value
     @Suppress
     val c: DailyTRC? = currentDailyTRC
     if (c != null){
-        Text(text = c.dailyTable.name)
-        Text(text = c.dailyRCs.count().toString())
-        Text(text = c.dailyRCs[0].dailyRow.counts.joinToString(","))
-        Text(text = c.dailyRCs[0].dailyCells.count().toString())
+        c.dailyRCs.forEachIndexed { index, item ->
+            DailyRCContent(dailyRC = item, index = index)
+        }
     } else {
-        Text("null")
+        Text("Not Initialized")
     }
+}
+
+@Composable
+fun DailyRCContent(dailyRC: DailyRC, index: Int) {
+    val dailyRow = dailyRC.dailyRow
+    ProfileMenuGroup(title = "组${index + 1}") {
+        ProfileMenuItem(title = "适用星期", next = false, content = {
+            Text(text = dailyRow.weekdays.joinToString(","))
+        })
+        ProfileMenuItem(title = "节数", next = true, content = {
+            Text(text = dailyRow.counts.joinToString(","))
+        })
+        Spacer(modifier = Modifier
+            .fillMaxWidth()
+            .height(1.dp)
+            .background(color = LocalPalette.current.textColor))
+        dailyRC.dailyCells.forEachIndexed { index, dailyCell ->
+            DailyCellContent(dailyCell = dailyCell, index = index)
+        }
+        
+    }
+}
+
+@Composable
+fun DailyCellContent(dailyCell: DailyCell, index: Int) {
+    ProfileMenuItem(title = "第${index + 1}节", next = true, content = {
+        Text("${dailyCell.start}-${dailyCell.end}")
+    })
 }
 
 

@@ -2,6 +2,7 @@ package org.tty.dailyset.data.scope
 
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.lifecycle.liveData
 import org.tty.dailyset.MainViewModel
 import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
@@ -30,5 +31,6 @@ fun currentDailyTable(): State<DailyTable> {
 @Composable
 fun currentDailyTableDetail(): State<DailyTRC?> {
     val mainViewModel = mainViewModel()
-    return mainViewModel.currentDailyTRC.observeAsState()
+    val trcLiveData by mainViewModel.currentDailyTRC.observeAsState(liveData { })
+    return trcLiveData.observeAsState()
 }
