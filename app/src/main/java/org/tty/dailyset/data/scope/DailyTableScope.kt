@@ -2,7 +2,11 @@ package org.tty.dailyset.data.scope
 
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.liveData
+import org.tty.dailyset.LocalNav
 import org.tty.dailyset.MainViewModel
 import org.tty.dailyset.model.entity.DailyCell
 import org.tty.dailyset.model.entity.DailyRow
@@ -37,6 +41,9 @@ fun currentDailyTableDetail(): State<DailyTRC?> {
     return trcLiveData.observeAsState()
 }
 
+
+
 fun groupDailyCells(list: List<DailyCell>): Map<Int, List<DailyCell>> {
     return list.groupBy { it.normalType }
 }
+
