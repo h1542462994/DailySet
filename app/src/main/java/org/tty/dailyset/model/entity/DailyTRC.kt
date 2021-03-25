@@ -20,5 +20,5 @@ data class DailyTRC(
         parentColumn = "uid",
         entityColumn = "dailyTableUid"
     )
-    var dailyRows: List<DailyRC>
+    var dailyRCs: List<DailyRC>
 )

@@ -62,7 +62,8 @@ fun ProfileMenuItem(
     title: @Composable () -> Unit,
     content: @Composable () -> Unit,
     next: Boolean = false,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
+    showIcon: Boolean = true,
 ) {
     Row(
         Modifier
@@ -71,13 +72,15 @@ fun ProfileMenuItem(
             .background(MaterialTheme.colors.background)
             .clickable(onClick = onClick)
     ) {
-        BoxWithConstraints(
-            Modifier
-                .width(56.dp)
-                .fillMaxHeight()
-                .padding(12.dp)
-        ) {
-            icon()
+        if (showIcon) {
+            BoxWithConstraints(
+                Modifier
+                    .width(56.dp)
+                    .fillMaxHeight()
+                    .padding(12.dp)
+            ) {
+                icon()
+            }
         }
         BoxWithConstraints(
             Modifier
@@ -125,6 +128,23 @@ fun ProfileMenuItem(
         content = { content() },
         next,
         onClick
+    )
+}
+
+@Composable
+fun ProfileMenuItem(
+    title: String,
+    content: @Composable () -> Unit = {},
+    next: Boolean,
+    onClick: () -> Unit = {}
+) {
+    ProfileMenuItem(
+        icon = {},
+        title = { Text(text = title, color = LocalPalette.current.textColor, fontSize = 18.sp) },
+        content = { content() },
+        next,
+        onClick,
+        showIcon = false
     )
 }
 
