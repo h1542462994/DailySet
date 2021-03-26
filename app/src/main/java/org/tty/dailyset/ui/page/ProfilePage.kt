@@ -49,7 +49,7 @@ fun ProfilePage() {
 
 @Composable
 fun ProfileMenuGroupUser(user: User?) {
-    //TODO 添加联网功能
+    // TODO: 2021/3/21 添加联网功能
 
     val display = if (user == null) {
         "(null)"

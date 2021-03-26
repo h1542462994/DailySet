@@ -1,6 +1,8 @@
 package org.tty.dailyset.model.transient
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.tty.dailyset.model.entity.DailyTRC
@@ -47,6 +49,11 @@ class DailyTableCalc(val dailyTRC: DailyTRC, private val measuredWidth: Float, p
         } else {
             return cellHeight * index - (cellHeight - spaceHeight) * 2
         }
+    }
+
+    fun offsetsHLine(index: Int): Pair<Offset, Offset> {
+        return Pair(Offset(x = 0f, y = offsetYHLine(index)),
+            Offset(x = measuredWidth, y = offsetYHLine(index)))
     }
 
     /**

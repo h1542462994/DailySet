@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import org.tty.dailyset.LocalNav
 import org.tty.dailyset.R
 import org.tty.dailyset.data.scope.*
+import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.model.transient.DailyTableCalc
 import org.tty.dailyset.ui.component.CenterBar
@@ -30,8 +31,7 @@ import org.tty.dailyset.ui.utils.*
 fun DailyTablePreviewPage() {
     val currentDailyTRC by currentDailyTableDetail()
     val currentDailyTable by currentDailyTable()
-    @Suppress
-    val c = currentDailyTRC
+    val c: DailyTRC? = currentDailyTRC
 
     Column {
         CenterBar(
@@ -42,6 +42,7 @@ fun DailyTablePreviewPage() {
 
 
         val measuredWidth = measuredWidth()
+        // TODO: 2021/3/26 去除硬编码 25.dp
         val unit = toPx(dp = 25.dp)
 
         if (c != null) {
@@ -53,19 +54,23 @@ fun DailyTablePreviewPage() {
             LazyColumn {
                 item {
                     Canvas(
-                        modifier = Modifier.size(width = measuredWidthDp(),height = canvasHeightDp)) {
+                        modifier = Modifier.size(width = measuredWidthDp(), height = canvasHeightDp)
+                    ) {
                         // draw horizontal lines
                         (0 until dailyTableCalc.drawCountHLine).forEach { index ->
-                            drawLine(color = palette.background2,
-                                start = Offset(x = 0f, y = dailyTableCalc.offsetYHLine(index)),
-                                end = Offset(x = measuredWidth, y = dailyTableCalc.offsetYHLine(index)))
+                            val (start, end) = dailyTableCalc.offsetsHLine(index)
+
+                            drawLine(
+                                color = palette.background2,
+                                start = start,
+                                end = end
+                            )
                         }
                     }
                 }
             }
         } else {
-
-            // FIXME: 2021/3/26 完成表格预览功能
+            // TODO: 2021/3/26 完成表格预览功能
             Text("hello world")
         }
     }

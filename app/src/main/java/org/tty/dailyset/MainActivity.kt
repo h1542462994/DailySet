@@ -5,10 +5,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.ui.graphics.toArgb
-import org.tty.dailyset.provider.DailySetApplication
 import org.tty.dailyset.provider.LocalServiceProvider
 import org.tty.dailyset.ui.theme.DailySetTheme
 import org.tty.dailyset.ui.theme.LocalPalette
+import org.tty.dailyset.viewmodel.MainViewModel
+import org.tty.dailyset.viewmodel.MainViewModelFactory
 
 class MainActivity : ComponentActivity() {
     private val mainViewModel: MainViewModel by viewModels {
