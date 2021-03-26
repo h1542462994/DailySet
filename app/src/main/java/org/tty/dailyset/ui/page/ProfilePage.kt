@@ -10,17 +10,16 @@ import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import org.tty.dailyset.LocalNav
 import org.tty.dailyset.R
 import org.tty.dailyset.annotation.UseViewModel
-import org.tty.dailyset.model.entity.Preference
-import org.tty.dailyset.model.entity.PreferenceName
+import org.tty.dailyset.data.scope.currentUser
+import org.tty.dailyset.data.scope.seedVersion
+import org.tty.dailyset.data.scope.seedVersionPreference
 import org.tty.dailyset.model.entity.User
-import org.tty.dailyset.provider.LocalMainViewModel
 import org.tty.dailyset.ui.component.ProfileMenuGroup
 import org.tty.dailyset.ui.component.ProfileMenuItem
 
@@ -30,14 +29,12 @@ import org.tty.dailyset.ui.component.ProfileMenuItem
 @UseViewModel
 @Composable
 fun ProfilePage() {
-    val mainViewModel = LocalMainViewModel.current
-    val seedVersionPreference by mainViewModel.seedVersionPreference.observeAsState(Preference.default(PreferenceName.SEED_VERSION))
-    val seedVersion by mainViewModel.seedVersion.observeAsState(0)
+    val seedVersionPreference by seedVersionPreference()
+    val seedVersion by seedVersion()
+
 
     // state of user..
-    val users by mainViewModel.users.observeAsState(listOf())
-    val currentUserUid by mainViewModel.currentUserUid.observeAsState(Preference.default(PreferenceName.CURRENT_USER_UID))
-    val currentUser = users.find { it.uid == currentUserUid }
+    val currentUser by currentUser()
 
     Column(
         modifier = Modifier.scrollable(rememberScrollState(0),Orientation.Vertical)

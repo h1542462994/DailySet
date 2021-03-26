@@ -65,7 +65,7 @@ fun DailyTablePreviewPage() {
             }
         } else {
 
-            //TODO("完善表格预览功能")
+            // FIXME: 2021/3/26 完成表格预览功能
             Text("hello world")
         }
     }

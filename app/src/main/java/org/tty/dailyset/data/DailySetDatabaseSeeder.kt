@@ -1,6 +1,5 @@
 package org.tty.dailyset.data
 
-import org.tty.dailyset.model.dao.DailyCellDao
 import org.tty.dailyset.model.entity.*
 
 class DailySetDatabaseSeeder(private val database: DailySetRoomDatabase) {
