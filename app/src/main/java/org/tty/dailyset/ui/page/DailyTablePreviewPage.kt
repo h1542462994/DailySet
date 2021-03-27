@@ -24,6 +24,7 @@ import org.tty.dailyset.model.transient.DailyTableCalc
 import org.tty.dailyset.ui.component.CenterBar
 import org.tty.dailyset.ui.theme.LocalPalette
 import org.tty.dailyset.ui.utils.*
+import java.time.LocalDate
 
 
 @Composable
@@ -95,9 +96,10 @@ fun DailyTablePreviewHeader(dailyTableCalc: DailyTableCalc) {
         }
 
         @Composable
-        fun createText(index: Int, value: String) {
-            return Text(
-                text = value,
+        fun createText(start: LocalDate, index: Int, value: String) {
+            val dateString = start.plusDays(index.toLong()).toShortDateString()
+
+            return Column(
                 modifier = Modifier
                     .size(
                         width = toDp(px = dailyTableCalc.cellWidth),
@@ -105,15 +107,28 @@ fun DailyTablePreviewHeader(dailyTableCalc: DailyTableCalc) {
                     )
                     .absoluteOffset(x = toDp(px = dailyTableCalc.menuWidth + dailyTableCalc.cellWidth * index))
                     .wrapContentSize(align = Alignment.Center),
-                // TODO: 2021/3/27 引入文本大小配置
-                fontSize = 12.sp,
-                color = LocalPalette.current.textColorDetail
-            )
+            ) {
+                Text(
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    text = value,
+                    fontSize = 12.sp,
+                    color = LocalPalette.current.textColorDetail
+                )
+                Text(
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    text = dateString,
+                    fontSize = 10.sp,
+                    color = LocalPalette.current.textColorDetail
+                )
+            }
+
         }
+
+        val start = LocalDate.now().toWeekStart()
 
         (0 until dailyTableCalc.cellColumnCount).forEach{ index ->
             // TODO: 2021/3/27 添加国际化的支持
-            createText(index = index, value = index.toWeekDayString())
+            createText(start = start, index = index, value = index.toWeekDayString())
         }
     }
 }
