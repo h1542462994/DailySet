@@ -1,6 +1,7 @@
 package org.tty.dailyset.model.transient
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.tty.dailyset.model.entity.DailyTRC
@@ -9,7 +10,7 @@ import org.tty.dailyset.model.entity.DailyTRC
  * provide calculate properties for dailyTable, especially for draw.
  */
 @Immutable
-class DailyTableCalc(val dailyTRC: DailyTRC, private val measuredWidth: Float, private val unit: Float) {
+class DailyTableCalc(val dailyTRC: DailyTRC, val measuredWidth: Float, val unit: Float) {
     /**
      * the column Count for cell.
      */
@@ -39,14 +40,24 @@ class DailyTableCalc(val dailyTRC: DailyTRC, private val measuredWidth: Float, p
     /**
      * calc the offset.Y for the line.
      */
-    fun offsetYHLine(index: Int): Float {
-        if (index <= counts[0]) {
-            return cellHeight * index
-        } else if (index <= counts[0] + counts[1] + 1) {
-            return cellHeight * index - (cellHeight - spaceHeight)
-        } else {
-            return cellHeight * index - (cellHeight - spaceHeight) * 2
+     private fun offsetYHLine(index: Int): Float {
+        return when {
+            index <= counts[0] -> cellHeight * index
+            index <= counts[0] + counts[1] + 1 -> cellHeight * index - (cellHeight - spaceHeight)
+            else -> cellHeight * index - (cellHeight - spaceHeight) * 2
         }
+    }
+
+    private fun offsetXVLine(index: Int): Float {
+        return menuWidth + index * cellWidth
+    }
+
+    fun offsetsHLine(index: Int): Pair<Offset, Offset> {
+        return Pair(Offset(x = 0f, y = offsetYHLine(index)), Offset(x = measuredWidth, y = offsetYHLine(index)))
+    }
+
+    fun offsetsVLine(index: Int): Pair<Offset, Offset> {
+        return Pair(Offset(x = offsetXVLine(index), y = 0f), Offset(x = offsetXVLine(index), y = canvasHeight))
     }
 
     /**

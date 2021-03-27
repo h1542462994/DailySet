@@ -2,10 +2,7 @@ package org.tty.dailyset.ui.page
 
 import android.util.Log
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -13,12 +10,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.textInputServiceFactory
+import androidx.compose.ui.res.fontResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.tty.dailyset.LocalNav
 import org.tty.dailyset.R
 import org.tty.dailyset.data.scope.*
+import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.model.transient.DailyTableCalc
 import org.tty.dailyset.ui.component.CenterBar
@@ -31,7 +31,7 @@ fun DailyTablePreviewPage() {
     val currentDailyTRC by currentDailyTableDetail()
     val currentDailyTable by currentDailyTable()
     @Suppress
-    val c = currentDailyTRC
+    val c: DailyTRC? = currentDailyTRC
 
     Column {
         CenterBar(
@@ -39,7 +39,6 @@ fun DailyTablePreviewPage() {
             onBackPressed = LocalNav.current.action.upPress,
             content = { DailyTableTitlePreview(currentDailyTable = currentDailyTable) }
         )
-
 
         val measuredWidth = measuredWidth()
         val unit = toPx(dp = 25.dp)
@@ -50,15 +49,27 @@ fun DailyTablePreviewPage() {
             val palette = LocalPalette.current
             val canvasHeightDp = toDp(px = dailyTableCalc.canvasHeight)
 
+            DailyTablePreviewHeader(dailyTableCalc = dailyTableCalc)
+
+
             LazyColumn {
                 item {
+
                     Canvas(
                         modifier = Modifier.size(width = measuredWidthDp(),height = canvasHeightDp)) {
                         // draw horizontal lines
-                        (0 until dailyTableCalc.drawCountHLine).forEach { index ->
+                        (1 until dailyTableCalc.drawCountHLine).forEach { index ->
+                            val (start, end) = dailyTableCalc.offsetsHLine(index)
                             drawLine(color = palette.background2,
-                                start = Offset(x = 0f, y = dailyTableCalc.offsetYHLine(index)),
-                                end = Offset(x = measuredWidth, y = dailyTableCalc.offsetYHLine(index)))
+                                start = start,
+                                end = end, strokeWidth = 2.0f)
+                        }
+                        // draw vertical lines
+                        (0 until dailyTableCalc.cellColumnCount).forEach{ index ->
+                            val (start, end) = dailyTableCalc.offsetsVLine(index)
+                            drawLine(color = palette.background2,
+                                start = start,
+                                end = end, strokeWidth = 2.0f)
                         }
                     }
                 }
@@ -67,6 +78,42 @@ fun DailyTablePreviewPage() {
 
             //TODO("完善表格预览功能")
             Text("hello world")
+        }
+    }
+}
+
+@Composable
+fun DailyTablePreviewHeader(dailyTableCalc: DailyTableCalc) {
+    BoxWithConstraints {
+        val palette = LocalPalette.current
+        val canvasHeight = dailyTableCalc.unit * 1.5f
+
+        Canvas(
+            modifier = Modifier.size(width = measuredWidthDp(), height = toDp(px = canvasHeight))
+        ) {
+            drawLine(color = palette.background2, start = Offset(x = 0f, y = canvasHeight), end = Offset(x = dailyTableCalc.measuredWidth, y = canvasHeight), strokeWidth = 2.0f)
+        }
+
+        @Composable
+        fun createText(index: Int, value: String) {
+            return Text(
+                text = value,
+                modifier = Modifier
+                    .size(
+                        width = toDp(px = dailyTableCalc.cellWidth),
+                        height = toDp(px = canvasHeight)
+                    )
+                    .absoluteOffset(x = toDp(px = dailyTableCalc.menuWidth + dailyTableCalc.cellWidth * index))
+                    .wrapContentSize(align = Alignment.Center),
+                // TODO: 2021/3/27 引入文本大小配置
+                fontSize = 12.sp,
+                color = LocalPalette.current.textColorDetail
+            )
+        }
+
+        (0 until dailyTableCalc.cellColumnCount).forEach{ index ->
+            // TODO: 2021/3/27 添加国际化的支持
+            createText(index = index, value = index.toWeekDayString())
         }
     }
 }
