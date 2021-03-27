@@ -7,6 +7,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,8 +42,8 @@ fun ProfilePage() {
     ){
         ProfileMenuGroupUser(user = currentUser)
         ProfileMenuGroupUserSettings()
-        Text(text = seedVersionPreference.toString())
-        Text(text = seedVersion.toString())
+        //Text(text = seedVersionPreference.toString())
+        //Text(text = seedVersion.toString())
     }
 
 }
@@ -66,6 +67,7 @@ fun ProfileMenuGroupUser(user: User?) {
 fun ProfileMenuGroupUserSettings() {
     ProfileMenuGroup(title = stringResource(id = R.string.user_settings)) {
         ProfileMenuItem(icon = Icons.Filled.Build, title = stringResource(id = R.string.time_table), content = "系统默认", next = true, onClick = LocalNav.current.action.toTimeTable)
+        ProfileMenuItem(icon = Icons.Filled.Create, title = "测试", content = "", next = true, onClick = LocalNav.current.action.toTest)
     }
 }
 

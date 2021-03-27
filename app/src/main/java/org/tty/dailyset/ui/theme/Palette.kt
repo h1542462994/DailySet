@@ -10,10 +10,11 @@ import androidx.compose.ui.graphics.Color
 @Stable
 class Palette(
     background1: Color = Gray5,
-    textColorDetail: Color = Gray50,
-    textColor: Color = Gray80,
     background2: Color = Gray95,
+    backgroundColor: Color = Teal50,
+    textColor: Color = Gray80,
     textColorTitle: Color = Teal700,
+    textColorDetail: Color = Gray50,
 ) {
     /**
      * background Level 1 Color
@@ -22,21 +23,18 @@ class Palette(
         internal set
 
     /**
-     * if Light (204,204,204) (20% black) else (51,51,51)
+     * background Level 2 Color
      */
-    var textColorDetail by mutableStateOf(textColorDetail, structuralEqualityPolicy())
+    var background2 by mutableStateOf(background2, structuralEqualityPolicy())
         internal set
+
+    var backgroundColor by mutableStateOf(backgroundColor, structuralEqualityPolicy())
+        internal set
+
     /**
      * textColor .black
      */
     var textColor by mutableStateOf(textColor, structuralEqualityPolicy())
-        internal set
-
-
-    /**
-     * if Light (13,13,13) (5% black) else (242,242,242)
-     */
-    var background2 by mutableStateOf(background2, structuralEqualityPolicy())
         internal set
 
     /**
@@ -45,19 +43,26 @@ class Palette(
     var textColorTitle by mutableStateOf(textColorTitle, structuralEqualityPolicy())
         internal set
 
+    /**
+     * if Light (204,204,204) (20% black) else (51,51,51)
+     */
+    var textColorDetail by mutableStateOf(textColorDetail, structuralEqualityPolicy())
+        internal set
 
     fun copy(
         background1: Color = this.background1,
-        textColorDetail: Color = this.textColorDetail,
+        background2: Color = this.background2,
+        backgroundColor: Color = this.backgroundColor,
         textColor: Color = this.textColor,
-        gray95: Color = this.background2,
-        textColorTitle: Color = this.textColorTitle
+        textColorTitle: Color = this.textColorTitle,
+        textColorDetail: Color = this.textColorDetail,
     ) : Palette = Palette(
         background1,
-        textColorDetail,
+        background2,
+        backgroundColor,
         textColor,
-        gray95,
-        textColorTitle
+        textColorTitle,
+        textColorDetail
     )
 }
 

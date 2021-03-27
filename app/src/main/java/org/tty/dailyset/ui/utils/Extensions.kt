@@ -36,3 +36,7 @@ fun LocalDate.toWeekStart(): LocalDate {
 fun LocalDate.toShortDateString(): String {
     return "${monthValue}/${dayOfMonth}"
 }
+
+fun minus(end: LocalDate, start: LocalDate): Long {
+    return end.toEpochDay() - start.toEpochDay()
+}
