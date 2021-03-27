@@ -1,14 +1,12 @@
-package org.tty.dailyset
+package org.tty.dailyset.viewmodel
 
 import androidx.lifecycle.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import org.tty.dailyset.DailySetApplication
 import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.model.entity.Preference
 import org.tty.dailyset.model.entity.User
-import org.tty.dailyset.provider.DailySetApplication
 import org.tty.dailyset.ui.page.MainPageTabs
 
 class MainViewModel(private val service: DailySetApplication): ViewModel() {
@@ -56,14 +54,4 @@ class MainViewModel(private val service: DailySetApplication): ViewModel() {
         internal set
 
 
-}
-
-class MainViewModelFactory(private val service: DailySetApplication): ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return MainViewModel(service) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
-    }
 }

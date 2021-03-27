@@ -1,23 +1,15 @@
 package org.tty.dailyset.data.scope
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.liveData
-import org.tty.dailyset.LocalNav
-import org.tty.dailyset.MainViewModel
+import mainViewModel
 import org.tty.dailyset.model.entity.DailyCell
-import org.tty.dailyset.model.entity.DailyRow
 import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
-import org.tty.dailyset.provider.LocalMainViewModel
-
-@Composable
-fun mainViewModel(): MainViewModel {
-    return LocalMainViewModel.current
-}
 
 @Composable
 fun dailyTableSummaries(): State<List<DailyTable>> {
@@ -40,7 +32,6 @@ fun currentDailyTableDetail(): State<DailyTRC?> {
     val trcLiveData by mainViewModel.currentDailyTRC.observeAsState(liveData { })
     return trcLiveData.observeAsState()
 }
-
 
 
 fun groupDailyCells(list: List<DailyCell>): Map<Int, List<DailyCell>> {

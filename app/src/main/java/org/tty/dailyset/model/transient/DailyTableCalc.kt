@@ -1,5 +1,6 @@
 package org.tty.dailyset.model.transient
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Dp

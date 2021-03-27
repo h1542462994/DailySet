@@ -42,6 +42,7 @@ fun DailyTablePreviewPage() {
         )
 
         val measuredWidth = measuredWidth()
+        // TODO: 2021/3/26 去除硬编码 25.dp
         val unit = toPx(dp = 25.dp)
 
         if (c != null) {
@@ -57,7 +58,8 @@ fun DailyTablePreviewPage() {
                 item {
 
                     Canvas(
-                        modifier = Modifier.size(width = measuredWidthDp(),height = canvasHeightDp)) {
+                        modifier = Modifier.size(width = measuredWidthDp(), height = canvasHeightDp)
+                    ) {
                         // draw horizontal lines
                         (1 until dailyTableCalc.drawCountHLine).forEach { index ->
                             val (start, end) = dailyTableCalc.offsetsHLine(index)
@@ -76,8 +78,7 @@ fun DailyTablePreviewPage() {
                 }
             }
         } else {
-
-            //TODO("完善表格预览功能")
+            // TODO: 2021/3/26 完成表格预览功能
             Text("hello world")
         }
     }
