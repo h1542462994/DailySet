@@ -11,11 +11,17 @@ import org.tty.dailyset.model.entity.DailyCell
 import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
 
+/**
+ * get all dailyTables in database.
+ */
 @Composable
 fun dailyTableSummaries(): State<List<DailyTable>> {
     return mainViewModel().dailyTableSummaries.observeAsState(listOf())
 }
 
+/**
+ * get currentDailyTable for DailyTablePage
+ */
 @Composable
 fun currentDailyTable(): State<DailyTable> {
     val mainViewModel = mainViewModel()

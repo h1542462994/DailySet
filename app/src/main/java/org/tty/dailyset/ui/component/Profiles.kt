@@ -83,7 +83,7 @@ fun ProfileMenuItem(
                 icon()
             }
         }
-        var modifier2 =  Modifier
+        var modifier2 = Modifier
             .weight(1f)
             .fillMaxHeight()
             .wrapContentHeight(align = Alignment.CenterVertically)
@@ -184,4 +184,27 @@ fun ProfileMenuItem(
         title = { Text(text = title, color = LocalPalette.current.textColor, fontSize = 18.sp) },
         content = { Text(text = content, color = LocalPalette.current.textColorDetail) },
     )
+}
+
+@Composable
+fun TipBox(
+    content: @Composable () -> Unit
+) {
+    BoxWithConstraints(
+        modifier = Modifier.background(color = LocalPalette.current.backgroundColor)
+            .fillMaxWidth()
+    ) {
+        content()
+    }
+}
+
+@Composable
+fun TipBox(value: String) {
+    TipBox {
+        Text(
+            modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
+            text = value,
+            color = LocalPalette.current.textColorDetail
+        )
+    }
 }

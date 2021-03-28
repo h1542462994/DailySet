@@ -58,7 +58,7 @@ fun DailyTablePreviewPage() {
 
         if (c != null) {
             val dailyTableCalc = DailyTableCalc(c, measuredWidth, unit)
-            Log.d(javaClass.name, dailyTableCalc.toString())
+            //Log.d(javaClass.name, dailyTableCalc.toString())
             val palette = LocalPalette.current
             val canvasHeightDp = toDp(px = dailyTableCalc.canvasHeight)
 

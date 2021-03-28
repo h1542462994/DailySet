@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import mainViewModel
 import org.tty.dailyset.model.entity.User
+import org.tty.dailyset.model.transient.UserState
 
 @Composable
 fun users(): State<List<User>> {
@@ -20,5 +21,15 @@ fun currentUser(): State<User?> {
 
     return derivedStateOf {
         users.find { it.name == currentUserUid }
+    }
+}
+
+@Composable
+fun currentUserState(): State<UserState> {
+    val currentUser by currentUser()
+    val currentUserUid by currentUserUid()
+
+    return derivedStateOf {
+        UserState(currentUser, currentUserUid)
     }
 }
