@@ -1,15 +1,26 @@
 package org.tty.dailyset.data.scope
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.liveData
 import mainViewModel
 import org.tty.dailyset.model.entity.DailyCell
 import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
+import org.tty.dailyset.ui.utils.toWeekStart
+import java.time.LocalDate
+
+data class DailyTablePreviewState(
+    val startDate: LocalDate,
+    val weekDayNow: Int,
+    private val _weedDayCurrent: MutableState<Int>
+){
+    val weekDayCurrent by _weedDayCurrent
+    val setWeekDayCurrent: (Int) -> Unit = { value ->
+        _weedDayCurrent.value = value
+    }
+}
+
 
 /**
  * get all dailyTables in database.
@@ -44,3 +55,19 @@ fun groupDailyCells(list: List<DailyCell>): Map<Int, List<DailyCell>> {
     return list.groupBy { it.normalType }
 }
 
+@Composable
+fun dailyTablePreviewState(): DailyTablePreviewState {
+    // TODO: 2021/3/29 添加对时间的依赖
+    // TODO: 2021/3/29 当前仅支持周一开始，需要进行扩展
+    val current = LocalDate.now()
+    val start = current.toWeekStart()
+    val weekDayNow = current.dayOfWeek.value
+
+    return DailyTablePreviewState(
+        startDate = start,
+        weekDayNow = weekDayNow,
+        _weedDayCurrent = remember {
+            mutableStateOf(weekDayNow)
+        }
+    )
+}

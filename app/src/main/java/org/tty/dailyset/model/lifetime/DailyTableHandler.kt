@@ -1,4 +1,4 @@
-package org.tty.dailyset.model.transient
+package org.tty.dailyset.model.lifetime
 
 import org.tty.dailyset.model.entity.DailyTRC
 import java.time.LocalDate

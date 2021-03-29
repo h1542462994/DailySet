@@ -12,7 +12,8 @@ fun measuredWidthDp(): Dp {
 
 @Composable
 fun measuredWidth(): Float {
-    return LocalView.current.measuredWidth.toFloat()
+    return LocalView.current.measuredWidthAndState.toFloat()
+    //return LocalView.current.measuredWidth.toFloat()
 }
 
 @Composable

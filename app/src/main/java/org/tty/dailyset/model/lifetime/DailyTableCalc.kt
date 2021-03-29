@@ -1,11 +1,8 @@
-package org.tty.dailyset.model.transient
+package org.tty.dailyset.model.lifetime
 
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import org.tty.dailyset.model.entity.DailyTRC
 
 /**

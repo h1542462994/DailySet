@@ -1,6 +1,5 @@
 package org.tty.dailyset.ui.page
 
-import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -11,7 +10,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -21,7 +19,7 @@ import org.tty.dailyset.data.scope.currentDailyTable
 import org.tty.dailyset.data.scope.currentDailyTableDetail
 import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
-import org.tty.dailyset.model.transient.DailyTableCalc
+import org.tty.dailyset.model.lifetime.DailyTableCalc
 import org.tty.dailyset.ui.component.CenterBar
 import org.tty.dailyset.ui.theme.LocalPalette
 import org.tty.dailyset.ui.utils.*
@@ -37,7 +35,7 @@ fun DailyTablePreviewPage() {
     val currentDailyTable by currentDailyTable()
     // TODO: 2021/3/27 消除过于复杂的变量依赖
     @Suppress
-    val c: DailyTRC? = currentDailyTRC
+    val tempCurrentDailyTRC: DailyTRC? = currentDailyTRC
     val startDate = LocalDate.now().toWeekStart()
     val currentDate = LocalDate.now()
     val indexDiffNow = minus(currentDate, startDate).toInt()
@@ -56,8 +54,8 @@ fun DailyTablePreviewPage() {
         // TODO: 2021/3/26 去除硬编码 25.dp
         val unit = toPx(dp = 25.dp)
 
-        if (c != null) {
-            val dailyTableCalc = DailyTableCalc(c, measuredWidth, unit)
+        if (tempCurrentDailyTRC != null) {
+            val dailyTableCalc = DailyTableCalc(tempCurrentDailyTRC, measuredWidth, unit)
             //Log.d(javaClass.name, dailyTableCalc.toString())
             val palette = LocalPalette.current
             val canvasHeightDp = toDp(px = dailyTableCalc.canvasHeight)
@@ -128,7 +126,7 @@ fun DailyTablePreviewPage() {
 
                         }
 
-                        val currentDailyRC = c.dailyRCs.find { it.dailyRow.weekdays.contains(indexDiff + 1) }
+                        val currentDailyRC = tempCurrentDailyTRC.dailyRCs.find { it.dailyRow.weekdays.contains(indexDiff + 1) }
 
                         if (currentDailyRC != null) {
                             // FIXME: 2021/3/27 这将会在节数不一致时产生bug！

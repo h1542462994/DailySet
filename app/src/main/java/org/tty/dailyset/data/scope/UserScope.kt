@@ -7,7 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import mainViewModel
 import org.tty.dailyset.model.entity.User
-import org.tty.dailyset.model.transient.UserState
+import org.tty.dailyset.model.lifetime.UserState
 
 @Composable
 fun users(): State<List<User>> {
