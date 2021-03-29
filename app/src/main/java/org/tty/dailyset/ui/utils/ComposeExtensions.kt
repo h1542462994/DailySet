@@ -3,6 +3,7 @@ package org.tty.dailyset.ui.utils
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 
 @Composable
@@ -12,7 +13,7 @@ fun measuredWidthDp(): Dp {
 
 @Composable
 fun measuredWidth(): Float {
-    return LocalView.current.measuredWidthAndState.toFloat()
+    return LocalView.current.measuredWidth.toFloat()
     //return LocalView.current.measuredWidth.toFloat()
 }
 

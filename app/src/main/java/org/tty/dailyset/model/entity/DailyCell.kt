@@ -13,9 +13,21 @@ import java.sql.Timestamp
 data class DailyCell(
     @PrimaryKey
     var uid: String,
+    /**
+     * time duration .start
+     */
     var start: Time,
+    /**
+     * time duration .end
+     */
     var end: Time,
+    /**
+     * a.m. = 0; p.m. = 1; evening = 2
+     */
     var normalType: Int,
+    /**
+     * the index of the current group
+     */
     var serialIndex: Int,
     var dailyRowUid: String,
     var updateAt: Timestamp

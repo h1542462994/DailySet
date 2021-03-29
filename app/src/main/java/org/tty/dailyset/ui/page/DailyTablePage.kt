@@ -68,11 +68,16 @@ fun DailyTablePage() {
  * DailyTablePage .title / DailyTablePagePreview .title
  */
 @Composable
-fun DailyTableTitle(dailyTable: DailyTable, userState: UserState, isPreviewPage: Boolean = false, onClick: () -> Unit = {}) {
+fun DailyTableTitle(dailyTable: DailyTable, userState: UserState, isPreviewPage: Boolean = false, onClick: (() -> Unit)? = null) {
+    var modifier = Modifier
+        .wrapContentSize(align = Alignment.Center)
+
+    if (onClick != null){
+        modifier = modifier.clickable { onClick() }
+    }
+
     Column(
-        modifier = Modifier
-            .wrapContentSize(align = Alignment.Center)
-            .clickable(onClick = onClick)
+        modifier = modifier
     ) {
         Text(
             modifier = Modifier

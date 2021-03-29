@@ -3,6 +3,8 @@ package org.tty.dailyset.model.lifetime
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import org.tty.dailyset.model.entity.DailyCell
+import org.tty.dailyset.model.entity.DailyRC
 import org.tty.dailyset.model.entity.DailyTRC
 
 /**
@@ -35,12 +37,16 @@ class DailyTableCalc(val dailyTRC: DailyTRC, val measuredWidth: Float, val unit:
      * the count of horizontal lines to draw.
      */
     val drawCountHLine = counts.sum() + 3
-    val canvasHeight = cellHeight * counts.sum() + spaceHeight * 2
+    val canvasHeightBody = cellHeight * counts.sum() + spaceHeight * 2
     val canvasHeightHeader = unit * 1.5f
 
-    fun offsetsAndSizeBlockMenu(index: Int): Pair<Offset, Size> {
+    /**
+     * get the calculated draw property of the index of time duration, it will skip if current.sum < max.sum..
+     */
+    private fun offsetsAndSizeBlockMenu(indexOfTimeDuration: Int): Pair<Offset, Size> {
         //val noPaintIndexes = listOf(counts[0], counts[0] + counts[1] + 1)
-        var real = index;
+        assert(indexOfTimeDuration in 0 until counts.sum())
+        var real = indexOfTimeDuration;
         if (real >= counts[0] + counts[1]) {
             real += 2
         } else if (real >= counts[0]) {
@@ -52,10 +58,48 @@ class DailyTableCalc(val dailyTRC: DailyTRC, val measuredWidth: Float, val unit:
         return Pair(offset, size)
     }
 
+    private fun calcIndexOfTimeDuration(dailyCell: DailyCell): Int {
+        assert(dailyCell.normalType in 0..2)
+        if (dailyCell.normalType == 0){
+            return dailyCell.serialIndex
+        } else if (dailyCell.normalType == 1) {
+            return counts[0] + dailyCell.serialIndex
+        } else {
+            return counts[0] + counts[1] + dailyCell.serialIndex
+        }
+    }
+
+    fun offsetsAndSizeBlockMenu(dailyCell: DailyCell): Pair<Offset, Size> {
+        val indexOfTimeDuration = calcIndexOfTimeDuration(dailyCell)
+        return offsetsAndSizeBlockMenu(indexOfTimeDuration)
+    }
+
+    private fun calcCountsOfDailyRCAndNormalType(dailyRC: DailyRC, normalType: Int): Int {
+        return dailyRC.dailyCells.count { it.normalType == normalType }
+    }
+
+    private fun calcCountsOfDailyRC(dailyRC: DailyRC): List<Int> {
+        return (0..2).map { index ->
+            calcCountsOfDailyRCAndNormalType(dailyRC, index)
+        }
+    }
+
+    fun calcCurrentIndexOfDailyCell(dailyRC: DailyRC, dailyCell: DailyCell): Int {
+        assert(dailyCell.normalType in 0..2)
+        val counts = calcCountsOfDailyRC(dailyRC)
+        if (dailyCell.normalType == 0){
+            return dailyCell.serialIndex
+        } else if (dailyCell.normalType == 1) {
+            return counts[0] + dailyCell.serialIndex
+        } else {
+            return counts[0] + counts[1] + dailyCell.serialIndex
+        }
+    }
+
     /**
      * calc the offset.Y for the line.
      */
-     private fun offsetYHLine(index: Int): Float {
+    private fun offsetYHLine(index: Int): Float {
         return when {
             index <= noPaintIndexes[0] -> cellHeight * index
             index <= noPaintIndexes[1] -> cellHeight * index - (cellHeight - spaceHeight)
@@ -68,16 +112,18 @@ class DailyTableCalc(val dailyTRC: DailyTRC, val measuredWidth: Float, val unit:
     }
 
     fun offsetsHLine(index: Int): Pair<Offset, Offset> {
+        assert(index in 0 until drawCountHLine)
         return Pair(Offset(x = 0f, y = offsetYHLine(index)), Offset(x = measuredWidth, y = offsetYHLine(index)))
     }
 
     fun offsetsVLine(index: Int): Pair<Offset, Offset> {
-        return Pair(Offset(x = offsetXVLine(index), y = 0f), Offset(x = offsetXVLine(index), y = canvasHeight))
+        assert(index in 0 until cellColumnCount)
+        return Pair(Offset(x = offsetXVLine(index), y = 0f), Offset(x = offsetXVLine(index), y = canvasHeightBody))
     }
 
     fun offsetAndSizeBlock(index: Int): Pair<Offset, Size> {
         val topLeft = offsetsVLine(index).first
-        val size = Size(width = cellWidth, height = canvasHeight)
+        val size = Size(width = cellWidth, height = canvasHeightBody)
         return Pair(topLeft, size)
     }
 
@@ -90,9 +136,10 @@ class DailyTableCalc(val dailyTRC: DailyTRC, val measuredWidth: Float, val unit:
     /**
      * calc the vertical count of the cell by normalType
      */
-    private fun calcCountV(x: Int): Int {
+    private fun calcCountV(normalType: Int): Int {
+        assert(normalType in 0..2)
         return dailyTRC.dailyRCs.maxOf { dailyRC ->
-            dailyRC.dailyCells.count { it.normalType == x }
+            calcCountsOfDailyRCAndNormalType(dailyRC, normalType)
         }
     }
 
