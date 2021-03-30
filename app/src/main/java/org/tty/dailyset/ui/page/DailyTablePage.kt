@@ -21,12 +21,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.tty.dailyset.LocalNav
 import org.tty.dailyset.R
-import org.tty.dailyset.data.scope.*
-import org.tty.dailyset.model.entity.*
+import org.tty.dailyset.data.scope.DataScope
+import org.tty.dailyset.model.entity.DailyCell
+import org.tty.dailyset.model.entity.DailyRC
+import org.tty.dailyset.model.entity.DailyTRC
+import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.model.lifetime.UserState
 import org.tty.dailyset.ui.component.*
 import org.tty.dailyset.ui.theme.LocalPalette
-import org.tty.dailyset.ui.utils.*
+import org.tty.dailyset.ui.utils.toShortString
 
 /**
  * Manage DailyTable Settings
@@ -34,31 +37,38 @@ import org.tty.dailyset.ui.utils.*
 @Composable
 fun DailyTablePage() {
     // TODO: 2021/3/28 仅Page节点可以拥有状态参量，其他所有子构件为无状态。所有事件必须在根节点进行处理。
-    val dailyTableSummaries by dailyTableSummaries()
-    //val currentDailyTable by currentDailyTable()
-    val currentDailyTRC by currentDailyTableDetail()
+
+
     var dropDownOpen by remember { mutableStateOf(false) }
     val columnState = rememberLazyListState()
-    val currentUserState by currentUserState()
-    val tempCurrentDailyTRC: DailyTRC? = currentDailyTRC
 
-    if (tempCurrentDailyTRC != null) {
-        Column {
-            CenterBar(true, LocalNav.current.action.upPress) {
-                DailyTableTitle(dailyTable = tempCurrentDailyTRC.dailyTable, userState = currentUserState) {
-                    dropDownOpen = true
+
+    with(DataScope) {
+        val dailyTableSummaries by dailyTableSummaries()
+        //val currentDailyTable by currentDailyTable()
+        val currentDailyTRC by currentDailyTableDetail()
+        val weekDaySelectState = weekDaySelectState()
+        val currentUserState by currentUserState()
+        val tempCurrentDailyTRC: DailyTRC? = currentDailyTRC
+
+        if (tempCurrentDailyTRC != null) {
+            Column {
+                CenterBar(true, LocalNav.current.action.upPress) {
+                    DailyTableTitle(dailyTable = tempCurrentDailyTRC.dailyTable, userState = currentUserState) {
+                        dropDownOpen = true
+                    }
+                    DailyTableDropDown(
+                        dailyTableSummaries = dailyTableSummaries,
+                        userState = currentUserState,
+                        dropDownOpen = dropDownOpen,
+                        onDismissRequest = { dropDownOpen = false }) {
+                    }
                 }
-                DailyTableDropDown(
-                    dailyTableSummaries = dailyTableSummaries,
-                    userState = currentUserState,
-                    dropDownOpen = dropDownOpen,
-                    onDismissRequest = { dropDownOpen = false }) {
+                LazyColumn(state = columnState) {
+                    item {
+                        DailyTableContent(tempCurrentDailyTRC, userState = currentUserState)
+                    }
                 }
-            }
-            LazyColumn(state = columnState) {
-               item {
-                   DailyTableContent(tempCurrentDailyTRC, userState = currentUserState)
-               }
             }
         }
     }
@@ -212,19 +222,22 @@ fun DailyRCContent(dailyRC: DailyRC, index: Int) {
         ProfileMenuItem(title = "节数", next = true, content =
             dailyRow.counts.joinToString(" ")
         )
-        val groupedDailyCells = groupDailyCells(dailyRC.dailyCells)
 
-        TitleSpace(title = "上午")
-        groupedDailyCells[0]?.forEachIndexed { index, dailyCell ->
-            DailyCellContent(dailyCell = dailyCell, index = index)
-        }
-        TitleSpace(title = "下午")
-        groupedDailyCells[1]?.forEachIndexed { index, dailyCell ->
-            DailyCellContent(dailyCell = dailyCell, index = index)
-        }
-        TitleSpace(title = "晚上")
-        groupedDailyCells[2]?.forEachIndexed { index, dailyCell ->
-            DailyCellContent(dailyCell = dailyCell, index = index)
+        with(DataScope) {
+            val groupedDailyCells = groupDailyCells(dailyRC.dailyCells)
+
+            TitleSpace(title = "上午")
+            groupedDailyCells[0]?.forEachIndexed { index, dailyCell ->
+                DailyCellContent(dailyCell = dailyCell, index = index)
+            }
+            TitleSpace(title = "下午")
+            groupedDailyCells[1]?.forEachIndexed { index, dailyCell ->
+                DailyCellContent(dailyCell = dailyCell, index = index)
+            }
+            TitleSpace(title = "晚上")
+            groupedDailyCells[2]?.forEachIndexed { index, dailyCell ->
+                DailyCellContent(dailyCell = dailyCell, index = index)
+            }
         }
     }
 }

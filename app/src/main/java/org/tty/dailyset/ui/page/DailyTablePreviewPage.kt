@@ -15,16 +15,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.tty.dailyset.LocalNav
 import org.tty.dailyset.R
-import org.tty.dailyset.data.scope.*
+import org.tty.dailyset.data.scope.DataScope
 import org.tty.dailyset.model.entity.DailyCell
 import org.tty.dailyset.model.entity.DailyRC
 import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.model.lifetime.DailyTableCalc
+import org.tty.dailyset.model.lifetime.DailyTablePreviewState
 import org.tty.dailyset.ui.component.CenterBar
 import org.tty.dailyset.ui.theme.LocalPalette
 import org.tty.dailyset.ui.utils.*
-import java.sql.Time
 import java.time.LocalDate
 
 
@@ -33,43 +33,45 @@ import java.time.LocalDate
  */
 @Composable
 fun DailyTablePreviewPage() {
-    val currentDailyTRC by currentDailyTableDetail()
-    val currentDailyTable by currentDailyTable()
-    // TODO: 2021/3/26 去除硬编码 25.dp
-    val unit = toPx(dp = 25.dp)
-    val currentUserState by currentUserState()
-    // complex state
-    val dailyTablePreviewState = dailyTablePreviewState()
+    with(DataScope) {
+        val currentDailyTRC by currentDailyTableDetail()
+        val currentDailyTable by currentDailyTable()
+        // TODO: 2021/3/26 去除硬编码 25.dp
+        val unit = toPx(dp = 25.dp)
+        val currentUserState by currentUserState()
+        // complex state
+        val dailyTablePreviewState = dailyTablePreviewState()
 
-    @Suppress
-    val tempCurrentDailyTRC: DailyTRC? = currentDailyTRC
+        @Suppress
+        val tempCurrentDailyTRC: DailyTRC? = currentDailyTRC
 
-    // TODO: 2021/3/27 消除过于复杂的变量依赖
-    val startDate = LocalDate.now().toWeekStart()
-    val currentDate = LocalDate.now()
-    val indexDiffNow = minus(currentDate, startDate).toInt()
-    val (indexDiff, setIndexDiff) = remember {
-        mutableStateOf(indexDiffNow)
-    }
-
-
-    val measuredWidth = measuredWidth()
-    assert(measuredWidth > 0)
-
-    Column {
-        // must provide a placeholder, otherwise measuredWidth will return not correctly.
-        CenterBar(
-            useBack = true,
-            onBackPressed = LocalNav.current.action.upPress,
-            content = { DailyTableTitle(dailyTable = currentDailyTable, userState = currentUserState, isPreviewPage = true) }
-        )
+        // TODO: 2021/3/27 消除过于复杂的变量依赖
+        val startDate = LocalDate.now().toWeekStart()
+        val currentDate = LocalDate.now()
+        val indexDiffNow = minus(currentDate, startDate).toInt()
+        val (indexDiff, setIndexDiff) = remember {
+            mutableStateOf(indexDiffNow)
+        }
 
 
-        if (tempCurrentDailyTRC != null) {
-            val dailyTableCalc = DailyTableCalc(tempCurrentDailyTRC, measuredWidth, unit)
+        val measuredWidth = measuredWidth()
+        assert(measuredWidth > 0)
 
-            DailyTablePreviewHeader(dailyTableCalc = dailyTableCalc, dailyTablePreviewState = dailyTablePreviewState)
-            DailyTablePreviewBody(dailyTableCalc = dailyTableCalc, dailyTablePreviewState = dailyTablePreviewState)
+        Column {
+            // must provide a placeholder, otherwise measuredWidth will return not correctly.
+            CenterBar(
+                useBack = true,
+                onBackPressed = LocalNav.current.action.upPress,
+                content = { DailyTableTitle(dailyTable = currentDailyTable, userState = currentUserState, isPreviewPage = true) }
+            )
+
+
+            if (tempCurrentDailyTRC != null) {
+                val dailyTableCalc = DailyTableCalc(tempCurrentDailyTRC, measuredWidth, unit)
+
+                DailyTablePreviewHeader(dailyTableCalc = dailyTableCalc, dailyTablePreviewState = dailyTablePreviewState)
+                DailyTablePreviewBody(dailyTableCalc = dailyTableCalc, dailyTablePreviewState = dailyTablePreviewState)
+            }
         }
     }
 }
