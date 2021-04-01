@@ -1,13 +1,14 @@
 package org.tty.dailyset.ui.page
 
+import android.util.Log
+import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
@@ -19,6 +20,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import org.tty.dailyset.LocalNav
 import org.tty.dailyset.R
 import org.tty.dailyset.data.scope.DataScope
@@ -26,9 +29,11 @@ import org.tty.dailyset.model.entity.DailyCell
 import org.tty.dailyset.model.entity.DailyRC
 import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
+import org.tty.dailyset.model.lifetime.DailyTableCreateState
 import org.tty.dailyset.model.lifetime.UserState
 import org.tty.dailyset.ui.component.*
 import org.tty.dailyset.ui.theme.LocalPalette
+import org.tty.dailyset.ui.utils.measuredWidthDp
 import org.tty.dailyset.ui.utils.toShortString
 
 /**
@@ -50,6 +55,10 @@ fun DailyTablePage() {
         val weekDaySelectState = weekDaySelectState()
         val currentUserState by currentUserState()
         val tempCurrentDailyTRC: DailyTRC? = currentDailyTRC
+        val dailyTableCreateState = dailyTableCreateState(initialName = "") {
+            TODO("not yet implemented.")
+        }
+
 
         if (tempCurrentDailyTRC != null) {
             Column {
@@ -61,7 +70,14 @@ fun DailyTablePage() {
                         dailyTableSummaries = dailyTableSummaries,
                         userState = currentUserState,
                         dropDownOpen = dropDownOpen,
-                        onDismissRequest = { dropDownOpen = false }) {
+                        onDismissRequest = { dropDownOpen = false }) { dailyTable ->
+                        if (dailyTable == null) {
+                            // toggle create menu
+                            dailyTableCreateState.dialogOpen.value = true
+                        } else {
+                            Log.d("UI", "click dailyTable: ${dailyTable.name}")
+                        }
+                        dropDownOpen = false
                     }
                 }
                 LazyColumn(state = columnState) {
@@ -71,6 +87,8 @@ fun DailyTablePage() {
                 }
             }
         }
+
+        DailyTableCreateDialog(dailyTableCreateState = dailyTableCreateState)
     }
 }
 
@@ -252,3 +270,63 @@ fun DailyCellContent(dailyCell: DailyCell, index: Int) {
     )
 }
 
+/**
+ * DailyTablePage .title d .dialog<create>
+ */
+@Composable
+@Deprecated("there's bug on dismissing the Dialog.")
+fun DailyTableCreateDialog(dailyTableCreateState: DailyTableCreateState) {
+    val dialogOpen by dailyTableCreateState.dialogOpen
+
+    if (dialogOpen) {
+        AlertDialog(
+            modifier = Modifier
+                .padding(16.dp),
+            onDismissRequest = {},
+            //onDismissRequest = { dailyTableCreateState.dialogOpen.value = false },
+            buttons = {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                ) {
+                    Spacer(
+                        modifier = Modifier.weight(1f)
+                    )
+                    Button(
+                        modifier = Modifier.background(color = LocalPalette.current.background1),
+                        onClick = {
+
+                            dailyTableCreateState.dialogOpen.value = false
+                        }
+                    ){
+                        Text("取消")
+                    }
+                    Button(
+                        onClick = {  }) {
+                        Text("确认")
+                    }
+                }
+            },
+            title = {
+                Text("创建课程表")
+            },
+            text = {
+                Column(
+                ) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    TextField(
+                        enabled = dialogOpen,
+                        value = dailyTableCreateState.name.value,
+                        placeholder = {
+                            Text("课程名")
+                        },
+                        onValueChange = {
+                            dailyTableCreateState.name.value = it
+                        })
+                }
+
+            }
+        )
+
+    }
+
+}

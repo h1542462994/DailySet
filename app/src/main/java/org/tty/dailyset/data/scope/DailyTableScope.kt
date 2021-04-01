@@ -6,6 +6,7 @@ import androidx.lifecycle.liveData
 import org.tty.dailyset.model.entity.DailyCell
 import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
+import org.tty.dailyset.model.lifetime.DailyTableCreateState
 import org.tty.dailyset.model.lifetime.DailyTablePreviewState
 import org.tty.dailyset.ui.utils.toWeekStart
 import java.time.LocalDate
@@ -58,6 +59,15 @@ interface DailyTableScope: PreferenceScope  {
             _weedDayCurrent = remember {
                 mutableStateOf(weekDayNow)
             }
+        )
+    }
+
+    @Composable
+    fun dailyTableCreateState(initialName: String, dialogOpen: Boolean = false, onCreate: () -> Unit): DailyTableCreateState {
+        return DailyTableCreateState(
+            dialogOpen = mutableStateOf(remember { dialogOpen }),
+            name = mutableStateOf(remember { initialName }),
+            onCreate = onCreate
         )
     }
 

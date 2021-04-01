@@ -45,13 +45,6 @@ fun DailyTablePreviewPage() {
         @Suppress
         val tempCurrentDailyTRC: DailyTRC? = currentDailyTRC
 
-        // TODO: 2021/3/27 消除过于复杂的变量依赖
-        val startDate = LocalDate.now().toWeekStart()
-        val currentDate = LocalDate.now()
-        val indexDiffNow = minus(currentDate, startDate).toInt()
-        val (indexDiff, setIndexDiff) = remember {
-            mutableStateOf(indexDiffNow)
-        }
 
 
         val measuredWidth = measuredWidth()
@@ -150,6 +143,9 @@ fun DailyTablePreviewHeader(dailyTableCalc: DailyTableCalc, dailyTablePreviewSta
     }
 }
 
+/**
+ * DailyTablePreviewPage .body
+ */
 @Composable
 fun DailyTablePreviewBody(dailyTableCalc: DailyTableCalc, dailyTablePreviewState: DailyTablePreviewState) {
     val palette = LocalPalette.current
