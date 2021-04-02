@@ -1,13 +1,11 @@
 package org.tty.dailyset.ui.page
 
 import android.util.Log
-import android.view.MotionEvent
-import androidx.compose.foundation.*
-import androidx.compose.foundation.interaction.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -18,17 +16,10 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInteropFilter
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import org.tty.dailyset.LocalNav
 import org.tty.dailyset.R
 import org.tty.dailyset.data.scope.DataScope
@@ -40,7 +31,6 @@ import org.tty.dailyset.model.lifetime.DailyTableCreateState
 import org.tty.dailyset.model.lifetime.UserState
 import org.tty.dailyset.ui.component.*
 import org.tty.dailyset.ui.theme.LocalPalette
-import org.tty.dailyset.ui.utils.measuredWidthDp
 import org.tty.dailyset.ui.utils.toShortString
 
 /**
@@ -343,30 +333,30 @@ fun DailyTableCreateDialog(dailyTableCreateState: DailyTableCreateState) {
 
 @Composable
 fun DailyTableCreateDialogCover(dailyTableCreateState: DailyTableCreateState) {
-    var dialogOpen by dailyTableCreateState.dialogOpen
-    val interactionSource = remember {
-        MutableInteractionSource()
-    }
-    var text by remember {
-        mutableStateOf("text")
-    }
+    var name by dailyTableCreateState.name
 
-    if (dialogOpen) {
-        BoxWithConstraints(
+    NanoDialog(dialogState = dailyTableCreateState) {
+
+        OutlinedTextField(
             modifier = Modifier
-                .fillMaxSize()
-                .background(color = LocalPalette.current.backgroundTransparent)
-                .clickable(interactionSource = interactionSource, indication = null) {
-                    dialogOpen = false
-                }
-        ) {
-            Button(onClick = { dialogOpen = false }) {
-                TextField(value = text, onValueChange = {
-                    text = it
-                })
-                Text("关闭窗体")
+                .fillMaxWidth(),
+            label = { Text("时间表名称") },
+            value = name, onValueChange = {
+            name = it
+        })
+        Row {
+            Text("基于")
+            
+        }
+        Row(
+            modifier = Modifier.padding(vertical = 16.dp)
+        ){
+            Spacer(modifier = Modifier.weight(1f))
+            Button(
+                onClick = {  }) {
+                Text("创建")
             }
         }
     }
-
 }
+
