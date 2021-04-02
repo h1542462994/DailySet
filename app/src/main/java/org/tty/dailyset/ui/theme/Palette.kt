@@ -12,6 +12,7 @@ class Palette(
     background1: Color = Gray5,
     background2: Color = Gray95,
     backgroundColor: Color = Teal50,
+    backgroundTransparent: Color = BlackTransparent,
     textColor: Color = Gray80,
     textColorTitle: Color = Teal700,
     textColorDetail: Color = Gray50,
@@ -29,6 +30,9 @@ class Palette(
         internal set
 
     var backgroundColor by mutableStateOf(backgroundColor, structuralEqualityPolicy())
+        internal set
+
+    var backgroundTransparent by mutableStateOf(backgroundTransparent, structuralEqualityPolicy())
         internal set
 
     /**
@@ -53,6 +57,7 @@ class Palette(
         background1: Color = this.background1,
         background2: Color = this.background2,
         backgroundColor: Color = this.backgroundColor,
+        backgroundTransparent: Color = this.backgroundTransparent,
         textColor: Color = this.textColor,
         textColorTitle: Color = this.textColorTitle,
         textColorDetail: Color = this.textColorDetail,
@@ -60,6 +65,7 @@ class Palette(
         background1,
         background2,
         backgroundColor,
+        backgroundTransparent,
         textColor,
         textColorTitle,
         textColorDetail

@@ -1,13 +1,13 @@
 package org.tty.dailyset.ui.page
 
 import android.util.Log
-import androidx.compose.foundation.LocalIndication
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import android.view.MotionEvent
+import androidx.compose.foundation.*
+import androidx.compose.foundation.interaction.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -15,13 +15,20 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInteropFilter
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.tty.dailyset.LocalNav
 import org.tty.dailyset.R
 import org.tty.dailyset.data.scope.DataScope
@@ -88,7 +95,7 @@ fun DailyTablePage() {
             }
         }
 
-        DailyTableCreateDialog(dailyTableCreateState = dailyTableCreateState)
+        DailyTableCreateDialogCover(dailyTableCreateState = dailyTableCreateState)
     }
 }
 
@@ -277,6 +284,7 @@ fun DailyCellContent(dailyCell: DailyCell, index: Int) {
 @Deprecated("there's bug on dismissing the Dialog.")
 fun DailyTableCreateDialog(dailyTableCreateState: DailyTableCreateState) {
     val dialogOpen by dailyTableCreateState.dialogOpen
+    val focusRequester = remember { FocusRequester() }
 
     if (dialogOpen) {
         AlertDialog(
@@ -294,8 +302,9 @@ fun DailyTableCreateDialog(dailyTableCreateState: DailyTableCreateState) {
                     Button(
                         modifier = Modifier.background(color = LocalPalette.current.background1),
                         onClick = {
+                            focusRequester.captureFocus()
+                            focusRequester.freeFocus()
 
-                            dailyTableCreateState.dialogOpen.value = false
                         }
                     ){
                         Text("取消")
@@ -314,7 +323,7 @@ fun DailyTableCreateDialog(dailyTableCreateState: DailyTableCreateState) {
                 ) {
                     Spacer(modifier = Modifier.height(16.dp))
                     TextField(
-                        enabled = dialogOpen,
+                        modifier = Modifier.focusRequester(focusRequester),
                         value = dailyTableCreateState.name.value,
                         placeholder = {
                             Text("课程名")
@@ -327,6 +336,37 @@ fun DailyTableCreateDialog(dailyTableCreateState: DailyTableCreateState) {
             }
         )
 
+    }
+
+
+}
+
+@Composable
+fun DailyTableCreateDialogCover(dailyTableCreateState: DailyTableCreateState) {
+    var dialogOpen by dailyTableCreateState.dialogOpen
+    val interactionSource = remember {
+        MutableInteractionSource()
+    }
+    var text by remember {
+        mutableStateOf("text")
+    }
+
+    if (dialogOpen) {
+        BoxWithConstraints(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = LocalPalette.current.backgroundTransparent)
+                .clickable(interactionSource = interactionSource, indication = null) {
+                    dialogOpen = false
+                }
+        ) {
+            Button(onClick = { dialogOpen = false }) {
+                TextField(value = text, onValueChange = {
+                    text = it
+                })
+                Text("关闭窗体")
+            }
+        }
     }
 
 }
