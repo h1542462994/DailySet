@@ -3,8 +3,10 @@ package org.tty.dailyset.ui.utils
 import android.os.Build
 import androidx.annotation.RequiresApi
 import java.sql.Time
+import java.sql.Timestamp
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 fun Time.toShortString(): String {
     return this.toString().substring(0,5)
@@ -39,4 +41,9 @@ fun LocalDate.toShortDateString(): String {
 
 fun minus(end: LocalDate, start: LocalDate): Long {
     return end.toEpochDay() - start.toEpochDay()
+}
+
+fun localTimestampNow(): Timestamp {
+    val current = LocalDateTime.now()
+    return Timestamp(current.nano.toLong() * 1000)
 }

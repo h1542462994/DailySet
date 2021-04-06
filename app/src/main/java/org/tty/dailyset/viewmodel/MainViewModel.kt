@@ -9,7 +9,9 @@ import org.tty.dailyset.model.entity.Preference
 import org.tty.dailyset.model.entity.User
 import org.tty.dailyset.ui.page.MainPageTabs
 
-class MainViewModel(private val service: DailySetApplication): ViewModel() {
+class MainViewModel(val service: DailySetApplication): ViewModel() {
+
+
 
     /**
      * init the viewModel

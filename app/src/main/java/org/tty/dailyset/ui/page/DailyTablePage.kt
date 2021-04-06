@@ -20,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.tty.dailyset.DailySetApplication
 import org.tty.dailyset.LocalNav
 import org.tty.dailyset.R
 import org.tty.dailyset.data.scope.DataScope
@@ -55,6 +56,7 @@ fun DailyTablePage() {
         val dailyTableCreateState = dailyTableCreateState(initialName = "") {
             TODO("not yet implemented.")
         }
+        val mainViewModel = mainViewModel()
 
 
         if (tempCurrentDailyTRC != null) {
@@ -72,7 +74,7 @@ fun DailyTablePage() {
                             // toggle create menu
                             dailyTableCreateState.dialogOpen.value = true
                         } else {
-                            Log.d("UI", "click dailyTable: ${dailyTable.name}")
+                            mainViewModel.currentDailyTableUid.value = dailyTable.uid
                         }
                         dropDownOpen = false
                     }
@@ -85,7 +87,7 @@ fun DailyTablePage() {
             }
         }
 
-        DailyTableCreateDialogCover(dailyTableCreateState = dailyTableCreateState)
+        DailyTableCreateDialogCover(dailyTableCreateState = dailyTableCreateState, userState = currentUserState, service = mainViewModel().service)
     }
 }
 
@@ -172,20 +174,21 @@ fun DailyTableDropDown(dailyTableSummaries: List<DailyTable>, userState: UserSta
                 DailyTableTitleDescription(dailyTable = dailyTable, userState = userState, color = LocalPalette.current.textColor)
             }
 
-            DropdownMenuItem(onClick = { onClick(null) }) {
-                Row(
-                    modifier = Modifier
-                        .wrapContentSize(align = Alignment.Center)
-                ) {
-                    Icon(
-                        modifier = Modifier.scale(0.8f),
-                        imageVector = Icons.Filled.Add, contentDescription = null, tint = LocalPalette.current.textColor
-                    )
-                    Text(
-                        modifier = Modifier.align(alignment = Alignment.CenterVertically),
-                        text = stringResource(R.string.time_table_add), color = LocalPalette.current.textColor
-                    )
-                }
+
+        }
+        DropdownMenuItem(onClick = { onClick(null) }) {
+            Row(
+                modifier = Modifier
+                    .wrapContentSize(align = Alignment.Center)
+            ) {
+                Icon(
+                    modifier = Modifier.scale(0.8f),
+                    imageVector = Icons.Filled.Add, contentDescription = null, tint = LocalPalette.current.textColor
+                )
+                Text(
+                    modifier = Modifier.align(alignment = Alignment.CenterVertically),
+                    text = stringResource(R.string.time_table_add), color = LocalPalette.current.textColor
+                )
             }
         }
     }
@@ -332,8 +335,13 @@ fun DailyTableCreateDialog(dailyTableCreateState: DailyTableCreateState) {
 }
 
 @Composable
-fun DailyTableCreateDialogCover(dailyTableCreateState: DailyTableCreateState) {
+fun DailyTableCreateDialogCover(dailyTableCreateState: DailyTableCreateState, userState: UserState, service: DailySetApplication) {
     var name by dailyTableCreateState.name
+    val dailyTableSummaries by dailyTableCreateState.dailyTableSummaries
+    var currentDailyTable by dailyTableCreateState.currentDailyTable
+    val isValid by derivedStateOf {
+        name.isNotEmpty() && name.length in 2..20
+    }
 
     NanoDialog(dialogState = dailyTableCreateState) {
 
@@ -342,21 +350,32 @@ fun DailyTableCreateDialogCover(dailyTableCreateState: DailyTableCreateState) {
                 .fillMaxWidth(),
             label = { Text("时间表名称") },
             value = name, onValueChange = {
-            name = it
-        })
+                name = it
+            })
+        Spacer(modifier = Modifier.height(16.dp))
         Row {
-            Text("基于")
-            
+            ComboBox(title = "基于..创建", data = dailyTableSummaries, onSelected = { currentDailyTable = it }) {
+                DailyTableTitleDescription(dailyTable = it, userState = userState, color = LocalPalette.current.textColor)
+
+            }
         }
         Row(
-            modifier = Modifier.padding(vertical = 16.dp)
+            modifier = Modifier.padding(vertical = 16.dp),
         ){
             Spacer(modifier = Modifier.weight(1f))
             Button(
-                onClick = {  }) {
+                enabled = isValid,
+                onClick = {
+                    with(DataScope) {
+                        dailyTableCreateFromTemplate(service = service, currentUserUid = userState.currentUserUid, name = name, cloneFrom = currentDailyTable) {
+                            // TODO: 2021/4/6 添加成功的操作
+                        }
+                    }
+                }) {
                 Text("创建")
             }
         }
     }
+
 }
 

@@ -1,15 +1,21 @@
 package org.tty.dailyset.data.scope
 
+import android.annotation.SuppressLint
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.liveData
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import org.tty.dailyset.DailySetApplication
 import org.tty.dailyset.model.entity.DailyCell
 import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.model.lifetime.DailyTableCreateState
 import org.tty.dailyset.model.lifetime.DailyTablePreviewState
 import org.tty.dailyset.ui.utils.toWeekStart
+import org.tty.dailyset.viewmodel.MainViewModel
 import java.time.LocalDate
+import java.util.*
 
 @Immutable
 interface DailyTableScope: PreferenceScope  {
@@ -64,11 +70,27 @@ interface DailyTableScope: PreferenceScope  {
 
     @Composable
     fun dailyTableCreateState(initialName: String, dialogOpen: Boolean = false, onCreate: () -> Unit): DailyTableCreateState {
+        val currentDailyTable = currentDailyTable().value
+
         return DailyTableCreateState(
             dialogOpen = mutableStateOf(remember { dialogOpen }),
             name = mutableStateOf(remember { initialName }),
+            dailyTableSummaries = dailyTableSummaries(),
+            currentDailyTable = remember {
+                mutableStateOf(currentDailyTable)
+            },
             onCreate = onCreate
         )
+    }
+
+    fun dailyTableCreateFromTemplate(service: DailySetApplication, currentUserUid: String, name: String, cloneFrom: DailyTable, uid: String? = null, onCompletion: () -> Unit){
+        val realUid: String = uid ?: UUID.randomUUID().toString()
+        val job = GlobalScope.launch {
+           service.dailyTableRepository.createFromTemplate(name, cloneFrom, realUid, referenceUid = currentUserUid)
+        }
+        job.invokeOnCompletion {
+            onCompletion()
+        }
     }
 
     fun groupDailyCells(list: List<DailyCell>): Map<Int, List<DailyCell>> {
