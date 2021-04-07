@@ -30,6 +30,7 @@ import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.model.lifetime.DailyTableCreateState
 import org.tty.dailyset.model.lifetime.UserState
+import org.tty.dailyset.model.lifetime.WeekDayState
 import org.tty.dailyset.ui.component.*
 import org.tty.dailyset.ui.theme.LocalPalette
 import org.tty.dailyset.ui.utils.toShortString
@@ -50,13 +51,13 @@ fun DailyTablePage() {
         val dailyTableSummaries by dailyTableSummaries()
         //val currentDailyTable by currentDailyTable()
         val currentDailyTRC by currentDailyTableDetail()
-        val weekDaySelectState = weekDaySelectState()
         val currentUserState by currentUserState()
         val tempCurrentDailyTRC: DailyTRC? = currentDailyTRC
         val dailyTableCreateState = dailyTableCreateState(initialName = "") {
             TODO("not yet implemented.")
         }
         val mainViewModel = mainViewModel()
+        val service = mainViewModel().service
 
 
         if (tempCurrentDailyTRC != null) {
@@ -74,6 +75,7 @@ fun DailyTablePage() {
                             // toggle create menu
                             dailyTableCreateState.dialogOpen.value = true
                         } else {
+                            // TODO: 2021/4/7 优化代码
                             mainViewModel.currentDailyTableUid.value = dailyTable.uid
                         }
                         dropDownOpen = false
@@ -87,7 +89,7 @@ fun DailyTablePage() {
             }
         }
 
-        DailyTableCreateDialogCover(dailyTableCreateState = dailyTableCreateState, userState = currentUserState, service = mainViewModel().service)
+        DailyTableCreateDialogCover(dailyTableCreateState = dailyTableCreateState, userState = currentUserState, service = service)
     }
 }
 
@@ -205,9 +207,13 @@ fun DailyTableContent(currentDailyTRC: DailyTRC, userState: UserState) {
     "点击以进行预览", onClick = LocalNav.current.action.toTimeTablePreview
     )
 
-    currentDailyTRC.dailyRCs.forEachIndexed { index, item ->
-        DailyRCContent(dailyRC = item, index = index)
+    with(DataScope) {
+        currentDailyTRC.dailyRCs.forEachIndexed { index, item ->
+            DailyRCContent(dailyRC = item, index = index, weekDayStateList = calcWeekDayState(dailyTRC = currentDailyTRC, index = index))
+        }
     }
+
+
 }
 
 /**
@@ -226,16 +232,12 @@ fun DailyTableTipBox(dailyTable: DailyTable, userState: UserState) {
  * DailyTablePage .content.RC
  */
 @Composable
-fun DailyRCContent(dailyRC: DailyRC, index: Int) {
+fun DailyRCContent(dailyRC: DailyRC, index: Int, weekDayStateList: List<WeekDayState>) {
     val dailyRow = dailyRC.dailyRow
     ProfileMenuGroup(title = "组${index + 1}") {
         ProfileMenuItem(title = "适用星期", next = false, content = {
             // TODO: 2021/3/28 完善该功能
-            Badge(
-                borderColor = LocalPalette.current.background2,
-                background = LocalPalette.current.background1,
-                text = "1"
-            )
+            DailyRCContentWeekDay(weekDayStateList = weekDayStateList)
         })
         ProfileMenuItem(title = "节数", next = true, content =
             dailyRow.counts.joinToString(" ")
@@ -258,6 +260,28 @@ fun DailyRCContent(dailyRC: DailyRC, index: Int) {
             }
         }
     }
+}
+
+/**
+ * DailyTablePage .content.RC.weekDay
+ */
+@Composable
+fun DailyRCContentWeekDay(weekDayStateList: List<WeekDayState>) {
+    Row(
+
+    ) {
+        weekDayStateList.forEachIndexed { index,weekDayState ->
+            Spacer(
+                modifier = Modifier.width(4.dp)
+            )
+            if (weekDayState.checked) {
+                Badge(borderColor = LocalPalette.current.backgroundColor, background = MaterialTheme.colors.primary, text = "$index")
+            } else {
+                Badge(borderColor = LocalPalette.current.background1, background = LocalPalette.current.background1, text = "$index")
+            }
+        }
+    }
+
 }
 
 /**

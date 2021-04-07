@@ -3,6 +3,7 @@ package org.tty.dailyset.data.scope
 import android.annotation.SuppressLint
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.liveData
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -12,10 +13,13 @@ import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.model.lifetime.DailyTableCreateState
 import org.tty.dailyset.model.lifetime.DailyTablePreviewState
+import org.tty.dailyset.model.lifetime.DailyTableState
+import org.tty.dailyset.model.lifetime.WeekDayState
 import org.tty.dailyset.ui.utils.toWeekStart
 import org.tty.dailyset.viewmodel.MainViewModel
 import java.time.LocalDate
 import java.util.*
+import kotlin.collections.ArrayList
 
 @Immutable
 interface DailyTableScope: PreferenceScope  {
@@ -46,6 +50,24 @@ interface DailyTableScope: PreferenceScope  {
         val mainViewModel = mainViewModel()
         val trcLiveData by mainViewModel.currentDailyTRC.observeAsState(liveData { })
         return trcLiveData.observeAsState()
+    }
+
+    /**
+     * return the snapshot of the current weekDayState
+     */
+    fun calcWeekDayState(dailyTRC: DailyTRC, index: Int): List<WeekDayState> {
+        val dailyRowCount = dailyTRC.dailyRCs.count()
+        val currentWeekDays = dailyTRC.dailyRCs[index].dailyRow.weekdays
+        val list = ArrayList<WeekDayState>()
+        // TODO: 2021/4/7 完成复杂的实现。
+        (1 .. 7).forEach { _index ->
+            if (currentWeekDays.contains(_index)){
+                list.add(WeekDayState(readOnly = false, checked = true))
+            } else {
+                list.add(WeekDayState(readOnly = false, checked = false))
+            }
+        }
+        return list;
     }
 
     @Composable
@@ -92,6 +114,8 @@ interface DailyTableScope: PreferenceScope  {
             onCompletion()
         }
     }
+
+
 
     fun groupDailyCells(list: List<DailyCell>): Map<Int, List<DailyCell>> {
         return list.groupBy { it.normalType }
