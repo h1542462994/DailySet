@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.Color
 class Palette(
     background1: Color = Gray5,
     background2: Color = Gray95,
+    background3: Color = Teal300,
     backgroundColor: Color = Teal50,
     backgroundTransparent: Color = BlackTransparent,
     textColor: Color = Gray80,
@@ -27,6 +28,9 @@ class Palette(
      * background Level 2 Color
      */
     var background2 by mutableStateOf(background2, structuralEqualityPolicy())
+        internal set
+
+    var background3 by mutableStateOf(background3, structuralEqualityPolicy())
         internal set
 
     var backgroundColor by mutableStateOf(backgroundColor, structuralEqualityPolicy())
@@ -56,6 +60,7 @@ class Palette(
     fun copy(
         background1: Color = this.background1,
         background2: Color = this.background2,
+        background3: Color = this.background3,
         backgroundColor: Color = this.backgroundColor,
         backgroundTransparent: Color = this.backgroundTransparent,
         textColor: Color = this.textColor,
@@ -64,6 +69,7 @@ class Palette(
     ) : Palette = Palette(
         background1,
         background2,
+        background3,
         backgroundColor,
         backgroundTransparent,
         textColor,

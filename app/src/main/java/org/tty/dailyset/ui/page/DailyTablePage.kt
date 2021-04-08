@@ -34,6 +34,7 @@ import org.tty.dailyset.model.lifetime.WeekDayState
 import org.tty.dailyset.ui.component.*
 import org.tty.dailyset.ui.theme.LocalPalette
 import org.tty.dailyset.ui.utils.toShortString
+import org.tty.dailyset.ui.utils.toWeekDayString
 
 /**
  * Manage DailyTable Settings
@@ -267,6 +268,7 @@ fun DailyRCContent(dailyRC: DailyRC, index: Int, weekDayStateList: List<WeekDayS
  */
 @Composable
 fun DailyRCContentWeekDay(weekDayStateList: List<WeekDayState>) {
+    // TODO: 2021/4/7 修改样式
     Row(
 
     ) {
@@ -274,10 +276,8 @@ fun DailyRCContentWeekDay(weekDayStateList: List<WeekDayState>) {
             Spacer(
                 modifier = Modifier.width(4.dp)
             )
-            if (weekDayState.checked) {
-                Badge(borderColor = LocalPalette.current.backgroundColor, background = MaterialTheme.colors.primary, text = "$index")
-            } else {
-                Badge(borderColor = LocalPalette.current.background1, background = LocalPalette.current.background1, text = "$index")
+            Badge(readOnly = true, checked = weekDayState.checked, text = index.toWeekDayString().substring(1)) {
+
             }
         }
     }
