@@ -28,9 +28,7 @@ import org.tty.dailyset.model.entity.DailyCell
 import org.tty.dailyset.model.entity.DailyRC
 import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
-import org.tty.dailyset.model.lifetime.DailyTableCreateState
-import org.tty.dailyset.model.lifetime.UserState
-import org.tty.dailyset.model.lifetime.WeekDayState
+import org.tty.dailyset.model.lifetime.*
 import org.tty.dailyset.ui.component.*
 import org.tty.dailyset.ui.theme.LocalPalette
 import org.tty.dailyset.ui.utils.toShortString
@@ -60,8 +58,10 @@ fun DailyTablePage() {
         val mainViewModel = mainViewModel()
         val service = mainViewModel().service
 
-
         if (tempCurrentDailyTRC != null) {
+            val dailyTableReadOnly = dailyTableReadOnly(tempCurrentDailyTRC.dailyTable, currentUserState)
+            val dailyTableState = calcDailyTableState(dailyTRC = tempCurrentDailyTRC, readOnly = dailyTableReadOnly)
+
             Column {
                 CenterBar(true, LocalNav.current.action.upPress) {
                     DailyTableTitle(dailyTable = tempCurrentDailyTRC.dailyTable, userState = currentUserState) {
@@ -84,13 +84,15 @@ fun DailyTablePage() {
                 }
                 LazyColumn(state = columnState) {
                     item {
-                        DailyTableContent(tempCurrentDailyTRC, userState = currentUserState)
+                        DailyTableContent(dailyTableState = dailyTableState, userState = currentUserState)
                     }
                 }
             }
+            DailyTableAddRowDialogCover(dailyTableAddRowState = dailyTableState.addRowState, service = service)
         }
 
         DailyTableCreateDialogCover(dailyTableCreateState = dailyTableCreateState, userState = currentUserState, service = service)
+
     }
 }
 
@@ -201,24 +203,35 @@ fun DailyTableDropDown(dailyTableSummaries: List<DailyTable>, userState: UserSta
  * DailyTablePage .content
  */
 @Composable
-fun DailyTableContent(currentDailyTRC: DailyTRC, userState: UserState) {
-    DailyTableTipBox(dailyTable = currentDailyTRC.dailyTable, userState = userState)
+fun DailyTableContent(dailyTableState: DailyTableState, userState: UserState) {
+    DailyTableTipBox(dailyTable = dailyTableState.dailyTRC.dailyTable, userState = userState)
 
     ProfileMenuItem(icon = Icons.Filled.Place, title = "预览", next = true, content =
     "点击以进行预览", onClick = LocalNav.current.action.toTimeTablePreview
     )
 
-    with(DataScope) {
-        val dailyTableReadOnly = dailyTableReadOnly(currentDailyTRC.dailyTable, userState)
-        val dailyTableState = calcDailyTableState(dailyTRC = currentDailyTRC, readOnly = dailyTableReadOnly)
-
-        dailyTableState.dailyTableRowStateList.forEachIndexed { index, item ->
-            DailyRCContent(dailyRC = item.dailyRC, index = index, weekDayStateList = item.weekDays)
-        }
-
+    dailyTableState.dailyTableRowStateList.forEachIndexed { index, item ->
+        DailyRCContent(dailyRC = item.dailyRC, index = index, weekDayStateList = item.weekDays)
     }
 
+    DailyTableAddRowButton(dailyTableState = dailyTableState)
+}
 
+/**
+ * DailyTablePage .content .button<add_row>
+ */
+@Composable
+fun DailyTableAddRowButton(dailyTableState: DailyTableState) {
+    if (!dailyTableState.readOnly) {
+        Button(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp, 4.dp),
+            enabled = dailyTableState.canAddRow,
+            onClick = { dailyTableState.addRowState.dialogOpen.value = true }) {
+           Text(text = "添加组")
+        }
+    }
 }
 
 /**
@@ -299,7 +312,7 @@ fun DailyCellContent(dailyCell: DailyCell, index: Int) {
 }
 
 /**
- * DailyTablePage .title d .dialog<create>
+ * DailyTablePage .title d .dialog<create> version = 1
  */
 @Composable
 @Deprecated("there's bug on dismissing the Dialog.")
@@ -362,6 +375,9 @@ fun DailyTableCreateDialog(dailyTableCreateState: DailyTableCreateState) {
 
 }
 
+/**
+ * DailyTablePage .title d .dialog<create> version = 2
+ */
 @Composable
 fun DailyTableCreateDialogCover(dailyTableCreateState: DailyTableCreateState, userState: UserState, service: DailySetApplication) {
     var name by dailyTableCreateState.name
@@ -407,3 +423,12 @@ fun DailyTableCreateDialogCover(dailyTableCreateState: DailyTableCreateState, us
 
 }
 
+/**
+ * DailyTablePage .content .dialog<add_row> version = 1
+ */
+@Composable
+fun DailyTableAddRowDialogCover(dailyTableAddRowState: DailyTableAddRowState, service: DailySetApplication) {
+    NanoDialog(dialogState = dailyTableAddRowState) {
+        Text("hello world")
+    }
+}

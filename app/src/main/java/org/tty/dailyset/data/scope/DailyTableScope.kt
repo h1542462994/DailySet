@@ -2,6 +2,7 @@ package org.tty.dailyset.data.scope
 
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.liveData
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -70,7 +71,7 @@ interface DailyTableScope: PreferenceScope  {
         }
 
 
-        val dailyTableState = DailyTableState(dailyTRC = dailyTRC, readOnly = readOnly)
+        val dailyTableState = DailyTableState(dailyTRC = dailyTRC, readOnly = readOnly, false)
         if (readOnly) {
             dailyTableState.dailyTableRowStateList.forEach { dailyTableRowState ->
                 dailyTableRowState.weekDays = intArrayToReadOnlyState(dailyTableRowState.dailyRC.dailyRow.weekdays)
@@ -83,10 +84,23 @@ interface DailyTableScope: PreferenceScope  {
                 // if the weekDay has only one option, it's will be recorded.
                 if (current.dailyRC.dailyRow.weekdays.size > 1) {
                     mutableRecordList.addAll(current.dailyRC.dailyRow.weekdays.toList())
+                    // if the last has several options, it can add row from it.
+                    if (i == length - 1) {
+                        dailyTableState.canAddRow = true
+                    }
                 }
                 if (i == length - 1) {
                     // last is readOnly
                     current.weekDays = intArrayToReadOnlyState(current.dailyRC.dailyRow.weekdays)
+                    dailyTableState.addRowState = DailyTableAddRowState(mutableStateOf(false))
+                    dailyTableState.lastState.addAll((1..7).map {
+                        if (current.dailyRC.dailyRow.weekdays.contains(it)) {
+                            WeekDayState(readOnly = false, checked = false)
+                        } else {
+                            WeekDayState(readOnly = true, checked = false)
+                        }
+                    })
+
                 } else {
                     current.weekDays = intArrayToMutableState(current.dailyRC.dailyRow.weekdays, mutableRecordList)
                 }
@@ -96,29 +110,25 @@ interface DailyTableScope: PreferenceScope  {
         return dailyTableState
     }
 
+
     /**
      * return the snapshot of the current weekDayState
      */
     @Deprecated("use dailyTableState instead.")
-    fun calcWeekDayState(dailyTRC: DailyTRC, readOnly: Boolean): List<WeekDayState> {
-//        val dailyRowCount = dailyTRC.dailyRCs.count()
-//        val currentWeekDays = dailyTRC.dailyRCs[index].dailyRow.weekdays
-//        val list = ArrayList<WeekDayState>()
-//        if (readOnly) {
-//
-//        }
-//
-//
-//        // TODO: 2021/4/7 完成复杂的实现。
-//        (1 .. 7).forEach { _index ->
-//            if (currentWeekDays.contains(_index)){
-//                list.add(WeekDayState(readOnly = false, checked = true))
-//            } else {
-//                list.add(WeekDayState(readOnly = false, checked = false))
-//            }
-//        }
-//        return list
-        return listOf()
+    fun calcWeekDayState(dailyTRC: DailyTRC, index: Int, readOnly: Boolean): List<WeekDayState> {
+        val dailyRowCount = dailyTRC.dailyRCs.count()
+        val currentWeekDays = dailyTRC.dailyRCs[index].dailyRow.weekdays
+        val list = ArrayList<WeekDayState>()
+
+        // TODO: 2021/4/7 完成复杂的实现。
+        (1 .. 7).forEach { _index ->
+            if (currentWeekDays.contains(_index)){
+                list.add(WeekDayState(readOnly = false, checked = true))
+            } else {
+                list.add(WeekDayState(readOnly = false, checked = false))
+            }
+        }
+        return list
     }
 
     @Composable
