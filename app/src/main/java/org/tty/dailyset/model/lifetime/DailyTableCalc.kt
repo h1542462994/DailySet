@@ -8,7 +8,10 @@ import org.tty.dailyset.model.entity.DailyRC
 import org.tty.dailyset.model.entity.DailyTRC
 
 /**
- * provide calculate properties for dailyTable, especially for draw.
+ * provide calculate properties and measurements for dailyTable, especially for draw.
+ * @param dailyTRC the reference data emitting.
+ * @param measuredWidth the canvas width by pixel.
+ * @param unit the unit of the measurement by pixel.
  */
 @Immutable
 class DailyTableCalc(val dailyTRC: DailyTRC, val measuredWidth: Float, val unit: Float) {
@@ -17,20 +20,34 @@ class DailyTableCalc(val dailyTRC: DailyTRC, val measuredWidth: Float, val unit:
      */
     val cellColumnCount = 7
 
-
     /**
-     * the first column's width of the table
+     * the first column width of the table
      */
     val menuWidth = unit * 1.8f
 
+    /**
+     * the cell width
+     */
     val cellWidth = (measuredWidth - menuWidth) / cellColumnCount
+
+    /**
+     * the cell height
+     */
     val cellHeight = unit * 2.5f
+
+    /**
+     * the space height between am, pm and evening.
+     */
     val spaceHeight = unit
 
     /**
      * counts for am, pm and evening.
      */
     val counts = listOf(calcCountV(0), calcCountV(1), calcCountV(2))
+
+    /**
+     * no painting area for time duration text.
+     */
     val noPaintIndexes = listOf(counts[0], counts[0] + counts[1] + 1)
 
     /**
@@ -42,6 +59,7 @@ class DailyTableCalc(val dailyTRC: DailyTRC, val measuredWidth: Float, val unit:
 
     /**
      * get the calculated draw property of the index of time duration, it will skip if current.sum < max.sum..
+     * @param indexOfTimeDuration the index of the time duration.
      */
     private fun offsetsAndSizeBlockMenu(indexOfTimeDuration: Int): Pair<Offset, Size> {
         //val noPaintIndexes = listOf(counts[0], counts[0] + counts[1] + 1)
@@ -58,6 +76,10 @@ class DailyTableCalc(val dailyTRC: DailyTRC, val measuredWidth: Float, val unit:
         return Pair(offset, size)
     }
 
+    /**
+     * translate the dailyCell to the index of the row.
+     * @param dailyCell which dailyCell
+     */
     private fun calcIndexOfTimeDuration(dailyCell: DailyCell): Int {
         assert(dailyCell.normalType in 0..2)
         if (dailyCell.normalType == 0){
@@ -69,6 +91,9 @@ class DailyTableCalc(val dailyTRC: DailyTRC, val measuredWidth: Float, val unit:
         }
     }
 
+    /**
+     * return rectangle of the menu by dailyCell
+     */
     fun offsetsAndSizeBlockMenu(dailyCell: DailyCell): Pair<Offset, Size> {
         val indexOfTimeDuration = calcIndexOfTimeDuration(dailyCell)
         return offsetsAndSizeBlockMenu(indexOfTimeDuration)
@@ -97,7 +122,7 @@ class DailyTableCalc(val dailyTRC: DailyTRC, val measuredWidth: Float, val unit:
     }
 
     /**
-     * calc the offset.Y for the line.
+     * calc the offset.Y for the horizontal line.
      */
     private fun offsetYHLine(index: Int): Float {
         return when {
@@ -107,25 +132,39 @@ class DailyTableCalc(val dailyTRC: DailyTRC, val measuredWidth: Float, val unit:
         }
     }
 
+    /**
+     * calc the offset.X for the vertical line
+     * @param index column index, means equal to weekDayCurrent
+     */
     private fun offsetXVLine(index: Int): Float {
         return menuWidth + index * cellWidth
     }
 
+    /**
+     * calc the offset begin point and end point for the horizontal line.
+     */
     fun offsetsHLine(index: Int): Pair<Offset, Offset> {
         assert(index in 0 until drawCountHLine)
         return Pair(Offset(x = 0f, y = offsetYHLine(index)), Offset(x = measuredWidth, y = offsetYHLine(index)))
     }
 
+    /**
+     * calc the offset begin point and end point for the vertical line.
+     */
     fun offsetsVLine(index: Int): Pair<Offset, Offset> {
         assert(index in 0 until cellColumnCount)
         return Pair(Offset(x = offsetXVLine(index), y = 0f), Offset(x = offsetXVLine(index), y = canvasHeightBody))
     }
 
+    /**
+     * rectangle of the background in body area.
+     */
     fun offsetAndSizeBlock(index: Int): Pair<Offset, Size> {
         val topLeft = offsetsVLine(index).first
         val size = Size(width = cellWidth, height = canvasHeightBody)
         return Pair(topLeft, size)
     }
+
 
     fun offsetAndSizeBlockHeader(index: Int): Pair<Offset, Size> {
         val topLeft = offsetsVLine(index).first
