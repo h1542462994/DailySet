@@ -209,9 +209,13 @@ fun DailyTableContent(currentDailyTRC: DailyTRC, userState: UserState) {
     )
 
     with(DataScope) {
-        currentDailyTRC.dailyRCs.forEachIndexed { index, item ->
-            DailyRCContent(dailyRC = item, index = index, weekDayStateList = calcWeekDayState(dailyTRC = currentDailyTRC, index = index))
+        val dailyTableReadOnly = dailyTableReadOnly(currentDailyTRC.dailyTable, userState)
+        val dailyTableState = calcDailyTableState(dailyTRC = currentDailyTRC, readOnly = dailyTableReadOnly)
+
+        dailyTableState.dailyTableRowStateList.forEachIndexed { index, item ->
+            DailyRCContent(dailyRC = item.dailyRC, index = index, weekDayStateList = item.weekDays)
         }
+
     }
 
 

@@ -1,9 +1,7 @@
 package org.tty.dailyset.data.scope
 
-import android.annotation.SuppressLint
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.liveData
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -11,12 +9,8 @@ import org.tty.dailyset.DailySetApplication
 import org.tty.dailyset.model.entity.DailyCell
 import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
-import org.tty.dailyset.model.lifetime.DailyTableCreateState
-import org.tty.dailyset.model.lifetime.DailyTablePreviewState
-import org.tty.dailyset.model.lifetime.DailyTableState
-import org.tty.dailyset.model.lifetime.WeekDayState
+import org.tty.dailyset.model.lifetime.*
 import org.tty.dailyset.ui.utils.toWeekStart
-import org.tty.dailyset.viewmodel.MainViewModel
 import java.time.LocalDate
 import java.util.*
 import kotlin.collections.ArrayList
@@ -52,22 +46,79 @@ interface DailyTableScope: PreferenceScope  {
         return trcLiveData.observeAsState()
     }
 
+    fun dailyTableReadOnly(dailyTable: DailyTable, userState: UserState): Boolean {
+        return dailyTable.global || dailyTable.referenceUid != userState.currentUserUid;
+    }
+
+    fun calcDailyTableState(dailyTRC: DailyTRC, readOnly: Boolean): DailyTableState {
+        fun intArrayToReadOnlyState(array: IntArray): List<WeekDayState> {
+            return (1..7).map {
+                if (array.contains(it)) {
+                    WeekDayState(readOnly = true, checked = true)
+                } else {
+                    WeekDayState(readOnly = true, checked = false)
+                }
+            }
+        }
+
+        fun intArrayToMutableState(array: IntArray, mutableList: List<Int>): List<WeekDayState> {
+            return (1..7).map {
+                val checked = array.contains(it)
+                val rl = mutableList.contains(it)
+                WeekDayState(readOnly = rl, checked = checked)
+            }
+        }
+
+
+        val dailyTableState = DailyTableState(dailyTRC = dailyTRC, readOnly = readOnly)
+        if (readOnly) {
+            dailyTableState.dailyTableRowStateList.forEach { dailyTableRowState ->
+                dailyTableRowState.weekDays = intArrayToReadOnlyState(dailyTableRowState.dailyRC.dailyRow.weekdays)
+            }
+        } else {
+            val length = dailyTableState.dailyTableRowStateList.size
+            val mutableRecordList = mutableListOf<Int>()
+            for (i in length-1..0) {
+                val current = dailyTableState.dailyTableRowStateList[i]
+                // if the weekDay has only one option, it's will be recorded.
+                if (current.dailyRC.dailyRow.weekdays.size > 1) {
+                    mutableRecordList.addAll(current.dailyRC.dailyRow.weekdays.toList())
+                }
+                if (i == length - 1) {
+                    // last is readOnly
+                    current.weekDays = intArrayToReadOnlyState(current.dailyRC.dailyRow.weekdays)
+                } else {
+                    current.weekDays = intArrayToMutableState(current.dailyRC.dailyRow.weekdays, mutableRecordList)
+                }
+            }
+        }
+
+        return dailyTableState
+    }
+
     /**
      * return the snapshot of the current weekDayState
      */
-    fun calcWeekDayState(dailyTRC: DailyTRC, index: Int): List<WeekDayState> {
-        val dailyRowCount = dailyTRC.dailyRCs.count()
-        val currentWeekDays = dailyTRC.dailyRCs[index].dailyRow.weekdays
-        val list = ArrayList<WeekDayState>()
-        // TODO: 2021/4/7 完成复杂的实现。
-        (1 .. 7).forEach { _index ->
-            if (currentWeekDays.contains(_index)){
-                list.add(WeekDayState(readOnly = false, checked = true))
-            } else {
-                list.add(WeekDayState(readOnly = false, checked = false))
-            }
-        }
-        return list;
+    @Deprecated("use dailyTableState instead.")
+    fun calcWeekDayState(dailyTRC: DailyTRC, readOnly: Boolean): List<WeekDayState> {
+//        val dailyRowCount = dailyTRC.dailyRCs.count()
+//        val currentWeekDays = dailyTRC.dailyRCs[index].dailyRow.weekdays
+//        val list = ArrayList<WeekDayState>()
+//        if (readOnly) {
+//
+//        }
+//
+//
+//        // TODO: 2021/4/7 完成复杂的实现。
+//        (1 .. 7).forEach { _index ->
+//            if (currentWeekDays.contains(_index)){
+//                list.add(WeekDayState(readOnly = false, checked = true))
+//            } else {
+//                list.add(WeekDayState(readOnly = false, checked = false))
+//            }
+//        }
+//        return list
+        return listOf()
     }
 
     @Composable
