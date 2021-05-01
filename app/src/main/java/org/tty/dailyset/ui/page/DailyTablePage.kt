@@ -1,6 +1,5 @@
 package org.tty.dailyset.ui.page
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -59,7 +58,7 @@ fun DailyTablePage() {
         val service = mainViewModel().service
 
         if (tempCurrentDailyTRC != null) {
-            val dailyTableReadOnly = dailyTableReadOnly(tempCurrentDailyTRC.dailyTable, currentUserState)
+            val dailyTableReadOnly = calcDailyTableReadOnly(tempCurrentDailyTRC.dailyTable, currentUserState)
             val dailyTableState = calcDailyTableState(dailyTRC = tempCurrentDailyTRC, readOnly = dailyTableReadOnly)
 
             Column {

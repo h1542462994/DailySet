@@ -47,7 +47,9 @@ interface DailyTableScope: PreferenceScope  {
         return trcLiveData.observeAsState()
     }
 
-    fun dailyTableReadOnly(dailyTable: DailyTable, userState: UserState): Boolean {
+
+
+    fun calcDailyTableReadOnly(dailyTable: DailyTable, userState: UserState): Boolean {
         return dailyTable.global || dailyTable.referenceUid != userState.currentUserUid;
     }
 

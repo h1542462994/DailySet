@@ -187,4 +187,5 @@ class DailyTableCalc(val dailyTRC: DailyTRC, val measuredWidth: Float, val unit:
     }
 
 
+
 }

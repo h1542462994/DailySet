@@ -19,6 +19,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        //val inputMethodManager =  getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
 
         //WindowCompat.setDecorFitsSystemWindows(window, false)
 
@@ -38,6 +39,8 @@ class MainActivity : ComponentActivity() {
         }
 
         mainViewModel.init()
+
+
     }
 }
 
