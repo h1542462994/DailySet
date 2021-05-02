@@ -4,7 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import org.tty.dailyset.model.entity.DailyTRC
 
-data class DailyTableState(
+class DailyTableState(
     /**
      * 基于分析的DailyTRC
      */
@@ -18,10 +18,11 @@ data class DailyTableState(
      */
     var canAddRow: Boolean,
 
-
+    onDelete: (DailyTRC) -> Unit
 ) {
     val dailyTableRowStateList: SnapshotStateList<DailyTableRowState> = SnapshotStateList()
     var addRowState: DailyTableAddRowState = DailyTableAddRowState(mutableStateOf(false))
+    var deleteState: DailyTableDeleteState = DailyTableDeleteState(mutableStateOf(false), onDelete = onDelete)
     var lastState: SnapshotStateList<WeekDayState> = SnapshotStateList()
 
     init {

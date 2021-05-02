@@ -20,4 +20,7 @@ interface DailyTableDao {
 
     @Query("SELECT * FROM daily_table")
     fun all(): Flow<List<DailyTable>>
+
+    @Delete
+    fun delete(dailyTable: DailyTable)
 }

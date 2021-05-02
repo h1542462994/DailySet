@@ -13,8 +13,8 @@ class DailyTableCreateState(
     val dailyTableSummaries: State<List<DailyTable>>,
     val currentDailyTable: MutableState<DailyTable>,
     /**
-     * operation after create DailyTable successfully.
-     * it will be call on backThread.
+     * operation after create DailyTable.
      */
-    val onCreate: (String) -> Unit
+    val onCreate: (String, DailyTable) -> Unit,
+
 ): DialogState(dialogOpen = dialogOpen)

@@ -1,8 +1,10 @@
 package org.tty.dailyset.data.scope
 
+import android.util.Log
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.liveData
+import androidx.lifecycle.map
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.tty.dailyset.DailySetApplication
@@ -20,6 +22,7 @@ import kotlin.collections.ArrayList
  */
 @Immutable
 interface DailyTableScope: PreferenceScope, UserScope  {
+
     /**
      * get all dailyTables in database.
      */
@@ -46,29 +49,33 @@ interface DailyTableScope: PreferenceScope, UserScope  {
     fun currentDailyTableDetail(): State<DailyTRC> {
         val mainViewModel = mainViewModel()
         val trcLiveData by mainViewModel.currentDailyTRC.observeAsState(liveData { })
-        return derivedStateOf {
-            trcLiveData.value ?: DailyTRC.default()
-        }
+        return trcLiveData.map {
+            it ?: DailyTRC.default()
+        }.observeAsState(initial = DailyTRC.default())
+//
+//        return derivedStateOf {
+//            trcLiveData.value ?: DailyTRC.default()
+//        }
     }
 
     /**
      * the state of the DailyTable, see [calcDailyTableReadOnly],[calcDailyTableState]
      */
     @Composable
-    fun dailyTableState(): DailyTableState {
+    fun dailyTableState(onDelete: (DailyTRC) -> Unit): DailyTableState {
         val dailyTRC by currentDailyTableDetail()
         val userState by currentUserState()
 
         val readOnly =
             calcDailyTableReadOnly(dailyTable = dailyTRC.dailyTable, userState = userState)
-        return calcDailyTableState(dailyTRC = dailyTRC, readOnly = readOnly)
+        return calcDailyTableState(dailyTRC = dailyTRC, readOnly = readOnly, onDelete = onDelete)
     }
 
     fun calcDailyTableReadOnly(dailyTable: DailyTable, userState: UserState): Boolean {
         return dailyTable.global || dailyTable.referenceUid != userState.currentUserUid;
     }
 
-    fun calcDailyTableState(dailyTRC: DailyTRC, readOnly: Boolean): DailyTableState {
+    fun calcDailyTableState(dailyTRC: DailyTRC, readOnly: Boolean, onDelete: (DailyTRC) -> Unit): DailyTableState {
         fun intArrayToReadOnlyState(array: IntArray): List<WeekDayState> {
             return (1..7).map {
                 if (array.contains(it)) {
@@ -88,7 +95,8 @@ interface DailyTableScope: PreferenceScope, UserScope  {
         }
 
 
-        val dailyTableState = DailyTableState(dailyTRC = dailyTRC, readOnly = readOnly, false)
+        val dailyTableState = DailyTableState(dailyTRC = dailyTRC, readOnly = readOnly, canAddRow = false, onDelete = onDelete)
+
         if (readOnly) {
             dailyTableState.dailyTableRowStateList.forEach { dailyTableRowState ->
                 dailyTableRowState.weekDays = intArrayToReadOnlyState(dailyTableRowState.dailyRC.dailyRow.weekdays)
@@ -169,7 +177,11 @@ interface DailyTableScope: PreferenceScope, UserScope  {
     }
 
     @Composable
-    fun dailyTableCreateState(initialName: String, dialogOpen: Boolean = false, onCreate: (String) -> Unit): DailyTableCreateState {
+    fun dailyTableCreateState(
+        initialName: String,
+        dialogOpen: Boolean = false,
+        onCreate: (String, DailyTable) -> Unit
+    ): DailyTableCreateState {
         val currentDailyTable = currentDailyTable().value
 
         return DailyTableCreateState(
@@ -195,6 +207,8 @@ interface DailyTableScope: PreferenceScope, UserScope  {
      */
     fun dailyTableCreateFromTemplate(service: DailySetApplication, currentUserUid: String, name: String, cloneFrom: DailyTable, uid: String? = null, onCompletion: (String) -> Unit){
         val realUid: String = uid ?: UUID.randomUUID().toString()
+        Log.d(TAG, "create DailyTable uid=${realUid},name=${name}")
+        // TODO: 2021/5/2 这很可能导致内存泄漏，需要找到和应用绑定的CoroutineScope
         val job = GlobalScope.launch {
            service.dailyTableRepository.createFromTemplate(name, cloneFrom, realUid, referenceUid = currentUserUid)
         }
@@ -203,10 +217,27 @@ interface DailyTableScope: PreferenceScope, UserScope  {
         }
     }
 
-
+    /**
+     * delete the DailyTable
+     * db related function, ensure call in [kotlinx.coroutines.CoroutineScope]
+     * @param service the application service, see also [org.tty.dailyset.provider.LocalServices]
+     * @param dailyTRC the deleted dailyTable, and more data
+     * @param onBefore the action before the operation, ensure change current dailyTable
+     */
+    fun dailyTableDelete(service: DailySetApplication, dailyTRC: DailyTRC, onBefore: () -> Unit) {
+        Log.d(TAG, "delete DailyTable, uid=${dailyTRC.dailyTable.uid},name=${dailyTRC.dailyTable.name}")
+        onBefore()
+        val job = GlobalScope.launch {
+            service.dailyTableRepository.delete(dailyTRC = dailyTRC)
+        }
+    }
 
     fun groupDailyCells(list: List<DailyCell>): Map<Int, List<DailyCell>> {
         return list.groupBy { it.normalType }
+    }
+
+    companion object {
+        private const val TAG = "DailyTableScope"
     }
 }
 

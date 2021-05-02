@@ -7,7 +7,7 @@ import java.time.LocalDate
 /**
  * A complex state for DailyTablePreviewPage
  */
-data class DailyTablePreviewState(
+class DailyTablePreviewState(
     /**
      * currentDate, means now.
      */

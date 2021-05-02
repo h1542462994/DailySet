@@ -62,4 +62,20 @@ class DailyTableRepository(
 
 
     }
+
+    /**
+     * delete DailyTable
+     * db operation function, see also [org.tty.dailyset.data.scope.DailyTableScope.dailyTableDelete]
+     */
+    @Transaction
+    suspend fun delete(dailyTRC: DailyTRC) {
+        dailyTRC.dailyRCs.forEach { dailyRC ->
+            dailyRC.dailyCells.forEach { dailyCell ->
+                // delete the dailyCell
+                dailyCellDao.delete(dailyCell = dailyCell)
+            }
+            dailyRowDao.delete(dailyRow = dailyRC.dailyRow)
+        }
+        dailyTableDao.delete(dailyTable = dailyTRC.dailyTable)
+    }
 }

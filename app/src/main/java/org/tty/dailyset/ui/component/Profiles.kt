@@ -7,14 +7,18 @@ import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.tty.dailyset.R
 import org.tty.dailyset.ui.theme.LocalPalette
 
 /**
@@ -205,6 +209,23 @@ fun TipBox(value: String) {
             modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
             text = value,
             color = LocalPalette.current.textColorDetail
+        )
+    }
+}
+
+@Composable
+fun IconText(imageVector: ImageVector, text: String) {
+    Row(
+        modifier = Modifier
+            .wrapContentSize(align = Alignment.Center)
+    ) {
+        Icon(
+            modifier = Modifier.scale(0.8f),
+            imageVector = imageVector, contentDescription = null, tint = LocalPalette.current.textColor
+        )
+        Text(
+            modifier = Modifier.align(alignment = Alignment.CenterVertically),
+            text = text, color = LocalPalette.current.textColor
         )
     }
 }

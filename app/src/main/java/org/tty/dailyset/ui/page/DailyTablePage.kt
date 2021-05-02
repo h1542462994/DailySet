@@ -25,7 +25,6 @@ import org.tty.dailyset.R
 import org.tty.dailyset.data.scope.DataScope
 import org.tty.dailyset.model.entity.DailyCell
 import org.tty.dailyset.model.entity.DailyRC
-import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.model.lifetime.*
 import org.tty.dailyset.ui.component.*
@@ -56,18 +55,28 @@ fun DailyTablePage() {
         val currentUserState by currentUserState()
         //val tempCurrentDailyTRC: DailyTRC = currentDailyTRC
 
-        val dailyTableCreateState = dailyTableCreateState(initialName = "") {
-            // operation after create DailyTable on success
-            mainViewModel.currentDailyTableUid.postValue(it)
-        }
+        val dailyTableCreateState = dailyTableCreateState(initialName = "",
+            onCreate = { dailyTableName, currentDailyTable ->
+                dailyTableCreateFromTemplate(service, currentUserUid = currentUserState.currentUserUid, dailyTableName, cloneFrom =currentDailyTable, null,
+                    onCompletion = { dailyTableUid ->
+                        // operation after create DailyTable on success
+                        mainViewModel.currentDailyTableUid.postValue(dailyTableUid)
+                })
+        })
 
-        val dailyTableState = dailyTableState()
+        val dailyTableState = dailyTableState(onDelete = { dailyTRC ->
+            dailyTableDelete(service, dailyTRC = dailyTRC, onBefore = {
+                // change the currentDailyTable to DailyTable.default() before delete.
+                mainViewModel.currentDailyTableUid.postValue(DailyTable.default)
+            })
+        })
 
         Column {
             CenterBar(true, LocalNav.current.action.upPress,
                 extensionArea = {
                     DailyTableExtensionDropDown(
                         dropDownExtensionOpenState = dropDownExtensionOpenState,
+                        dailyTableState = dailyTableState,
                         dailyTableCreateState = dailyTableCreateState
                     )
                 }) {
@@ -91,10 +100,10 @@ fun DailyTablePage() {
                 }
             }
         }
+        // register dialogs
         DailyTableAddRowDialogCover(dailyTableAddRowState = dailyTableState.addRowState, service = service)
-
-
-        DailyTableCreateDialogCover(dailyTableCreateState = dailyTableCreateState, userState = currentUserState, service = service)
+        DailyTableDeleteDialogCover(dailyTableState = dailyTableState)
+        DailyTableCreateDialogCover(dailyTableCreateState = dailyTableCreateState, userState = currentUserState)
     }
 }
 
@@ -174,7 +183,7 @@ fun DailyTableTitleDescription(dailyTable: DailyTable, userState: UserState, col
  * @param dailyTableCreateState state of createDialog for DailyTable
  */
 @Composable
-fun DailyTableExtensionDropDown(dropDownExtensionOpenState: MutableState<Boolean>, dailyTableCreateState: DailyTableCreateState) {
+fun DailyTableExtensionDropDown(dropDownExtensionOpenState: MutableState<Boolean>, dailyTableState: DailyTableState, dailyTableCreateState: DailyTableCreateState) {
     BarExtension(expandedState = dropDownExtensionOpenState) {
         DropdownMenuItem(onClick = {
             // open createDialog for DailyTable
@@ -182,18 +191,18 @@ fun DailyTableExtensionDropDown(dropDownExtensionOpenState: MutableState<Boolean
             // close the dropDown
             dropDownExtensionOpenState.value = false
         }) {
-            Row(
-                modifier = Modifier
-                    .wrapContentSize(align = Alignment.Center)
-            ) {
-                Icon(
-                    modifier = Modifier.scale(0.8f),
-                    imageVector = Icons.Filled.Add, contentDescription = null, tint = LocalPalette.current.textColor
-                )
-                Text(
-                    modifier = Modifier.align(alignment = Alignment.CenterVertically),
-                    text = stringResource(R.string.time_table_add), color = LocalPalette.current.textColor
-                )
+            IconText(imageVector = Icons.Filled.Add , text = stringResource(id = R.string.time_table_add))
+        }
+
+        // 当课程表可编辑时，意味着其可以删除。
+        if (!dailyTableState.readOnly){
+            DropdownMenuItem(onClick = {
+                // open deleteDialog for DailyTable
+                dailyTableState.deleteState.dialogOpen.value = true
+                // close the dropDown
+                dropDownExtensionOpenState.value = false
+            }) {
+                IconText(imageVector = Icons.Filled.Delete, text = stringResource(id = R.string.time_table_delete))
             }
         }
     }
@@ -392,13 +401,40 @@ fun DailyTableCreateDialog(dailyTableCreateState: DailyTableCreateState) {
 }
 
 /**
+ * DailyTable .extensionArea.option.dialog<Delete>
+ * @param dailyTableState state of the DailyTable
+ */
+@Composable
+fun DailyTableDeleteDialogCover(dailyTableState: DailyTableState) {
+    // readOnly的项无法删除
+    if (!dailyTableState.readOnly) {
+        NanoDialog(title = "删除时间表", dialogState = dailyTableState.deleteState) {
+            Text("你确认要删除时间表${dailyTableState.dailyTRC.dailyTable.name}吗?")
+            Row(
+                modifier = Modifier.padding(vertical = 16.dp),
+            ){
+                Spacer(modifier = Modifier.weight(1f))
+                Button(
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = MaterialTheme.colors.error
+                    ) ,
+                    onClick = { dailyTableState.deleteState.onDelete(dailyTableState.dailyTRC) }) {
+                    Text("删除")
+                }
+            }
+        }
+    }
+
+}
+
+/**
  * DailyTablePage .title d .dialog<create> version = 2
  * @param dailyTableCreateState dialogState for create DailyTable
  * @param userState current userState
  * @param service application service, see also [org.tty.dailyset.provider.LocalServices]
  */
 @Composable
-fun DailyTableCreateDialogCover(dailyTableCreateState: DailyTableCreateState, userState: UserState, service: DailySetApplication) {
+fun DailyTableCreateDialogCover(dailyTableCreateState: DailyTableCreateState, userState: UserState) {
     var name by dailyTableCreateState.name
     val dailyTableSummaries by dailyTableCreateState.dailyTableSummaries
     var currentDailyTable by dailyTableCreateState.currentDailyTable
@@ -428,11 +464,7 @@ fun DailyTableCreateDialogCover(dailyTableCreateState: DailyTableCreateState, us
             Spacer(modifier = Modifier.weight(1f))
             Button(
                 enabled = isValid,
-                onClick = {
-                    with(DataScope) {
-                        dailyTableCreateFromTemplate(service = service, currentUserUid = userState.currentUserUid, name = name, cloneFrom = currentDailyTable, onCompletion = dailyTableCreateState.onCreate)
-                    }
-                }) {
+                onClick = { dailyTableCreateState.onCreate(name, currentDailyTable) }) {
                 Text("创建")
             }
         }
