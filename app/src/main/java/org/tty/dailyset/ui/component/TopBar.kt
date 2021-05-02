@@ -4,19 +4,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.tty.dailyset.ui.theme.LocalPalette
@@ -74,6 +72,7 @@ fun TopBar(
 fun CenterBar(
     useBack: Boolean = false,
     onBackPressed: () -> Unit = {},
+    extensionArea: (@Composable () -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
     Row(modifier = Modifier
@@ -95,13 +94,50 @@ fun CenterBar(
                         .fillMaxSize())
             }
         }
-        BoxWithConstraints(modifier = Modifier
+        var modifier1 = Modifier
             .fillMaxHeight()
-            .weight(1f)
-            .padding(start = 12.dp, end = 12.dp + 56.dp, top = 8.dp, bottom = 8.dp)
+            .weight(1.0f)
             .wrapContentSize(align = Alignment.Center)
-        ) {
+
+        if (extensionArea == null) {
+            modifier1 = modifier1.padding(start = 12.dp, top = 8.dp, end = 12.dp + 56.dp, bottom = 8.dp)
+        } else {
+            modifier1 = modifier1.padding(horizontal = 12.dp, vertical = 8.dp)
+        }
+
+        BoxWithConstraints(modifier = modifier1) {
             content()
+        }
+
+        if (extensionArea != null) {
+            extensionArea()
+        }
+
+    }
+}
+
+@Composable
+fun BarExtension(
+    dropDownContent: @Composable ColumnScope.() -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    BoxWithConstraints(modifier = Modifier
+        .width(56.dp)
+        .padding(8.dp)
+        .fillMaxHeight()
+        .wrapContentSize(align = Alignment.Center)
+        .clip(shape = CircleShape)
+        .clickable(onClick = { expanded = true })
+    ) {
+        Icon(imageVector = Icons.Filled.MoreVert, contentDescription = null,
+            modifier = Modifier
+                .padding(8.dp)
+                .fillMaxSize())
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false },
+            offset = DpOffset(x = (-36).dp, y = (56).dp)
+        ) {
+            dropDownContent()
         }
     }
 }
@@ -110,11 +146,13 @@ fun CenterBar(
 fun CenterBar(
     useBack: Boolean = false,
     onBackPressed: () -> Unit = {},
+    extensionArea: @Composable() (() -> Unit)? = null,
     content: String
 ) {
     CenterBar(
         useBack = useBack,
-        onBackPressed = onBackPressed
+        onBackPressed = onBackPressed,
+        extensionArea = extensionArea
     ) {
         Text(text = content, fontSize = 20.sp, fontWeight = FontWeight.Bold)
     }

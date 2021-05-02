@@ -62,7 +62,14 @@ fun DailyTablePage() {
             val dailyTableState = calcDailyTableState(dailyTRC = tempCurrentDailyTRC, readOnly = dailyTableReadOnly)
 
             Column {
-                CenterBar(true, LocalNav.current.action.upPress) {
+                CenterBar(true, LocalNav.current.action.upPress,
+                    extensionArea = {
+                        BarExtension {
+                            DropdownMenuItem(onClick = { /*TODO*/ }) {
+                                Text("hello")
+                            }
+                        }
+                    }) {
                     DailyTableTitle(dailyTable = tempCurrentDailyTRC.dailyTable, userState = currentUserState) {
                         dropDownOpen = true
                     }

@@ -1,7 +1,6 @@
 package org.tty.dailyset
 
 import android.app.Application
-import android.view.inputmethod.InputMethodManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import org.tty.dailyset.data.DailySetRoomDatabase
@@ -23,8 +22,5 @@ class DailySetApplication: Application() {
             database.dailyRowDao(),
             database.dailyCellDao()
         )
-    }
-    val inputMethodManager by lazy {
-        getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
     }
 }
