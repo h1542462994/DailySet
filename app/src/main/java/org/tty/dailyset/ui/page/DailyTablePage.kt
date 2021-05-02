@@ -54,44 +54,45 @@ fun DailyTablePage() {
         //val currentDailyTable by currentDailyTable()
         val currentDailyTRC by currentDailyTableDetail()
         val currentUserState by currentUserState()
-        val tempCurrentDailyTRC: DailyTRC? = currentDailyTRC
+        //val tempCurrentDailyTRC: DailyTRC = currentDailyTRC
 
         val dailyTableCreateState = dailyTableCreateState(initialName = "") {
             // operation after create DailyTable on success
             mainViewModel.currentDailyTableUid.postValue(it)
         }
 
-        if (tempCurrentDailyTRC != null) {
-            val dailyTableReadOnly = calcDailyTableReadOnly(tempCurrentDailyTRC.dailyTable, currentUserState)
-            val dailyTableState = calcDailyTableState(dailyTRC = tempCurrentDailyTRC, readOnly = dailyTableReadOnly)
+        val dailyTableState = dailyTableState()
 
-            Column {
-                CenterBar(true, LocalNav.current.action.upPress,
-                    extensionArea = {
-                        DailyTableExtensionDropDown(dropDownExtensionOpenState = dropDownExtensionOpenState, dailyTableCreateState = dailyTableCreateState)
-                    }) {
-                    DailyTableTitle(dailyTable = tempCurrentDailyTRC.dailyTable, userState = currentUserState) {
-                        dropDownTitleOpen = true
-                    }
-                    DailyTableDropDown(
-                        dailyTableSummaries = dailyTableSummaries,
-                        userState = currentUserState,
-                        dropDownOpen = dropDownTitleOpen,
-                        onDismissRequest = { dropDownTitleOpen = false }) { dailyTable ->
-                        // TODO: 2021/4/7 优化代码
-                        mainViewModel.currentDailyTableUid.value = dailyTable.uid
-
-                        dropDownTitleOpen = false
-                    }
+        Column {
+            CenterBar(true, LocalNav.current.action.upPress,
+                extensionArea = {
+                    DailyTableExtensionDropDown(
+                        dropDownExtensionOpenState = dropDownExtensionOpenState,
+                        dailyTableCreateState = dailyTableCreateState
+                    )
+                }) {
+                DailyTableTitle(dailyTable = currentDailyTRC.dailyTable, userState = currentUserState) {
+                    dropDownTitleOpen = true
                 }
-                LazyColumn(state = columnState) {
-                    item {
-                        DailyTableContent(dailyTableState = dailyTableState, userState = currentUserState)
-                    }
+                DailyTableDropDown(
+                    dailyTableSummaries = dailyTableSummaries,
+                    userState = currentUserState,
+                    dropDownOpen = dropDownTitleOpen,
+                    onDismissRequest = { dropDownTitleOpen = false }) { dailyTable ->
+                    // TODO: 2021/4/7 优化代码
+                    mainViewModel.currentDailyTableUid.value = dailyTable.uid
+
+                    dropDownTitleOpen = false
                 }
             }
-            DailyTableAddRowDialogCover(dailyTableAddRowState = dailyTableState.addRowState, service = service)
+            LazyColumn(state = columnState) {
+                item {
+                    DailyTableContent(dailyTableState = dailyTableState, userState = currentUserState)
+                }
+            }
         }
+        DailyTableAddRowDialogCover(dailyTableAddRowState = dailyTableState.addRowState, service = service)
+
 
         DailyTableCreateDialogCover(dailyTableCreateState = dailyTableCreateState, userState = currentUserState, service = service)
     }
@@ -405,7 +406,7 @@ fun DailyTableCreateDialogCover(dailyTableCreateState: DailyTableCreateState, us
         name.isNotEmpty() && name.length in 2..20
     }
 
-    NanoDialog(dialogState = dailyTableCreateState) {
+    NanoDialog(title = "创建时间表", dialogState = dailyTableCreateState) {
 
         OutlinedTextField(
             modifier = Modifier
@@ -444,7 +445,7 @@ fun DailyTableCreateDialogCover(dailyTableCreateState: DailyTableCreateState, us
  */
 @Composable
 fun DailyTableAddRowDialogCover(dailyTableAddRowState: DailyTableAddRowState, service: DailySetApplication) {
-    NanoDialog(dialogState = dailyTableAddRowState) {
+    NanoDialog(title = "创建组", dialogState = dailyTableAddRowState) {
         Text("hello world")
     }
 }

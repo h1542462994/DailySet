@@ -21,4 +21,18 @@ data class DailyTRC(
         entityColumn = "dailyTableUid"
     )
     var dailyRCs: List<DailyRC>
-)
+){
+    companion object {
+        fun default(): DailyTRC {
+            return DailyTRC(
+                dailyTable = DailyTable.default(),
+                dailyRCs = listOf(
+                    DailyRC(
+                        dailyRow = DailyRow.default(),
+                        dailyCells = DailyCell.default()
+                    )
+                )
+            )
+        }
+    }
+}

@@ -2,9 +2,7 @@ package org.tty.dailyset.data.scope
 
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.liveData
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.tty.dailyset.DailySetApplication
@@ -12,7 +10,6 @@ import org.tty.dailyset.model.entity.DailyCell
 import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.model.lifetime.*
-import org.tty.dailyset.provider.LocalMainViewModel
 import org.tty.dailyset.ui.utils.toWeekStart
 import java.time.LocalDate
 import java.util.*
@@ -22,7 +19,7 @@ import kotlin.collections.ArrayList
  * a state related operation for [DailyTable], defines much functions return [State].
  */
 @Immutable
-interface DailyTableScope: PreferenceScope  {
+interface DailyTableScope: PreferenceScope, UserScope  {
     /**
      * get all dailyTables in database.
      */
@@ -46,13 +43,26 @@ interface DailyTableScope: PreferenceScope  {
     }
 
     @Composable
-    fun currentDailyTableDetail(): State<DailyTRC?> {
+    fun currentDailyTableDetail(): State<DailyTRC> {
         val mainViewModel = mainViewModel()
         val trcLiveData by mainViewModel.currentDailyTRC.observeAsState(liveData { })
-        return trcLiveData.observeAsState()
+        return derivedStateOf {
+            trcLiveData.value ?: DailyTRC.default()
+        }
     }
 
+    /**
+     * the state of the DailyTable, see [calcDailyTableReadOnly],[calcDailyTableState]
+     */
+    @Composable
+    fun dailyTableState(): DailyTableState {
+        val dailyTRC by currentDailyTableDetail()
+        val userState by currentUserState()
 
+        val readOnly =
+            calcDailyTableReadOnly(dailyTable = dailyTRC.dailyTable, userState = userState)
+        return calcDailyTableState(dailyTRC = dailyTRC, readOnly = readOnly)
+    }
 
     fun calcDailyTableReadOnly(dailyTable: DailyTable, userState: UserState): Boolean {
         return dailyTable.global || dailyTable.referenceUid != userState.currentUserUid;

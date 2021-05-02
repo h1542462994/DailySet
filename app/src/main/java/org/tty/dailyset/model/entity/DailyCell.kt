@@ -35,7 +35,7 @@ data class DailyCell(
     companion object {
         const val default = "#default"
 
-        fun default(): Iterable<DailyCell> {
+        fun default(): List<DailyCell> {
             return listOf(
                 DailyCell(
                     uid = "${default}-0",
