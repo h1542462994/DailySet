@@ -74,7 +74,7 @@ interface DailyTableScope: PreferenceScope, UserScope  {
         val readOnly =
             calcDailyTableReadOnly(dailyTable = dailyTRC.dailyTable, userState = userState)
         // TODO: 2021/5/2 优化缓存键策略
-
+        // FIXME: 2021/5/2 由于数据库计算的延迟性，导致可能会出现weekDayState为空的情况，导致Snapshot不再更新，此问题属于严重bug，且无法解决。
         return remember(key1 = dailyTRC.dailyTable.uid, key2 = dailyTRC.dailyTable.updateAt) {
             calcDailyTableState(
                 dailyTRC = dailyTRC,
