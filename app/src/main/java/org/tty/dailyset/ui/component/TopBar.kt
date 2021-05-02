@@ -118,9 +118,10 @@ fun CenterBar(
 
 @Composable
 fun BarExtension(
+    expandedState: MutableState<Boolean>,
     dropDownContent: @Composable ColumnScope.() -> Unit
 ) {
-    var expanded by remember { mutableStateOf(false) }
+    var expanded by expandedState
 
     BoxWithConstraints(modifier = Modifier
         .width(56.dp)
@@ -134,7 +135,9 @@ fun BarExtension(
             modifier = Modifier
                 .padding(8.dp)
                 .fillMaxSize())
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false },
+        DropdownMenu(
+            modifier = Modifier.width(180.dp),
+            expanded = expanded, onDismissRequest = { expanded = false },
             offset = DpOffset(x = (-36).dp, y = (56).dp)
         ) {
             dropDownContent()

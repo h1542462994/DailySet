@@ -6,6 +6,11 @@ import org.tty.dailyset.model.dao.PreferenceDao
 import org.tty.dailyset.model.entity.Preference
 import org.tty.dailyset.model.entity.PreferenceName
 
+/**
+ * repository for [Preference],
+ * it is used in [org.tty.dailyset.DailySetApplication],
+ * it will use db service, see also [org.tty.dailyset.data.DailySetRoomDatabase]
+ */
 class PreferenceRepository(private val preferenceDao: PreferenceDao) {
     val seedVersionPreference: Flow<Preference?> = preferenceDao.load(PreferenceName.SEED_VERSION.key)
     val seedVersion = seedVersionPreference.map { p ->

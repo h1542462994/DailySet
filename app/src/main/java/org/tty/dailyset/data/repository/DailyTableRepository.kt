@@ -5,11 +5,15 @@ import kotlinx.coroutines.flow.Flow
 import org.tty.dailyset.model.dao.DailyCellDao
 import org.tty.dailyset.model.dao.DailyRowDao
 import org.tty.dailyset.model.dao.DailyTableDao
-import org.tty.dailyset.model.entity.DailyTRC
-import org.tty.dailyset.model.entity.DailyTable
+import org.tty.dailyset.model.entity.*
 import org.tty.dailyset.ui.utils.localTimestampNow
 import java.util.*
 
+/**
+ * repository for [DailyTable],[DailyRow],[DailyCell]
+ * it is used in [org.tty.dailyset.DailySetApplication],
+ * it will use db service, see also [org.tty.dailyset.data.DailySetRoomDatabase]
+ */
 class DailyTableRepository(
     private val dailyTableDao: DailyTableDao,
     private val dailyRowDao: DailyRowDao,
@@ -22,6 +26,10 @@ class DailyTableRepository(
         return dailyTableDao.get(dailyTableUid)
     }
 
+    /**
+     * create DailyTable from template
+     * db operation function, see also [org.tty.dailyset.data.scope.DailyTableScope.dailyTableCreateFromTemplate]
+     */
     @Transaction
     suspend fun createFromTemplate(name: String, cloneFrom: DailyTable, uid: String, referenceUid: String) {
         val dailyTRC = dailyTableDao.get(cloneFrom.uid)

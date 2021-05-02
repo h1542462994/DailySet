@@ -41,21 +41,25 @@ fun DailyTablePage() {
     // TODO: 2021/3/28 仅Page节点可以拥有状态参量，其他所有子构件为无状态。所有事件必须在根节点进行处理。
 
 
-    var dropDownOpen by remember { mutableStateOf(false) }
+    var dropDownTitleOpen by remember { mutableStateOf(false) }
+    val dropDownExtensionOpenState = remember { mutableStateOf(false) }
     val columnState = rememberLazyListState()
 
 
     with(DataScope) {
+        val mainViewModel = mainViewModel()
+        val service = mainViewModel().service
+
         val dailyTableSummaries by dailyTableSummaries()
         //val currentDailyTable by currentDailyTable()
         val currentDailyTRC by currentDailyTableDetail()
         val currentUserState by currentUserState()
         val tempCurrentDailyTRC: DailyTRC? = currentDailyTRC
+
         val dailyTableCreateState = dailyTableCreateState(initialName = "") {
-            TODO("not yet implemented.")
+            // operation after create DailyTable on success
+            mainViewModel.currentDailyTableUid.postValue(it)
         }
-        val mainViewModel = mainViewModel()
-        val service = mainViewModel().service
 
         if (tempCurrentDailyTRC != null) {
             val dailyTableReadOnly = calcDailyTableReadOnly(tempCurrentDailyTRC.dailyTable, currentUserState)
@@ -64,28 +68,20 @@ fun DailyTablePage() {
             Column {
                 CenterBar(true, LocalNav.current.action.upPress,
                     extensionArea = {
-                        BarExtension {
-                            DropdownMenuItem(onClick = { /*TODO*/ }) {
-                                Text("hello")
-                            }
-                        }
+                        DailyTableExtensionDropDown(dropDownExtensionOpenState = dropDownExtensionOpenState, dailyTableCreateState = dailyTableCreateState)
                     }) {
                     DailyTableTitle(dailyTable = tempCurrentDailyTRC.dailyTable, userState = currentUserState) {
-                        dropDownOpen = true
+                        dropDownTitleOpen = true
                     }
                     DailyTableDropDown(
                         dailyTableSummaries = dailyTableSummaries,
                         userState = currentUserState,
-                        dropDownOpen = dropDownOpen,
-                        onDismissRequest = { dropDownOpen = false }) { dailyTable ->
-                        if (dailyTable == null) {
-                            // toggle create menu
-                            dailyTableCreateState.dialogOpen.value = true
-                        } else {
-                            // TODO: 2021/4/7 优化代码
-                            mainViewModel.currentDailyTableUid.value = dailyTable.uid
-                        }
-                        dropDownOpen = false
+                        dropDownOpen = dropDownTitleOpen,
+                        onDismissRequest = { dropDownTitleOpen = false }) { dailyTable ->
+                        // TODO: 2021/4/7 优化代码
+                        mainViewModel.currentDailyTableUid.value = dailyTable.uid
+
+                        dropDownTitleOpen = false
                     }
                 }
                 LazyColumn(state = columnState) {
@@ -98,7 +94,6 @@ fun DailyTablePage() {
         }
 
         DailyTableCreateDialogCover(dailyTableCreateState = dailyTableCreateState, userState = currentUserState, service = service)
-
     }
 }
 
@@ -173,21 +168,19 @@ fun DailyTableTitleDescription(dailyTable: DailyTable, userState: UserState, col
 }
 
 /**
- * DailyTablePage .dropDown
+ * DailyTablePage .centerBar .extensionArea .dropDown
+ * @param dropDownExtensionOpenState state of dropDown
+ * @param dailyTableCreateState state of createDialog for DailyTable
  */
 @Composable
-fun DailyTableDropDown(dailyTableSummaries: List<DailyTable>, userState: UserState, dropDownOpen: Boolean, onDismissRequest: () -> Unit, onClick: (DailyTable?) -> Unit) {
-    DropdownMenu(
-        modifier = Modifier.width(150.dp),
-        offset = DpOffset(x = 0.dp, y = 56.dp), expanded = dropDownOpen, onDismissRequest = onDismissRequest) {
-        dailyTableSummaries.forEach { dailyTable ->
-            DropdownMenuItem(onClick = { onClick(dailyTable) }) {
-                DailyTableTitleDescription(dailyTable = dailyTable, userState = userState, color = LocalPalette.current.textColor)
-            }
-
-
-        }
-        DropdownMenuItem(onClick = { onClick(null) }) {
+fun DailyTableExtensionDropDown(dropDownExtensionOpenState: MutableState<Boolean>, dailyTableCreateState: DailyTableCreateState) {
+    BarExtension(expandedState = dropDownExtensionOpenState) {
+        DropdownMenuItem(onClick = {
+            // open createDialog for DailyTable
+            dailyTableCreateState.dialogOpen.value = true
+            // close the dropDown
+            dropDownExtensionOpenState.value = false
+        }) {
             Row(
                 modifier = Modifier
                     .wrapContentSize(align = Alignment.Center)
@@ -200,6 +193,22 @@ fun DailyTableDropDown(dailyTableSummaries: List<DailyTable>, userState: UserSta
                     modifier = Modifier.align(alignment = Alignment.CenterVertically),
                     text = stringResource(R.string.time_table_add), color = LocalPalette.current.textColor
                 )
+            }
+        }
+    }
+}
+
+/**
+ * DailyTablePage .dropDown
+ */
+@Composable
+fun DailyTableDropDown(dailyTableSummaries: List<DailyTable>, userState: UserState, dropDownOpen: Boolean, onDismissRequest: () -> Unit, onClick: (DailyTable) -> Unit) {
+    DropdownMenu(
+        modifier = Modifier.width(150.dp),
+        offset = DpOffset(x = 0.dp, y = 56.dp), expanded = dropDownOpen, onDismissRequest = onDismissRequest) {
+        dailyTableSummaries.forEach { dailyTable ->
+            DropdownMenuItem(onClick = { onClick(dailyTable) }) {
+                DailyTableTitleDescription(dailyTable = dailyTable, userState = userState, color = LocalPalette.current.textColor)
             }
         }
     }
@@ -321,7 +330,7 @@ fun DailyCellContent(dailyCell: DailyCell, index: Int) {
  * DailyTablePage .title d .dialog<create> version = 1
  */
 @Composable
-@Deprecated("there's bug on dismissing the Dialog.")
+@Deprecated("there's bug on dismissing the Dialog. use [DailyTableCreateDialogCover] instead.")
 fun DailyTableCreateDialog(dailyTableCreateState: DailyTableCreateState) {
     val dialogOpen by dailyTableCreateState.dialogOpen
     val focusRequester = remember { FocusRequester() }
@@ -383,6 +392,9 @@ fun DailyTableCreateDialog(dailyTableCreateState: DailyTableCreateState) {
 
 /**
  * DailyTablePage .title d .dialog<create> version = 2
+ * @param dailyTableCreateState dialogState for create DailyTable
+ * @param userState current userState
+ * @param service application service, see also [org.tty.dailyset.provider.LocalServices]
  */
 @Composable
 fun DailyTableCreateDialogCover(dailyTableCreateState: DailyTableCreateState, userState: UserState, service: DailySetApplication) {
@@ -417,9 +429,7 @@ fun DailyTableCreateDialogCover(dailyTableCreateState: DailyTableCreateState, us
                 enabled = isValid,
                 onClick = {
                     with(DataScope) {
-                        dailyTableCreateFromTemplate(service = service, currentUserUid = userState.currentUserUid, name = name, cloneFrom = currentDailyTable) {
-                            // TODO: 2021/4/6 添加成功的操作
-                        }
+                        dailyTableCreateFromTemplate(service = service, currentUserUid = userState.currentUserUid, name = name, cloneFrom = currentDailyTable, onCompletion = dailyTableCreateState.onCreate)
                     }
                 }) {
                 Text("创建")

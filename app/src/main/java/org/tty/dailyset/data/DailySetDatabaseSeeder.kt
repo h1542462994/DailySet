@@ -2,7 +2,15 @@ package org.tty.dailyset.data
 
 import org.tty.dailyset.model.entity.*
 
+/**
+ * the seeder of the [database]
+ * @param database the database
+ */
 class DailySetDatabaseSeeder(private val database: DailySetRoomDatabase) {
+    /**
+     * it will be called by [database], to seed the data.
+     * @param oldVersion version before seed
+     */
     suspend fun seed(oldVersion: Int) {
         if (oldVersion < 1) {
             // insert the preference except the seed_version
@@ -29,6 +37,9 @@ class DailySetDatabaseSeeder(private val database: DailySetRoomDatabase) {
         database.preferenceDao().insert(Preference(PreferenceName.SEED_VERSION.key, false, newVersion.toString()))
     }
 
+    /**
+     * return the currentVersion, it's stored in [org.tty.dailyset.model.entity.Preference] key: seed_version
+     */
     fun currentVersion(): Int {
         return 3
     }

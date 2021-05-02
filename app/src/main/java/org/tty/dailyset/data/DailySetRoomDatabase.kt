@@ -62,7 +62,7 @@ abstract class DailySetRoomDatabase: RoomDatabase() {
         @Volatile
         private var INSTANCE: DailySetRoomDatabase? = null
 
-        private val TAG = "DailySetRoomDatabase"
+        private const val TAG = "DailySetRoomDatabase"
 
         const val currentVersion = 2
 
