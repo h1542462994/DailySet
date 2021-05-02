@@ -46,7 +46,11 @@ fun minus(end: LocalDate, start: LocalDate): Long {
 
 fun localTimestampNow(): Timestamp {
     val current = LocalDateTime.now()
-    return Timestamp(current.nano.toLong() * 1000)
+    return Timestamp(current.nano.toLong() * 1000000)
+}
+
+fun second(): Int {
+    return LocalDateTime.now().second
 }
 
 fun List<WeekDayState>.toIntArray(): IntArray {

@@ -12,6 +12,7 @@ import org.tty.dailyset.model.entity.DailyCell
 import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.model.lifetime.*
+import org.tty.dailyset.ui.utils.second
 import org.tty.dailyset.ui.utils.toIntArray
 import org.tty.dailyset.ui.utils.toWeekStart
 import java.time.LocalDate
@@ -73,6 +74,7 @@ interface DailyTableScope: PreferenceScope, UserScope  {
         val readOnly =
             calcDailyTableReadOnly(dailyTable = dailyTRC.dailyTable, userState = userState)
         // TODO: 2021/5/2 优化缓存键策略
+
         return remember(key1 = dailyTRC.dailyTable.uid, key2 = dailyTRC.dailyTable.updateAt) {
             calcDailyTableState(
                 dailyTRC = dailyTRC,
@@ -135,8 +137,7 @@ interface DailyTableScope: PreferenceScope, UserScope  {
 
         if (readOnly) {
             dailyTableState.dailyTableRowStateList.forEach { dailyTableRowState ->
-                dailyTableRowState.weekDays.clear()
-                dailyTableRowState.weekDays.addAll(intArrayToReadOnlyState(dailyTableRowState.dailyRC.dailyRow.weekdays))
+                dailyTableRowState.weekDays = intArrayToReadOnlyState(dailyTableRowState.dailyRC.dailyRow.weekdays)
             }
         } else {
 
@@ -161,8 +162,7 @@ interface DailyTableScope: PreferenceScope, UserScope  {
                 }
                 if (index == length - 1) {
                     // last is readOnly
-                    current.weekDays.clear()
-                    current.weekDays.addAll(intArrayToReadOnlyState(current.dailyRC.dailyRow.weekdays))
+                    current.weekDays = intArrayToReadOnlyState(current.dailyRC.dailyRow.weekdays)
                     dailyTableState.addRowState = DailyTableAddRowState(mutableStateOf(false), onAddRow = onAddRow)
                     dailyTableState.addRowState.lastState.addAll((1..7).map {
                         if (current.dailyRC.dailyRow.weekdays.contains(it)) {
@@ -173,8 +173,7 @@ interface DailyTableScope: PreferenceScope, UserScope  {
                     })
 
                 } else {
-                    current.weekDays.clear()
-                    current.weekDays.addAll(intArrayToMutableState(current.dailyRC.dailyRow.weekdays, readOnlyList, checkedList))
+                    current.weekDays = intArrayToMutableState(current.dailyRC.dailyRow.weekdays, readOnlyList, checkedList)
                 }
                 index--
             }
@@ -294,6 +293,13 @@ interface DailyTableScope: PreferenceScope, UserScope  {
         }
         job.invokeOnCompletion {
             onCompletion()
+        }
+    }
+
+    fun dailyTableFlush(service: DailySetApplication, dailyTRC: DailyTRC) {
+        Log.d(TAG, "flush DailyTable, uid=${dailyTRC.dailyTable.uid},name=${dailyTRC.dailyTable.name}")
+        GlobalScope.launch {
+            service.dailyTableRepository.flush(dailyTRC = dailyTRC)
         }
     }
 

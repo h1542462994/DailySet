@@ -111,5 +111,20 @@ class DailyTableRepository(
         newDailyRC.dailyCells.forEach {
             dailyCellDao.update(it)
         }
+
+        dailyTableDao.update(
+            dailyTRC.dailyTable.copy(
+                updateAt = localTimestampNow()
+            )
+        )
+    }
+
+    @Transaction
+    suspend fun flush(dailyTRC: DailyTRC) {
+        dailyTableDao.update(
+            dailyTRC.dailyTable.copy(
+                updateAt = localTimestampNow()
+            )
+        )
     }
 }

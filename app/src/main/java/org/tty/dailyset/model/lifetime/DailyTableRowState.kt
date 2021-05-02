@@ -5,7 +5,7 @@ import org.tty.dailyset.model.entity.DailyRC
 
 class DailyTableRowState(
     val dailyRC: DailyRC,
-    var weekDays: SnapshotStateList<WeekDayState>
+    var weekDays: List<WeekDayState>
 ) {
 
 }

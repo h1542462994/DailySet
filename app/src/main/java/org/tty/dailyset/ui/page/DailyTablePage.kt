@@ -84,6 +84,7 @@ fun DailyTablePage() {
 
         onAddRow = {
             dailyTableState.addRowState.dialogOpen.value = false
+            //dailyTableFlush(service, dailyTRC = currentDailyTRC)
         }
 
         Column {

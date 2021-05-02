@@ -21,13 +21,13 @@ class DailyTableState(
     onDelete: (DailyTRC) -> Unit,
     onAddRow: (List<WeekDayState>) -> Unit
 ) {
-    val dailyTableRowStateList: SnapshotStateList<DailyTableRowState> = SnapshotStateList()
+    var dailyTableRowStateList: List<DailyTableRowState> = listOf()
     var addRowState: DailyTableAddRowState = DailyTableAddRowState(mutableStateOf(false), onAddRow = onAddRow)
     var deleteState: DailyTableDeleteState = DailyTableDeleteState(mutableStateOf(false), onDelete = onDelete)
 
     init {
-        dailyTRC.dailyRCs.forEach { dailyRC ->
-            dailyTableRowStateList.add(DailyTableRowState(dailyRC, SnapshotStateList()))
+        dailyTableRowStateList = dailyTRC.dailyRCs.map { dailyRC ->
+            DailyTableRowState(dailyRC = dailyRC, weekDays = listOf())
         }
     }
 
