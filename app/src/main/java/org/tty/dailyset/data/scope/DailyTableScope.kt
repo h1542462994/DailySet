@@ -3,6 +3,7 @@ package org.tty.dailyset.data.scope
 import android.util.Log
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import kotlinx.coroutines.GlobalScope
@@ -62,20 +63,38 @@ interface DailyTableScope: PreferenceScope, UserScope  {
      * the state of the DailyTable, see [calcDailyTableReadOnly],[calcDailyTableState]
      */
     @Composable
-    fun dailyTableState(onDelete: (DailyTRC) -> Unit): DailyTableState {
+    fun dailyTableState(
+        onDelete: (DailyTRC) -> Unit,
+        onAddRow: (List<WeekDayState>) -> Unit
+    ): DailyTableState {
         val dailyTRC by currentDailyTableDetail()
         val userState by currentUserState()
 
         val readOnly =
             calcDailyTableReadOnly(dailyTable = dailyTRC.dailyTable, userState = userState)
-        return calcDailyTableState(dailyTRC = dailyTRC, readOnly = readOnly, onDelete = onDelete)
+        return calcDailyTableState(dailyTRC = dailyTRC, readOnly = readOnly, onDelete = onDelete, onAddRow = onAddRow)
     }
 
     fun calcDailyTableReadOnly(dailyTable: DailyTable, userState: UserState): Boolean {
         return dailyTable.global || dailyTable.referenceUid != userState.currentUserUid;
     }
 
-    fun calcDailyTableState(dailyTRC: DailyTRC, readOnly: Boolean, onDelete: (DailyTRC) -> Unit): DailyTableState {
+    /**
+     * calculate the state for DailyTable
+     * @param dailyTRC dailyTRC
+     * @param readOnly dailyTRC is readOnly
+     * @param onDelete operation onDelete, invoke by button.click
+     */
+    fun calcDailyTableState(
+        dailyTRC: DailyTRC,
+        readOnly: Boolean,
+        onDelete: (DailyTRC) -> Unit,
+        onAddRow: (List<WeekDayState>) -> Unit
+    ): DailyTableState {
+        /**
+         * transfer the weekDays from db to listState (readOnly)
+         * @param array weekDays form db
+         */
         fun intArrayToReadOnlyState(array: IntArray): List<WeekDayState> {
             return (1..7).map {
                 if (array.contains(it)) {
@@ -86,6 +105,11 @@ interface DailyTableScope: PreferenceScope, UserScope  {
             }
         }
 
+        /**
+         * transfer the weekDays from db to listState (mutable)
+         * @param array weekDays from db.
+         * @param mutableList recorded mutable selections.
+         */
         fun intArrayToMutableState(array: IntArray, mutableList: List<Int>): List<WeekDayState> {
             return (1..7).map {
                 val checked = array.contains(it)
@@ -95,30 +119,34 @@ interface DailyTableScope: PreferenceScope, UserScope  {
         }
 
 
-        val dailyTableState = DailyTableState(dailyTRC = dailyTRC, readOnly = readOnly, canAddRow = false, onDelete = onDelete)
+        val dailyTableState = DailyTableState(dailyTRC = dailyTRC, readOnly = readOnly, canAddRow = false, onDelete = onDelete, onAddRow = onAddRow)
 
         if (readOnly) {
             dailyTableState.dailyTableRowStateList.forEach { dailyTableRowState ->
-                dailyTableRowState.weekDays = intArrayToReadOnlyState(dailyTableRowState.dailyRC.dailyRow.weekdays)
+                dailyTableRowState.weekDays.clear()
+                dailyTableRowState.weekDays.addAll(intArrayToReadOnlyState(dailyTableRowState.dailyRC.dailyRow.weekdays))
             }
         } else {
+
             val length = dailyTableState.dailyTableRowStateList.size
             val mutableRecordList = mutableListOf<Int>()
-            for (i in length-1..0) {
-                val current = dailyTableState.dailyTableRowStateList[i]
+            var index = length -1
+            while (index >= 0) {
+                val current = dailyTableState.dailyTableRowStateList[index]
                 // if the weekDay has only one option, it's will be recorded.
                 if (current.dailyRC.dailyRow.weekdays.size > 1) {
                     mutableRecordList.addAll(current.dailyRC.dailyRow.weekdays.toList())
                     // if the last has several options, it can add row from it.
-                    if (i == length - 1) {
+                    if (index == length - 1) {
                         dailyTableState.canAddRow = true
                     }
                 }
-                if (i == length - 1) {
+                if (index == length - 1) {
                     // last is readOnly
-                    current.weekDays = intArrayToReadOnlyState(current.dailyRC.dailyRow.weekdays)
-                    dailyTableState.addRowState = DailyTableAddRowState(mutableStateOf(false))
-                    dailyTableState.lastState.addAll((1..7).map {
+                    current.weekDays.clear()
+                    current.weekDays.addAll(intArrayToReadOnlyState(current.dailyRC.dailyRow.weekdays))
+                    dailyTableState.addRowState = DailyTableAddRowState(mutableStateOf(false), onAddRow = onAddRow)
+                    dailyTableState.addRowState.lastState.addAll((1..7).map {
                         if (current.dailyRC.dailyRow.weekdays.contains(it)) {
                             WeekDayState(readOnly = false, checked = false)
                         } else {
@@ -127,8 +155,10 @@ interface DailyTableScope: PreferenceScope, UserScope  {
                     })
 
                 } else {
-                    current.weekDays = intArrayToMutableState(current.dailyRC.dailyRow.weekdays, mutableRecordList)
+                    current.weekDays.clear()
+                    current.weekDays.addAll(intArrayToMutableState(current.dailyRC.dailyRow.weekdays, mutableRecordList))
                 }
+                index--
             }
         }
 
@@ -229,6 +259,23 @@ interface DailyTableScope: PreferenceScope, UserScope  {
         onBefore()
         val job = GlobalScope.launch {
             service.dailyTableRepository.delete(dailyTRC = dailyTRC)
+        }
+    }
+
+    /**
+     * addRow from the DailyTable
+     * db related function, ensure call in [kotlinx.coroutines.CoroutineScope]
+     * @param service the application service, see also [org.tty.dailyset.provider.LocalServices]
+     * @param dailyTRC the deleted dailyTable, and more data
+     * @param onCompletion operation after success
+     */
+    fun dailyTableAddRow(service: DailySetApplication, dailyTRC: DailyTRC, weekDays: IntArray, onCompletion: () -> Unit) {
+        Log.d(TAG, "addRow DailyTable, uid=${dailyTRC.dailyTable.uid},name=${dailyTRC.dailyTable.name}")
+        val job = GlobalScope.launch {
+            service.dailyTableRepository.addRow(dailyTRC = dailyTRC, weekDays = weekDays)
+        }
+        job.invokeOnCompletion {
+            onCompletion()
         }
     }
 

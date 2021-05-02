@@ -5,6 +5,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -72,6 +74,30 @@ fun NanoDialog(
          */
         BackHandler {
             dialogOpen = false
+        }
+    }
+}
+
+@Composable
+fun NanoDialogButton(text: String, error: Boolean = false, enabled: Boolean = true, onClick: () -> Unit) {
+
+    val colors = if (error) {
+        ButtonDefaults.buttonColors(
+            backgroundColor = MaterialTheme.colors.error
+        )
+    } else {
+        ButtonDefaults.buttonColors()
+    }
+
+    Row(
+        modifier = Modifier.padding(vertical = 16.dp),
+    ){
+        Spacer(modifier = Modifier.weight(1f))
+        Button(
+            colors = colors,
+            enabled = enabled,
+            onClick = onClick) {
+            Text(text)
         }
     }
 }

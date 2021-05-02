@@ -8,6 +8,7 @@
     <string name="user_settings">用户设置</string>
     <string name="time_table_add">添加时间表</string>
     <string name="time_table_delete">删除时间表</string>
+    <string name="time_table_group_add">添加组</string>
     <string name="time_table">时间表</string>
     <string name="time_table_preview">时间表预览</string>
 </resources>

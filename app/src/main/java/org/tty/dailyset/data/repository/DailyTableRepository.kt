@@ -78,4 +78,38 @@ class DailyTableRepository(
         }
         dailyTableDao.delete(dailyTable = dailyTRC.dailyTable)
     }
+
+    /**
+     * addRow from the DailyTable
+     */
+    @Transaction
+    suspend fun addRow(dailyTRC: DailyTRC, weekDays: IntArray) {
+        val copyFrom = dailyTRC.dailyRCs.last()
+        val copyFromWeekDays = copyFrom.dailyRow.weekdays.subtract(weekDays.toList()).toIntArray()
+
+        // update the copyFrom
+        copyFrom.dailyRow.weekdays = copyFromWeekDays
+        dailyRowDao.update(copyFrom.dailyRow)
+
+        // insert the new row
+        val dailyRowUid = UUID.randomUUID().toString()
+        val newDailyRC = DailyRC(
+            dailyRow = copyFrom.dailyRow.copy(
+                uid = dailyRowUid,
+                weekdays = weekDays,
+                updateAt = localTimestampNow()
+            ),
+            dailyCells = copyFrom.dailyCells.map {
+                it.copy(
+                    uid = UUID.randomUUID().toString(),
+                    dailyRowUid = dailyRowUid,
+                    updateAt = localTimestampNow()
+                )
+            }
+        )
+        dailyRowDao.update(newDailyRC.dailyRow)
+        newDailyRC.dailyCells.forEach {
+            dailyCellDao.update(it)
+        }
+    }
 }
