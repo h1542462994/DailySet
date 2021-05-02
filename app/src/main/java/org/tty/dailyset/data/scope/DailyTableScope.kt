@@ -3,7 +3,6 @@ package org.tty.dailyset.data.scope
 import android.util.Log
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import kotlinx.coroutines.GlobalScope
@@ -13,6 +12,7 @@ import org.tty.dailyset.model.entity.DailyCell
 import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.model.lifetime.*
+import org.tty.dailyset.ui.utils.toIntArray
 import org.tty.dailyset.ui.utils.toWeekStart
 import java.time.LocalDate
 import java.util.*
@@ -72,7 +72,15 @@ interface DailyTableScope: PreferenceScope, UserScope  {
 
         val readOnly =
             calcDailyTableReadOnly(dailyTable = dailyTRC.dailyTable, userState = userState)
-        return calcDailyTableState(dailyTRC = dailyTRC, readOnly = readOnly, onDelete = onDelete, onAddRow = onAddRow)
+        // TODO: 2021/5/2 优化缓存键策略
+        return remember(key1 = dailyTRC.dailyTable.uid, key2 = dailyTRC.dailyTable.updateAt) {
+            calcDailyTableState(
+                dailyTRC = dailyTRC,
+                readOnly = readOnly,
+                onDelete = onDelete,
+                onAddRow = onAddRow
+            )
+        }
     }
 
     fun calcDailyTableReadOnly(dailyTable: DailyTable, userState: UserState): Boolean {
@@ -110,11 +118,15 @@ interface DailyTableScope: PreferenceScope, UserScope  {
          * @param array weekDays from db.
          * @param mutableList recorded mutable selections.
          */
-        fun intArrayToMutableState(array: IntArray, mutableList: List<Int>): List<WeekDayState> {
+        fun intArrayToMutableState(array: IntArray, readOnlyList: List<Int>, checkedList: List<Int>): List<WeekDayState> {
             return (1..7).map {
                 val checked = array.contains(it)
-                val rl = mutableList.contains(it)
-                WeekDayState(readOnly = rl, checked = checked)
+                val checkedCount = array.count()
+                if (checked) {
+                    WeekDayState(readOnly = checkedCount == 1, checked = checked)
+                } else {
+                    WeekDayState(readOnlyList.contains(it) || !checkedList.contains(it), checked = checked)
+                }
             }
         }
 
@@ -129,17 +141,23 @@ interface DailyTableScope: PreferenceScope, UserScope  {
         } else {
 
             val length = dailyTableState.dailyTableRowStateList.size
-            val mutableRecordList = mutableListOf<Int>()
+            //val mutableRecordList = mutableListOf<Int>()
+            val readOnlyList = mutableListOf<Int>()
+            val checkedList = mutableListOf<Int>()
+
             var index = length -1
             while (index >= 0) {
                 val current = dailyTableState.dailyTableRowStateList[index]
+                checkedList.addAll(current.weekDays.toIntArray().toList())
                 // if the weekDay has only one option, it's will be recorded.
                 if (current.dailyRC.dailyRow.weekdays.size > 1) {
-                    mutableRecordList.addAll(current.dailyRC.dailyRow.weekdays.toList())
+                    //mutableRecordList.addAll(current.dailyRC.dailyRow.weekdays.toList())
                     // if the last has several options, it can add row from it.
                     if (index == length - 1) {
                         dailyTableState.canAddRow = true
                     }
+                } else if (current.dailyRC.dailyRow.weekdays.size == 1) {
+                    readOnlyList.addAll(current.dailyRC.dailyRow.weekdays.toList())
                 }
                 if (index == length - 1) {
                     // last is readOnly
@@ -156,7 +174,7 @@ interface DailyTableScope: PreferenceScope, UserScope  {
 
                 } else {
                     current.weekDays.clear()
-                    current.weekDays.addAll(intArrayToMutableState(current.dailyRC.dailyRow.weekdays, mutableRecordList))
+                    current.weekDays.addAll(intArrayToMutableState(current.dailyRC.dailyRow.weekdays, readOnlyList, checkedList))
                 }
                 index--
             }

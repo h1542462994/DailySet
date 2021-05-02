@@ -30,6 +30,7 @@ import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.model.lifetime.*
 import org.tty.dailyset.ui.component.*
 import org.tty.dailyset.ui.theme.LocalPalette
+import org.tty.dailyset.ui.utils.toIntArray
 import org.tty.dailyset.ui.utils.toShortString
 import org.tty.dailyset.ui.utils.toWeekDayString
 
@@ -74,19 +75,12 @@ fun DailyTablePage() {
                 mainViewModel.currentDailyTableUid.postValue(DailyTable.default)
             })
         }, onAddRow = {
-            fun toIntArray(weekDays: List<WeekDayState>): IntArray {
-                val list = mutableListOf<Int>()
-                weekDays.forEachIndexed { index, weekDay ->
-                    if (weekDay.checked) {
-                        list.add(index + 1)
-                    }
-                }
-                return list.toIntArray()
-            }
-
             Log.d("DailyTablePage", "dailyTableAddRow:${it}")
-            dailyTableAddRow(service, dailyTRC = currentDailyTRC, weekDays = toIntArray(it), onCompletion = onAddRow)
+            dailyTableAddRow(service, dailyTRC = currentDailyTRC, weekDays = it.toIntArray(), onCompletion = onAddRow)
         })
+
+
+
 
         onAddRow = {
             dailyTableState.addRowState.dialogOpen.value = false

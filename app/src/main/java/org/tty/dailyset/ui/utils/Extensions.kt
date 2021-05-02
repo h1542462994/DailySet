@@ -2,6 +2,7 @@ package org.tty.dailyset.ui.utils
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import org.tty.dailyset.model.lifetime.WeekDayState
 import java.sql.Time
 import java.sql.Timestamp
 import java.time.LocalDate
@@ -46,4 +47,14 @@ fun minus(end: LocalDate, start: LocalDate): Long {
 fun localTimestampNow(): Timestamp {
     val current = LocalDateTime.now()
     return Timestamp(current.nano.toLong() * 1000)
+}
+
+fun List<WeekDayState>.toIntArray(): IntArray {
+    val list = mutableListOf<Int>()
+    this.forEachIndexed { index, weekDay ->
+        if (weekDay.checked) {
+            list.add(index + 1)
+        }
+    }
+    return list.toIntArray()
 }
