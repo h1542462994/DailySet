@@ -64,6 +64,7 @@ interface DailyTableScope: PreferenceScope, UserScope  {
      * the state of the DailyTable, see [calcDailyTableReadOnly],[calcDailyTableState]
      */
     @Composable
+    @Deprecated("not completable for state upgrade.")
     fun dailyTableState(
         onDelete: (DailyTRC) -> Unit,
         onAddRow: (List<WeekDayState>) -> Unit
@@ -95,6 +96,7 @@ interface DailyTableScope: PreferenceScope, UserScope  {
      * @param readOnly dailyTRC is readOnly
      * @param onDelete operation onDelete, invoke by button.click
      */
+    @Deprecated("not completable for state upgrade.")
     fun calcDailyTableState(
         dailyTRC: DailyTRC,
         readOnly: Boolean,
@@ -180,6 +182,14 @@ interface DailyTableScope: PreferenceScope, UserScope  {
         }
 
         return dailyTableState
+    }
+
+    /**
+     * state of weekDay
+     */
+    @Composable
+    fun weekDaysState(dailyTRC: DailyTRC, index: Int, readOnly: Boolean): List<WeekDayState> {
+        TODO("not implemented yet.")
     }
 
 
@@ -296,6 +306,7 @@ interface DailyTableScope: PreferenceScope, UserScope  {
         }
     }
 
+    @Deprecated("not use it for upgrade.")
     fun dailyTableFlush(service: DailySetApplication, dailyTRC: DailyTRC) {
         Log.d(TAG, "flush DailyTable, uid=${dailyTRC.dailyTable.uid},name=${dailyTRC.dailyTable.name}")
         GlobalScope.launch {
