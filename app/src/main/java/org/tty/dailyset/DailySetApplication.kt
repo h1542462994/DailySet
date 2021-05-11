@@ -13,7 +13,7 @@ import org.tty.dailyset.data.repository.UserRepository
  */
 class DailySetApplication: Application() {
     val applicationScope = CoroutineScope(SupervisorJob())
-    private val database by lazy { DailySetRoomDatabase.getDatabase(this, applicationScope) }
+    val database by lazy { DailySetRoomDatabase.getDatabase(this, applicationScope) }
     val preferenceRepository by lazy { PreferenceRepository(database.preferenceDao()) }
     val userRepository by lazy { UserRepository(database.userDao()) }
     val dailyTableRepository by lazy {
