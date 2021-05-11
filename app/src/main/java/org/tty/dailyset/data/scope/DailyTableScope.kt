@@ -17,7 +17,6 @@ import org.tty.dailyset.ui.utils.toIntArray
 import org.tty.dailyset.ui.utils.toWeekStart
 import java.time.LocalDate
 import java.util.*
-import kotlin.collections.ArrayList
 
 /**
  * a state related operation for [DailyTable], defines much functions return [State].
@@ -25,8 +24,12 @@ import kotlin.collections.ArrayList
 @Immutable
 interface DailyTableScope: PreferenceScope, UserScope  {
 
+    // TODO: 2021/5/11 不要在State内存放内部复杂状态。
+
     /**
-     * get all dailyTables in database.
+     * state of [org.tty.dailyset.viewmodel.MainViewModel.dailyTableSummaries]
+     * (db related).
+     * if not initialized, return [listOf].
      */
     @Composable
     fun dailyTableSummaries(): State<List<DailyTable>> {
@@ -34,7 +37,8 @@ interface DailyTableScope: PreferenceScope, UserScope  {
     }
 
     /**
-     * get currentDailyTable for DailyTablePage
+     * state of [dailyTableSummaries] and [org.tty.dailyset.viewmodel.MainViewModel.currentDailyTableUid]
+     * if not initialized, return [DailyTable.default]
      */
     @Composable
     fun currentDailyTable(): State<DailyTable> {
@@ -47,6 +51,10 @@ interface DailyTableScope: PreferenceScope, UserScope  {
         }
     }
 
+    /**
+     * state of [org.tty.dailyset.viewmodel.MainViewModel.currentDailyTRC]
+     * (temp)
+     */
     @Composable
     fun currentDailyTableDetail(): State<DailyTRC> {
         val mainViewModel = mainViewModel()
@@ -187,6 +195,7 @@ interface DailyTableScope: PreferenceScope, UserScope  {
     /**
      * state of weekDay
      */
+    @Deprecated("not completable for state upgrade.")
     @Composable
     fun weekDaysState(dailyTRC: DailyTRC, index: Int, readOnly: Boolean): List<WeekDayState> {
         TODO("not implemented yet.")

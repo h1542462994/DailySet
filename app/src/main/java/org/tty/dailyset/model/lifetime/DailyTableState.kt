@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import org.tty.dailyset.model.entity.DailyTRC
 
+@Deprecated("the class is too heavy.")
 class DailyTableState(
     /**
      * 基于分析的DailyTRC

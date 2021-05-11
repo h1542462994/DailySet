@@ -20,9 +20,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.tty.dailyset.DailySetApplication
 import org.tty.dailyset.LocalNav
 import org.tty.dailyset.R
+import org.tty.dailyset.data.processor.DailyTableProcessor
 import org.tty.dailyset.data.scope.DataScope
 import org.tty.dailyset.model.entity.DailyCell
 import org.tty.dailyset.model.entity.DailyRC
@@ -33,6 +33,7 @@ import org.tty.dailyset.ui.theme.LocalPalette
 import org.tty.dailyset.ui.utils.toIntArray
 import org.tty.dailyset.ui.utils.toShortString
 import org.tty.dailyset.ui.utils.toWeekDayString
+import org.tty.dailyset.model.entity.DailyTRC
 
 /**
  * Manage DailyTable Settings
@@ -52,10 +53,34 @@ fun DailyTablePage() {
         val service = mainViewModel().service
 
         val dailyTableSummaries by dailyTableSummaries()
-        //val currentDailyTable by currentDailyTable()
         val currentDailyTRC by currentDailyTableDetail()
         val currentUserState by currentUserState()
-        //val tempCurrentDailyTRC: DailyTRC = currentDailyTRC
+
+        val dailyTableProcessor = object: DailyTableProcessor {
+            override fun onCreate(dailyTableName: String, currentDailyTable: DailyTable) {
+                dailyTableCreateFromTemplate(service, currentUserUid = currentUserState.currentUserUid, dailyTableName, cloneFrom =currentDailyTable, null,
+                    onCompletion = { dailyTableUid ->
+                        // operation after create DailyTable on success
+                        mainViewModel.currentDailyTableUid.postValue(dailyTableUid)
+                    })
+            }
+
+            override fun onDelete(dailyTRC: DailyTRC) {
+                // TODO: 2021/5/2 加入检查代码，以防止DailyTask引用到空的DailyTable,DailyRow,DailyCell.
+                dailyTableDelete(service, dailyTRC = dailyTRC, onBefore = {
+                    // change the currentDailyTable to DailyTable.default() before delete.
+                    mainViewModel.currentDailyTableUid.postValue(DailyTable.default)
+                })
+            }
+
+            override fun onAddRow(weekDays: List<WeekDayState>) {
+                Log.d("DailyTablePage", "dailyTableAddRow:${weekDays}")
+                dailyTableAddRow(service, dailyTRC = currentDailyTRC, weekDays = weekDays.toIntArray(), onCompletion = {
+
+                })
+            }
+        }
+
 
         val dailyTableCreateState = dailyTableCreateState(initialName = "",
             onCreate = { dailyTableName, currentDailyTable ->
@@ -78,8 +103,6 @@ fun DailyTablePage() {
             Log.d("DailyTablePage", "dailyTableAddRow:${it}")
             dailyTableAddRow(service, dailyTRC = currentDailyTRC, weekDays = it.toIntArray(), onCompletion = onAddRow)
         })
-
-
 
 
         onAddRow = {
@@ -345,9 +368,7 @@ fun DailyRCContent(dailyRC: DailyRC, index: Int, weekDayStateList: List<WeekDayS
 @Composable
 fun DailyRCContentWeekDay(weekDayStateList: List<WeekDayState>, onItemSelect: (Int) -> Unit) {
     // TODO: 2021/4/7 修改样式
-    Row(
-
-    ) {
+    Row {
         weekDayStateList.forEachIndexed { index,weekDayState ->
             Spacer(
                 modifier = Modifier.width(4.dp)
@@ -412,8 +433,7 @@ fun DailyTableCreateDialog(dailyTableCreateState: DailyTableCreateState) {
                 Text("创建课程表")
             },
             text = {
-                Column(
-                ) {
+                Column {
                     Spacer(modifier = Modifier.height(16.dp))
                     TextField(
                         modifier = Modifier.focusRequester(focusRequester),
@@ -457,7 +477,6 @@ fun DailyTableDeleteDialogCover(dailyTableState: DailyTableState) {
  * DailyTablePage .title d .dialog<create> version = 2
  * @param dailyTableCreateState dialogState for create DailyTable
  * @param userState current userState
- * @param service application service, see also [org.tty.dailyset.provider.LocalServices]
  */
 @Composable
 fun DailyTableCreateDialogCover(dailyTableCreateState: DailyTableCreateState, userState: UserState) {
@@ -505,7 +524,7 @@ fun DailyTableAddRowDialogCover(dailyTableAddRowState: DailyTableAddRowState) {
         val selectionCount = dailyTableAddRowState.lastState.count {
             it.checked
         }
-        val buttonEnabled = selectionCount > 0;
+        val buttonEnabled = selectionCount > 0
 
         NanoDialogButton(text = "创建", enabled = buttonEnabled) {
             dailyTableAddRowState.onAddRow(dailyTableAddRowState.lastState)

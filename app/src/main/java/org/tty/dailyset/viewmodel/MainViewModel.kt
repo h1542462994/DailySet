@@ -11,8 +11,6 @@ import org.tty.dailyset.ui.page.MainPageTabs
 
 class MainViewModel(val service: DailySetApplication): ViewModel() {
 
-
-
     /**
      * init the viewModel
      */
@@ -54,6 +52,6 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
 
     var currentDailyTRC = MutableLiveData<LiveData<DailyTRC?>>()
         internal set
-
+    //endregion
 
 }
