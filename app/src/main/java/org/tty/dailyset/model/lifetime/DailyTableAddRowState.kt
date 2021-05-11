@@ -1,26 +1,57 @@
 package org.tty.dailyset.model.lifetime
 
+import android.util.Log
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 
 class DailyTableAddRowState(
     override val dialogOpen: MutableState<Boolean>,
-    var lastState: SnapshotStateList<WeekDayState> = SnapshotStateList(),
-    val onAddRow: (List<WeekDayState>) -> Unit
+    var _initialLastState: List<WeekDayState> = listOf(),
+    var _lastState: MutableState<List<WeekDayState>> = mutableStateOf(listOf())
 ): DialogState(dialogOpen = dialogOpen) {
+    val lastState = _lastState.value
+
+    private fun selectableCount(): Int {
+        return _initialLastState.count {
+            !it.readOnly
+        }
+    }
+
+    private fun checkedCount(): Int {
+        return _lastState.value.count {
+            it.checked
+        }
+    }
+
     fun onItemClick(index: Int) {
-        val current = lastState[index]
-        if (!current.checked){
-            val mutableUnCheckedCount = lastState.count {
-                !it.readOnly && !it.checked
+        val checked = _lastState.value[index].checked
+        val selectableCount = selectableCount()
+        val checkedCount = checkedCount()
+
+        Log.d("DailyTableAddRowState","$selectableCount,$checkedCount")
+
+        if (!checked && checkedCount + 2 >= selectableCount) {
+            //toReadOnly
+            _lastState.value = _lastState.value.mapIndexed { i, weekDayState ->
+                val currentChecked = if (i == index) { !checked } else weekDayState.checked
+                if (currentChecked) {
+                    WeekDayState(readOnly = false, checked = true)
+                } else {
+                    WeekDayState(readOnly = true, checked = false)
+                }
             }
-            if (mutableUnCheckedCount <= 1){
-                return
+        } else {
+            //toModify
+            _lastState.value = _lastState.value.mapIndexed { i, weekDayState ->
+                val currentChecked = if (i == index) { !checked } else weekDayState.checked
+                if (currentChecked) {
+                    WeekDayState(readOnly = false, checked = true)
+                } else  {
+                    WeekDayState(readOnly = _initialLastState[i].readOnly, checked = false)
+                }
             }
         }
-
-        lastState[index] = current.copy(
-            checked = !current.checked
-        )
     }
 }

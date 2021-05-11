@@ -12,9 +12,5 @@ class DailyTableCreateState(
     val name: MutableState<String>,
     val dailyTableSummaries: State<List<DailyTable>>,
     val currentDailyTable: MutableState<DailyTable>,
-    /**
-     * operation after create DailyTable.
-     */
-    val onCreate: (String, DailyTable) -> Unit,
 
 ): DialogState(dialogOpen = dialogOpen)

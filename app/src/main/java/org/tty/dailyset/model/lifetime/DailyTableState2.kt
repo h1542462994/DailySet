@@ -1,7 +1,6 @@
 package org.tty.dailyset.model.lifetime
 
 import org.tty.dailyset.model.entity.DailyTRC
-import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.model.entity.User
 
 /**
@@ -9,29 +8,45 @@ import org.tty.dailyset.model.entity.User
  */
 class DailyTableState2(
     val dailyTRC: DailyTRC,
-    val user: User,
+    val currentUserUid: String?,
 ) {
     var readOnly: Boolean = true
         internal set
-    lateinit var weekDays: Iterable<Iterable<WeekDayState>>
+    var weekDays: List<List<WeekDayState>>
+    var initialAddRowWeekDays: List<WeekDayState>
     var canAddRow: Boolean = false
         internal set
 
     init {
         this.readOnly = calcReadOnly()
-        this.weekDays = calcWeekDays()
-
+        val (w, a) = calcWeekDaysAndInitialAddRowWeekDays()
+        this.weekDays = w
+        this.initialAddRowWeekDays = a
+        this.canAddRow = calcCanAddRow()
     }
 
-    private fun dailyTable(): DailyTable {
-        return dailyTRC.dailyTable
+    private fun calcCanAddRow(): Boolean {
+        return if (this.dailyRows.isEmpty()) {
+            true
+        } else {
+            this.dailyRows.last().weekdays.count() > 1
+        }
     }
+
+    private val dailyTable
+        get() = dailyTRC.dailyTable
+
+    private val dailyRCs
+        get() = dailyTRC.dailyRCs
+
+    private val dailyRows
+        get() = dailyRCs.map { it.dailyRow }
 
     private fun calcReadOnly(): Boolean {
-        return dailyTable().global || dailyTable().referenceUid != user.uid
+        return dailyTable.global || dailyTable.referenceUid != currentUserUid
     }
 
-    private fun calcWeekDays() : Iterable<Iterable<WeekDayState>> {
+    private fun calcWeekDaysAndInitialAddRowWeekDays() : Pair<List<List<WeekDayState>>,List<WeekDayState>> {
         /**
          * transfer the weekDays from db to listState (readOnly)
          * @param array weekDays form db
@@ -63,12 +78,61 @@ class DailyTableState2(
             }
         }
 
+        val lists = mutableListOf<List<WeekDayState>>()
+        var last = listOf<WeekDayState>()
 
-        
-        TODO("")
+        if (readOnly) {
+            dailyRows.forEach { dailyRow ->
+                lists.add(intArrayToReadOnlyState(dailyRow.weekdays))
+            }
+        } else {
+            val length = dailyRows.size
+            //val mutableRecordList = mutableListOf<Int>()
+            val readOnlyList = mutableListOf<Int>()
+            val checkedList = mutableListOf<Int>()
+
+            var index = length -1
+            while (index >= 0) {
+                val current = dailyRows[index]
+                checkedList.addAll(current.weekdays.toList())
+                // if the weekDay has only one option, it's will be recorded.
+                if (current.weekdays.size > 1) {
+                    //mutableRecordList.addAll(current.dailyRC.dailyRow.weekdays.toList())
+                    // if the last has several options, it can add row from it.
+//                    if (index == length - 1) {
+//                        canAddRow = false
+//                    }
+                } else if (current.weekdays.size == 1) {
+                    readOnlyList.addAll(current.weekdays.toList())
+                }
+                if (index == length - 1) {
+                    // last is readOnly
+                    lists.add(0, intArrayToReadOnlyState(current.weekdays))
+                    last = (1..7).map {
+                        if (current.weekdays.contains(it)) {
+                            WeekDayState(readOnly = false, checked = false)
+                        } else {
+                            WeekDayState(readOnly = true, checked = false)
+                        }
+                    }
+
+                } else {
+                    lists.add(0, intArrayToMutableState(current.weekdays, readOnlyList, checkedList))
+                }
+                index--
+            }
+        }
+
+        return Pair(lists, last)
     }
 
+    override fun toString(): String {
+        return "DailyTableState2(dailyTRC=${dailyTRC.dailyTable.name}, currentUserUid=$currentUserUid, readOnly=$readOnly, weekDays=$weekDays, initialAddRowWeekDays=$initialAddRowWeekDays, canAddRow=$canAddRow)"
+    }
+
+
     companion object {
-        fun of(dailyTRC: DailyTRC, currentUser: User): DailyTableState2 = DailyTableState2(dailyTRC, currentUser)
+        fun default(): DailyTableState2 = DailyTableState2(DailyTRC.default(), User.default().uid)
+        fun of(dailyTRC: DailyTRC, currentUserUid : String?): DailyTableState2 = DailyTableState2(dailyTRC, currentUserUid)
     }
 }

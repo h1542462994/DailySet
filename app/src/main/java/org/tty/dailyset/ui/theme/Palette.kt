@@ -17,6 +17,7 @@ class Palette(
     textColor: Color = Gray80,
     textColorTitle: Color = Teal700,
     textColorDetail: Color = Gray50,
+    textColorInValid: Color = Gray20,
 ) {
     /**
      * background Level 1 Color
@@ -57,6 +58,9 @@ class Palette(
     var textColorDetail by mutableStateOf(textColorDetail, structuralEqualityPolicy())
         internal set
 
+    var textColorInValid by mutableStateOf(textColorInValid, structuralEqualityPolicy())
+        internal set
+
     fun copy(
         background1: Color = this.background1,
         background2: Color = this.background2,
@@ -66,6 +70,7 @@ class Palette(
         textColor: Color = this.textColor,
         textColorTitle: Color = this.textColorTitle,
         textColorDetail: Color = this.textColorDetail,
+        textColorInValid: Color = this.textColorInValid
     ) : Palette = Palette(
         background1,
         background2,
@@ -74,7 +79,8 @@ class Palette(
         backgroundTransparent,
         textColor,
         textColorTitle,
-        textColorDetail
+        textColorDetail,
+        textColorInValid
     )
 }
 

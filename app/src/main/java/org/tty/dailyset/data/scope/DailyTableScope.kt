@@ -3,6 +3,7 @@ package org.tty.dailyset.data.scope
 import android.util.Log
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
 import kotlinx.coroutines.GlobalScope
@@ -68,14 +69,20 @@ interface DailyTableScope: PreferenceScope, UserScope  {
 //        }
     }
 
+    @Composable
+    fun dailyTableState2(): State<DailyTableState2> {
+        val mainViewModel = mainViewModel()
+        return mainViewModel.currentDailyTableState2.observeAsState(DailyTableState2.default())
+    }
+
+    //region deprecated functions
+
     /**
      * the state of the DailyTable, see [calcDailyTableReadOnly],[calcDailyTableState]
      */
     @Composable
     @Deprecated("not completable for state upgrade.")
     fun dailyTableState(
-        onDelete: (DailyTRC) -> Unit,
-        onAddRow: (List<WeekDayState>) -> Unit
     ): DailyTableState {
         val dailyTRC by currentDailyTableDetail()
         val userState by currentUserState()
@@ -87,9 +94,7 @@ interface DailyTableScope: PreferenceScope, UserScope  {
         return remember(key1 = dailyTRC.dailyTable.uid, key2 = dailyTRC.dailyTable.updateAt) {
             calcDailyTableState(
                 dailyTRC = dailyTRC,
-                readOnly = readOnly,
-                onDelete = onDelete,
-                onAddRow = onAddRow
+                readOnly = readOnly
             )
         }
     }
@@ -107,9 +112,7 @@ interface DailyTableScope: PreferenceScope, UserScope  {
     @Deprecated("not completable for state upgrade.")
     fun calcDailyTableState(
         dailyTRC: DailyTRC,
-        readOnly: Boolean,
-        onDelete: (DailyTRC) -> Unit,
-        onAddRow: (List<WeekDayState>) -> Unit
+        readOnly: Boolean
     ): DailyTableState {
         /**
          * transfer the weekDays from db to listState (readOnly)
@@ -143,7 +146,7 @@ interface DailyTableScope: PreferenceScope, UserScope  {
         }
 
 
-        val dailyTableState = DailyTableState(dailyTRC = dailyTRC, readOnly = readOnly, canAddRow = false, onDelete = onDelete, onAddRow = onAddRow)
+        val dailyTableState = DailyTableState(dailyTRC = dailyTRC, readOnly = readOnly, canAddRow = false)
 
         if (readOnly) {
             dailyTableState.dailyTableRowStateList.forEach { dailyTableRowState ->
@@ -173,14 +176,14 @@ interface DailyTableScope: PreferenceScope, UserScope  {
                 if (index == length - 1) {
                     // last is readOnly
                     current.weekDays = intArrayToReadOnlyState(current.dailyRC.dailyRow.weekdays)
-                    dailyTableState.addRowState = DailyTableAddRowState(mutableStateOf(false), onAddRow = onAddRow)
-                    dailyTableState.addRowState.lastState.addAll((1..7).map {
-                        if (current.dailyRC.dailyRow.weekdays.contains(it)) {
-                            WeekDayState(readOnly = false, checked = false)
-                        } else {
-                            WeekDayState(readOnly = true, checked = false)
-                        }
-                    })
+//                    dailyTableState.addRowState = DailyTableAddRowState(mutableStateOf(false))
+//                    dailyTableState.addRowState.lastState = MutableState((1..7).map {
+//                        if (current.dailyRC.dailyRow.weekdays.contains(it)) {
+//                            WeekDayState(readOnly = false, checked = false)
+//                        } else {
+//                            WeekDayState(readOnly = true, checked = false)
+//                        }
+//                    })
 
                 } else {
                     current.weekDays = intArrayToMutableState(current.dailyRC.dailyRow.weekdays, readOnlyList, checkedList)
@@ -221,6 +224,7 @@ interface DailyTableScope: PreferenceScope, UserScope  {
         }
         return list
     }
+    //endregion
 
     @Composable
     fun dailyTablePreviewState(): DailyTablePreviewState {
@@ -244,9 +248,8 @@ interface DailyTableScope: PreferenceScope, UserScope  {
 
     @Composable
     fun dailyTableCreateState(
-        initialName: String,
-        dialogOpen: Boolean = false,
-        onCreate: (String, DailyTable) -> Unit
+        initialName: String = "",
+        dialogOpen: Boolean = false
     ): DailyTableCreateState {
         val currentDailyTable = currentDailyTable().value
 
@@ -256,8 +259,38 @@ interface DailyTableScope: PreferenceScope, UserScope  {
             dailyTableSummaries = dailyTableSummaries(),
             currentDailyTable = remember {
                 mutableStateOf(currentDailyTable)
+            }
+        )
+    }
+
+    @Composable
+    fun dailyTableDeleteState(
+        dialogOpen: Boolean = false
+    ): DailyTableDeleteState {
+        return DailyTableDeleteState(
+            mutableStateOf(remember {
+                dialogOpen
+            })
+        )
+    }
+
+    @Composable
+    fun dailyTableAddRowState(
+        dialogOpen: Boolean = false
+    ): DailyTableAddRowState {
+        val dailyTableState2 by dailyTableState2()
+        val listState by remember {
+            derivedStateOf {
+                mutableStateOf(dailyTableState2.initialAddRowWeekDays)
+            }
+        }
+
+        return DailyTableAddRowState(
+            remember {
+                mutableStateOf(dialogOpen)
             },
-            onCreate = onCreate
+            dailyTableState2.initialAddRowWeekDays,
+            listState
         )
     }
 
