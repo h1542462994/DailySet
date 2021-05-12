@@ -11,14 +11,18 @@ data class DailyRC(
         entityColumn = "dailyRowUid"
     )
     val dailyCells: List<DailyCell>
-)
+): Comparable<DailyRC> {
+    override fun compareTo(other: DailyRC): Int {
+        return dailyRow.compareTo(other.dailyRow)
+    }
+}
 
 data class DailyTRC(
     @Embedded val dailyTable: DailyTable,
     @Relation(
         entity = DailyRow::class,
         parentColumn = "uid",
-        entityColumn = "dailyTableUid"
+        entityColumn = "dailyTableUid",
     )
     var dailyRCs: List<DailyRC>
 ){

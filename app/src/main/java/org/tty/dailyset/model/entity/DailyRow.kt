@@ -12,11 +12,15 @@ import java.sql.Timestamp
 data class DailyRow(
     @PrimaryKey
     var uid: String,
+    var currentIndex: Int,
     var weekdays: IntArray,
     var counts: IntArray,
     var updateAt: Timestamp,
     val dailyTableUid: String,
-    ) {
+    ): Comparable<DailyRow> {
+
+
+
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -25,6 +29,7 @@ data class DailyRow(
         other as DailyRow
 
         if (uid != other.uid) return false
+        if (currentIndex != other.currentIndex) return false
         if (!weekdays.contentEquals(other.weekdays)) return false
         if (!counts.contentEquals(other.counts)) return false
         if (updateAt != other.updateAt) return false
@@ -35,6 +40,7 @@ data class DailyRow(
 
     override fun hashCode(): Int {
         var result = uid.hashCode()
+        result = 31 * result + currentIndex
         result = 31 * result + weekdays.contentHashCode()
         result = 31 * result + counts.contentHashCode()
         result = 31 * result + updateAt.hashCode()
@@ -47,12 +53,17 @@ data class DailyRow(
         fun default(): DailyRow {
             return DailyRow(
                 uid = default,
+                currentIndex = 0,
                 weekdays = intArrayOf(1,2,3,4,5,6,7),
                 counts = intArrayOf(5,4,3),
                 updateAt = Timestamp(0),
                 dailyTableUid = DailyTable.default
             )
         }
+    }
+
+    override fun compareTo(other: DailyRow): Int {
+        return currentIndex.compareTo(other.currentIndex)
     }
 
 }

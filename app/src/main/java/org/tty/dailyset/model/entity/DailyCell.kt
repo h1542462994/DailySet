@@ -16,6 +16,7 @@ data class DailyCell(
     /**
      * time duration .start
      */
+    var currentIndex: Int,
     var start: Time,
     /**
      * time duration .end
@@ -31,7 +32,7 @@ data class DailyCell(
     var serialIndex: Int,
     var dailyRowUid: String,
     var updateAt: Timestamp
-) {
+): Comparable<DailyCell> {
     companion object {
         const val default = "#default"
 
@@ -39,6 +40,7 @@ data class DailyCell(
             return listOf(
                 DailyCell(
                     uid = "${default}-0",
+                    currentIndex = 0,
                     start = Time.valueOf("08:00:00"),
                     end = Time.valueOf("08:45:00"),
                     normalType = 0,
@@ -48,6 +50,7 @@ data class DailyCell(
                 ),
                 DailyCell(
                     uid = "${default}-1",
+                    currentIndex = 1,
                     start = Time.valueOf("08:55:00"),
                     end = Time.valueOf("09:40:00"),
                     normalType = 0,
@@ -57,6 +60,7 @@ data class DailyCell(
                 ),
                 DailyCell(
                     uid = "${default}-2",
+                    currentIndex = 2,
                     start = Time.valueOf("09:55:00"),
                     end = Time.valueOf("10:40:00"),
                     normalType = 0,
@@ -66,6 +70,7 @@ data class DailyCell(
                 ),
                 DailyCell(
                     uid = "${default}-3",
+                    currentIndex = 3,
                     start = Time.valueOf("10:50:00"),
                     end = Time.valueOf("11:35:00"),
                     normalType = 0,
@@ -75,6 +80,7 @@ data class DailyCell(
                 ),
                 DailyCell(
                     uid = "${default}-4",
+                    currentIndex = 4,
                     start = Time.valueOf("11:45:00"),
                     end = Time.valueOf("12:30:00"),
                     normalType = 0,
@@ -84,6 +90,7 @@ data class DailyCell(
                 ),
                 DailyCell(
                     uid = "${default}-5",
+                    currentIndex = 5,
                     start = Time.valueOf("13:30:00"),
                     end = Time.valueOf("14:15:00"),
                     normalType = 1,
@@ -93,6 +100,7 @@ data class DailyCell(
                 ),
                 DailyCell(
                     uid = "${default}-6",
+                    currentIndex = 7,
                     start = Time.valueOf("14:25:00"),
                     end = Time.valueOf("15:10:00"),
                     normalType = 1,
@@ -102,6 +110,7 @@ data class DailyCell(
                 ),
                 DailyCell(
                     uid = "${default}-7",
+                    currentIndex = 8,
                     start = Time.valueOf("15:25:00"),
                     end = Time.valueOf("16:10:00"),
                     normalType = 1,
@@ -111,6 +120,7 @@ data class DailyCell(
                 ),
                 DailyCell(
                     uid = "${default}-8",
+                    currentIndex = 9,
                     start = Time.valueOf("16:20:00"),
                     end = Time.valueOf("17:05:00"),
                     normalType = 1,
@@ -120,6 +130,7 @@ data class DailyCell(
                 ),
                 DailyCell(
                     uid = "${default}-9",
+                    currentIndex = 10,
                     start = Time.valueOf("18:30:00"),
                     end = Time.valueOf("19:15:00"),
                     normalType = 2,
@@ -129,6 +140,7 @@ data class DailyCell(
                 ),
                 DailyCell(
                     uid = "${default}-10",
+                    currentIndex = 11,
                     start = Time.valueOf("19:25:00"),
                     end = Time.valueOf("20:10:00"),
                     normalType = 2,
@@ -138,6 +150,7 @@ data class DailyCell(
                 ),
                 DailyCell(
                     uid = "${default}-11",
+                    currentIndex = 12,
                     start = Time.valueOf("20:20:00"),
                     end = Time.valueOf("21:05:00"),
                     normalType = 2,
@@ -147,5 +160,9 @@ data class DailyCell(
                 ),
             )
         }
+    }
+
+    override fun compareTo(other: DailyCell): Int {
+        return this.currentIndex.compareTo(other.currentIndex)
     }
 }

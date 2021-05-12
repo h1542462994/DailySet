@@ -20,8 +20,9 @@ class DailyTableRepository(
     private val dailyCellDao: DailyCellDao): DailyTableProcessor2Async {
     val dailyTableSummaries: Flow<List<DailyTable>> = dailyTableDao.all()
     fun loadDailyTRC(dailyTableUid: String): Flow<DailyTRC?> {
-        return dailyTableDao.load(dailyTableUid)
+        return dailyTableDao.loadSorted(dailyTableUid)
     }
+    @Deprecated("use loadDailyTRC")
     fun getDailyTRC(dailyTableUid: String): DailyTRC? {
         return dailyTableDao.get(dailyTableUid)
     }

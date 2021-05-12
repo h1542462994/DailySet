@@ -2,6 +2,7 @@ package org.tty.dailyset.model.dao
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import org.tty.dailyset.data.processor.DailyTableProcessor2Async
 import org.tty.dailyset.event.DailyTableAddRowEventArgs
 import org.tty.dailyset.event.DailyTableClickWeekDayEventArgs
@@ -20,11 +21,29 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
 
     @Transaction
     @Query("SELECT * FROM daily_table WHERE uid = :uid LIMIT 1")
+    @Deprecated("use load")
     fun get(uid: String): DailyTRC?
 
     @Transaction
     @Query("SELECT * FROM daily_table WHERE uid = :uid LIMIT 1")
     fun load(uid: String): Flow<DailyTRC?>
+
+    fun loadSorted(uid: String): Flow<DailyTRC?> {
+        val value = load(uid)
+        return value.map {
+            if (it == null){
+                return@map it
+            } else {
+                return@map it.copy(
+                    dailyRCs = it.dailyRCs.map { it2 ->
+                        it2.copy(
+                            dailyCells = it2.dailyCells.sortedBy { it3 -> it3.currentIndex }
+                        )
+                    }.sortedBy { it.dailyRow.currentIndex }
+                )
+            }
+        }
+    }
 
     @Query("SELECT * FROM daily_table")
     fun all(): Flow<List<DailyTable>>
@@ -100,9 +119,11 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
 
         // insert the new row
         val dailyRowUid = UUID.randomUUID().toString()
+        val currentIndex = dailyTRC.dailyRCs.count()
         val newDailyRC = DailyRC(
             dailyRow = copyFrom.dailyRow.copy(
                 uid = dailyRowUid,
+                currentIndex = currentIndex,
                 weekdays = weekDays,
                 updateAt = localTimestampNow()
             ),
