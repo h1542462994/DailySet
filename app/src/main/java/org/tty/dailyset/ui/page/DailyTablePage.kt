@@ -24,6 +24,10 @@ import org.tty.dailyset.LocalNav
 import org.tty.dailyset.R
 import org.tty.dailyset.data.processor.DailyTableProcessor
 import org.tty.dailyset.data.scope.DataScope
+import org.tty.dailyset.event.DailyTableAddRowEventArgs
+import org.tty.dailyset.event.DailyTableCreateEventArgs
+import org.tty.dailyset.event.DailyTableDeleteEventArgs
+import org.tty.dailyset.event.DailyTableEventType
 import org.tty.dailyset.model.entity.DailyCell
 import org.tty.dailyset.model.entity.DailyRC
 import org.tty.dailyset.model.entity.DailyTable
@@ -34,6 +38,7 @@ import org.tty.dailyset.ui.utils.toIntArray
 import org.tty.dailyset.ui.utils.toShortString
 import org.tty.dailyset.ui.utils.toWeekDayString
 import org.tty.dailyset.model.entity.DailyTRC
+import java.util.*
 
 /**
  * Manage DailyTable Settings
@@ -64,27 +69,54 @@ fun DailyTablePage() {
         val dailyTableState2 by dailyTableState2()
         val dailyTableProcessor = object: DailyTableProcessor {
             override fun onCreate(dailyTableName: String, currentDailyTable: DailyTable) {
-                dailyTableCreateFromTemplate(service, currentUserUid = currentUserState.currentUserUid, dailyTableName, cloneFrom =currentDailyTable, null,
-                    onCompletion = { dailyTableUid ->
-                        // operation after create DailyTable on success
-                        mainViewModel.currentDailyTableUid.postValue(dailyTableUid)
-                    })
+                val uid = UUID.randomUUID().toString()
+                val createEventArgs = DailyTableCreateEventArgs(dailyTableName, currentDailyTable, uid, currentUserState.currentUserUid)
+                performProcess(service, DailyTableEventType.create, createEventArgs,
+                        onBefore = {},
+                        onCompletion = { e ->
+                            if (e is DailyTableCreateEventArgs) {
+                                mainViewModel.currentDailyTableUid.postValue(e.uid)
+                            }
+                        }
+                    )
+
+
+//                dailyTableCreateFromTemplate(service, currentUserUid = currentUserState.currentUserUid, dailyTableName, cloneFrom =currentDailyTable, null,
+//                    onCompletion = { dailyTableUid ->
+//                        // operation after create DailyTable on success
+//                        mainViewModel.currentDailyTableUid.postValue(dailyTableUid)
+//                    })
             }
 
             override fun onDelete(dailyTRC: DailyTRC) {
                 // TODO: 2021/5/2 加入检查代码，以防止DailyTask引用到空的DailyTable,DailyRow,DailyCell.
-                dailyTableDelete(service, dailyTRC = dailyTRC, onBefore = {
-                    // change the currentDailyTable to DailyTable.default() before delete.
-                    mainViewModel.currentDailyTableUid.postValue(DailyTable.default)
-                })
+                val deleteEventArgs = DailyTableDeleteEventArgs(dailyTRC)
+                performProcess(service, DailyTableEventType.delete, deleteEventArgs,
+                        onBefore = { mainViewModel.currentDailyTableUid.postValue(DailyTable.default) },
+                        onCompletion = {}
+                    )
+
+//                dailyTableDelete(service, dailyTRC = dailyTRC, onBefore = {
+//                    // change the currentDailyTable to DailyTable.default() before delete.
+//                    mainViewModel.currentDailyTableUid.postValue(DailyTable.default)
+//                })
             }
 
             override fun onAddRow(weekDays: List<WeekDayState>) {
                 Log.d("DailyTablePage", "dailyTableAddRow:${weekDays}")
-                dailyTableAddRow(service, dailyTRC = currentDailyTRC, weekDays = weekDays.toIntArray(), onCompletion = {
-                    dailyTableAddRowState.dialogOpen.value = false
-                    mainViewModel.currentDailyTableUid.postValue(currentDailyTRC.dailyTable.uid)
-                })
+                val dailyTableAddRowEventArgs = DailyTableAddRowEventArgs(dailyTRC = currentDailyTRC, weekDays = weekDays.toIntArray())
+                performProcess(service, DailyTableEventType.addRow, dailyTableAddRowEventArgs,
+                        onBefore = {},
+                        onCompletion = {
+                            dailyTableAddRowState.dialogOpen.value = false
+                            mainViewModel.currentDailyTableUid.postValue(currentDailyTRC.dailyTable.uid)
+                        }
+                    )
+
+//                dailyTableAddRow(service, dailyTRC = currentDailyTRC, weekDays = weekDays.toIntArray(), onCompletion = {
+//                    dailyTableAddRowState.dialogOpen.value = false
+//                    mainViewModel.currentDailyTableUid.postValue(currentDailyTRC.dailyTable.uid)
+//                })
             }
         }
 

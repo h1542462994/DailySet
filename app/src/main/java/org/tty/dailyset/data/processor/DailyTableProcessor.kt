@@ -5,6 +5,9 @@ import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.model.lifetime.WeekDayState
 
+/**
+ * dailyTable related operations
+ */
 @Immutable
 interface DailyTableProcessor {
     fun onCreate(dailyTableName: String, currentDailyTable: DailyTable)
