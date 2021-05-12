@@ -16,7 +16,7 @@ interface DailyTableProcessor2Async: EventProcessorAsync {
             DailyTableEventType.addRow -> { addRow(eventArgs as DailyTableAddRowEventArgs) }
         }
     }
-    suspend fun createFromTemplate(eventArgs: DailyTableCreateEventArgs)
-    suspend fun delete(eventArgs: DailyTableDeleteEventArgs)
-    suspend fun addRow(eventArgs: DailyTableAddRowEventArgs)
+    suspend fun createFromTemplate(dailyTableCreateEventArgs: DailyTableCreateEventArgs)
+    suspend fun delete(dailyTableDeleteEventArgs: DailyTableDeleteEventArgs)
+    suspend fun addRow(dailyTableAddRowEventArgs: DailyTableAddRowEventArgs)
 }

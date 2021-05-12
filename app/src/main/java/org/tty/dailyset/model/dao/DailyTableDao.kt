@@ -36,8 +36,8 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
      * db operation function, see also [org.tty.dailyset.data.scope.DailyTableScope.dailyTableCreateFromTemplate]
      */
     @Transaction
-    override suspend fun createFromTemplate(eventArgs: DailyTableCreateEventArgs) {
-        val (name, cloneFrom, uid, referenceUid) = eventArgs
+    override suspend fun createFromTemplate(dailyTableCreateEventArgs: DailyTableCreateEventArgs) {
+        val (name, cloneFrom, uid, referenceUid) = dailyTableCreateEventArgs
         val dailyTRC = get(cloneFrom.uid)
         if (dailyTRC != null) {
             val newDailyTable = dailyTRC.dailyTable.copy(
@@ -72,8 +72,8 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
      * db operation function, see also [org.tty.dailyset.data.scope.DailyTableScope.dailyTableDelete]
      */
     @Transaction
-    override suspend fun delete(eventArgs: DailyTableDeleteEventArgs) {
-        val (dailyTRC) = eventArgs
+    override suspend fun delete(dailyTableDeleteEventArgs: DailyTableDeleteEventArgs) {
+        val (dailyTRC) = dailyTableDeleteEventArgs
         dailyTRC.dailyRCs.forEach { dailyRC ->
             dailyRC.dailyCells.forEach { dailyCell ->
                 // delete the dailyCell
@@ -88,8 +88,8 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
      * addRow from the DailyTable
      */
     @Transaction
-    override suspend fun addRow(eventArgs: DailyTableAddRowEventArgs) {
-        val (dailyTRC, weekDays) = eventArgs
+    override suspend fun addRow(dailyTableAddRowEventArgs: DailyTableAddRowEventArgs) {
+        val (dailyTRC, weekDays) = dailyTableAddRowEventArgs
         val copyFrom = dailyTRC.dailyRCs.last()
         val copyFromWeekDays = copyFrom.dailyRow.weekdays.subtract(weekDays.toList()).toIntArray()
 
