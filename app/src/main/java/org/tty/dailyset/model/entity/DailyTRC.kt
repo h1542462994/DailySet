@@ -22,6 +22,10 @@ data class DailyTRC(
     )
     var dailyRCs: List<DailyRC>
 ){
+    override fun toString(): String {
+        return "(${dailyTable.uid},${dailyTable.name})"
+    }
+
     companion object {
         fun default(): DailyTRC {
             return DailyTRC(

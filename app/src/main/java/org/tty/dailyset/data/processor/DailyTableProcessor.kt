@@ -13,4 +13,5 @@ interface DailyTableProcessor {
     fun onCreate(dailyTableName: String, currentDailyTable: DailyTable)
     fun onDelete(dailyTRC: DailyTRC)
     fun onAddRow(weekDays: List<WeekDayState>)
+    fun onClickWeekDay(rowIndex: Int, weekDay: Int)
 }

@@ -14,9 +14,12 @@ interface DailyTableProcessor2Async: EventProcessorAsync {
             DailyTableEventType.create -> { createFromTemplate(eventArgs as DailyTableCreateEventArgs) }
             DailyTableEventType.delete -> { delete(eventArgs as DailyTableDeleteEventArgs) }
             DailyTableEventType.addRow -> { addRow(eventArgs as DailyTableAddRowEventArgs) }
+            DailyTableEventType.clickWeekDay -> { clickWeekDay(eventArgs as DailyTableClickWeekDayEventArgs) }
+            else -> { TODO("not yet implemented") }
         }
     }
     suspend fun createFromTemplate(dailyTableCreateEventArgs: DailyTableCreateEventArgs)
     suspend fun delete(dailyTableDeleteEventArgs: DailyTableDeleteEventArgs)
     suspend fun addRow(dailyTableAddRowEventArgs: DailyTableAddRowEventArgs)
+    suspend fun clickWeekDay(dailyTableClickWeekDayEventArgs: DailyTableClickWeekDayEventArgs)
 }

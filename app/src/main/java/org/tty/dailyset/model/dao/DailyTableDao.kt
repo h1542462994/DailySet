@@ -4,6 +4,7 @@ import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 import org.tty.dailyset.data.processor.DailyTableProcessor2Async
 import org.tty.dailyset.event.DailyTableAddRowEventArgs
+import org.tty.dailyset.event.DailyTableClickWeekDayEventArgs
 import org.tty.dailyset.event.DailyTableCreateEventArgs
 import org.tty.dailyset.event.DailyTableDeleteEventArgs
 import org.tty.dailyset.model.entity.DailyRC
@@ -126,90 +127,45 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
     }
 
     /**
-     * create DailyTable from template
-     * db operation function, see also [org.tty.dailyset.data.scope.DailyTableScope.dailyTableCreateFromTemplate]
+     * clickWeekDay of DailyTable
      */
     @Transaction
-    @Deprecated("use createFromTemplate instead.")
-    suspend fun createFromTemplate(name: String, cloneFrom: DailyTable, uid: String, referenceUid: String) {
-        val dailyTRC = get(cloneFrom.uid)
-        if (dailyTRC != null) {
-            val newDailyTable = dailyTRC.dailyTable.copy(
-                name = name,
-                uid = uid,
-                referenceUid = referenceUid,
-                updateAt = localTimestampNow(),
-                global = false
-            )
-            update(newDailyTable)
-            dailyTRC.dailyRCs.forEach { dailyRC ->
-                val newDailyRow = dailyRC.dailyRow.copy(
-                    uid = UUID.randomUUID().toString(),
-                    updateAt = localTimestampNow(),
-                    dailyTableUid = uid
-                )
-                update(newDailyRow)
-                dailyRC.dailyCells.forEach { dailyCell ->
-                    val newDailyCell = dailyCell.copy(
-                        uid = UUID.randomUUID().toString(),
-                        updateAt = localTimestampNow(),
-                        dailyRowUid = newDailyRow.uid
-                    )
-                    update(newDailyCell)
+    override suspend fun clickWeekDay(dailyTableClickWeekDayEventArgs: DailyTableClickWeekDayEventArgs) {
+        val (dailyTRC, rowIndex, weekDay) = dailyTableClickWeekDayEventArgs
+        assert(weekDay in 1..7)
+        fun dailyRowOfRowIndex(index: Int) = dailyTRC.dailyRCs[index].dailyRow
+        fun weekDayOfRowIndex(index: Int) = dailyRowOfRowIndex(index).weekdays
+
+        val currentWeekDay = weekDayOfRowIndex(rowIndex)
+        val checked = currentWeekDay.contains(weekDay)
+
+        if (!checked) {
+            for (i in 0 until dailyTRC.dailyRCs.count()) {
+                // 找到checked的一行
+                if (weekDayOfRowIndex(i).contains(i)) {
+                    val source = dailyRowOfRowIndex(rowIndex)
+                    update(dailyRow = source.copy(
+                        weekdays = source.weekdays.plus(weekDay).sortedArray(),
+                        updateAt = localTimestampNow()
+                    ))
+                    val target = dailyRowOfRowIndex(i)
+                    update(dailyRow = target.copy(
+                        weekdays = target.weekdays.filter { it != weekDay }.toIntArray(),
+                        updateAt = localTimestampNow()
+                    ))
                 }
             }
-        }
-    }
-
-    /**
-     * delete DailyTable
-     * db operation function, see also [org.tty.dailyset.data.scope.DailyTableScope.dailyTableDelete]
-     */
-    @Transaction
-    @Deprecated("use delete instead.")
-    suspend fun delete(dailyTRC: DailyTRC) {
-        dailyTRC.dailyRCs.forEach { dailyRC ->
-            dailyRC.dailyCells.forEach { dailyCell ->
-                // delete the dailyCell
-                delete(dailyCell = dailyCell)
-            }
-            delete(dailyRow = dailyRC.dailyRow)
-        }
-        delete(dailyTable = dailyTRC.dailyTable)
-    }
-
-    /**
-     * addRow from the DailyTable
-     */
-    @Transaction
-    @Deprecated("use addRow instead.")
-    suspend fun addRow(dailyTRC: DailyTRC, weekDays: IntArray) {
-        val copyFrom = dailyTRC.dailyRCs.last()
-        val copyFromWeekDays = copyFrom.dailyRow.weekdays.subtract(weekDays.toList()).toIntArray()
-
-        // update the copyFrom
-        copyFrom.dailyRow.weekdays = copyFromWeekDays
-        update(copyFrom.dailyRow)
-
-        // insert the new row
-        val dailyRowUid = UUID.randomUUID().toString()
-        val newDailyRC = DailyRC(
-            dailyRow = copyFrom.dailyRow.copy(
-                uid = dailyRowUid,
-                weekdays = weekDays,
+        } else {
+            val source = dailyRowOfRowIndex(rowIndex)
+            update(dailyRow = source.copy(
+                weekdays = source.weekdays.filter { it != weekDay }.toIntArray(),
                 updateAt = localTimestampNow()
-            ),
-            dailyCells = copyFrom.dailyCells.map {
-                it.copy(
-                    uid = UUID.randomUUID().toString(),
-                    dailyRowUid = dailyRowUid,
-                    updateAt = localTimestampNow()
-                )
-            }
-        )
-        update(newDailyRC.dailyRow)
-        newDailyRC.dailyCells.forEach {
-            update(it)
+            ))
+            val target = dailyRowOfRowIndex(rowIndex + 1)
+            update(dailyRow = target.copy(
+                weekdays = target.weekdays.plus(weekDay).sortedArray(),
+                updateAt = localTimestampNow()
+            ))
         }
 
         update(
@@ -218,6 +174,5 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
             )
         )
     }
-
 
 }

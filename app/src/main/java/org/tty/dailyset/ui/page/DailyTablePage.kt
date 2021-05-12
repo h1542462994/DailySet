@@ -24,10 +24,7 @@ import org.tty.dailyset.LocalNav
 import org.tty.dailyset.R
 import org.tty.dailyset.data.processor.DailyTableProcessor
 import org.tty.dailyset.data.scope.DataScope
-import org.tty.dailyset.event.DailyTableAddRowEventArgs
-import org.tty.dailyset.event.DailyTableCreateEventArgs
-import org.tty.dailyset.event.DailyTableDeleteEventArgs
-import org.tty.dailyset.event.DailyTableEventType
+import org.tty.dailyset.event.*
 import org.tty.dailyset.model.entity.DailyCell
 import org.tty.dailyset.model.entity.DailyRC
 import org.tty.dailyset.model.entity.DailyTable
@@ -118,6 +115,14 @@ fun DailyTablePage() {
 //                    mainViewModel.currentDailyTableUid.postValue(currentDailyTRC.dailyTable.uid)
 //                })
             }
+
+            override fun onClickWeekDay(rowIndex: Int, weekDay: Int) {
+                val dailyTableClickWeekDayEventArgs = DailyTableClickWeekDayEventArgs(currentDailyTRC, rowIndex, weekDay)
+                performProcess(service, DailyTableEventType.clickWeekDay, dailyTableClickWeekDayEventArgs,
+                        onBefore = {},
+                        onCompletion = {}
+                    )
+            }
         }
 
         Column {
@@ -146,7 +151,7 @@ fun DailyTablePage() {
             }
             LazyColumn(state = columnState) {
                 item {
-                    DailyTableContent(dailyTableState2 = dailyTableState2, userState = currentUserState)
+                    DailyTableContent(dailyTableState2 = dailyTableState2, userState = currentUserState, dailyTableProcessor = dailyTableProcessor)
                 }
             }
         }
@@ -303,7 +308,7 @@ fun DailyTableDropDown(dailyTableSummaries: List<DailyTable>, userState: UserSta
  * DailyTablePage .content
  */
 @Composable
-fun DailyTableContent(dailyTableState2: DailyTableState2, userState: UserState) {
+fun DailyTableContent(dailyTableState2: DailyTableState2, userState: UserState, dailyTableProcessor: DailyTableProcessor) {
     DailyTableTipBox(dailyTable = dailyTableState2.dailyTRC.dailyTable, userState = userState)
 
     ProfileMenuItem(icon = Icons.Filled.Place, title = "预览", next = true, content =
@@ -311,7 +316,7 @@ fun DailyTableContent(dailyTableState2: DailyTableState2, userState: UserState) 
     )
 
     dailyTableState2.dailyTRC.dailyRCs.forEachIndexed { index, item ->
-        DailyRCContent(dailyRC = item, index = index, weekDayStateList = dailyTableState2.weekDays[index])
+        DailyRCContent(dailyRC = item, index = index, weekDayStateList = dailyTableState2.weekDays[index], dailyTableProcessor)
     }
 
 
@@ -352,13 +357,13 @@ fun DailyTableTipBox(dailyTable: DailyTable, userState: UserState) {
  * DailyTablePage .content.RC
  */
 @Composable
-fun DailyRCContent(dailyRC: DailyRC, index: Int, weekDayStateList: List<WeekDayState>) {
+fun DailyRCContent(dailyRC: DailyRC, index: Int, weekDayStateList: List<WeekDayState>, dailyTableProcessor: DailyTableProcessor) {
     val dailyRow = dailyRC.dailyRow
     ProfileMenuGroup(title = "组${index + 1}") {
         ProfileMenuItem(title = "适用星期", next = false, content = {
 
             DailyRCContentWeekDay(weekDayStateList = weekDayStateList, onItemSelect = {
-                // TODO: 2021/3/28 完善该功能
+                dailyTableProcessor.onClickWeekDay(index, it + 1)
             })
         })
         ProfileMenuItem(title = "节数", next = true, content =

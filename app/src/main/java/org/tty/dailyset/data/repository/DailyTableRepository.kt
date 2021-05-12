@@ -49,5 +49,9 @@ class DailyTableRepository(
         dailyTableDao.addRow(dailyTableAddRowEventArgs)
     }
 
+    override suspend fun clickWeekDay(dailyTableClickWeekDayEventArgs: DailyTableClickWeekDayEventArgs) {
+        dailyTableDao.clickWeekDay(dailyTableClickWeekDayEventArgs)
+    }
+
 
 }

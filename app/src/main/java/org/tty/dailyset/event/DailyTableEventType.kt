@@ -6,5 +6,6 @@ enum class DailyTableEventType: EventType {
      */
     create,
     delete,
-    addRow
+    addRow,
+    clickWeekDay
 }
