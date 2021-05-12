@@ -140,6 +140,22 @@ interface DailyTableScope: PreferenceScope, UserScope {
         )
     }
 
+    @Composable
+    fun dailyTableRenameState(
+        initialName: String = "",
+        dialogOpen: Boolean = false
+    ): DailyTableRenameState {
+        return DailyTableRenameState(
+            dialogOpen = remember {
+                mutableStateOf(dialogOpen)
+            },
+            name = remember {
+                mutableStateOf(initialName)
+            },
+            dailyTable = dailyTableState2().value.dailyTRC.dailyTable
+        )
+    }
+
     fun groupDailyCells(list: List<DailyCell>): Map<Int, List<DailyCell>> {
         return list.groupBy { it.normalType }
     }

@@ -4,10 +4,7 @@ import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.tty.dailyset.data.processor.DailyTableProcessor2Async
-import org.tty.dailyset.event.DailyTableAddRowEventArgs
-import org.tty.dailyset.event.DailyTableClickWeekDayEventArgs
-import org.tty.dailyset.event.DailyTableCreateEventArgs
-import org.tty.dailyset.event.DailyTableDeleteEventArgs
+import org.tty.dailyset.event.*
 import org.tty.dailyset.model.entity.DailyRC
 import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
@@ -189,6 +186,20 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
 
         update(
             dailyTRC.dailyTable.copy(
+                updateAt = localTimestampNow()
+            )
+        )
+    }
+
+    /**
+     * rename the DailyTable
+     */
+    @Transaction
+    override suspend fun rename(dailyTableRenameEventArgs: DailyTableRenameEventArgs) {
+        val (dailyTRC, name) = dailyTableRenameEventArgs
+        update(
+            dailyTable = dailyTRC.dailyTable.copy(
+                name = name,
                 updateAt = localTimestampNow()
             )
         )

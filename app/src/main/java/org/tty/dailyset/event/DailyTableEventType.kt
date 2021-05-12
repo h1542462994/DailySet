@@ -4,8 +4,9 @@ enum class DailyTableEventType: EventType {
     /**
      * 创建
      */
-    create,
-    delete,
-    addRow,
-    clickWeekDay
+    Create,
+    Delete,
+    AddRow,
+    ClickWeekDay,
+    Rename
 }

@@ -54,5 +54,9 @@ class DailyTableRepository(
         dailyTableDao.clickWeekDay(dailyTableClickWeekDayEventArgs)
     }
 
+    override suspend fun rename(dailyTableRenameEventArgs: DailyTableRenameEventArgs) {
+        dailyTableDao.rename(dailyTableRenameEventArgs)
+    }
+
 
 }

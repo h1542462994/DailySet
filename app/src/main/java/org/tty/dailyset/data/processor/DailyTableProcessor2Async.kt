@@ -11,10 +11,11 @@ interface DailyTableProcessor2Async: EventProcessorAsync {
     @Ignore
     override suspend fun performProcess(eventType: EventType, eventArgs: EventArgs) {
         when(eventType) {
-            DailyTableEventType.create -> { createFromTemplate(eventArgs as DailyTableCreateEventArgs) }
-            DailyTableEventType.delete -> { delete(eventArgs as DailyTableDeleteEventArgs) }
-            DailyTableEventType.addRow -> { addRow(eventArgs as DailyTableAddRowEventArgs) }
-            DailyTableEventType.clickWeekDay -> { clickWeekDay(eventArgs as DailyTableClickWeekDayEventArgs) }
+            DailyTableEventType.Create -> { createFromTemplate(eventArgs as DailyTableCreateEventArgs) }
+            DailyTableEventType.Delete -> { delete(eventArgs as DailyTableDeleteEventArgs) }
+            DailyTableEventType.AddRow -> { addRow(eventArgs as DailyTableAddRowEventArgs) }
+            DailyTableEventType.ClickWeekDay -> { clickWeekDay(eventArgs as DailyTableClickWeekDayEventArgs) }
+            DailyTableEventType.Rename -> { rename(eventArgs as DailyTableRenameEventArgs) }
             else -> { TODO("not yet implemented") }
         }
     }
@@ -22,4 +23,5 @@ interface DailyTableProcessor2Async: EventProcessorAsync {
     suspend fun delete(dailyTableDeleteEventArgs: DailyTableDeleteEventArgs)
     suspend fun addRow(dailyTableAddRowEventArgs: DailyTableAddRowEventArgs)
     suspend fun clickWeekDay(dailyTableClickWeekDayEventArgs: DailyTableClickWeekDayEventArgs)
+    suspend fun rename(dailyTableRenameEventArgs: DailyTableRenameEventArgs)
 }
