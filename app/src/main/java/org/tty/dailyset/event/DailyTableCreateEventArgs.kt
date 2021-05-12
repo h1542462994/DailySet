@@ -1,9 +1,9 @@
 package org.tty.dailyset.event
-import org.tty.dailyset.model.entity.DailyTable
+import org.tty.dailyset.model.entity.DailyTRC
 
 data class DailyTableCreateEventArgs(
     val name: String,
-    val cloneFrom: DailyTable,
+    val cloneFrom: DailyTRC,
     val uid: String,
     val referenceUid: String
 ): EventArgs

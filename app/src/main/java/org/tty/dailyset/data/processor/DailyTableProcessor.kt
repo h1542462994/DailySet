@@ -10,7 +10,7 @@ import org.tty.dailyset.model.lifetime.WeekDayState
  */
 @Immutable
 interface DailyTableProcessor {
-    fun onCreate(dailyTableName: String, currentDailyTable: DailyTable)
+    fun onCreate(dailyTableName: String)
     fun onDelete(dailyTRC: DailyTRC)
     fun onAddRow(weekDays: List<WeekDayState>)
     fun onClickWeekDay(rowIndex: Int, weekDay: Int)

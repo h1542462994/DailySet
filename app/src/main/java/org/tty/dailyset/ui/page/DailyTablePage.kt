@@ -65,9 +65,9 @@ fun DailyTablePage() {
         //val dailyTableState = dailyTableState()
         val dailyTableState2 by dailyTableState2()
         val dailyTableProcessor = object: DailyTableProcessor {
-            override fun onCreate(dailyTableName: String, currentDailyTable: DailyTable) {
+            override fun onCreate(dailyTableName: String) {
                 val uid = UUID.randomUUID().toString()
-                val createEventArgs = DailyTableCreateEventArgs(dailyTableName, currentDailyTable, uid, currentUserState.currentUserUid)
+                val createEventArgs = DailyTableCreateEventArgs(dailyTableName, currentDailyTRC, uid, currentUserState.currentUserUid)
                 performProcess(service, DailyTableEventType.create, createEventArgs,
                         onBefore = {},
                         onCompletion = { e ->
@@ -534,7 +534,7 @@ fun DailyTableCreateDialogCover(dailyTableCreateState: DailyTableCreateState, us
             text = "创建",
             enabled = isValid
         ) {
-            dailyTableProcessor.onCreate(name, currentDailyTable)
+            dailyTableProcessor.onCreate(name)
         }
     }
 

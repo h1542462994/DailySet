@@ -30,7 +30,7 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
 
     fun loadSorted(uid: String): Flow<DailyTRC?> {
         val value = load(uid)
-        return value.map {
+        return value.map { it ->
             if (it == null){
                 return@map it
             } else {
@@ -58,31 +58,28 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
     @Transaction
     override suspend fun createFromTemplate(dailyTableCreateEventArgs: DailyTableCreateEventArgs) {
         val (name, cloneFrom, uid, referenceUid) = dailyTableCreateEventArgs
-        val dailyTRC = get(cloneFrom.uid)
-        if (dailyTRC != null) {
-            val newDailyTable = dailyTRC.dailyTable.copy(
-                name = name,
-                uid = uid,
-                referenceUid = referenceUid,
+        val newDailyTable = cloneFrom.dailyTable.copy(
+            name = name,
+            uid = uid,
+            referenceUid = referenceUid,
+            updateAt = localTimestampNow(),
+            global = false
+        )
+        update(newDailyTable)
+        cloneFrom.dailyRCs.forEach { dailyRC ->
+            val newDailyRow = dailyRC.dailyRow.copy(
+                uid = UUID.randomUUID().toString(),
                 updateAt = localTimestampNow(),
-                global = false
+                dailyTableUid = uid
             )
-            update(newDailyTable)
-            dailyTRC.dailyRCs.forEach { dailyRC ->
-                val newDailyRow = dailyRC.dailyRow.copy(
+            update(newDailyRow)
+            dailyRC.dailyCells.forEach { dailyCell ->
+                val newDailyCell = dailyCell.copy(
                     uid = UUID.randomUUID().toString(),
                     updateAt = localTimestampNow(),
-                    dailyTableUid = uid
+                    dailyRowUid = newDailyRow.uid
                 )
-                update(newDailyRow)
-                dailyRC.dailyCells.forEach { dailyCell ->
-                    val newDailyCell = dailyCell.copy(
-                        uid = UUID.randomUUID().toString(),
-                        updateAt = localTimestampNow(),
-                        dailyRowUid = newDailyRow.uid
-                    )
-                    update(newDailyCell)
-                }
+                update(newDailyCell)
             }
         }
     }
@@ -153,7 +150,7 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
     @Transaction
     override suspend fun clickWeekDay(dailyTableClickWeekDayEventArgs: DailyTableClickWeekDayEventArgs) {
         val (dailyTRC, rowIndex, weekDay) = dailyTableClickWeekDayEventArgs
-        assert(weekDay in 1..7)
+        //assert(weekDay in 1..7)
         fun dailyRowOfRowIndex(index: Int) = dailyTRC.dailyRCs[index].dailyRow
         fun weekDayOfRowIndex(index: Int) = dailyRowOfRowIndex(index).weekdays
 
@@ -161,21 +158,22 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
         val checked = currentWeekDay.contains(weekDay)
 
         if (!checked) {
-            for (i in 0 until dailyTRC.dailyRCs.count()) {
+            for (dailyRC in dailyTRC.dailyRCs) {
                 // 找到checked的一行
-                if (weekDayOfRowIndex(i).contains(i)) {
-                    val source = dailyRowOfRowIndex(rowIndex)
-                    update(dailyRow = source.copy(
-                        weekdays = source.weekdays.plus(weekDay).sortedArray(),
-                        updateAt = localTimestampNow()
-                    ))
-                    val target = dailyRowOfRowIndex(i)
+                val target = dailyRC.dailyRow
+                if (target.weekdays.contains(weekDay)) {
                     update(dailyRow = target.copy(
                         weekdays = target.weekdays.filter { it != weekDay }.toIntArray(),
                         updateAt = localTimestampNow()
                     ))
                 }
             }
+
+            val source = dailyRowOfRowIndex(rowIndex)
+            update(dailyRow = source.copy(
+                weekdays = source.weekdays.plus(weekDay).sortedArray(),
+                updateAt = localTimestampNow()
+            ))
         } else {
             val source = dailyRowOfRowIndex(rowIndex)
             update(dailyRow = source.copy(
