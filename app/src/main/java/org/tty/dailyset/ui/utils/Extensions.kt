@@ -5,6 +5,7 @@ import androidx.annotation.RequiresApi
 import org.tty.dailyset.model.lifetime.WeekDayState
 import java.sql.Time
 import java.sql.Timestamp
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -45,8 +46,10 @@ fun minus(end: LocalDate, start: LocalDate): Long {
 }
 
 fun localTimestampNow(): Timestamp {
-    val current = LocalDateTime.now()
-    return Timestamp(current.nano.toLong() * 1000000)
+    val current = LocalDateTime.now().nano
+    val timestamp = Timestamp(0)
+    timestamp.nanos = current
+    return timestamp
 }
 
 fun second(): Int {

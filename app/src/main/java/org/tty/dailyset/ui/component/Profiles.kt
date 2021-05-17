@@ -64,7 +64,16 @@ fun ProfileMenuGroup(
     extension: @Composable RowScope.() -> Unit,
     body: @Composable () -> Unit
 ) {
-    
+    ProfileMenuGroup(
+        title = {
+            Row {
+                Text(text = title, color = LocalPalette.current.textColorTitle, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.weight(1f))
+                extension()
+            }
+        },
+        body = body
+    )
 }
 
 /**

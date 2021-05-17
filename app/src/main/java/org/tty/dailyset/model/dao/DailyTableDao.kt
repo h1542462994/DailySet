@@ -209,7 +209,30 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
      * deleteRow from the DailyTable
      */
     override suspend fun deleteRow(dailyTableRowDeleteEventArgs: DailyTableRowDeleteEventArgs) {
-        TODO("Not yet implemented")
+        val (dailyTRC, rowIndex) = dailyTableRowDeleteEventArgs
+        assert(rowIndex > 0)
+        fun dailyRowOfRowIndex(index: Int) = dailyTRC.dailyRCs[index].dailyRow
+        val weekDays = dailyRowOfRowIndex(rowIndex - 1).weekdays
+            .plus(dailyRowOfRowIndex(rowIndex).weekdays).sortedArray()
+        // modify the previous
+        update(dailyRow = dailyRowOfRowIndex(rowIndex - 1).copy(
+            weekdays = weekDays,
+            updateAt = localTimestampNow()
+        ))
+        // modify the next
+        for (index in rowIndex + 1 until dailyTRC.dailyRCs.size) {
+            val current = dailyRowOfRowIndex(index)
+            update(dailyRow = current.copy(
+                currentIndex = current.currentIndex - 1,
+                updateAt = localTimestampNow()
+            ))
+        }
+        // delete the current
+        delete(dailyRowOfRowIndex(rowIndex))
+        // update the dailyTable
+        update(dailyTable = dailyTRC.dailyTable.copy(
+            updateAt = localTimestampNow()
+        ))
     }
 
 }

@@ -66,69 +66,84 @@ fun DailyTablePage() {
         //val dailyTableState = dailyTableState()
         val dailyTableState2 by dailyTableState2()
         val currentDailyTRC = dailyTableState2.dailyTRC
-        val dailyTableProcessor = object: DailyTableProcessor {
+
+        //region dailyTableProcessor
+        val dailyTableProcessor = object : DailyTableProcessor {
             override fun onCreate(dailyTableName: String) {
                 val uid = UUID.randomUUID().toString()
-                val createEventArgs = DailyTableCreateEventArgs(dailyTableName, currentDailyTRC, uid, currentUserState.currentUserUid)
+                val createEventArgs = DailyTableCreateEventArgs(
+                    dailyTableName,
+                    currentDailyTRC,
+                    uid,
+                    currentUserState.currentUserUid
+                )
                 performProcess(service, DailyTableEventType.Create, createEventArgs,
-                        onBefore = {},
-                        onCompletion = { e ->
-                            if (e is DailyTableCreateEventArgs) {
-                                mainViewModel.currentDailyTableUid.postValue(e.uid)
-                            }
+                    onBefore = {},
+                    onCompletion = { e ->
+                        if (e is DailyTableCreateEventArgs) {
+                            mainViewModel.currentDailyTableUid.postValue(e.uid)
                         }
-                    )
+                    }
+                )
             }
 
             override fun onDelete() {
                 // TODO: 2021/5/2 加入检查代码，以防止DailyTask引用到空的DailyTable,DailyRow,DailyCell.
                 val deleteEventArgs = DailyTableDeleteEventArgs(currentDailyTRC)
                 performProcess(service, DailyTableEventType.Delete, deleteEventArgs,
-                        onBefore = { mainViewModel.currentDailyTableUid.postValue(DailyTable.default) },
-                        onCompletion = {}
-                    )
+                    onBefore = { mainViewModel.currentDailyTableUid.postValue(DailyTable.default) },
+                    onCompletion = {}
+                )
             }
 
             override fun onAddRow(weekDays: List<WeekDayState>) {
                 Log.d("DailyTablePage", "dailyTableAddRow:${weekDays}")
-                val dailyTableAddRowEventArgs = DailyTableAddRowEventArgs(dailyTRC = currentDailyTRC, weekDays = weekDays.toIntArray())
+                val dailyTableAddRowEventArgs = DailyTableAddRowEventArgs(
+                    dailyTRC = currentDailyTRC,
+                    weekDays = weekDays.toIntArray()
+                )
                 performProcess(service, DailyTableEventType.AddRow, dailyTableAddRowEventArgs,
-                        onBefore = {},
-                        onCompletion = {
-                            dailyTableAddRowState.dialogOpen.value = false
-                            mainViewModel.currentDailyTableUid.postValue(currentDailyTRC.dailyTable.uid)
-                        }
-                    )
+                    onBefore = {},
+                    onCompletion = {
+                        dailyTableAddRowState.dialogOpen.value = false
+                        mainViewModel.currentDailyTableUid.postValue(currentDailyTRC.dailyTable.uid)
+                    }
+                )
             }
 
             override fun onClickWeekDay(rowIndex: Int, weekDay: Int) {
-                val dailyTableClickWeekDayEventArgs = DailyTableClickWeekDayEventArgs(currentDailyTRC, rowIndex, weekDay)
-                performProcess(service, DailyTableEventType.ClickWeekDay, dailyTableClickWeekDayEventArgs,
-                        onBefore = {},
-                        onCompletion = {}
-                    )
+                val dailyTableClickWeekDayEventArgs =
+                    DailyTableClickWeekDayEventArgs(currentDailyTRC, rowIndex, weekDay)
+                performProcess(service,
+                    DailyTableEventType.ClickWeekDay,
+                    dailyTableClickWeekDayEventArgs,
+                    onBefore = {},
+                    onCompletion = {}
+                )
             }
 
             override fun onRename(name: String) {
                 val dailyTableRenameEventArgs = DailyTableRenameEventArgs(currentDailyTRC, name)
                 performProcess(service, DailyTableEventType.Rename, dailyTableRenameEventArgs,
-                        onBefore = {},
-                        onCompletion = {
-                            dailyTableRenameState.dialogOpen.value = false
-                        }
-                    )
+                    onBefore = {},
+                    onCompletion = {
+                        dailyTableRenameState.dialogOpen.value = false
+                    }
+                )
             }
 
             override fun onDeleteDailyRow(rowIndex: Int) {
-                val dailyTableDeleteRowEventArgs = DailyTableRowDeleteEventArgs(currentDailyTRC, rowIndex)
+                val dailyTableDeleteRowEventArgs =
+                    DailyTableRowDeleteEventArgs(currentDailyTRC, rowIndex)
                 performProcess(service, DailyTableEventType.DeleteRow, dailyTableDeleteRowEventArgs,
-                        onBefore = {},
-                        onCompletion = {
+                    onBefore = {},
+                    onCompletion = {
 
-                        }
-                    )
+                    }
+                )
             }
         }
+        //endregion
 
         Column {
             CenterBar(true, LocalNav.current.action.upPress,
@@ -142,13 +157,17 @@ fun DailyTablePage() {
                         dailyTableRenameState = dailyTableRenameState
                     )
                 }) {
-                DailyTableTitle(dailyTable = currentDailyTRC.dailyTable, userState = currentUserState) {
+                DailyTableTitle(
+                    dailyTable = currentDailyTRC.dailyTable,
+                    userState = currentUserState
+                ) {
                     dropDownTitleOpenState.value = true
                 }
                 DailyTableDropDown(
                     dailyTableSummaries = dailyTableSummaries,
                     userState = currentUserState,
-                    dropDownOpenState = dropDownTitleOpenState) { dailyTable ->
+                    dropDownOpenState = dropDownTitleOpenState
+                ) { dailyTable ->
                     // TODO: 2021/4/7 优化代码
                     mainViewModel.currentDailyTableUid.value = dailyTable.uid
 
@@ -160,14 +179,37 @@ fun DailyTablePage() {
             Column(
                 modifier = Modifier.verticalScroll(state = scrollState, enabled = true)
             ) {
-                DailyTableContent(dailyTableState2 = dailyTableState2, userState = currentUserState, dailyTableProcessor = dailyTableProcessor)
+                DailyTableContent(
+                    dailyTableState2 = dailyTableState2,
+                    userState = currentUserState,
+                    dailyTableDeleteRowState = dailyTableDeleteRowState,
+                    dailyTableProcessor = dailyTableProcessor
+                )
             }
         }
         // register dialogs
-        DailyTableAddRowDialogCover(dailyTableAddRowState = dailyTableAddRowState, dailyTableProcessor = dailyTableProcessor)
-        DailyTableDeleteDialogCover(dailyTableState2 = dailyTableState2, dailyTableDeleteState = dailyTableDeleteState, dailyTableProcessor = dailyTableProcessor)
-        DailyTableCreateDialogCover(dailyTableCreateState = dailyTableCreateState, userState = currentUserState,dailyTableProcessor = dailyTableProcessor)
-        DailyTableRenameDialogCover(dailyTableRenameState = dailyTableRenameState, dailyTableProcessor = dailyTableProcessor)
+        DailyTableAddRowDialogCover(
+            dailyTableAddRowState = dailyTableAddRowState,
+            dailyTableProcessor = dailyTableProcessor
+        )
+        DailyTableDeleteDialogCover(
+            dailyTableState2 = dailyTableState2,
+            dailyTableDeleteState = dailyTableDeleteState,
+            dailyTableProcessor = dailyTableProcessor
+        )
+        DailyTableCreateDialogCover(
+            dailyTableCreateState = dailyTableCreateState,
+            userState = currentUserState,
+            dailyTableProcessor = dailyTableProcessor
+        )
+        DailyTableRenameDialogCover(
+            dailyTableRenameState = dailyTableRenameState,
+            dailyTableProcessor = dailyTableProcessor
+        )
+        DailyTableDeleteRowDialogCover(
+            dailyTableDeleteRowState = dailyTableDeleteRowState,
+            dailyTableProcessor = dailyTableProcessor
+        )
     }
 }
 
@@ -175,11 +217,16 @@ fun DailyTablePage() {
  * DailyTablePage .title / DailyTablePagePreview .title
  */
 @Composable
-fun DailyTableTitle(dailyTable: DailyTable, userState: UserState, isPreviewPage: Boolean = false, onClick: (() -> Unit)? = null) {
+fun DailyTableTitle(
+    dailyTable: DailyTable,
+    userState: UserState,
+    isPreviewPage: Boolean = false,
+    onClick: (() -> Unit)? = null
+) {
     var modifier = Modifier
         .wrapContentSize(align = Alignment.Center)
 
-    if (onClick != null){
+    if (onClick != null) {
         modifier = modifier.clickable { onClick() }
     }
 
@@ -190,9 +237,16 @@ fun DailyTableTitle(dailyTable: DailyTable, userState: UserState, isPreviewPage:
             modifier = Modifier
                 .align(alignment = Alignment.CenterHorizontally)
                 .wrapContentSize(align = Alignment.Center),
-            text = if (isPreviewPage) stringResource(id = R.string.time_table_preview) else stringResource(id = R.string.time_table),
-            fontSize = 18.sp)
-        DailyTableTitleDetail(dailyTable = dailyTable, userState= userState, isPreviewPage = isPreviewPage)
+            text = if (isPreviewPage) stringResource(id = R.string.time_table_preview) else stringResource(
+                id = R.string.time_table
+            ),
+            fontSize = 18.sp
+        )
+        DailyTableTitleDetail(
+            dailyTable = dailyTable,
+            userState = userState,
+            isPreviewPage = isPreviewPage
+        )
     }
 }
 
@@ -205,11 +259,18 @@ fun DailyTableTitleDetail(dailyTable: DailyTable, userState: UserState, isPrevie
         modifier = Modifier
             .wrapContentSize(align = Alignment.Center),
     ) {
-        DailyTableTitleDescription(dailyTable = dailyTable, userState = userState, color = LocalPalette.current.textColorDetail)
+        DailyTableTitleDescription(
+            dailyTable = dailyTable,
+            userState = userState,
+            color = LocalPalette.current.textColorDetail
+        )
         if (!isPreviewPage) {
             Icon(
                 modifier = Modifier.scale(0.8f),
-                imageVector = Icons.Filled.KeyboardArrowDown, contentDescription = null, tint = LocalPalette.current.textColorDetail)
+                imageVector = Icons.Filled.KeyboardArrowDown,
+                contentDescription = null,
+                tint = LocalPalette.current.textColorDetail
+            )
         }
     }
 
@@ -237,7 +298,8 @@ fun DailyTableTitleDescription(dailyTable: DailyTable, userState: UserState, col
         }
         Text(
             modifier = Modifier.align(alignment = Alignment.CenterVertically),
-            text = dailyTable.name, color = color)
+            text = dailyTable.name, color = color
+        )
     }
 }
 
@@ -256,8 +318,8 @@ fun DailyTableExtensionDropDown(
     dailyTableCreateState: DailyTableCreateState,
     dailyTableAddRowState: DailyTableAddRowState,
     dailyTableDeleteState: DailyTableDeleteState,
-    dailyTableRenameState: DailyTableRenameState)
-{
+    dailyTableRenameState: DailyTableRenameState
+) {
     BarExtension(expandedState = dropDownExtensionOpenState) {
         DropdownMenuItem(onClick = {
             // open createDialog for DailyTable
@@ -265,11 +327,14 @@ fun DailyTableExtensionDropDown(
             // close the dropDown
             dropDownExtensionOpenState.value = false
         }) {
-            IconText(imageVector = Icons.Filled.Add , text = stringResource(id = R.string.time_table_add))
+            IconText(
+                imageVector = Icons.Filled.Add,
+                text = stringResource(id = R.string.time_table_add)
+            )
         }
 
 
-        if (!dailyTableState2.readOnly){
+        if (!dailyTableState2.readOnly) {
             if (dailyTableState2.canAddRow) {
                 // 添加组
                 DropdownMenuItem(onClick = {
@@ -278,7 +343,10 @@ fun DailyTableExtensionDropDown(
                     // close the dropDown
                     dropDownExtensionOpenState.value = false
                 }) {
-                    IconText(imageVector = Icons.Filled.Add, text = stringResource(id = R.string.time_table_group_add))
+                    IconText(
+                        imageVector = Icons.Filled.Add,
+                        text = stringResource(id = R.string.time_table_group_add)
+                    )
                 }
             }
 
@@ -289,7 +357,10 @@ fun DailyTableExtensionDropDown(
                 // close the dropDown
                 dropDownExtensionOpenState.value = false
             }) {
-                IconText(imageVector = Icons.Filled.Refresh, text = stringResource(id = R.string.time_table_rename))
+                IconText(
+                    imageVector = Icons.Filled.Refresh,
+                    text = stringResource(id = R.string.time_table_rename)
+                )
             }
 
             // 当课程表可编辑时，意味着其可以删除。
@@ -299,7 +370,10 @@ fun DailyTableExtensionDropDown(
                 // close the dropDown
                 dropDownExtensionOpenState.value = false
             }) {
-                IconText(imageVector = Icons.Filled.Delete, text = stringResource(id = R.string.time_table_delete))
+                IconText(
+                    imageVector = Icons.Filled.Delete,
+                    text = stringResource(id = R.string.time_table_delete)
+                )
             }
 
 
@@ -311,13 +385,24 @@ fun DailyTableExtensionDropDown(
  * DailyTablePage .dropDown
  */
 @Composable
-fun DailyTableDropDown(dailyTableSummaries: List<DailyTable>, userState: UserState, dropDownOpenState: MutableState<Boolean>, onSelectItem: (DailyTable) -> Unit) {
+fun DailyTableDropDown(
+    dailyTableSummaries: List<DailyTable>,
+    userState: UserState,
+    dropDownOpenState: MutableState<Boolean>,
+    onSelectItem: (DailyTable) -> Unit
+) {
     DropdownMenu(
         modifier = Modifier.width(150.dp),
-        offset = DpOffset(x = 0.dp, y = 56.dp), expanded = dropDownOpenState.value, onDismissRequest = { dropDownOpenState.value = false }) {
+        offset = DpOffset(x = 0.dp, y = 56.dp),
+        expanded = dropDownOpenState.value,
+        onDismissRequest = { dropDownOpenState.value = false }) {
         dailyTableSummaries.forEach { dailyTable ->
             DropdownMenuItem(onClick = { onSelectItem(dailyTable) }) {
-                DailyTableTitleDescription(dailyTable = dailyTable, userState = userState, color = LocalPalette.current.textColor)
+                DailyTableTitleDescription(
+                    dailyTable = dailyTable,
+                    userState = userState,
+                    color = LocalPalette.current.textColor
+                )
             }
         }
     }
@@ -327,15 +412,28 @@ fun DailyTableDropDown(dailyTableSummaries: List<DailyTable>, userState: UserSta
  * DailyTablePage .content
  */
 @Composable
-fun DailyTableContent(dailyTableState2: DailyTableState2, userState: UserState, dailyTableProcessor: DailyTableProcessor) {
+fun DailyTableContent(
+    dailyTableState2: DailyTableState2,
+    userState: UserState,
+    dailyTableDeleteRowState: DailyTableDeleteRowState,
+    dailyTableProcessor: DailyTableProcessor
+) {
     DailyTableTipBox(dailyTable = dailyTableState2.dailyTRC.dailyTable, userState = userState)
 
-    ProfileMenuItem(icon = Icons.Filled.Place, title = "预览", next = true, content =
-    "点击以进行预览", onClick = LocalNav.current.action.toTimeTablePreview
+    ProfileMenuItem(
+        icon = Icons.Filled.Place, title = "预览", next = true, content =
+        "点击以进行预览", onClick = LocalNav.current.action.toTimeTablePreview
     )
 
     dailyTableState2.dailyTRC.dailyRCs.forEachIndexed { index, item ->
-        DailyRCContent(dailyRC = item, index = index, readOnly = dailyTableState2.readOnly, weekDayStateList = dailyTableState2.weekDays[index], dailyTableProcessor)
+        DailyRCContent(
+            dailyRC = item,
+            index = index,
+            readOnly = dailyTableState2.readOnly,
+            weekDayStateList = dailyTableState2.weekDays[index],
+            dailyTableDeleteRowState = dailyTableDeleteRowState,
+            dailyTableProcessor = dailyTableProcessor
+        )
     }
 
 
@@ -347,7 +445,10 @@ fun DailyTableContent(dailyTableState2: DailyTableState2, userState: UserState, 
  */
 @Composable
 @Deprecated("move to .extensionArea")
-fun DailyTableAddRowButton(dailyTableState2: DailyTableState2, dailyTableAddRowState: DailyTableAddRowState) {
+fun DailyTableAddRowButton(
+    dailyTableState2: DailyTableState2,
+    dailyTableAddRowState: DailyTableAddRowState
+) {
     if (!dailyTableState2.readOnly) {
         Button(
             modifier = Modifier
@@ -355,7 +456,7 @@ fun DailyTableAddRowButton(dailyTableState2: DailyTableState2, dailyTableAddRowS
                 .padding(8.dp, 4.dp),
             enabled = dailyTableState2.canAddRow,
             onClick = { dailyTableAddRowState.dialogOpen.value = true }) {
-           Text(text = "添加组")
+            Text(text = "添加组")
         }
     }
 }
@@ -367,7 +468,7 @@ fun DailyTableAddRowButton(dailyTableState2: DailyTableState2, dailyTableAddRowS
 fun DailyTableTipBox(dailyTable: DailyTable, userState: UserState) {
     if (dailyTable.global) {
         TipBox(value = "系统默认时间表 (只读)")
-    } else if(dailyTable.referenceUid != userState.currentUserUid) {
+    } else if (dailyTable.referenceUid != userState.currentUserUid) {
         TipBox(value = "共享时间表 (只读)")
     }
 }
@@ -376,15 +477,41 @@ fun DailyTableTipBox(dailyTable: DailyTable, userState: UserState) {
  * DailyTablePage .content.RC
  */
 @Composable
-fun DailyRCContent(dailyRC: DailyRC, index: Int, readOnly: Boolean, weekDayStateList: List<WeekDayState>, dailyTableProcessor: DailyTableProcessor) {
+fun DailyRCContent(
+    dailyRC: DailyRC,
+    index: Int,
+    readOnly: Boolean,
+    weekDayStateList: List<WeekDayState>,
+    dailyTableDeleteRowState: DailyTableDeleteRowState,
+    dailyTableProcessor: DailyTableProcessor
+) {
     val dailyRow = dailyRC.dailyRow
-    ProfileMenuGroup(title = "组${index + 1}") {
+    ProfileMenuGroup(title = "组${index + 1}", extension = {
+        // 可以删除DailyRow
+        if (!readOnly && index > 0) {
+            IconButton(
+                onClick = {
+                    dailyTableDeleteRowState.dialogOpen.value = true
+                },
+                modifier = Modifier.size(width = 32.dp, height = 16.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Delete,
+                    tint = MaterialTheme.colors.error,
+                    contentDescription = null
+                )
+            }
+        }
+
+        //Text("PlaceHolder")
+    }) {
         ProfileMenuItem(title = "适用星期", next = false, content = {
             DailyRCContentWeekDay(weekDayStateList = weekDayStateList, onItemSelect = {
                 dailyTableProcessor.onClickWeekDay(index, it + 1)
             })
         })
-        ProfileMenuItem(title = "节数", next = true, content =
+        ProfileMenuItem(
+            title = "节数", next = true, content =
             dailyRow.counts.joinToString(" ")
         )
 
@@ -414,11 +541,15 @@ fun DailyRCContent(dailyRC: DailyRC, index: Int, readOnly: Boolean, weekDayState
 fun DailyRCContentWeekDay(weekDayStateList: List<WeekDayState>, onItemSelect: (Int) -> Unit) {
     // TODO: 2021/4/7 修改样式
     Row {
-        weekDayStateList.forEachIndexed { index,weekDayState ->
+        weekDayStateList.forEachIndexed { index, weekDayState ->
             Spacer(
                 modifier = Modifier.width(4.dp)
             )
-            Badge(readOnly = weekDayState.readOnly, checked = weekDayState.checked, text = index.toWeekDayString().substring(1)) {
+            Badge(
+                readOnly = weekDayState.readOnly,
+                checked = weekDayState.checked,
+                text = index.toWeekDayString().substring(1)
+            ) {
                 onItemSelect(index)
             }
         }
@@ -431,7 +562,8 @@ fun DailyRCContentWeekDay(weekDayStateList: List<WeekDayState>, onItemSelect: (I
  */
 @Composable
 fun DailyCellContent(dailyCell: DailyCell, index: Int) {
-    ProfileMenuItem(title = "第${index + 1}节", next = true,
+    ProfileMenuItem(
+        title = "第${index + 1}节", next = true,
         content = "${dailyCell.start.toShortString()}-${dailyCell.end.toShortString()}"
     )
 }
@@ -465,11 +597,11 @@ fun DailyTableCreateDialog(dailyTableCreateState: DailyTableCreateState) {
                             focusRequester.freeFocus()
 
                         }
-                    ){
+                    ) {
                         Text("取消")
                     }
                     Button(
-                        onClick = {  }) {
+                        onClick = { }) {
                         Text("确认")
                     }
                 }
@@ -504,12 +636,15 @@ fun DailyTableCreateDialog(dailyTableCreateState: DailyTableCreateState) {
  * @param dailyTableState state of the DailyTable
  */
 @Composable
-fun DailyTableDeleteDialogCover(dailyTableState2: DailyTableState2, dailyTableDeleteState: DailyTableDeleteState, dailyTableProcessor: DailyTableProcessor) {
+fun DailyTableDeleteDialogCover(
+    dailyTableState2: DailyTableState2,
+    dailyTableDeleteState: DailyTableDeleteState,
+    dailyTableProcessor: DailyTableProcessor
+) {
     // readOnly的项无法删除
     if (!dailyTableState2.readOnly) {
         NanoDialog(title = "删除时间表", dialogState = dailyTableDeleteState) {
             Text("你确认要删除时间表${dailyTableState2.dailyTRC.dailyTable.name}吗?")
-            // TODO: 2021/5/2 将按钮抽取成一个控件
             NanoDialogButton(text = "删除", error = true) {
                 dailyTableProcessor.onDelete()
             }
@@ -524,7 +659,11 @@ fun DailyTableDeleteDialogCover(dailyTableState2: DailyTableState2, dailyTableDe
  * @param userState current userState
  */
 @Composable
-fun DailyTableCreateDialogCover(dailyTableCreateState: DailyTableCreateState, userState: UserState, dailyTableProcessor: DailyTableProcessor) {
+fun DailyTableCreateDialogCover(
+    dailyTableCreateState: DailyTableCreateState,
+    userState: UserState,
+    dailyTableProcessor: DailyTableProcessor
+) {
     var name by dailyTableCreateState.name
     val dailyTableSummaries by dailyTableCreateState.dailyTableSummaries
     var currentDailyTable by dailyTableCreateState.currentDailyTable
@@ -532,7 +671,10 @@ fun DailyTableCreateDialogCover(dailyTableCreateState: DailyTableCreateState, us
         name.isNotEmpty() && name.length in 2..20
     }
 
-    NanoDialog(title = stringResource(id = R.string.time_table_add), dialogState = dailyTableCreateState) {
+    NanoDialog(
+        title = stringResource(id = R.string.time_table_add),
+        dialogState = dailyTableCreateState
+    ) {
 
         OutlinedTextField(
             modifier = Modifier
@@ -543,8 +685,15 @@ fun DailyTableCreateDialogCover(dailyTableCreateState: DailyTableCreateState, us
             })
         Spacer(modifier = Modifier.height(16.dp))
         Row {
-            ComboBox(title = "基于..创建", data = dailyTableSummaries, onSelected = { currentDailyTable = it }) {
-                DailyTableTitleDescription(dailyTable = it, userState = userState, color = LocalPalette.current.textColor)
+            ComboBox(
+                title = "基于..创建",
+                data = dailyTableSummaries,
+                onSelected = { currentDailyTable = it }) {
+                DailyTableTitleDescription(
+                    dailyTable = it,
+                    userState = userState,
+                    color = LocalPalette.current.textColor
+                )
 
             }
         }
@@ -562,12 +711,20 @@ fun DailyTableCreateDialogCover(dailyTableCreateState: DailyTableCreateState, us
  * DailyTablePage .content .dialog<add_row> version = 1
  */
 @Composable
-fun DailyTableAddRowDialogCover(dailyTableAddRowState: DailyTableAddRowState, dailyTableProcessor: DailyTableProcessor) {
-    NanoDialog(title = stringResource(id = R.string.time_table_group_add), dialogState = dailyTableAddRowState) {
+fun DailyTableAddRowDialogCover(
+    dailyTableAddRowState: DailyTableAddRowState,
+    dailyTableProcessor: DailyTableProcessor
+) {
+    NanoDialog(
+        title = stringResource(id = R.string.time_table_group_add),
+        dialogState = dailyTableAddRowState
+    ) {
         ProfileMenuItem(title = "适用星期", next = false, content = {
-            DailyRCContentWeekDay(weekDayStateList = dailyTableAddRowState.lastState, onItemSelect = { index ->
-                dailyTableAddRowState.onItemClick(index)
-            })
+            DailyRCContentWeekDay(
+                weekDayStateList = dailyTableAddRowState.lastState,
+                onItemSelect = { index ->
+                    dailyTableAddRowState.onItemClick(index)
+                })
         })
         val selectionCount = dailyTableAddRowState.lastState.count {
             it.checked
@@ -584,13 +741,19 @@ fun DailyTableAddRowDialogCover(dailyTableAddRowState: DailyTableAddRowState, da
  * DailyTablePage .dialog<rename>
  */
 @Composable
-fun DailyTableRenameDialogCover(dailyTableRenameState: DailyTableRenameState, dailyTableProcessor: DailyTableProcessor) {
+fun DailyTableRenameDialogCover(
+    dailyTableRenameState: DailyTableRenameState,
+    dailyTableProcessor: DailyTableProcessor
+) {
     var name by dailyTableRenameState.name
     val isValid by derivedStateOf {
         name.isNotEmpty() && name.length in 2..20
     }
 
-    NanoDialog(title = "${stringResource(id = R.string.time_table_rename)}:${dailyTableRenameState.dailyTable.name}", dialogState = dailyTableRenameState) {
+    NanoDialog(
+        title = "${stringResource(id = R.string.time_table_rename)}:${dailyTableRenameState.dailyTable.name}",
+        dialogState = dailyTableRenameState
+    ) {
 
         OutlinedTextField(
             modifier = Modifier
@@ -604,6 +767,26 @@ fun DailyTableRenameDialogCover(dailyTableRenameState: DailyTableRenameState, da
             enabled = isValid
         ) {
             dailyTableProcessor.onRename(name)
+        }
+    }
+}
+
+/**
+ * DailyTablePage .dialog<deleteRow>
+ */
+@Composable
+fun DailyTableDeleteRowDialogCover(
+    dailyTableDeleteRowState: DailyTableDeleteRowState,
+    dailyTableProcessor: DailyTableProcessor
+) {
+    val rowIndex by dailyTableDeleteRowState.rowIndex
+    NanoDialog(
+        title = "${stringResource(id = R.string.time_table_group_delete)}:组${rowIndex + 1}",
+        dialogState = dailyTableDeleteRowState
+    ) {
+        Text("你确认要删除组${rowIndex + 1}吗?")
+        NanoDialogButton(text = "删除", error = true) {
+            dailyTableProcessor.onDeleteDailyRow(rowIndex)
         }
     }
 }
