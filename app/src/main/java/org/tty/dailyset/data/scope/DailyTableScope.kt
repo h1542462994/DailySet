@@ -156,6 +156,21 @@ interface DailyTableScope: PreferenceScope, UserScope {
         )
     }
 
+    @Composable
+    fun dailyTableDeleteRowState(
+        dialogOpen: Boolean = false,
+        rowIndex: Int = 0
+    ): DailyTableDeleteRowState {
+        return DailyTableDeleteRowState(
+            dialogOpen = remember {
+                mutableStateOf(dialogOpen)
+            },
+            rowIndex = remember {
+                mutableStateOf(rowIndex)
+            }
+        )
+    }
+
     fun groupDailyCells(list: List<DailyCell>): Map<Int, List<DailyCell>> {
         return list.groupBy { it.normalType }
     }

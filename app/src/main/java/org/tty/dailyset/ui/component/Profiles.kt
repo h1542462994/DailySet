@@ -56,6 +56,18 @@ fun ProfileMenuGroup(
 }
 
 /**
+ * ProfileMenuGroup, provides a specialized title and slots to extension and body
+ */
+@Composable
+fun ProfileMenuGroup(
+    title: String,
+    extension: @Composable RowScope.() -> Unit,
+    body: @Composable () -> Unit
+) {
+    
+}
+
+/**
  * ProfileMenuItem, provides slots to [icon], title, content
  */
 @Composable
@@ -195,7 +207,8 @@ fun TipBox(
     content: @Composable () -> Unit
 ) {
     BoxWithConstraints(
-        modifier = Modifier.background(color = LocalPalette.current.backgroundColor)
+        modifier = Modifier
+            .background(color = LocalPalette.current.backgroundColor)
             .fillMaxWidth()
     ) {
         content()

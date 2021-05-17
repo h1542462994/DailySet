@@ -3,11 +3,7 @@ package org.tty.dailyset.ui.page
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
@@ -62,11 +58,11 @@ fun DailyTablePage() {
         //val currentDailyTRC by currentDailyTableDetail()
         val currentUserState by currentUserState()
 
-
         val dailyTableCreateState = dailyTableCreateState()
         val dailyTableDeleteState = dailyTableDeleteState()
         val dailyTableAddRowState = dailyTableAddRowState()
         val dailyTableRenameState = dailyTableRenameState()
+        val dailyTableDeleteRowState = dailyTableDeleteRowState()
         //val dailyTableState = dailyTableState()
         val dailyTableState2 by dailyTableState2()
         val currentDailyTRC = dailyTableState2.dailyTRC
@@ -82,13 +78,6 @@ fun DailyTablePage() {
                             }
                         }
                     )
-
-
-//                dailyTableCreateFromTemplate(service, currentUserUid = currentUserState.currentUserUid, dailyTableName, cloneFrom =currentDailyTable, null,
-//                    onCompletion = { dailyTableUid ->
-//                        // operation after create DailyTable on success
-//                        mainViewModel.currentDailyTableUid.postValue(dailyTableUid)
-//                    })
             }
 
             override fun onDelete() {
@@ -98,11 +87,6 @@ fun DailyTablePage() {
                         onBefore = { mainViewModel.currentDailyTableUid.postValue(DailyTable.default) },
                         onCompletion = {}
                     )
-
-//                dailyTableDelete(service, dailyTRC = dailyTRC, onBefore = {
-//                    // change the currentDailyTable to DailyTable.default() before delete.
-//                    mainViewModel.currentDailyTableUid.postValue(DailyTable.default)
-//                })
             }
 
             override fun onAddRow(weekDays: List<WeekDayState>) {
@@ -115,11 +99,6 @@ fun DailyTablePage() {
                             mainViewModel.currentDailyTableUid.postValue(currentDailyTRC.dailyTable.uid)
                         }
                     )
-
-//                dailyTableAddRow(service, dailyTRC = currentDailyTRC, weekDays = weekDays.toIntArray(), onCompletion = {
-//                    dailyTableAddRowState.dialogOpen.value = false
-//                    mainViewModel.currentDailyTableUid.postValue(currentDailyTRC.dailyTable.uid)
-//                })
             }
 
             override fun onClickWeekDay(rowIndex: Int, weekDay: Int) {
@@ -136,6 +115,16 @@ fun DailyTablePage() {
                         onBefore = {},
                         onCompletion = {
                             dailyTableRenameState.dialogOpen.value = false
+                        }
+                    )
+            }
+
+            override fun onDeleteDailyRow(rowIndex: Int) {
+                val dailyTableDeleteRowEventArgs = DailyTableRowDeleteEventArgs(currentDailyTRC, rowIndex)
+                performProcess(service, DailyTableEventType.DeleteRow, dailyTableDeleteRowEventArgs,
+                        onBefore = {},
+                        onCompletion = {
+
                         }
                     )
             }
@@ -173,11 +162,6 @@ fun DailyTablePage() {
             ) {
                 DailyTableContent(dailyTableState2 = dailyTableState2, userState = currentUserState, dailyTableProcessor = dailyTableProcessor)
             }
-//            LazyColumn(state = columnState) {
-//                item {
-//                    DailyTableContent(dailyTableState2 = dailyTableState2, userState = currentUserState, dailyTableProcessor = dailyTableProcessor)
-//                }
-//            }
         }
         // register dialogs
         DailyTableAddRowDialogCover(dailyTableAddRowState = dailyTableAddRowState, dailyTableProcessor = dailyTableProcessor)
@@ -351,7 +335,7 @@ fun DailyTableContent(dailyTableState2: DailyTableState2, userState: UserState, 
     )
 
     dailyTableState2.dailyTRC.dailyRCs.forEachIndexed { index, item ->
-        DailyRCContent(dailyRC = item, index = index, weekDayStateList = dailyTableState2.weekDays[index], dailyTableProcessor)
+        DailyRCContent(dailyRC = item, index = index, readOnly = dailyTableState2.readOnly, weekDayStateList = dailyTableState2.weekDays[index], dailyTableProcessor)
     }
 
 
@@ -392,11 +376,10 @@ fun DailyTableTipBox(dailyTable: DailyTable, userState: UserState) {
  * DailyTablePage .content.RC
  */
 @Composable
-fun DailyRCContent(dailyRC: DailyRC, index: Int, weekDayStateList: List<WeekDayState>, dailyTableProcessor: DailyTableProcessor) {
+fun DailyRCContent(dailyRC: DailyRC, index: Int, readOnly: Boolean, weekDayStateList: List<WeekDayState>, dailyTableProcessor: DailyTableProcessor) {
     val dailyRow = dailyRC.dailyRow
     ProfileMenuGroup(title = "组${index + 1}") {
         ProfileMenuItem(title = "适用星期", next = false, content = {
-
             DailyRCContentWeekDay(weekDayStateList = weekDayStateList, onItemSelect = {
                 dailyTableProcessor.onClickWeekDay(index, it + 1)
             })

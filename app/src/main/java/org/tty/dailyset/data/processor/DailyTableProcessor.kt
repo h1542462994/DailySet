@@ -6,7 +6,7 @@ import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.model.lifetime.WeekDayState
 
 /**
- * dailyTable related operations
+ * dailyTable related operations, used in ui interactive.
  */
 @Immutable
 interface DailyTableProcessor {
@@ -15,4 +15,5 @@ interface DailyTableProcessor {
     fun onAddRow(weekDays: List<WeekDayState>)
     fun onClickWeekDay(rowIndex: Int, weekDay: Int)
     fun onRename(name: String)
+    fun onDeleteDailyRow(rowIndex: Int)
 }

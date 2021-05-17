@@ -16,6 +16,7 @@ interface DailyTableProcessor2Async: EventProcessorAsync {
             DailyTableEventType.AddRow -> { addRow(eventArgs as DailyTableAddRowEventArgs) }
             DailyTableEventType.ClickWeekDay -> { clickWeekDay(eventArgs as DailyTableClickWeekDayEventArgs) }
             DailyTableEventType.Rename -> { rename(eventArgs as DailyTableRenameEventArgs) }
+            DailyTableEventType.DeleteRow -> { deleteRow(eventArgs as DailyTableRowDeleteEventArgs) }
             else -> { TODO("not yet implemented") }
         }
     }
@@ -24,4 +25,5 @@ interface DailyTableProcessor2Async: EventProcessorAsync {
     suspend fun addRow(dailyTableAddRowEventArgs: DailyTableAddRowEventArgs)
     suspend fun clickWeekDay(dailyTableClickWeekDayEventArgs: DailyTableClickWeekDayEventArgs)
     suspend fun rename(dailyTableRenameEventArgs: DailyTableRenameEventArgs)
+    suspend fun deleteRow(dailyTableRowDeleteEventArgs: DailyTableRowDeleteEventArgs)
 }

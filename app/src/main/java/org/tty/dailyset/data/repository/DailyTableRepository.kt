@@ -58,5 +58,9 @@ class DailyTableRepository(
         dailyTableDao.rename(dailyTableRenameEventArgs)
     }
 
+    override suspend fun deleteRow(dailyTableRowDeleteEventArgs: DailyTableRowDeleteEventArgs) {
+        dailyTableDao.deleteRow(dailyTableRowDeleteEventArgs)
+    }
+
 
 }

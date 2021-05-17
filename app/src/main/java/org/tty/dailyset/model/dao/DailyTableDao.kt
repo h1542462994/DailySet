@@ -205,4 +205,11 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
         )
     }
 
+    /**
+     * deleteRow from the DailyTable
+     */
+    override suspend fun deleteRow(dailyTableRowDeleteEventArgs: DailyTableRowDeleteEventArgs) {
+        TODO("Not yet implemented")
+    }
+
 }

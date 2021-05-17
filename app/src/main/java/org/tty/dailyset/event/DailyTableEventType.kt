@@ -8,5 +8,6 @@ enum class DailyTableEventType: EventType {
     Delete,
     AddRow,
     ClickWeekDay,
-    Rename
+    Rename,
+    DeleteRow
 }
