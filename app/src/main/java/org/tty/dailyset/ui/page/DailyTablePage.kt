@@ -138,7 +138,7 @@ fun DailyTablePage() {
                 performProcess(service, DailyTableEventType.DeleteRow, dailyTableDeleteRowEventArgs,
                     onBefore = {},
                     onCompletion = {
-
+                        dailyTableDeleteRowState.dialogOpen.value = false
                     }
                 )
             }
@@ -491,6 +491,7 @@ fun DailyRCContent(
         if (!readOnly && index > 0) {
             IconButton(
                 onClick = {
+                    dailyTableDeleteRowState.rowIndex.value = index
                     dailyTableDeleteRowState.dialogOpen.value = true
                 },
                 modifier = Modifier.size(width = 32.dp, height = 16.dp)
