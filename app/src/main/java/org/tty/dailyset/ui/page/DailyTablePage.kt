@@ -3,9 +3,13 @@ package org.tty.dailyset.ui.page
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -46,7 +50,8 @@ fun DailyTablePage() {
 
     val dropDownTitleOpenState = remember { mutableStateOf(false) }
     val dropDownExtensionOpenState = remember { mutableStateOf(false) }
-    val columnState = rememberLazyListState()
+    //val columnState = rememberLazyListState()
+    val scrollState = rememberScrollState()
 
 
     with(DataScope) {
@@ -54,7 +59,7 @@ fun DailyTablePage() {
         val service = mainViewModel().service
 
         val dailyTableSummaries by dailyTableSummaries()
-        val currentDailyTRC by currentDailyTableDetail()
+        //val currentDailyTRC by currentDailyTableDetail()
         val currentUserState by currentUserState()
 
 
@@ -64,6 +69,7 @@ fun DailyTablePage() {
         val dailyTableRenameState = dailyTableRenameState()
         //val dailyTableState = dailyTableState()
         val dailyTableState2 by dailyTableState2()
+        val currentDailyTRC = dailyTableState2.dailyTRC
         val dailyTableProcessor = object: DailyTableProcessor {
             override fun onCreate(dailyTableName: String) {
                 val uid = UUID.randomUUID().toString()
@@ -160,11 +166,18 @@ fun DailyTablePage() {
                     dropDownTitleOpenState.value = false
                 }
             }
-            LazyColumn(state = columnState) {
-                item {
-                    DailyTableContent(dailyTableState2 = dailyTableState2, userState = currentUserState, dailyTableProcessor = dailyTableProcessor)
-                }
+
+
+            Column(
+                modifier = Modifier.verticalScroll(state = scrollState, enabled = true)
+            ) {
+                DailyTableContent(dailyTableState2 = dailyTableState2, userState = currentUserState, dailyTableProcessor = dailyTableProcessor)
             }
+//            LazyColumn(state = columnState) {
+//                item {
+//                    DailyTableContent(dailyTableState2 = dailyTableState2, userState = currentUserState, dailyTableProcessor = dailyTableProcessor)
+//                }
+//            }
         }
         // register dialogs
         DailyTableAddRowDialogCover(dailyTableAddRowState = dailyTableAddRowState, dailyTableProcessor = dailyTableProcessor)

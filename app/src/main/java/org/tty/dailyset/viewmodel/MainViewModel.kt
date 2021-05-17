@@ -18,14 +18,21 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
      */
     fun init() {
         currentDailyTableUid.observeForever {
+            Log.d(TAG, "currentDailyTableUid changed to $it")
             postCurrentDailyTRC(it)
         }
         currentDailyTRC.observeForever {
             Log.d(TAG, "currentDailyTRC.livedata changed to ${it.value}")
+            // 标记，仅允许在currentDailyTRC改变后重写一次。
+            var oneTick = true
             it.observeForever { it2 ->
-                Log.d(TAG, "currentDailyTRC changed to $it2")
-                if (it2 != null) {
-                    postCurrentDailyTableState2(dailyTRC = it2, currentUserUid = currentUserUid.value)
+                // 在这里设置了拦截，奇怪的是，it2会在数据库修改阶段变为DailyTRC.default()
+                if (oneTick || it2 != DailyTRC.default()) {
+                    Log.d(TAG, "currentDailyTRC changed to $it2")
+                    if (it2 != null) {
+                        postCurrentDailyTableState2(dailyTRC = it2, currentUserUid = currentUserUid.value)
+                    }
+                    oneTick = false
                 }
             }
         }
@@ -70,7 +77,7 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
 
     var currentDailyTRC = MutableLiveData<LiveData<DailyTRC?>>()
         internal set
-    var currentDailyTableState2 = MutableLiveData<DailyTableState2>(DailyTableState2.default())
+    var currentDailyTableState2 = MutableLiveData(DailyTableState2.default())
         internal set
     //endregion
 

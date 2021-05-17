@@ -34,19 +34,14 @@ import java.time.LocalDate
 @Composable
 fun DailyTablePreviewPage() {
     with(DataScope) {
-        val currentDailyTRC by currentDailyTableDetail()
+        //val dailyTableState2 by dailyTableState2()
         val currentDailyTable by currentDailyTable()
         // TODO: 2021/3/26 去除硬编码 25.dp
         val unit = toPx(dp = 25.dp)
         val currentUserState by currentUserState()
         // complex state
         val dailyTablePreviewState = dailyTablePreviewState()
-
-        @Suppress
-        val tempCurrentDailyTRC: DailyTRC? = currentDailyTRC
-
-
-
+        val currentDailyTRC by currentDailyTableDetail()
 
         val measuredWidth = measuredWidth()
         assert(measuredWidth > 0)
@@ -59,13 +54,10 @@ fun DailyTablePreviewPage() {
                 content = { DailyTableTitle(dailyTable = currentDailyTable, userState = currentUserState, isPreviewPage = true) }
             )
 
+            val dailyTableCalc = DailyTableCalc(currentDailyTRC, measuredWidth, unit)
 
-            if (tempCurrentDailyTRC != null) {
-                val dailyTableCalc = DailyTableCalc(tempCurrentDailyTRC, measuredWidth, unit)
-
-                DailyTablePreviewHeader(dailyTableCalc = dailyTableCalc, dailyTablePreviewState = dailyTablePreviewState)
-                DailyTablePreviewBody(dailyTableCalc = dailyTableCalc, dailyTablePreviewState = dailyTablePreviewState)
-            }
+            DailyTablePreviewHeader(dailyTableCalc = dailyTableCalc, dailyTablePreviewState = dailyTablePreviewState)
+            DailyTablePreviewBody(dailyTableCalc = dailyTableCalc, dailyTablePreviewState = dailyTablePreviewState)
         }
     }
 }
@@ -226,9 +218,11 @@ fun DailyTablePreviewBody(dailyTableCalc: DailyTableCalc, dailyTablePreviewState
                 val currentDailyRC = dailyTableCalc.dailyTRC.dailyRCs.find { it.dailyRow.weekdays.contains(dailyTablePreviewState.weekDayCurrent) }
 
                 @Suppress
-                if (currentDailyRC != null) {
-                    currentDailyRC.dailyCells.forEach { dailyCell ->
-                        createTextTimeDuration(dailyRC = currentDailyRC, dailyCell = dailyCell)
+                when {
+                    currentDailyRC != null -> {
+                        currentDailyRC.dailyCells.forEach { dailyCell ->
+                            createTextTimeDuration(dailyRC = currentDailyRC, dailyCell = dailyCell)
+                        }
                     }
                 }
 
