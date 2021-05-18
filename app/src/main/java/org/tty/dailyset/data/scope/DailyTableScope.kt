@@ -23,7 +23,7 @@ import java.util.*
  * a state related operation for [DailyTable], defines much functions return [State].
  */
 @Immutable
-interface DailyTableScope: PreferenceScope, UserScope {
+interface DailyTableScope : PreferenceScope, UserScope {
 
     // TODO: 2021/5/11 不要在State内存放内部复杂状态。
 
@@ -173,6 +173,25 @@ interface DailyTableScope: PreferenceScope, UserScope {
 
     fun groupDailyCells(list: List<DailyCell>): Map<Int, List<DailyCell>> {
         return list.groupBy { it.normalType }
+    }
+
+    @Composable
+    fun dailyTableModifySectionState(
+        dialogOpen: Boolean = false,
+        counts: IntArray = intArrayOf(5,4,3),
+        rowIndex: Int = 0
+    ): DailyTableModifySectionState {
+        return DailyTableModifySectionState(
+            dialogOpen = remember {
+                mutableStateOf(dialogOpen)
+            },
+            counts = remember {
+                mutableStateOf(counts)
+            },
+            rowIndex = remember {
+                mutableStateOf(rowIndex)
+            }
+        )
     }
 
     companion object {

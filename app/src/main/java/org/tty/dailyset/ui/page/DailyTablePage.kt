@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
@@ -63,6 +64,7 @@ fun DailyTablePage() {
         val dailyTableAddRowState = dailyTableAddRowState()
         val dailyTableRenameState = dailyTableRenameState()
         val dailyTableDeleteRowState = dailyTableDeleteRowState()
+        val dailyTableModifySectionState = dailyTableModifySectionState()
         //val dailyTableState = dailyTableState()
         val dailyTableState2 by dailyTableState2()
         val currentDailyTRC = dailyTableState2.dailyTRC
@@ -183,6 +185,7 @@ fun DailyTablePage() {
                     dailyTableState2 = dailyTableState2,
                     userState = currentUserState,
                     dailyTableDeleteRowState = dailyTableDeleteRowState,
+                    dailyTableModifySectionState = dailyTableModifySectionState,
                     dailyTableProcessor = dailyTableProcessor
                 )
             }
@@ -208,6 +211,10 @@ fun DailyTablePage() {
         )
         DailyTableDeleteRowDialogCover(
             dailyTableDeleteRowState = dailyTableDeleteRowState,
+            dailyTableProcessor = dailyTableProcessor
+        )
+        DailyTableModifySectionDialogCover(
+            dailyTableModifySectionState = dailyTableModifySectionState,
             dailyTableProcessor = dailyTableProcessor
         )
     }
@@ -416,6 +423,7 @@ fun DailyTableContent(
     dailyTableState2: DailyTableState2,
     userState: UserState,
     dailyTableDeleteRowState: DailyTableDeleteRowState,
+    dailyTableModifySectionState: DailyTableModifySectionState,
     dailyTableProcessor: DailyTableProcessor
 ) {
     DailyTableTipBox(dailyTable = dailyTableState2.dailyTRC.dailyTable, userState = userState)
@@ -428,10 +436,11 @@ fun DailyTableContent(
     dailyTableState2.dailyTRC.dailyRCs.forEachIndexed { index, item ->
         DailyRCContent(
             dailyRC = item,
-            index = index,
+            rowIndex = index,
             readOnly = dailyTableState2.readOnly,
             weekDayStateList = dailyTableState2.weekDays[index],
             dailyTableDeleteRowState = dailyTableDeleteRowState,
+            dailyTableModifySectionState = dailyTableModifySectionState,
             dailyTableProcessor = dailyTableProcessor
         )
     }
@@ -479,19 +488,20 @@ fun DailyTableTipBox(dailyTable: DailyTable, userState: UserState) {
 @Composable
 fun DailyRCContent(
     dailyRC: DailyRC,
-    index: Int,
+    rowIndex: Int,
     readOnly: Boolean,
     weekDayStateList: List<WeekDayState>,
     dailyTableDeleteRowState: DailyTableDeleteRowState,
+    dailyTableModifySectionState: DailyTableModifySectionState,
     dailyTableProcessor: DailyTableProcessor
 ) {
     val dailyRow = dailyRC.dailyRow
-    ProfileMenuGroup(title = "组${index + 1}", extension = {
+    ProfileMenuGroup(title = "组${rowIndex + 1}", extension = {
         // 可以删除DailyRow
-        if (!readOnly && index > 0) {
+        if (!readOnly && rowIndex > 0) {
             IconButton(
                 onClick = {
-                    dailyTableDeleteRowState.rowIndex.value = index
+                    dailyTableDeleteRowState.rowIndex.value = rowIndex
                     dailyTableDeleteRowState.dialogOpen.value = true
                 },
                 modifier = Modifier.size(width = 32.dp, height = 16.dp)
@@ -508,12 +518,17 @@ fun DailyRCContent(
     }) {
         ProfileMenuItem(title = "适用星期", next = false, content = {
             DailyRCContentWeekDay(weekDayStateList = weekDayStateList, onItemSelect = {
-                dailyTableProcessor.onClickWeekDay(index, it + 1)
+                dailyTableProcessor.onClickWeekDay(rowIndex, it + 1)
             })
         })
         ProfileMenuItem(
             title = "节数", next = true, content =
-            dailyRow.counts.joinToString(" ")
+            dailyRow.counts.joinToString(" "), onClick = {
+                // 修改节数的设置
+                dailyTableModifySectionState.rowIndex.value = rowIndex
+                dailyTableModifySectionState.counts.value = dailyRow.counts
+                dailyTableModifySectionState.dialogOpen.value = true
+            }
         )
 
         with(DataScope) {
@@ -791,4 +806,38 @@ fun DailyTableDeleteRowDialogCover(
         }
     }
 }
+
+/**
+ * DailyTablePage .dialog<modifySection>
+ */
+@Composable
+fun DailyTableModifySectionDialogCover(
+    dailyTableModifySectionState: DailyTableModifySectionState,
+    dailyTableProcessor: DailyTableProcessor
+) {
+    val rowIndex by dailyTableModifySectionState.rowIndex
+    val counts by dailyTableModifySectionState.counts
+    NanoDialog(
+        title = stringResource(id = R.string.time_table_group_modify_section, rowIndex),
+        dialogState = dailyTableModifySectionState
+    ) {
+
+
+        Text("#placeholder, ${rowIndex},${counts.joinToString(",")}")
+        ListSelector(
+            modifier = Modifier.height(100.dp),
+            state = rememberLazyListState()
+        ) {
+            items(10) {
+                Text("hello world!")
+            }
+        }
+
+        NanoDialogButton(text = "修改") {
+            // TODO: 2021/5/18 添加逻辑
+        }
+    }
+}
+
+
 

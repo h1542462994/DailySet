@@ -13,4 +13,5 @@
     <string name="time_table_group_delete">删除组</string>
     <string name="time_table">时间表</string>
     <string name="time_table_preview">时间表预览</string>
+    <string name="time_table_group_modify_section">修改节数:组%s</string>
 </resources>
