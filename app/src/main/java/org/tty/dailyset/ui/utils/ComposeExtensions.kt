@@ -18,6 +18,16 @@ fun measuredWidth(): Float {
 }
 
 @Composable
+fun measuredHeightDp(): Dp {
+    return toDp(px = measuredHeight())
+}
+
+@Composable
+fun measuredHeight(): Float {
+    return LocalView.current.measuredHeight.toFloat()
+}
+
+@Composable
 fun toPx(dp: Dp): Float {
     return with(LocalDensity.current) {
         dp.toPx()

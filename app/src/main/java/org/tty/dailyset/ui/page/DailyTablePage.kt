@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -17,6 +19,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.VerticalAlignmentLine
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -30,6 +33,7 @@ import org.tty.dailyset.model.entity.DailyCell
 import org.tty.dailyset.model.entity.DailyRC
 import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.model.lifetime.*
+import org.tty.dailyset.provider.LocalMainViewModel
 import org.tty.dailyset.ui.component.*
 import org.tty.dailyset.ui.theme.LocalPalette
 import org.tty.dailyset.ui.utils.toIntArray
@@ -523,13 +527,22 @@ fun DailyRCContent(
         })
         ProfileMenuItem(
             title = "节数", next = true, content =
-            dailyRow.counts.joinToString(" "), onClick = {
-                // 修改节数的设置
-                dailyTableModifySectionState.rowIndex.value = rowIndex
-                dailyTableModifySectionState.counts.value = dailyRow.counts
-                dailyTableModifySectionState.dialogOpen.value = true
+            dailyRow.counts.joinToString(" "),
+            onClick = if (readOnly) {
+                null
+            } else {
+                // invokable inline function
+                {
+                    // 修改节数的设置
+                    dailyTableModifySectionState.rowIndex.value = rowIndex
+                    dailyTableModifySectionState.counts.value = dailyRow.counts
+                    dailyTableModifySectionState.dialogOpen.value = true
+                }
             }
+
         )
+
+
 
         with(DataScope) {
             val groupedDailyCells = groupDailyCells(dailyRC.dailyCells)
@@ -821,17 +834,32 @@ fun DailyTableModifySectionDialogCover(
         title = stringResource(id = R.string.time_table_group_modify_section, rowIndex),
         dialogState = dailyTableModifySectionState
     ) {
-
+        val lazyListState = rememberLazyListState()
 
         Text("#placeholder, ${rowIndex},${counts.joinToString(",")}")
         ListSelector(
-            modifier = Modifier.height(100.dp),
-            state = rememberLazyListState()
+            height = 100.dp,
+            state = lazyListState,
+            cellHeight = 40.dp
         ) {
-            items(10) {
-                Text("hello world!")
+            items(10) { index ->
+                Row(
+                    modifier = Modifier
+                        .height(40.dp)
+                ) {
+
+                    val isCurrent = lazyListState.firstVisibleItemIndex == index + 1
+                    Text(
+                        text = "第${index}项",
+                        modifier = Modifier.align(Alignment.CenterVertically),
+                        color = if (isCurrent) MaterialTheme.colors.primary else Color.Unspecified
+                        //modifier = Modifier.align(Alignment.CenterVertically)
+                    )
+                }
+
             }
         }
+
 
         NanoDialogButton(text = "修改") {
             // TODO: 2021/5/18 添加逻辑
