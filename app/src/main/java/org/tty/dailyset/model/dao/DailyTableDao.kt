@@ -208,6 +208,7 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
     /**
      * deleteRow from the DailyTable
      */
+    @Transaction
     override suspend fun deleteRow(dailyTableRowDeleteEventArgs: DailyTableRowDeleteEventArgs) {
         val (dailyTRC, rowIndex) = dailyTableRowDeleteEventArgs
         assert(rowIndex > 0)
@@ -233,6 +234,32 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
         update(dailyTable = dailyTRC.dailyTable.copy(
             updateAt = localTimestampNow()
         ))
+    }
+
+    /**
+     * modify the section of the DailyRow
+     */
+    @Transaction
+    override suspend fun modifySection(dailyTableModifySectionEventArgs: DailyTableModifySectionEventArgs) {
+        // TODO: 2021/5/20 添加逻辑
+        // unpack the data
+        val (dailyTRC, rowIndex, counts) = dailyTableModifySectionEventArgs
+        val dailyRC = dailyTRC.dailyRCs[rowIndex]
+        val beforeCounts = dailyRC.dailyRow.counts
+        if (beforeCounts.contentEquals(counts)) {
+            // equalization
+            return
+        }
+
+        // no equal
+        
+
+
+
+
+
+
+
     }
 
 }

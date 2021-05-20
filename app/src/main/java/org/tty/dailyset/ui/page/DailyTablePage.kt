@@ -21,6 +21,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.VerticalAlignmentLine
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -145,6 +146,17 @@ fun DailyTablePage() {
                     onBefore = {},
                     onCompletion = {
                         dailyTableDeleteRowState.dialogOpen.value = false
+                    }
+                )
+            }
+
+            override fun onModifySection(rowIndex: Int, counts: IntArray) {
+                val dailyTableModifySectionEventArgs =
+                    DailyTableModifySectionEventArgs(currentDailyTRC, rowIndex, counts)
+                performProcess(service, DailyTableEventType.ModifySection, dailyTableModifySectionEventArgs,
+                    onBefore = {},
+                    onCompletion = {
+                        dailyTableModifySectionState.dialogOpen.value = false
                     }
                 )
             }
@@ -834,38 +846,81 @@ fun DailyTableModifySectionDialogCover(
         title = stringResource(id = R.string.time_table_group_modify_section, rowIndex),
         dialogState = dailyTableModifySectionState
     ) {
-        val lazyListState = rememberLazyListState()
-
-        Text("#placeholder, ${rowIndex},${counts.joinToString(",")}")
-        ListSelector(
-            height = 100.dp,
-            state = lazyListState,
-            cellHeight = 40.dp
-        ) {
-            items(10) { index ->
-                Row(
-                    modifier = Modifier
-                        .height(40.dp)
-                ) {
-
-                    val isCurrent = lazyListState.firstVisibleItemIndex == index + 1
-                    Text(
-                        text = "第${index}项",
-                        modifier = Modifier.align(Alignment.CenterVertically),
-                        color = if (isCurrent) MaterialTheme.colors.primary else Color.Unspecified
-                        //modifier = Modifier.align(Alignment.CenterVertically)
-                    )
-                }
-
-            }
+        var count1 by remember {
+            mutableStateOf(counts[0])
         }
+        var count2 by remember {
+            mutableStateOf(counts[1])
+        }
+        var count3 by remember {
+            mutableStateOf(counts[2])
+        }
+
+        Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+            CountSelector(text = "上午", index = counts[0] - 1) { count1 = it + 1 }
+            CountSelector(text = "下午", index = counts[1] - 1) { count2 = it + 1 }
+            CountSelector(text = "晚上", index = counts[2] - 1) { count3 = it + 1 }
+        }
+
+        //Text("#placeholder, ${rowIndex},${counts.joinToString(",")}")
+//        ListSelector(
+//            height = 100.dp,
+//            state = lazyListState,
+//            cellHeight = 40.dp
+//        ) {
+//            items(10) { index ->
+//                Row(
+//                    modifier = Modifier
+//                        .height(40.dp)
+//                ) {
+//
+//                    val isCurrent = lazyListState.firstVisibleItemIndex == index + 1
+//                    Text(
+//                        text = "第${index}项",
+//                        modifier = Modifier.align(Alignment.CenterVertically),
+//                        color = if (isCurrent) MaterialTheme.colors.primary else Color.Unspecified
+//                        //modifier = Modifier.align(Alignment.CenterVertically)
+//                    )
+//                }
+//
+//            }
+//        }
 
 
         NanoDialogButton(text = "修改") {
-            // TODO: 2021/5/18 添加逻辑
+            Log.d("DailyTablePage", "section:${count1},${count2},${count3}")
+            dailyTableProcessor.onModifySection(rowIndex, intArrayOf(count1, count2, count3))
         }
     }
 }
+
+/**
+ * ListSelector count ver.
+ */
+@Composable
+fun CountSelector(text: String, index: Int, onItemIndexChanged: (Int) -> Unit) {
+    val width = 80.dp
+    Column(modifier = Modifier.width(width)) {
+        Text(
+            modifier = Modifier
+                .width(width)
+                .wrapContentWidth(align = Alignment.CenterHorizontally),
+            text = text,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold
+        )
+        ListSelector(
+            data = (1..10).map { it.toString() },
+            height = 180.dp,
+            width = width,
+            cellHeight = 40.dp,
+            initItemIndex = index
+        ) {
+            onItemIndexChanged(it)
+        }
+    }
+}
+
 
 
 

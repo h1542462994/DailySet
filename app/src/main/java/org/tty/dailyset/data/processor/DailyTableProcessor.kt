@@ -16,4 +16,5 @@ interface DailyTableProcessor {
     fun onClickWeekDay(rowIndex: Int, weekDay: Int)
     fun onRename(name: String)
     fun onDeleteDailyRow(rowIndex: Int)
+    fun onModifySection(rowIndex: Int, counts: IntArray)
 }

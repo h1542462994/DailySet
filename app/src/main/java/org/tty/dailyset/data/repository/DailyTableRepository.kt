@@ -62,5 +62,8 @@ class DailyTableRepository(
         dailyTableDao.deleteRow(dailyTableRowDeleteEventArgs)
     }
 
+    override suspend fun modifySection(dailyTableModifySectionEventArgs: DailyTableModifySectionEventArgs) {
+        dailyTableDao.modifySection(dailyTableModifySectionEventArgs)
+    }
 
 }
