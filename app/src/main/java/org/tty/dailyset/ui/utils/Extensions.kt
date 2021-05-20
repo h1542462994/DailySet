@@ -5,10 +5,8 @@ import androidx.annotation.RequiresApi
 import org.tty.dailyset.model.lifetime.WeekDayState
 import java.sql.Time
 import java.sql.Timestamp
-import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneOffset
+import java.time.*
+import java.time.temporal.TemporalUnit
 
 fun Time.toShortString(): String {
     return this.toString().substring(0,5)
@@ -64,4 +62,10 @@ fun List<WeekDayState>.toIntArray(): IntArray {
         }
     }
     return list.toIntArray()
+}
+
+fun Time.plus(amountToAdd: Long, unit: TemporalUnit): Time {
+    var localTime = LocalTime.ofNanoOfDay(this.time * 1000000)
+    localTime = localTime.plus(amountToAdd, unit)
+    return Time(localTime.toNanoOfDay() / 1000000)
 }

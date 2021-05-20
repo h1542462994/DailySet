@@ -5,10 +5,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.tty.dailyset.data.processor.DailyTableProcessor2Async
 import org.tty.dailyset.event.*
+import org.tty.dailyset.model.entity.DailyCell
 import org.tty.dailyset.model.entity.DailyRC
 import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.ui.utils.localTimestampNow
+import org.tty.dailyset.ui.utils.plus
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 @Dao
@@ -28,7 +31,7 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
     fun loadSorted(uid: String): Flow<DailyTRC?> {
         val value = load(uid)
         return value.map { it ->
-            if (it == null){
+            if (it == null) {
                 return@map it
             } else {
                 return@map it.copy(
@@ -159,29 +162,37 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
                 // 找到checked的一行
                 val target = dailyRC.dailyRow
                 if (target.weekdays.contains(weekDay)) {
-                    update(dailyRow = target.copy(
-                        weekdays = target.weekdays.filter { it != weekDay }.toIntArray(),
-                        updateAt = localTimestampNow()
-                    ))
+                    update(
+                        dailyRow = target.copy(
+                            weekdays = target.weekdays.filter { it != weekDay }.toIntArray(),
+                            updateAt = localTimestampNow()
+                        )
+                    )
                 }
             }
 
             val source = dailyRowOfRowIndex(rowIndex)
-            update(dailyRow = source.copy(
-                weekdays = source.weekdays.plus(weekDay).sortedArray(),
-                updateAt = localTimestampNow()
-            ))
+            update(
+                dailyRow = source.copy(
+                    weekdays = source.weekdays.plus(weekDay).sortedArray(),
+                    updateAt = localTimestampNow()
+                )
+            )
         } else {
             val source = dailyRowOfRowIndex(rowIndex)
-            update(dailyRow = source.copy(
-                weekdays = source.weekdays.filter { it != weekDay }.toIntArray(),
-                updateAt = localTimestampNow()
-            ))
+            update(
+                dailyRow = source.copy(
+                    weekdays = source.weekdays.filter { it != weekDay }.toIntArray(),
+                    updateAt = localTimestampNow()
+                )
+            )
             val target = dailyRowOfRowIndex(rowIndex + 1)
-            update(dailyRow = target.copy(
-                weekdays = target.weekdays.plus(weekDay).sortedArray(),
-                updateAt = localTimestampNow()
-            ))
+            update(
+                dailyRow = target.copy(
+                    weekdays = target.weekdays.plus(weekDay).sortedArray(),
+                    updateAt = localTimestampNow()
+                )
+            )
         }
 
         update(
@@ -216,24 +227,30 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
         val weekDays = dailyRowOfRowIndex(rowIndex - 1).weekdays
             .plus(dailyRowOfRowIndex(rowIndex).weekdays).sortedArray()
         // modify the previous
-        update(dailyRow = dailyRowOfRowIndex(rowIndex - 1).copy(
-            weekdays = weekDays,
-            updateAt = localTimestampNow()
-        ))
+        update(
+            dailyRow = dailyRowOfRowIndex(rowIndex - 1).copy(
+                weekdays = weekDays,
+                updateAt = localTimestampNow()
+            )
+        )
         // modify the next
         for (index in rowIndex + 1 until dailyTRC.dailyRCs.size) {
             val current = dailyRowOfRowIndex(index)
-            update(dailyRow = current.copy(
-                currentIndex = current.currentIndex - 1,
-                updateAt = localTimestampNow()
-            ))
+            update(
+                dailyRow = current.copy(
+                    currentIndex = current.currentIndex - 1,
+                    updateAt = localTimestampNow()
+                )
+            )
         }
         // delete the current
         delete(dailyRowOfRowIndex(rowIndex))
         // update the dailyTable
-        update(dailyTable = dailyTRC.dailyTable.copy(
-            updateAt = localTimestampNow()
-        ))
+        update(
+            dailyTable = dailyTRC.dailyTable.copy(
+                updateAt = localTimestampNow()
+            )
+        )
     }
 
     /**
@@ -252,12 +269,74 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
         }
 
         // no equal
-        
+        suspend fun modifySectionOfNormalType(normalType: Int) {
+            require(normalType in 0..2) {
+                "normalType should in 0..2"
+            }
+            val mutableList =
+                dailyRC.dailyCells.filter { it.normalType == normalType }.toMutableList()
+            val beforeSize = mutableList.size
+            val afterSize = counts[normalType]
+            val startIndex = counts.filterIndexed { index, _ -> index < normalType }.sum()
 
 
+            if (afterSize < beforeSize) {
+                // delete the cells and modify
+                mutableList.forEachIndexed { index, dailyCell ->
+                    if (index < afterSize) {
+                        update(
+                            dailyCell.copy(
+                                currentIndex = startIndex + index,
+                                serialIndex = index,
+                                updateAt = localTimestampNow()
+                            )
+                        )
+                    } else {
+                        // delete
+                        delete(dailyCell)
+                    }
+                }
+            } else {
+                mutableList.forEachIndexed { index, dailyCell ->
+                    update(
+                        dailyCell.copy(
+                            currentIndex = startIndex + index,
+                            serialIndex = index,
+                            updateAt = localTimestampNow()
+                        )
+                    )
+                }
 
+                // insert the new data.
+                var last = mutableList.last()
+                for (i in beforeSize until afterSize) {
+                    val start = last.end.plus(10, ChronoUnit.MINUTES)
+                    val end = start.plus(45, ChronoUnit.MINUTES)
+                    val newDailyCell = DailyCell(
+                        uid = UUID.randomUUID().toString(),
+                        currentIndex = startIndex + i,
+                        serialIndex = i,
+                        start = start,
+                        end = end,
+                        normalType = normalType,
+                        dailyRowUid = dailyRC.dailyRow.uid,
+                        updateAt = localTimestampNow()
+                    )
+                    update(dailyCell = newDailyCell)
+                    last = newDailyCell
+                }
+            }
+        }
+        modifySectionOfNormalType(0)
+        modifySectionOfNormalType(1)
+        modifySectionOfNormalType(2)
 
-
+        update(
+            dailyRC.dailyRow.copy(
+                counts = counts,
+                updateAt = localTimestampNow()
+            )
+        )
 
 
     }
