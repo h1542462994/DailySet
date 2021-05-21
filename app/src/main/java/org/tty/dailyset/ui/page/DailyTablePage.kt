@@ -962,11 +962,20 @@ fun DailyTableModifyCellDialogCover(
     dailyTableModifyCellState: DailyTableModifyCellState,
     dailyTableProcessor: DailyTableProcessor
 ) {
+
     // TODO: 2021/5/21 完成该功能
     NanoDialog(
         title = "调整该节课时间",
         dialogState = dailyTableModifyCellState) {
         Text("hello world!")
+        TimeSelector(
+            height = 180.dp,
+            width = 100.dp,
+            cellHeight = 40.dp,
+            min = Time.valueOf("07:30:00"),
+            initTime = Time.valueOf("08:00:00")) {
+
+        }
         NanoDialogButton(text = "修改") {
 
         }

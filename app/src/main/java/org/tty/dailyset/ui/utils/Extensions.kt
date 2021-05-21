@@ -1,12 +1,11 @@
 package org.tty.dailyset.ui.utils
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import org.tty.dailyset.model.lifetime.WeekDayState
 import java.sql.Time
 import java.sql.Timestamp
 import java.time.*
 import java.time.temporal.TemporalUnit
+import java.util.*
 
 fun Time.toShortString(): String {
     return this.toString().substring(0,5)
@@ -68,4 +67,19 @@ fun Time.plus(amountToAdd: Long, unit: TemporalUnit): Time {
     var localTime = LocalTime.ofNanoOfDay(this.time * 1000000)
     localTime = localTime.plus(amountToAdd, unit)
     return Time(localTime.toNanoOfDay() / 1000000)
+}
+
+fun Time.hm(): Pair<Int, Int> {
+    val trims = toShortString().split(":")
+    return Pair(trims[0].toInt(), trims[1].toInt())
+}
+
+fun rangeX(min: Int, max: Int, space: Int): List<Int> {
+    val list = mutableListOf<Int>()
+    var c = min
+    while (c < max) {
+        list.add(c)
+        c += space
+    }
+    return list
 }
