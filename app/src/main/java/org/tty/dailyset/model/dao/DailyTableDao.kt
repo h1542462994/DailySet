@@ -258,7 +258,6 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
      */
     @Transaction
     override suspend fun modifySection(dailyTableModifySectionEventArgs: DailyTableModifySectionEventArgs) {
-        // TODO: 2021/5/20 添加逻辑
         // unpack the data
         val (dailyTRC, rowIndex, counts) = dailyTableModifySectionEventArgs
         val dailyRC = dailyTRC.dailyRCs[rowIndex]
@@ -337,8 +336,9 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
                 updateAt = localTimestampNow()
             )
         )
-
-
     }
 
+    override suspend fun modifyCell(dailyTableModifyCellEventArgs: DailyTableModifyCellEventArgs) {
+        // TODO: 2021/5/21 添加逻辑
+    }
 }

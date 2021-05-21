@@ -17,11 +17,14 @@ import java.util.*
 class DailyTableRepository(
     private val dailyTableDao: DailyTableDao,
     private val dailyRowDao: DailyRowDao,
-    private val dailyCellDao: DailyCellDao): DailyTableProcessor2Async {
+    private val dailyCellDao: DailyCellDao
+) : DailyTableProcessor2Async {
     val dailyTableSummaries: Flow<List<DailyTable>> = dailyTableDao.all()
+
     fun loadDailyTRC(dailyTableUid: String): Flow<DailyTRC?> {
         return dailyTableDao.loadSorted(dailyTableUid)
     }
+
     @Deprecated("use loadDailyTRC")
     fun getDailyTRC(dailyTableUid: String): DailyTRC? {
         return dailyTableDao.get(dailyTableUid)
@@ -64,6 +67,10 @@ class DailyTableRepository(
 
     override suspend fun modifySection(dailyTableModifySectionEventArgs: DailyTableModifySectionEventArgs) {
         dailyTableDao.modifySection(dailyTableModifySectionEventArgs)
+    }
+
+    override suspend fun modifyCell(dailyTableModifyCellEventArgs: DailyTableModifyCellEventArgs) {
+        dailyTableDao.modifyCell(dailyTableModifyCellEventArgs)
     }
 
 }

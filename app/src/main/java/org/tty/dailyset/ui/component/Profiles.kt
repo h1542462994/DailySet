@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -208,6 +209,22 @@ fun ProfileMenuItem(
         onClick = onClick,
         title = { Text(text = title, color = LocalPalette.current.textColor, fontSize = 18.sp) },
         content = { Text(text = content, color = LocalPalette.current.textColorDetail) },
+    )
+}
+
+@Composable
+fun ProfileMenuItem(
+    next: Boolean,
+    onClick: (() -> Unit)? = null,
+    title: String,
+    content: String,
+    textColor: Color
+) {
+    ProfileMenuItem(
+        next = next,
+        onClick = onClick,
+        title = { Text(text = title, color = LocalPalette.current.textColor, fontSize = 18.sp) },
+        content = { Text(text = content, color = textColor) },
     )
 }
 

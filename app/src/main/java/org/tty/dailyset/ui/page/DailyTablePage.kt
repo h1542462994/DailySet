@@ -4,9 +4,6 @@ import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
@@ -19,7 +16,6 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.VerticalAlignmentLine
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
@@ -34,12 +30,12 @@ import org.tty.dailyset.model.entity.DailyCell
 import org.tty.dailyset.model.entity.DailyRC
 import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.model.lifetime.*
-import org.tty.dailyset.provider.LocalMainViewModel
 import org.tty.dailyset.ui.component.*
 import org.tty.dailyset.ui.theme.LocalPalette
 import org.tty.dailyset.ui.utils.toIntArray
 import org.tty.dailyset.ui.utils.toShortString
 import org.tty.dailyset.ui.utils.toWeekDayString
+import java.sql.Time
 import java.util.*
 
 /**
@@ -70,6 +66,7 @@ fun DailyTablePage() {
         val dailyTableRenameState = dailyTableRenameState()
         val dailyTableDeleteRowState = dailyTableDeleteRowState()
         val dailyTableModifySectionState = dailyTableModifySectionState()
+        val dailyTableModifyCellState = dailyTableModifyCellState()
         //val dailyTableState = dailyTableState()
         val dailyTableState2 by dailyTableState2()
         val currentDailyTRC = dailyTableState2.dailyTRC
@@ -160,6 +157,16 @@ fun DailyTablePage() {
                     }
                 )
             }
+
+            override fun onModifyCell(rowIndex: Int, cellIndex: Int, start: Time, end: Time) {
+                val dailyTableModifyCellEventArgs =
+                    DailyTableModifyCellEventArgs(currentDailyTRC, rowIndex, cellIndex, start, end)
+                performProcess(service, DailyTableEventType.ModifyCell, dailyTableModifyCellEventArgs,
+                    onBefore = {},
+                    onCompletion = {
+                    }
+                )
+            }
         }
         //endregion
 
@@ -202,6 +209,7 @@ fun DailyTablePage() {
                     userState = currentUserState,
                     dailyTableDeleteRowState = dailyTableDeleteRowState,
                     dailyTableModifySectionState = dailyTableModifySectionState,
+                    dailyTableModifyCellState = dailyTableModifyCellState,
                     dailyTableProcessor = dailyTableProcessor
                 )
             }
@@ -231,6 +239,10 @@ fun DailyTablePage() {
         )
         DailyTableModifySectionDialogCover(
             dailyTableModifySectionState = dailyTableModifySectionState,
+            dailyTableProcessor = dailyTableProcessor
+        )
+        DailyTableModifyCellDialogCover(
+            dailyTableModifyCellState = dailyTableModifyCellState,
             dailyTableProcessor = dailyTableProcessor
         )
     }
@@ -440,6 +452,7 @@ fun DailyTableContent(
     userState: UserState,
     dailyTableDeleteRowState: DailyTableDeleteRowState,
     dailyTableModifySectionState: DailyTableModifySectionState,
+    dailyTableModifyCellState: DailyTableModifyCellState,
     dailyTableProcessor: DailyTableProcessor
 ) {
     DailyTableTipBox(dailyTable = dailyTableState2.dailyTRC.dailyTable, userState = userState)
@@ -453,10 +466,11 @@ fun DailyTableContent(
         DailyRCContent(
             dailyRC = item,
             rowIndex = index,
-            readOnly = dailyTableState2.readOnly,
+            dailyTableState2 = dailyTableState2,
             weekDayStateList = dailyTableState2.weekDays[index],
             dailyTableDeleteRowState = dailyTableDeleteRowState,
             dailyTableModifySectionState = dailyTableModifySectionState,
+            dailyTableModifyCellState = dailyTableModifyCellState,
             dailyTableProcessor = dailyTableProcessor
         )
     }
@@ -505,16 +519,17 @@ fun DailyTableTipBox(dailyTable: DailyTable, userState: UserState) {
 fun DailyRCContent(
     dailyRC: DailyRC,
     rowIndex: Int,
-    readOnly: Boolean,
+    dailyTableState2: DailyTableState2,
     weekDayStateList: List<WeekDayState>,
     dailyTableDeleteRowState: DailyTableDeleteRowState,
     dailyTableModifySectionState: DailyTableModifySectionState,
+    dailyTableModifyCellState: DailyTableModifyCellState,
     dailyTableProcessor: DailyTableProcessor
 ) {
     val dailyRow = dailyRC.dailyRow
     ProfileMenuGroup(title = "组${rowIndex + 1}", extension = {
         // 可以删除DailyRow
-        if (!readOnly && rowIndex > 0) {
+        if (!dailyTableState2.readOnly && rowIndex > 0) {
             IconButton(
                 onClick = {
                     dailyTableDeleteRowState.rowIndex.value = rowIndex
@@ -540,7 +555,7 @@ fun DailyRCContent(
         ProfileMenuItem(
             title = "节数", next = true, content =
             dailyRow.counts.joinToString(" "),
-            onClick = if (readOnly) {
+            onClick = if (dailyTableState2.readOnly) {
                 null
             } else {
                 // invokable inline function
@@ -558,18 +573,37 @@ fun DailyRCContent(
 
         with(DataScope) {
             val groupedDailyCells = groupDailyCells(dailyRC.dailyCells)
+            fun gOnClick(cellIndex: Int, isValid: Boolean): (() -> Unit)? =
+                if (!dailyTableState2.readOnly && isValid) {
+                    {
+                        upgradeDailyTableModifyCellState(
+                            state = dailyTableModifyCellState,
+                            dailyTRC = dailyTableState2.dailyTRC,
+                            rowIndex = rowIndex,
+                            cellIndex = cellIndex
+                        )
+                        dailyTableModifyCellState.dialogOpen.value = true
+                    }
+                } else {
+                    null
+                }
 
+
+            var cellIndex = 0
             TitleSpace(title = "上午")
             groupedDailyCells[0]?.forEachIndexed { index, dailyCell ->
-                DailyCellContent(dailyCell = dailyCell, index = index)
+                val isValid = dailyTableState2.calcIsCellValid(rowIndex, cellIndex++)
+                DailyCellContent(dailyCell = dailyCell, index = index, isValid = isValid, onClick = gOnClick(cellIndex, isValid))
             }
             TitleSpace(title = "下午")
             groupedDailyCells[1]?.forEachIndexed { index, dailyCell ->
-                DailyCellContent(dailyCell = dailyCell, index = index)
+                val isValid = dailyTableState2.calcIsCellValid(rowIndex, cellIndex++)
+                DailyCellContent(dailyCell = dailyCell, index = index, isValid = isValid, onClick = gOnClick(cellIndex, isValid))
             }
             TitleSpace(title = "晚上")
             groupedDailyCells[2]?.forEachIndexed { index, dailyCell ->
-                DailyCellContent(dailyCell = dailyCell, index = index)
+                val isValid = dailyTableState2.calcIsCellValid(rowIndex, cellIndex++)
+                DailyCellContent(dailyCell = dailyCell, index = index, isValid = isValid, onClick = gOnClick(cellIndex, isValid))
             }
         }
     }
@@ -602,10 +636,12 @@ fun DailyRCContentWeekDay(weekDayStateList: List<WeekDayState>, onItemSelect: (I
  * DailyTablePage .content.RC.cell
  */
 @Composable
-fun DailyCellContent(dailyCell: DailyCell, index: Int) {
+fun DailyCellContent(dailyCell: DailyCell, isValid: Boolean, index: Int, onClick: (() -> Unit)?) {
     ProfileMenuItem(
         title = "第${index + 1}节", next = true,
-        content = "${dailyCell.start.toShortString()}-${dailyCell.end.toShortString()}"
+        content = "${dailyCell.start.toShortString()}-${dailyCell.end.toShortString()}",
+        textColor = if (isValid) LocalPalette.current.textColorDetail else MaterialTheme.colors.error,
+        onClick = onClick
     )
 }
 
@@ -921,6 +957,18 @@ fun CountSelector(text: String, index: Int, onItemIndexChanged: (Int) -> Unit) {
     }
 }
 
+@Composable
+fun DailyTableModifyCellDialogCover(
+    dailyTableModifyCellState: DailyTableModifyCellState,
+    dailyTableProcessor: DailyTableProcessor
+) {
+    // TODO: 2021/5/21 完成该功能
+    NanoDialog(
+        title = "调整该节课时间",
+        dialogState = dailyTableModifyCellState) {
+        Text("hello world!")
+        NanoDialogButton(text = "修改") {
 
-
-
+        }
+    }
+}

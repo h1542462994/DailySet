@@ -11,4 +11,5 @@ enum class DailyTableEventType: EventType {
     Rename,
     DeleteRow,
     ModifySection,
+    ModifyCell
 }

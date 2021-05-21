@@ -12,10 +12,12 @@ import org.tty.dailyset.data.processor.DailyTableProcessor2Async
 import org.tty.dailyset.data.processor.EventProcessorCallBack
 import org.tty.dailyset.event.DailyTableAddRowEventArgs
 import org.tty.dailyset.model.entity.DailyCell
+import org.tty.dailyset.model.entity.DailyRC
 import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.model.lifetime.*
 import org.tty.dailyset.ui.utils.toWeekStart
+import java.sql.Time
 import java.time.LocalDate
 import java.util.*
 
@@ -191,6 +193,39 @@ interface DailyTableScope : PreferenceScope, UserScope {
             rowIndex = remember {
                 mutableStateOf(rowIndex)
             }
+        )
+    }
+
+    @Composable
+    fun dailyTableModifyCellState(
+        dialogOpen: Boolean = false
+    ): DailyTableModifyCellState {
+        return DailyTableModifyCellState(
+            dialogOpen = remember {
+                mutableStateOf(dialogOpen)
+            },
+            modifyCellStateWrap = remember {
+                mutableStateOf(
+                    ModifyCellStateWrap(
+                        rowIndex = 0,
+                        cellIndex = 0,
+                        min = null,
+                        start = Time.valueOf("08:00:00"),
+                        end = Time.valueOf("08:45:00")
+                ))
+            }
+        )
+    }
+
+    fun upgradeDailyTableModifyCellState(state: DailyTableModifyCellState, dailyTRC: DailyTRC, rowIndex: Int, cellIndex: Int) {
+        fun cell(rowIndex: Int, cellIndex: Int) = dailyTRC.dailyRCs[rowIndex].dailyCells[cellIndex]
+
+        state.modifyCellStateWrap.value = ModifyCellStateWrap(
+            rowIndex = rowIndex,
+            cellIndex = cellIndex,
+            min = if (cellIndex == 0) null else cell(rowIndex, cellIndex).end,
+            start = cell(rowIndex, cellIndex).start,
+            end = cell(rowIndex, cellIndex).end
         )
     }
 

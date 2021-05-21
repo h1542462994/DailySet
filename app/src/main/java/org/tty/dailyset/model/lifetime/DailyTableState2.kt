@@ -1,7 +1,9 @@
 package org.tty.dailyset.model.lifetime
 
+import org.tty.dailyset.model.entity.DailyCell
 import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.User
+import org.tty.dailyset.ui.utils.plus
 
 /**
  * detail of [dailyTRC], use computing.
@@ -46,7 +48,7 @@ class DailyTableState2(
         return dailyTable.global || dailyTable.referenceUid != currentUserUid
     }
 
-    private fun calcWeekDaysAndInitialAddRowWeekDays() : Pair<List<List<WeekDayState>>,List<WeekDayState>> {
+    private fun calcWeekDaysAndInitialAddRowWeekDays(): Pair<List<List<WeekDayState>>, List<WeekDayState>> {
         /**
          * transfer the weekDays from db to listState (readOnly)
          * @param array weekDays form db
@@ -66,14 +68,21 @@ class DailyTableState2(
          * @param array weekDays from db.
          * @param mutableList recorded mutable selections.
          */
-        fun intArrayToMutableState(array: IntArray, readOnlyList: List<Int>, checkedList: List<Int>): List<WeekDayState> {
+        fun intArrayToMutableState(
+            array: IntArray,
+            readOnlyList: List<Int>,
+            checkedList: List<Int>
+        ): List<WeekDayState> {
             return (1..7).map {
                 val checked = array.contains(it)
                 val checkedCount = array.count()
                 if (checked) {
                     WeekDayState(readOnly = checkedCount == 1, checked = checked)
                 } else {
-                    WeekDayState(readOnlyList.contains(it) || !checkedList.contains(it), checked = checked)
+                    WeekDayState(
+                        readOnlyList.contains(it) || !checkedList.contains(it),
+                        checked = checked
+                    )
                 }
             }
         }
@@ -91,7 +100,7 @@ class DailyTableState2(
             val readOnlyList = mutableListOf<Int>()
             val checkedList = mutableListOf<Int>()
 
-            var index = length -1
+            var index = length - 1
             while (index >= 0) {
                 val current = dailyRows[index]
                 checkedList.addAll(current.weekdays.toList())
@@ -117,13 +126,45 @@ class DailyTableState2(
                     }
 
                 } else {
-                    lists.add(0, intArrayToMutableState(current.weekdays, readOnlyList, checkedList))
+                    lists.add(
+                        0,
+                        intArrayToMutableState(current.weekdays, readOnlyList, checkedList)
+                    )
                 }
                 index--
             }
         }
 
         return Pair(lists, last)
+    }
+
+    fun calcIsCellValid(rowIndex: Int, cellIndex: Int): Boolean {
+        val dailyRC = dailyRCs[rowIndex]
+        val dailyCell = dailyRC.dailyCells[cellIndex]
+        fun firstOfNormalType(normalType: Int): DailyCell {
+            return dailyRC.dailyCells.first { it.normalType == normalType }
+        }
+
+        if (dailyCell.normalType < 2) {
+            // 获取下一组最开始的时间
+            val next = firstOfNormalType(dailyCell.normalType + 1)
+            if (dailyCell.end > next.start) {
+                return false
+            }
+        }
+
+        val currentGroups = dailyRC.dailyCells.filter { it.normalType == dailyCell.normalType }
+
+        // 检查是否有溢出的时间
+        currentGroups.forEachIndexed { index, cell ->
+            if (index > 0 && index <= dailyCell.serialIndex) {
+                if (currentGroups[index - 1].end > cell.start) {
+                    return false
+                }
+            }
+        }
+
+        return true
     }
 
     override fun toString(): String {
@@ -133,6 +174,7 @@ class DailyTableState2(
 
     companion object {
         fun default(): DailyTableState2 = DailyTableState2(DailyTRC.default(), User.default().uid)
-        fun of(dailyTRC: DailyTRC, currentUserUid : String?): DailyTableState2 = DailyTableState2(dailyTRC, currentUserUid)
+        fun of(dailyTRC: DailyTRC, currentUserUid: String?): DailyTableState2 =
+            DailyTableState2(dailyTRC, currentUserUid)
     }
 }
