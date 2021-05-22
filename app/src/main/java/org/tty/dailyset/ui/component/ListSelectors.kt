@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -61,63 +62,63 @@ fun ListSelector(
     height: Dp,
     width: Dp,
     cellHeight: Dp,
-    initItemIndex: Int,
+    itemIndex: Int,
     onItemIndexChanged: (Int) -> Unit
 ) {
-    val spaceHeightDp = (height - cellHeight) / 2
-
+    val spaceHeight = (height - cellHeight) / 2
     val cellHeightPx = toPx(dp = cellHeight)
-    val spaceHeightPx = toPx(dp = spaceHeightDp)
+    val spaceHeightPx = toPx(dp = spaceHeight)
+    // composition state finalKey, if finalKey changed in re-composition, the sub layout will be recomposed.
+    val finalKey = "${data},${itemIndex}"
 
-    var currentIndex by remember(key1 = data, key2 = initItemIndex) {
-        mutableStateOf(initItemIndex)
+    var rememberIndex by remember(finalKey) {
+        mutableStateOf(itemIndex)
     }
 
-    val state = rememberLazyListState(initialFirstVisibleItemScrollOffset = (cellHeightPx * currentIndex).toInt())
+    val lazyListState = rememberSaveable(saver = LazyListState.Saver, key = finalKey) {
+        LazyListState(
+            firstVisibleItemIndex = (cellHeightPx * rememberIndex).toInt()
+        )
+    }
 
     /**
-     * 计算axisY offset.
+     * offset Y
      */
-    val offsetY by derivedStateOf {
-        if (state.firstVisibleItemIndex == 0) {
-            state.firstVisibleItemScrollOffset.toFloat()
+    val offsetY =
+        if (lazyListState.firstVisibleItemIndex == 0) {
+            lazyListState.firstVisibleItemScrollOffset.toFloat()
         } else {
-            spaceHeightPx + (state.firstVisibleItemIndex - 1) * cellHeightPx + state.firstVisibleItemScrollOffset
+            spaceHeightPx+
+                    (lazyListState.firstVisibleItemIndex - 1) * cellHeightPx +
+                    lazyListState.firstVisibleItemScrollOffset
         }
-    }
-    
-    // no inline
-    val tempOffsetY = offsetY
 
-    val tempIndex = (offsetY / cellHeightPx).roundToInt()
-    if (tempIndex != currentIndex) {
-        currentIndex = tempIndex
-        onItemIndexChanged(tempIndex)
-    }
+    val realIndex = (offsetY / cellHeightPx).roundToInt()
+    LaunchedEffect(key1 = realIndex, block = {
+        if (realIndex != rememberIndex) {
+            rememberIndex = realIndex
+            onItemIndexChanged(realIndex)
+        }
+    })
 
-    val isDragged = state.interactionSource.collectIsDraggedAsState().value
-    var firstInteract by remember { mutableStateOf(false) }
-    if (!isDragged && firstInteract){
-        if (!state.isScrollInProgress) {
-            firstInteract = false
-            //Log.d("ListSelector", "upPress")
+    val isDragged = lazyListState.interactionSource.collectIsDraggedAsState().value
+    LaunchedEffect(key1 = lazyListState, block = {
+        if (!isDragged && !lazyListState.isScrollInProgress) {
             GlobalScope.launch {
-                val targetOffset = (cellHeightPx * tempIndex)
-                state.animateScrollBy(targetOffset - tempOffsetY)
+                val targetOffsetY = cellHeightPx * realIndex
+                lazyListState.animateScrollBy(targetOffsetY - offsetY)
             }
         }
-    } else if (isDragged) {
-        firstInteract = true
-    }
+    })
 
     LazyColumn(
         modifier = Modifier
             .height(height = height)
             .width(width = width),
-        state = state
+        state = lazyListState
     ) {
         item(key = "*header") {
-            Spacer(modifier = Modifier.height(spaceHeightDp))
+            Spacer(modifier = Modifier.height(spaceHeight))
         }
         itemsIndexed(data, itemContent = { index, item ->
             Row(modifier = Modifier
@@ -130,14 +131,14 @@ fun ListSelector(
                         .width(width)
                         .wrapContentWidth(Alignment.CenterHorizontally)
                         .align(Alignment.CenterVertically),
-                    color = if (currentIndex == index) MaterialTheme.colors.primary else Color.Unspecified,
-                    fontWeight = if (currentIndex == index) FontWeight.Bold else null,
-                    fontSize = if (currentIndex == index) 20.sp else 16.sp
+                    color = if (rememberIndex == index) MaterialTheme.colors.primary else Color.Unspecified,
+                    fontWeight = if (rememberIndex == index) FontWeight.Bold else null,
+                    fontSize = if (rememberIndex == index) 20.sp else 16.sp
                 )
             }
         })
         item(key = "*end") {
-            Spacer(modifier = Modifier.height(spaceHeightDp))
+            Spacer(modifier = Modifier.height(spaceHeight))
         }
     }
 
@@ -199,7 +200,7 @@ fun TimeSelector(
             height = height,
             width = 40.dp,
             cellHeight = cellHeight,
-            initItemIndex = cTime.first - min_h) {
+            itemIndex = cTime.first - min_h) {
             Log.d("ListSelector", "h:${it}")
             cTime = cTime.copy(
                 first = hours[it].toInt()
@@ -222,7 +223,7 @@ fun TimeSelector(
             height = height,
             width = 40.dp,
             cellHeight = cellHeight,
-            initItemIndex = index) {
+            itemIndex = index) {
             Log.d("ListSelector", "m:${it}")
             cTime = cTime.copy(
                 second = minutes[it].toInt()

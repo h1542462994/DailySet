@@ -950,7 +950,7 @@ fun CountSelector(text: String, index: Int, onItemIndexChanged: (Int) -> Unit) {
             height = 180.dp,
             width = width,
             cellHeight = 40.dp,
-            initItemIndex = index
+            itemIndex = index
         ) {
             onItemIndexChanged(it)
         }
