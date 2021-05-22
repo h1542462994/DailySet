@@ -16,7 +16,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.tty.dailyset.ui.utils.hm
 import org.tty.dailyset.ui.utils.rangeX
@@ -65,21 +64,30 @@ fun ListSelector(
     itemIndex: Int,
     onItemIndexChanged: (Int) -> Unit
 ) {
+    val TAG = "ListSelector"
     val spaceHeight = (height - cellHeight) / 2
     val cellHeightPx = toPx(dp = cellHeight)
     val spaceHeightPx = toPx(dp = spaceHeight)
     // composition state finalKey, if finalKey changed in re-composition, the sub layout will be recomposed.
-    val finalKey = "${data},${itemIndex}"
+    val finalKey = "$data"
 
     var rememberIndex by remember(finalKey) {
         mutableStateOf(itemIndex)
     }
-
-    val lazyListState = rememberSaveable(saver = LazyListState.Saver, key = finalKey) {
+    val lazyListState = rememberSaveable(saver = LazyListState.Saver) {
         LazyListState(
-            firstVisibleItemIndex = (cellHeightPx * rememberIndex).toInt()
+            firstVisibleItemScrollOffset = (cellHeightPx * rememberIndex).toInt()
         )
     }
+
+    // if the data changed, initialize the scroll position.
+    // side-effect to initialize the scroll position when data changed.
+    LaunchedEffect(key1 = finalKey, block = {
+        Log.d(TAG, "data changed, so update the lazyListState")
+        lazyListState.scrollToItem(
+            0, (cellHeightPx * rememberIndex).toInt()
+        )
+    })
 
     /**
      * offset Y
@@ -94,20 +102,37 @@ fun ListSelector(
         }
 
     val realIndex = (offsetY / cellHeightPx).roundToInt()
+    // side-effect to notify index when realIndex changed
     LaunchedEffect(key1 = realIndex, block = {
         if (realIndex != rememberIndex) {
             rememberIndex = realIndex
+            Log.d(TAG, "index changed, so notify index = ${realIndex}, data = ${data[realIndex]}.")
             onItemIndexChanged(realIndex)
         }
     })
 
     val isDragged = lazyListState.interactionSource.collectIsDraggedAsState().value
-    LaunchedEffect(key1 = lazyListState, block = {
-        if (!isDragged && !lazyListState.isScrollInProgress) {
-            GlobalScope.launch {
-                val targetOffsetY = cellHeightPx * realIndex
-                lazyListState.animateScrollBy(targetOffsetY - offsetY)
+    // use scope related to current composition.
+    val scope = rememberCoroutineScope()
+
+    // prevent the action if is not dragged
+    var preventAction by remember {
+        mutableStateOf(false)
+    }
+    val actionKey = "${isDragged},${lazyListState.isScrollInProgress}"
+    // if the action is need to be act
+    val needAction = !preventAction && (!isDragged and !lazyListState.isScrollInProgress)
+    // side-effect to change the current scroll position when stopped.
+    LaunchedEffect(key1 = actionKey, block = {
+        if (needAction) {
+            preventAction = true
+            val targetOffset = (cellHeightPx * realIndex)
+            Log.d(TAG,"isDragged and isScroll first changed to (false, false), ${targetOffset},${offsetY}, so scroll the item.")
+            scope.launch {
+                lazyListState.animateScrollBy(targetOffset - offsetY)
             }
+        } else if(isDragged) {
+            preventAction = false
         }
     })
 
@@ -147,7 +172,6 @@ fun ListSelector(
 @Composable
 fun TimeSelector(
     height: Dp,
-    width: Dp,
     cellHeight: Dp,
     initTime: Time,
     minuteSpace: Int = 5,
@@ -155,31 +179,33 @@ fun TimeSelector(
     max: Time? = null,
     onTimeChanged: (Time) -> Unit
 ) {
-    val (min_h, min_m) = min?.hm() ?: Pair(0,0)
-    val (max_h, max_m) = max?.hm() ?: Pair(23,60)
-    val (ini_h, ini_m) = initTime.hm()
+    val TAG = "TimeSelector"
 
-    //Log.d("ListSelector", "time:${min_h}:${min_m}")
+    data class HourMinute(
+        val hour: Int,
+        val minute: Int,
+    )
 
-    var cTime by remember(key1 = initTime) {
-        mutableStateOf(Pair(ini_h, ini_m))
+    val (minH, minM) = min?.hm() ?: Pair(0,0)
+    val (maxH, maxM) = max?.hm() ?: Pair(23,60)
+    val (iniH, iniM) = initTime.hm()
+
+    var rememberTime by remember(key1 = initTime) {
+        mutableStateOf(HourMinute(iniH, iniM))
     }
 
-    Log.d("ListSelector", "timeC:${cTime.first}:${cTime.second}")
-
-    val hours = (min_h..max_h).map { it.toString() }
-    val cMinM = if (cTime.first == min_h) min_m else 0
-    val cMaxM = if (cTime.second == max_h) max_m else 60
-    //Log.d("ListSelector","r:${cMinM},${cMaxM}")
-
-    if (cTime.second < cMinM) {
-        cTime = cTime.copy(second = cMinM)
+    // check the minute range
+    val cMinM = if (rememberTime.hour == minH) minM else 0
+    val cMaxM = if (rememberTime.hour == maxH) maxM else 60
+    if (rememberTime.minute < cMinM) {
+        rememberTime = rememberTime.copy(minute = cMinM)
 
     }
-    if (cTime.second > cMaxM) {
-        cTime = cTime.copy(second = cMaxM)
+    if (rememberTime.minute > cMaxM) {
+        rememberTime = rememberTime.copy(minute = cMaxM)
     }
 
+    val hours = (minH..maxH).map { it.toString() }
     val minutes =
         rangeX(cMinM, cMaxM, minuteSpace).map {
             if (it < 10) {
@@ -189,10 +215,14 @@ fun TimeSelector(
             }
         }
 
-    Log.d("ListSelector", "ms:${minutes}")
-    val index = (cTime.second - cMinM) / minuteSpace
-    Log.d("ListSelector", "index:${index}")
+    val hourIndex = rememberTime.hour - minH
+    val minuteIndex = (rememberTime.minute - cMinM) / minuteSpace
 
+    LaunchedEffect(key1 = rememberTime, block = {
+        val time = Time.valueOf("${rememberTime.hour}:${rememberTime.minute}:0")
+        Log.d(TAG,"time changed to ${time}, so notify it")
+        onTimeChanged(time)
+    })
 
     Row {
         ListSelector(
@@ -200,13 +230,12 @@ fun TimeSelector(
             height = height,
             width = 40.dp,
             cellHeight = cellHeight,
-            itemIndex = cTime.first - min_h) {
-            Log.d("ListSelector", "h:${it}")
-            cTime = cTime.copy(
-                first = hours[it].toInt()
+            itemIndex = hourIndex) {
+            rememberTime = rememberTime.copy(
+                hour = hours[it].toInt()
             )
         }
-        // :
+
         Column(
             modifier = Modifier
                 .height(height)
@@ -223,10 +252,9 @@ fun TimeSelector(
             height = height,
             width = 40.dp,
             cellHeight = cellHeight,
-            itemIndex = index) {
-            Log.d("ListSelector", "m:${it}")
-            cTime = cTime.copy(
-                second = minutes[it].toInt()
+            itemIndex = minuteIndex) {
+            rememberTime = rememberTime.copy(
+                minute = minutes[it].toInt()
             )
         }
 

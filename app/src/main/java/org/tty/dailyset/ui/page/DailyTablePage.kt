@@ -970,7 +970,6 @@ fun DailyTableModifyCellDialogCover(
         Text("hello world!")
         TimeSelector(
             height = 180.dp,
-            width = 100.dp,
             cellHeight = 40.dp,
             min = Time.valueOf("07:30:00"),
             initTime = Time.valueOf("08:00:00")) {
