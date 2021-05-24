@@ -223,7 +223,7 @@ interface DailyTableScope : PreferenceScope, UserScope {
         state.modifyCellStateWrap.value = ModifyCellStateWrap(
             rowIndex = rowIndex,
             cellIndex = cellIndex,
-            min = if (cellIndex == 0) null else cell(rowIndex, cellIndex).end,
+            min = if (cellIndex == 0) null else cell(rowIndex, cellIndex - 1).end,
             start = cell(rowIndex, cellIndex).start,
             end = cell(rowIndex, cellIndex).end
         )

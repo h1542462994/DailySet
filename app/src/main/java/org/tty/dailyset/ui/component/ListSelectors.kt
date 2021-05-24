@@ -64,12 +64,12 @@ fun ListSelector(
     itemIndex: Int,
     onItemIndexChanged: (Int) -> Unit
 ) {
-    val TAG = "ListSelector"
+    val tag = "ListSelector"
     val spaceHeight = (height - cellHeight) / 2
     val cellHeightPx = toPx(dp = cellHeight)
     val spaceHeightPx = toPx(dp = spaceHeight)
     // composition state finalKey, if finalKey changed in re-composition, the sub layout will be recomposed.
-    val finalKey = "$data"
+    val finalKey = "$data,${itemIndex}"
 
     var rememberIndex by remember(finalKey) {
         mutableStateOf(itemIndex)
@@ -83,7 +83,7 @@ fun ListSelector(
     // if the data changed, initialize the scroll position.
     // side-effect to initialize the scroll position when data changed.
     LaunchedEffect(key1 = finalKey, block = {
-        Log.d(TAG, "data changed, so update the lazyListState")
+        Log.d(tag, "data changed, so update the lazyListState")
         lazyListState.scrollToItem(
             0, (cellHeightPx * rememberIndex).toInt()
         )
@@ -106,7 +106,7 @@ fun ListSelector(
     LaunchedEffect(key1 = realIndex, block = {
         if (realIndex != rememberIndex) {
             rememberIndex = realIndex
-            Log.d(TAG, "index changed, so notify index = ${realIndex}, data = ${data[realIndex]}.")
+            Log.d(tag, "index changed, so notify index = $realIndex")
             onItemIndexChanged(realIndex)
         }
     })
@@ -127,7 +127,7 @@ fun ListSelector(
         if (needAction) {
             preventAction = true
             val targetOffset = (cellHeightPx * realIndex)
-            Log.d(TAG,"isDragged and isScroll first changed to (false, false), ${targetOffset},${offsetY}, so scroll the item.")
+            Log.d(tag,"isDragged and isScroll first changed to (false, false), ${targetOffset},${offsetY}, so scroll the item.")
             scope.launch {
                 lazyListState.animateScrollBy(targetOffset - offsetY)
             }
@@ -189,8 +189,9 @@ fun TimeSelector(
     val (minH, minM) = min?.hm() ?: Pair(0,0)
     val (maxH, maxM) = max?.hm() ?: Pair(23,60)
     val (iniH, iniM) = initTime.hm()
+    val finalKey = "${minH}:${minM},${maxH}:${maxM},${iniH}:${iniM}"
 
-    var rememberTime by remember(key1 = initTime) {
+    var rememberTime by remember(key1 = finalKey) {
         mutableStateOf(HourMinute(iniH, iniM))
     }
 
@@ -235,7 +236,6 @@ fun TimeSelector(
                 hour = hours[it].toInt()
             )
         }
-
         Column(
             modifier = Modifier
                 .height(height)
@@ -247,6 +247,7 @@ fun TimeSelector(
                 fontWeight = FontWeight.Bold
             )
         }
+        // TODO: 2021/5/24 当结束时间超过0点时的处理逻辑?
         ListSelector(
             data = minutes,
             height = height,
@@ -254,9 +255,9 @@ fun TimeSelector(
             cellHeight = cellHeight,
             itemIndex = minuteIndex) {
             rememberTime = rememberTime.copy(
-                minute = minutes[it].toInt()
+                // FIXME: 2021/5/24 震荡的bug
+                minute =  if (it < minutes.size) minutes[it].toInt() else minutes[0].toInt()
             )
         }
-
     }
 }

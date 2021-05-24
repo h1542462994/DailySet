@@ -83,3 +83,17 @@ fun rangeX(min: Int, max: Int, space: Int): List<Int> {
     }
     return list
 }
+
+fun <T> Map<*, List<T>>.startIndexes(): List<Int> {
+    var startIndex = 0;
+    val record = mutableListOf<Int>()
+    forEach { (_, l) ->
+        record.add(startIndex)
+        startIndex += l.size
+    }
+    return record
+}
+
+fun spanMinutes(start: Time, end: Time): Long {
+    return (end.time - start.time) / (1000 * 60)
+}

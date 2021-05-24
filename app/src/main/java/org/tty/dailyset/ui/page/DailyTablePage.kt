@@ -18,6 +18,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -32,10 +33,10 @@ import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.model.lifetime.*
 import org.tty.dailyset.ui.component.*
 import org.tty.dailyset.ui.theme.LocalPalette
-import org.tty.dailyset.ui.utils.toIntArray
-import org.tty.dailyset.ui.utils.toShortString
-import org.tty.dailyset.ui.utils.toWeekDayString
+import org.tty.dailyset.ui.utils.*
 import java.sql.Time
+import java.time.temporal.ChronoField
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 /**
@@ -544,7 +545,6 @@ fun DailyRCContent(
                 )
             }
         }
-
         //Text("PlaceHolder")
     }) {
         ProfileMenuItem(title = "适用星期", next = false, content = {
@@ -569,41 +569,31 @@ fun DailyRCContent(
 
         )
 
-
-
         with(DataScope) {
             val groupedDailyCells = groupDailyCells(dailyRC.dailyCells)
-            fun gOnClick(cellIndex: Int, isValid: Boolean): (() -> Unit)? =
-                if (!dailyTableState2.readOnly && isValid) {
-                    {
-                        upgradeDailyTableModifyCellState(
-                            state = dailyTableModifyCellState,
-                            dailyTRC = dailyTableState2.dailyTRC,
-                            rowIndex = rowIndex,
-                            cellIndex = cellIndex
-                        )
-                        dailyTableModifyCellState.dialogOpen.value = true
-                    }
-                } else {
-                    null
+            val titles = listOf("上午", "下午", "晚上")
+            val counts = groupedDailyCells.startIndexes()
+            groupedDailyCells.forEach { (groupIndex, listD) ->
+                TitleSpace(title = titles[groupIndex])
+                listD.forEachIndexed { index, dailyCell ->
+                    val cellIndex = counts[groupIndex] + index
+                    val isValid = dailyTableState2.calcIsCellValid(rowIndex, cellIndex)
+                    DailyCellContent(dailyCell = dailyCell, isValid = isValid, index = index, onClick =
+                        if (!dailyTableState2.readOnly && isValid) {
+                            {
+                                upgradeDailyTableModifyCellState(
+                                    state = dailyTableModifyCellState,
+                                    dailyTRC = dailyTableState2.dailyTRC,
+                                    rowIndex = rowIndex,
+                                    cellIndex = cellIndex
+                                )
+                                dailyTableModifyCellState.dialogOpen.value = true
+                            }
+                        } else {
+                            null
+                        }
+                    )
                 }
-
-
-            var cellIndex = 0
-            TitleSpace(title = "上午")
-            groupedDailyCells[0]?.forEachIndexed { index, dailyCell ->
-                val isValid = dailyTableState2.calcIsCellValid(rowIndex, cellIndex++)
-                DailyCellContent(dailyCell = dailyCell, index = index, isValid = isValid, onClick = gOnClick(cellIndex, isValid))
-            }
-            TitleSpace(title = "下午")
-            groupedDailyCells[1]?.forEachIndexed { index, dailyCell ->
-                val isValid = dailyTableState2.calcIsCellValid(rowIndex, cellIndex++)
-                DailyCellContent(dailyCell = dailyCell, index = index, isValid = isValid, onClick = gOnClick(cellIndex, isValid))
-            }
-            TitleSpace(title = "晚上")
-            groupedDailyCells[2]?.forEachIndexed { index, dailyCell ->
-                val isValid = dailyTableState2.calcIsCellValid(rowIndex, cellIndex++)
-                DailyCellContent(dailyCell = dailyCell, index = index, isValid = isValid, onClick = gOnClick(cellIndex, isValid))
             }
         }
     }
@@ -930,6 +920,109 @@ fun DailyTableModifySectionDialogCover(
     }
 }
 
+
+@Composable
+fun DailyTableModifyCellDialogCover(
+    dailyTableModifyCellState: DailyTableModifyCellState,
+    dailyTableProcessor: DailyTableProcessor
+) {
+    val tag = "DailyTableModifyCellDialogCover"
+    val state by dailyTableModifyCellState.modifyCellStateWrap
+    val (rowIndex, cellIndex, min, start, end) = state
+
+    LaunchedEffect(key1 = state, block = {
+        Log.d(tag, state.toString())
+    })
+
+    data class TimeRange(
+        val start: Time,
+        val end: Time
+    )
+
+    var current by remember(key1 = state) {
+        mutableStateOf(TimeRange(start, end))
+    }
+    val endMin =
+        minOf(current.end, current.start.plus(5, ChronoUnit.MINUTES))
+
+
+
+    // TODO: 2021/5/21 完成该功能
+    NanoDialog(
+        title = "调整该节课时间",
+        dialogState = dailyTableModifyCellState) {
+        Row(
+            modifier = Modifier.fillMaxWidth().wrapContentWidth(align = Alignment.CenterHorizontally)
+        ) {
+            Column {
+                Text(
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .align(alignment = Alignment.CenterHorizontally)
+                        .wrapContentWidth(align = Alignment.CenterHorizontally),
+                    text = "开始",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                TimeSelector(
+                    height = 180.dp,
+                    cellHeight = 40.dp,
+                    initTime = current.start,
+                    min = min
+                ) {
+                    val span = spanMinutes(current.start, current.end)
+
+                    current = TimeRange(it, it.plus(span, ChronoUnit.MINUTES))
+                }
+            }
+            Column {
+                Text(
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .align(alignment = Alignment.CenterHorizontally)
+                        .wrapContentWidth(align = Alignment.CenterHorizontally),
+                    text = " ",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    modifier = Modifier
+                        .height(180.dp)
+                        .wrapContentHeight(align = Alignment.CenterVertically),
+                    text = " - ",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Column {
+                Text(
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .align(alignment = Alignment.CenterHorizontally)
+                        .wrapContentWidth(align = Alignment.CenterHorizontally),
+                    text = "结束",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                TimeSelector(
+                    height = 180.dp,
+                    cellHeight = 40.dp,
+                    initTime = current.end,
+                    min = endMin
+                ) {
+                    current = current.copy(
+                        end = it
+                    )
+                }
+            }
+        }
+
+        NanoDialogButton(text = "修改") {
+
+        }
+    }
+}
+
 /**
  * ListSelector count ver.
  */
@@ -939,6 +1032,7 @@ fun CountSelector(text: String, index: Int, onItemIndexChanged: (Int) -> Unit) {
     Column(modifier = Modifier.width(width)) {
         Text(
             modifier = Modifier
+                .padding(bottom = 8.dp)
                 .width(width)
                 .wrapContentWidth(align = Alignment.CenterHorizontally),
             text = text,
@@ -958,25 +1052,21 @@ fun CountSelector(text: String, index: Int, onItemIndexChanged: (Int) -> Unit) {
 }
 
 @Composable
-fun DailyTableModifyCellDialogCover(
-    dailyTableModifyCellState: DailyTableModifyCellState,
-    dailyTableProcessor: DailyTableProcessor
-) {
-
-    // TODO: 2021/5/21 完成该功能
-    NanoDialog(
-        title = "调整该节课时间",
-        dialogState = dailyTableModifyCellState) {
-        Text("hello world!")
-        TimeSelector(
-            height = 180.dp,
-            cellHeight = 40.dp,
-            min = Time.valueOf("07:30:00"),
-            initTime = Time.valueOf("08:00:00")) {
-
-        }
-        NanoDialogButton(text = "修改") {
-
-        }
+fun SelectorWithText(
+    text: String,
+    width: Dp,
+    content: @Composable () -> Unit
+){
+    Column(modifier = Modifier.width(width)) {
+        Text(
+            modifier = Modifier
+                .padding(bottom = 8.dp)
+                .width(width)
+                .wrapContentWidth(align = Alignment.CenterHorizontally),
+            text = text,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold
+        )
+        content()
     }
 }
