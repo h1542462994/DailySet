@@ -22,11 +22,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.tty.dailyset.*
-import org.tty.dailyset.LocalNav
 import org.tty.dailyset.R
 import org.tty.dailyset.data.processor.DailyTableProcessor
 import org.tty.dailyset.data.scope.DataScope
@@ -36,6 +33,7 @@ import org.tty.dailyset.model.entity.DailyRC
 import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.model.lifetime.*
 import org.tty.dailyset.ui.component.*
+import org.tty.dailyset.ui.image.ImageResource
 import org.tty.dailyset.ui.theme.LocalPalette
 import org.tty.dailyset.ui.utils.*
 import java.sql.Time
@@ -56,6 +54,11 @@ fun DailyTablePage() {
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
 
+    fun scrollToTop() {
+        coroutineScope.launch {
+            scrollState.scrollTo(0)
+        }
+    }
 
 
     with(DataScope) {
@@ -90,9 +93,11 @@ fun DailyTablePage() {
                 performProcess(service, DailyTableEventType.Create, createEventArgs,
                     onBefore = {},
                     onCompletion = { e ->
-                        if (e is DailyTableCreateEventArgs) {
-                            mainViewModel.currentDailyTableUid.postValue(e.uid)
+                        require(e is DailyTableCreateEventArgs) {
+                            "e is not a DailyTableCreateEventArgs"
                         }
+                        mainViewModel.currentDailyTableUid.postValue(e.uid)
+                        scrollToTop()
                     }
                 )
             }
@@ -149,6 +154,7 @@ fun DailyTablePage() {
                     onBefore = {},
                     onCompletion = {
                         dailyTableDeleteRowState.dialogOpen.value = false
+                        scrollToTop()
                     }
                 )
             }
@@ -161,9 +167,7 @@ fun DailyTablePage() {
                     onCompletion = {
                         dailyTableModifySectionState.dialogOpen.value = false
                         // if the current scroll value is out of boundary, scroll to top
-                        coroutineScope.launch {
-                            scrollState.animateScrollTo(0)
-                        }
+                        scrollToTop()
                     }
                 )
             }
@@ -205,6 +209,7 @@ fun DailyTablePage() {
                     dropDownOpenState = dropDownTitleOpenState
                 ) { dailyTable ->
                     // TODO: 2021/4/7 优化代码
+                    scrollToTop()
                     mainViewModel.currentDailyTableUid.value = dailyTable.uid
 
                     dropDownTitleOpenState.value = false
@@ -355,7 +360,7 @@ fun DailyTableTitleDescription(dailyTable: DailyTable, userState: UserState, col
  * @param dailyTableState2 state of DailyTable
  * @param dailyTableCreateState state of createDialog for DailyTable
  * @param dailyTableAddRowState state of addRowDialog for DailyRow
- * @param dailyTableDeleteState state of deleteDailog for DailyTable
+ * @param dailyTableDeleteState state of deleteDialog for DailyTable
  */
 @Composable
 fun DailyTableExtensionDropDown(
@@ -469,7 +474,7 @@ fun DailyTableContent(
     DailyTableTipBox(dailyTable = dailyTableState2.dailyTRC.dailyTable, userState = userState)
 
     ProfileMenuItem(
-        icon = Icons.Filled.Place, title = "预览", next = true, content =
+        icon = ImageResource.cell(), title = "预览", next = true, content =
         "点击以进行预览", onClick = LocalNav.current.action.toTimeTablePreview
     )
 

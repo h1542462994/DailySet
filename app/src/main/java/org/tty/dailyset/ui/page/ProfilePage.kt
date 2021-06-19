@@ -1,17 +1,10 @@
 package org.tty.dailyset.ui.page
 
-import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.Create
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import org.tty.dailyset.LocalNav
@@ -21,6 +14,7 @@ import org.tty.dailyset.data.scope.DataScope
 import org.tty.dailyset.model.entity.User
 import org.tty.dailyset.ui.component.ProfileMenuGroup
 import org.tty.dailyset.ui.component.ProfileMenuItem
+import org.tty.dailyset.ui.image.ImageResource
 
 /**
  * ProfilePage, including user,settings
@@ -39,7 +33,8 @@ fun ProfilePage() {
         Column(
             modifier = androidx.compose.ui.Modifier.scrollable(
                 rememberScrollState(0),
-                androidx.compose.foundation.gestures.Orientation.Vertical)
+                androidx.compose.foundation.gestures.Orientation.Vertical
+            )
         ){
             ProfileMenuGroupUser(user = currentUser)
             ProfileMenuGroupUserSettings()
@@ -61,7 +56,7 @@ fun ProfileMenuGroupUser(user: User?) {
         "${user.nickName} ${user.uid}"
     }
     ProfileMenuGroup(title = stringResource(id = R.string.user)) {
-        ProfileMenuItem(icon = Icons.Filled.Person, title = display, content = "本地账户", next = true)
+        ProfileMenuItem(icon = ImageResource.user(), title = display, content = "本地账户", next = true)
     }
 }
 
@@ -69,8 +64,8 @@ fun ProfileMenuGroupUser(user: User?) {
 @Composable
 fun ProfileMenuGroupUserSettings() {
     ProfileMenuGroup(title = stringResource(id = R.string.user_settings)) {
-        ProfileMenuItem(icon = Icons.Filled.Build, title = stringResource(id = R.string.time_table), content = "系统默认", next = true, onClick = LocalNav.current.action.toTimeTable)
-        ProfileMenuItem(icon = Icons.Filled.Create, title = "测试", content = "", next = true, onClick = LocalNav.current.action.toTest)
+        ProfileMenuItem(icon = ImageResource.table(), title = stringResource(id = R.string.time_table), content = "系统默认", next = true, onClick = LocalNav.current.action.toTimeTable)
+        ProfileMenuItem(icon = ImageResource.scan(), title = stringResource(R.string.debug), content = "", next = true, onClick = LocalNav.current.action.toTest)
     }
 }
 
@@ -79,4 +74,10 @@ fun ProfileMenuGroupUserSettings() {
 @Composable
 fun ProfileMenuGroupUserPreview() {
     ProfileMenuGroupUser(user = null)
+}
+
+@Preview
+@Composable
+fun ProfilePagePreview() {
+    ProfilePage()
 }

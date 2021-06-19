@@ -14,4 +14,9 @@
     <string name="time_table">时间表</string>
     <string name="time_table_preview">时间表预览</string>
     <string name="time_table_group_modify_section">修改节数:组%s</string>
+    <string name="debug">调试</string>
+    <string name="dailyset_auto">自动日程</string>
+    <string name="dailyset_user">用户日程</string>
+    <string name="class_table">课表</string>
+    <string name="important">重要</string>
 </resources>

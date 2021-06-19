@@ -81,5 +81,5 @@ enum class MainPageTabs(
 ){
     SUMMARY(R.string.summary, R.drawable.ic_baseline_timelapse_24),
     DAILY_SET(R.string.daily_set, R.drawable.ic_baseline_sort_24),
-    PROFILE(R.string.profile, R.drawable.ic_baseline_person_24)
+    PROFILE(R.string.profile, R.drawable.ic_user_24)
 }
