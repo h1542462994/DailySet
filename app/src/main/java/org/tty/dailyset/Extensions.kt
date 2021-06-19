@@ -1,11 +1,11 @@
-package org.tty.dailyset.ui.utils
+package org.tty.dailyset
 
 import org.tty.dailyset.model.lifetime.WeekDayState
 import java.sql.Time
 import java.sql.Timestamp
 import java.time.*
+import java.time.temporal.ChronoField
 import java.time.temporal.TemporalUnit
-import java.util.*
 
 fun Time.toShortString(): String {
     return this.toString().substring(0,5)
@@ -63,10 +63,20 @@ fun List<WeekDayState>.toIntArray(): IntArray {
     return list.toIntArray()
 }
 
+
 fun Time.plus(amountToAdd: Long, unit: TemporalUnit): Time {
-    var localTime = LocalTime.ofNanoOfDay(this.time * 1000000)
-    localTime = localTime.plus(amountToAdd, unit)
-    return Time(localTime.toNanoOfDay() / 1000000)
+    val instant = this.toInstant()
+    val zoneId = ZoneId.systemDefault()
+    val localDateTime = instant.atZone(zoneId).toLocalDateTime()
+        .plus(amountToAdd, unit)
+    return Time(Time.from(localDateTime.atZone(zoneId).toInstant()).time)
+}
+
+fun Time.day(): Long {
+    val instant = this.toInstant()
+    val zoneId = ZoneId.systemDefault()
+    val localDateTime = instant.atZone(zoneId).toLocalDateTime()
+    return localDateTime.getLong(ChronoField.EPOCH_DAY)
 }
 
 fun Time.hm(): Pair<Int, Int> {

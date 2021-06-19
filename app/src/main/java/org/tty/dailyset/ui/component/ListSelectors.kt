@@ -17,8 +17,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
-import org.tty.dailyset.ui.utils.hm
-import org.tty.dailyset.ui.utils.rangeX
+import org.tty.dailyset.hm
+import org.tty.dailyset.rangeX
 import org.tty.dailyset.ui.utils.toPx
 import java.sql.Time
 import kotlin.math.roundToInt
@@ -69,9 +69,12 @@ fun ListSelector(
     val cellHeightPx = toPx(dp = cellHeight)
     val spaceHeightPx = toPx(dp = spaceHeight)
     // composition state finalKey, if finalKey changed in re-composition, the sub layout will be recomposed.
-    val finalKey = "$data,${itemIndex}"
+    val stateKey = "$data,$itemIndex"
+    // ignore the dataKey
+    val dataKey = "$data"
 
-    var rememberIndex by remember(finalKey) {
+    // the currentIndex of the current state from (data, itemIndex) .. epoch
+    var rememberIndex by remember(stateKey) {
         mutableStateOf(itemIndex)
     }
     val lazyListState = rememberSaveable(saver = LazyListState.Saver) {
@@ -80,14 +83,6 @@ fun ListSelector(
         )
     }
 
-    // if the data changed, initialize the scroll position.
-    // side-effect to initialize the scroll position when data changed.
-    LaunchedEffect(key1 = finalKey, block = {
-        Log.d(tag, "data changed, so update the lazyListState")
-        lazyListState.scrollToItem(
-            0, (cellHeightPx * rememberIndex).toInt()
-        )
-    })
 
     /**
      * offset Y
@@ -102,6 +97,19 @@ fun ListSelector(
         }
 
     val realIndex = (offsetY / cellHeightPx).roundToInt()
+
+    // if the data changed, initialize the scroll position.
+    // side-effect to initialize the scroll position when data changed.
+    // FIXME: 2021/6/19 当外部项导致数据更改时，会导致状态异常。
+    LaunchedEffect(key1 = stateKey, block = {
+        if (itemIndex != realIndex) {
+            Log.d(tag, "data changed, so update the lazyListState")
+            lazyListState.scrollToItem(
+                0, (cellHeightPx * rememberIndex).toInt()
+            )
+        }
+    })
+
     // side-effect to notify index when realIndex changed
     LaunchedEffect(key1 = realIndex, block = {
         if (realIndex != rememberIndex) {

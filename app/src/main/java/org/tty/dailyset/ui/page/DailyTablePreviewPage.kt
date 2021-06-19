@@ -13,12 +13,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.tty.dailyset.*
 import org.tty.dailyset.LocalNav
 import org.tty.dailyset.R
 import org.tty.dailyset.data.scope.DataScope
 import org.tty.dailyset.model.entity.DailyCell
 import org.tty.dailyset.model.entity.DailyRC
-import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.model.lifetime.DailyTableCalc
 import org.tty.dailyset.model.lifetime.DailyTablePreviewState

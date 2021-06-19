@@ -9,8 +9,9 @@ import org.tty.dailyset.model.entity.DailyCell
 import org.tty.dailyset.model.entity.DailyRC
 import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
-import org.tty.dailyset.ui.utils.localTimestampNow
-import org.tty.dailyset.ui.utils.plus
+import org.tty.dailyset.localTimestampNow
+import org.tty.dailyset.plus
+import org.tty.dailyset.spanMinutes
 import java.time.temporal.ChronoUnit
 import java.util.*
 
@@ -338,7 +339,47 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
         )
     }
 
+    @Transaction
     override suspend fun modifyCell(dailyTableModifyCellEventArgs: DailyTableModifyCellEventArgs) {
-        // TODO: 2021/5/21 添加逻辑
+        // unwrap the data class.
+        val (dailyTRC, rowIndex, cellIndex, start, end) = dailyTableModifyCellEventArgs
+        fun dailyRowOfRowIndex(rowIndex: Int) = dailyTRC.dailyRCs[rowIndex]
+        fun dailyCell(rowIndex:Int, cellIndex: Int) = dailyRowOfRowIndex(rowIndex).dailyCells[cellIndex]
+        val oldCell = dailyCell(rowIndex, cellIndex)
+        // the offsets of the follow cells
+        val spanMinutes = spanMinutes(oldCell.end, end)
+        update(
+            dailyCell = oldCell.copy(
+                start = start,
+                end = end,
+                updateAt = localTimestampNow()
+            )
+        )
+        // update follows
+        val follows = (cellIndex + 1 until dailyRowOfRowIndex(rowIndex).dailyCells.size).map {
+            dailyCell(rowIndex, it)
+        }
+        follows.forEach {
+            update(
+                dailyCell = it.copy(
+                    start = it.start.plus(spanMinutes, ChronoUnit.MINUTES),
+                    end = it.end.plus(spanMinutes, ChronoUnit.MINUTES),
+                    updateAt = localTimestampNow()
+                )
+            )
+        }
+        update(
+            dailyRow = dailyRowOfRowIndex(rowIndex).dailyRow.copy(
+                updateAt = localTimestampNow()
+            )
+        )
+        update(
+            dailyTable = dailyTRC.dailyTable.copy(
+                updateAt = localTimestampNow()
+            )
+        )
+
+
+
     }
 }

@@ -22,6 +22,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import org.tty.dailyset.*
 import org.tty.dailyset.LocalNav
 import org.tty.dailyset.R
 import org.tty.dailyset.data.processor.DailyTableProcessor
@@ -35,7 +39,6 @@ import org.tty.dailyset.ui.component.*
 import org.tty.dailyset.ui.theme.LocalPalette
 import org.tty.dailyset.ui.utils.*
 import java.sql.Time
-import java.time.temporal.ChronoField
 import java.time.temporal.ChronoUnit
 import java.util.*
 
@@ -51,6 +54,8 @@ fun DailyTablePage() {
     val dropDownExtensionOpenState = remember { mutableStateOf(false) }
     //val columnState = rememberLazyListState()
     val scrollState = rememberScrollState()
+    val coroutineScope = rememberCoroutineScope()
+
 
 
     with(DataScope) {
@@ -155,6 +160,10 @@ fun DailyTablePage() {
                     onBefore = {},
                     onCompletion = {
                         dailyTableModifySectionState.dialogOpen.value = false
+                        // if the current scroll value is out of boundary, scroll to top
+                        coroutineScope.launch {
+                            scrollState.animateScrollTo(0)
+                        }
                     }
                 )
             }
@@ -165,6 +174,7 @@ fun DailyTablePage() {
                 performProcess(service, DailyTableEventType.ModifyCell, dailyTableModifyCellEventArgs,
                     onBefore = {},
                     onCompletion = {
+                        dailyTableModifyCellState.dialogOpen.value = false
                     }
                 )
             }
@@ -944,15 +954,16 @@ fun DailyTableModifyCellDialogCover(
     }
     val endMin =
         minOf(current.end, current.start.plus(5, ChronoUnit.MINUTES))
-
-
+    val isEndTimeValid = current.end.day() == 0L
 
     // TODO: 2021/5/21 完成该功能
     NanoDialog(
         title = "调整该节课时间",
         dialogState = dailyTableModifyCellState) {
         Row(
-            modifier = Modifier.fillMaxWidth().wrapContentWidth(align = Alignment.CenterHorizontally)
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentWidth(align = Alignment.CenterHorizontally)
         ) {
             Column {
                 Text(
@@ -1004,21 +1015,29 @@ fun DailyTableModifyCellDialogCover(
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
                 )
-                TimeSelector(
-                    height = 180.dp,
-                    cellHeight = 40.dp,
-                    initTime = current.end,
-                    min = endMin
-                ) {
-                    current = current.copy(
-                        end = it
-                    )
+                // if the current.end is the follow day, then hidden it.
+                if (isEndTimeValid) {
+                    TimeSelector(
+                        height = 180.dp,
+                        cellHeight = 40.dp,
+                        initTime = current.end,
+                        min = endMin
+                    ) {
+                        current = current.copy(
+                            end = it
+                        )
+                    }
+                } else {
+                    // TODO: 2021/6/19 use calculation function method
+                    Spacer(modifier = Modifier.width(85.dp))
                 }
+
             }
         }
 
-        NanoDialogButton(text = "修改") {
-
+        NanoDialogButton(text = "修改", enabled = isEndTimeValid) {
+            Log.d("DailyTablePage", "modifyCell:${rowIndex},${cellIndex},${current.start},${current.end}")
+            dailyTableProcessor.onModifyCell(rowIndex, cellIndex, current.start, current.end)
         }
     }
 }

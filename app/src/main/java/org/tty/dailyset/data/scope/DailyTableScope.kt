@@ -1,25 +1,16 @@
 package org.tty.dailyset.data.scope
 
-import android.util.Log
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import org.tty.dailyset.DailySetApplication
-import org.tty.dailyset.data.processor.DailyTableProcessor2Async
-import org.tty.dailyset.data.processor.EventProcessorCallBack
-import org.tty.dailyset.event.DailyTableAddRowEventArgs
 import org.tty.dailyset.model.entity.DailyCell
-import org.tty.dailyset.model.entity.DailyRC
 import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.model.lifetime.*
-import org.tty.dailyset.ui.utils.toWeekStart
+import org.tty.dailyset.toWeekStart
 import java.sql.Time
 import java.time.LocalDate
-import java.util.*
 
 /**
  * a state related operation for [DailyTable], defines much functions return [State].
