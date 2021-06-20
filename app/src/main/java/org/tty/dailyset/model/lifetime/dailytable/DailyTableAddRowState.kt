@@ -1,10 +1,10 @@
-package org.tty.dailyset.model.lifetime
+package org.tty.dailyset.model.lifetime.dailytable
 
 import android.util.Log
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
+import org.tty.dailyset.model.lifetime.DialogState
+import org.tty.dailyset.model.lifetime.WeekDayState
 
 class DailyTableAddRowState(
     override val dialogOpen: MutableState<Boolean>,

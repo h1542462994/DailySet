@@ -35,7 +35,7 @@ private val LightPalette = Palette(
     backgroundTransparent = BlackTransparent,
     textColor = Gray80,
     textColorTitle = Teal700,
-    textColorDetail = Gray50,
+    textColorDetail = Gray40,
     textColorInValid = Gray20
 )
 

@@ -12,6 +12,7 @@ import androidx.compose.ui.res.stringResource
 import org.tty.dailyset.R
 import org.tty.dailyset.ui.component.ProfileMenuGroup
 import org.tty.dailyset.ui.component.ProfileMenuItem
+import org.tty.dailyset.ui.component.TitleSpace
 import org.tty.dailyset.ui.image.ImageResource
 
 @Composable
@@ -20,9 +21,21 @@ fun DailySetPage() {
     Column (
         modifier = Modifier.scrollable(state = scrollState, orientation = Orientation.Vertical)
     ) {
+        AddSetPart()
+        TitleSpace()
         AutoSetPart()
+        TitleSpace()
         UserSetPart()
     }
+}
+
+/**
+ * the add set part for dailySet.
+ * .add
+ */
+@Composable
+fun AddSetPart() {
+    ProfileMenuItem(icon = ImageResource.add(), next = false, title = stringResource(R.string.add_list), content = "")
 }
 
 /**
@@ -31,9 +44,9 @@ fun DailySetPage() {
  */
 @Composable
 fun AutoSetPart() {
-    ProfileMenuGroup(title = stringResource(R.string.dailyset_auto)) {
-        ProfileMenuItem(icon = ImageResource.set_auto(), title = stringResource(R.string.class_table), content = "")
-        ProfileMenuItem(icon = ImageResource.set_star(), title = stringResource(R.string.important), content = "")
+    Column {
+        ProfileMenuItem(icon = ImageResource.set_auto(), next = true, title = stringResource(R.string.class_table), content = "")
+        ProfileMenuItem(icon = ImageResource.set_star(), next = true, title = stringResource(R.string.important), content = "")
     }
 }
 
@@ -43,7 +56,7 @@ fun AutoSetPart() {
  */
 @Composable
 fun UserSetPart() {
-    ProfileMenuGroup(title = stringResource(R.string.dailyset_user)) {
+    Column {
 
 
     }

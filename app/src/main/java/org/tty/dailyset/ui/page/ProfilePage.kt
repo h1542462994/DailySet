@@ -1,10 +1,12 @@
 package org.tty.dailyset.ui.page
 
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import org.tty.dailyset.LocalNav
@@ -29,17 +31,14 @@ fun ProfilePage() {
 
         // state of user..
         val currentUser by currentUser()
+        val scrollState = rememberScrollState()
 
         Column(
-            modifier = androidx.compose.ui.Modifier.scrollable(
-                rememberScrollState(0),
-                androidx.compose.foundation.gestures.Orientation.Vertical
-            )
+            modifier = Modifier.scrollable(scrollState, orientation = Orientation.Vertical)
         ){
             ProfileMenuGroupUser(user = currentUser)
             ProfileMenuGroupUserSettings()
-            //Text(text = seedVersionPreference.toString())
-            //Text(text = seedVersion.toString())
+            ProfileMenuGroupGlobalSettings()
         }
     }
 
@@ -65,6 +64,12 @@ fun ProfileMenuGroupUser(user: User?) {
 fun ProfileMenuGroupUserSettings() {
     ProfileMenuGroup(title = stringResource(id = R.string.user_settings)) {
         ProfileMenuItem(icon = ImageResource.table(), title = stringResource(id = R.string.time_table), content = "系统默认", next = true, onClick = LocalNav.current.action.toTimeTable)
+    }
+}
+
+@Composable
+fun ProfileMenuGroupGlobalSettings() {
+    ProfileMenuGroup(title = stringResource(R.string.global_settings)) {
         ProfileMenuItem(icon = ImageResource.scan(), title = stringResource(R.string.debug), content = "", next = true, onClick = LocalNav.current.action.toTest)
     }
 }

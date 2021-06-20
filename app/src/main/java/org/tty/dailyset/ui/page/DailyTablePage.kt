@@ -32,6 +32,7 @@ import org.tty.dailyset.model.entity.DailyCell
 import org.tty.dailyset.model.entity.DailyRC
 import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.model.lifetime.*
+import org.tty.dailyset.model.lifetime.dailytable.*
 import org.tty.dailyset.ui.component.*
 import org.tty.dailyset.ui.image.ImageResource
 import org.tty.dailyset.ui.theme.LocalPalette
@@ -474,7 +475,7 @@ fun DailyTableContent(
     DailyTableTipBox(dailyTable = dailyTableState2.dailyTRC.dailyTable, userState = userState)
 
     ProfileMenuItem(
-        icon = ImageResource.cell(), title = "预览", next = true, content =
+        icon = ImageResource.cell(), title = "预览", content =
         "点击以进行预览", onClick = LocalNav.current.action.toTimeTablePreview
     )
 
@@ -562,13 +563,13 @@ fun DailyRCContent(
         }
         //Text("PlaceHolder")
     }) {
-        ProfileMenuItem(title = "适用星期", next = false, content = {
+        ProfileMenuItem(title = "适用星期", content = {
             DailyRCContentWeekDay(weekDayStateList = weekDayStateList, onItemSelect = {
                 dailyTableProcessor.onClickWeekDay(rowIndex, it + 1)
             })
         })
         ProfileMenuItem(
-            title = "节数", next = true, content =
+            title = "节数", content =
             dailyRow.counts.joinToString(" "),
             onClick = if (dailyTableState2.readOnly) {
                 null
@@ -643,7 +644,7 @@ fun DailyRCContentWeekDay(weekDayStateList: List<WeekDayState>, onItemSelect: (I
 @Composable
 fun DailyCellContent(dailyCell: DailyCell, isValid: Boolean, index: Int, onClick: (() -> Unit)?) {
     ProfileMenuItem(
-        title = "第${index + 1}节", next = true,
+        title = "第${index + 1}节",
         content = "${dailyCell.start.toShortString()}-${dailyCell.end.toShortString()}",
         textColor = if (isValid) LocalPalette.current.textColorDetail else MaterialTheme.colors.error,
         onClick = onClick
@@ -801,7 +802,7 @@ fun DailyTableAddRowDialogCover(
         title = stringResource(id = R.string.time_table_group_add),
         dialogState = dailyTableAddRowState
     ) {
-        ProfileMenuItem(title = "适用星期", next = false, content = {
+        ProfileMenuItem(title = "适用星期", content = {
             DailyRCContentWeekDay(
                 weekDayStateList = dailyTableAddRowState.lastState,
                 onItemSelect = { index ->

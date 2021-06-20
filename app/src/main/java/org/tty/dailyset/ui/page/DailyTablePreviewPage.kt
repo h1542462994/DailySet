@@ -20,8 +20,8 @@ import org.tty.dailyset.data.scope.DataScope
 import org.tty.dailyset.model.entity.DailyCell
 import org.tty.dailyset.model.entity.DailyRC
 import org.tty.dailyset.model.entity.DailyTable
-import org.tty.dailyset.model.lifetime.DailyTableCalc
-import org.tty.dailyset.model.lifetime.DailyTablePreviewState
+import org.tty.dailyset.model.lifetime.dailytable.DailyTableCalc
+import org.tty.dailyset.model.lifetime.dailytable.DailyTablePreviewState
 import org.tty.dailyset.ui.component.CenterBar
 import org.tty.dailyset.ui.theme.LocalPalette
 import org.tty.dailyset.ui.utils.*

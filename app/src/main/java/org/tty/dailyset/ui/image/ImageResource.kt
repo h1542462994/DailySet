@@ -41,6 +41,12 @@ object ImageResource {
     }
 
     @Composable
+    fun add(): Painter {
+        return painterResource(id = R.drawable.ic_add_24)
+    }
+
+
+    @Composable
     fun timelapse():Painter {
         return painterResource(id = R.drawable.ic_baseline_timelapse_24)
     }
@@ -49,5 +55,6 @@ object ImageResource {
     fun set(): Painter {
         return painterResource(id = R.drawable.ic_baseline_sort_24)
     }
+
 
 }

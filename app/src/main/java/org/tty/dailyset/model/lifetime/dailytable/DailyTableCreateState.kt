@@ -1,8 +1,9 @@
-package org.tty.dailyset.model.lifetime
+package org.tty.dailyset.model.lifetime.dailytable
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import org.tty.dailyset.model.entity.DailyTable
+import org.tty.dailyset.model.lifetime.DialogState
 
 /**
  * state used for [org.tty.dailyset.ui.page.DailyTableCreateDialogCover]

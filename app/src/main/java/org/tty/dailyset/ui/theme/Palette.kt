@@ -16,7 +16,7 @@ class Palette(
     backgroundTransparent: Color = BlackTransparent,
     textColor: Color = Gray80,
     textColorTitle: Color = Teal700,
-    textColorDetail: Color = Gray50,
+    textColorDetail: Color = Gray40,
     textColorInValid: Color = Gray20,
 ) {
     /**

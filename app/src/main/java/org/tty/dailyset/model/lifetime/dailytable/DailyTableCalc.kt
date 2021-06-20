@@ -1,4 +1,4 @@
-package org.tty.dailyset.model.lifetime
+package org.tty.dailyset.model.lifetime.dailytable
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Offset

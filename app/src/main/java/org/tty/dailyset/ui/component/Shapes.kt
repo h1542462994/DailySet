@@ -54,6 +54,26 @@ fun TitleSpace(title: String) {
 }
 
 @Composable
+fun TitleSpace() {
+    Row(
+        modifier = Modifier
+            .padding(horizontal = 8.dp)
+    ) {
+        val spacer = @Composable {
+            Spacer(
+                modifier = Modifier
+                    .align(alignment = Alignment.CenterVertically)
+                    .padding(8.dp)
+                    .height(1.dp)
+                    .weight(1f)
+                    .background(color = LocalPalette.current.background2)
+            )
+        }
+        spacer()
+    }
+}
+
+@Composable
 fun Badge(
     borderColor: Color,
     background: Color,

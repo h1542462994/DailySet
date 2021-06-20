@@ -114,10 +114,10 @@ fun ProfileMenuItem(
             .weight(1f)
             .fillMaxHeight()
             .wrapContentHeight(align = Alignment.CenterVertically)
-        if (icon != null) {
-            modifier2 = modifier2.padding(start = 8.dp)
+        modifier2 = if (icon != null) {
+            modifier2.padding(start = 8.dp)
         } else {
-            modifier2 = modifier2.padding(start = 24.dp)
+            modifier2.padding(start = 24.dp)
         }
         BoxWithConstraints(
            modifier = modifier2
@@ -151,14 +151,14 @@ fun ProfileMenuItem(
 @Composable
 fun ProfileMenuItem(
     icon: ImageVector,
-    next: Boolean,
+    next: Boolean = false,
     onClick: (() -> Unit)? = null,
     title: String,
     content: @Composable () -> Unit = {}
 ) {
     ProfileMenuItem(
         icon = { Icon(imageVector = icon, contentDescription = null, modifier = Modifier.fillMaxSize(), tint = LocalPalette.current.textColor) },
-        title = { Text(text = title, color = LocalPalette.current.textColor, fontSize = 18.sp) },
+        title = { Text(text = title, color = LocalPalette.current.textColor, fontSize = 16.sp, fontWeight = FontWeight.Medium) },
         content = { content() },
         next = next,
         onClick = onClick
@@ -178,8 +178,8 @@ fun ProfileMenuItem(
         icon = { Icon(imageVector = icon, contentDescription = null, modifier = Modifier.fillMaxSize(), tint = LocalPalette.current.textColor) },
         next = next,
         onClick = onClick,
-        title = { Text(text = title, color = LocalPalette.current.textColor, fontSize = 18.sp) },
-        content = { Text(text = content, color = LocalPalette.current.textColorDetail) },
+        title = { Text(text = title, color = LocalPalette.current.textColor, fontSize = 16.sp, fontWeight = FontWeight.Medium) },
+        content = { Text(text = content, color = LocalPalette.current.textColorDetail, fontSize = 16.sp) },
     )
 }
 
@@ -195,14 +195,14 @@ fun ProfileMenuItem(
         icon = { Icon(painter = icon, contentDescription = null, tint = Color.Unspecified) },
         next = next,
         onClick = onClick,
-        title = { Text(text = title, color = LocalPalette.current.textColor, fontSize = 18.sp) },
-        content = { Text(text = content, color = LocalPalette.current.textColorDetail) },
+        title = { Text(text = title, color = LocalPalette.current.textColor, fontSize = 16.sp, fontWeight = FontWeight.Medium) },
+        content = { Text(text = content, color = LocalPalette.current.textColorDetail, fontSize = 16.sp) },
     )
 }
 
 @Composable
 fun ProfileMenuItem(
-    next: Boolean,
+    next: Boolean = false,
     onClick: (() -> Unit)? = null,
     title: String,
     content: @Composable () -> Unit = {},
@@ -210,14 +210,14 @@ fun ProfileMenuItem(
     ProfileMenuItem(
         next = next,
         onClick = onClick,
-        title = { Text(text = title, color = LocalPalette.current.textColor, fontSize = 18.sp) },
+        title = { Text(text = title, color = LocalPalette.current.textColor, fontSize = 16.sp, fontWeight = FontWeight.Medium) },
         content = { content() },
     )
 }
 
 @Composable
 fun ProfileMenuItem(
-    next: Boolean,
+    next: Boolean = false,
     onClick: (() -> Unit)? = null,
     title: String,
     content: String,
@@ -225,14 +225,14 @@ fun ProfileMenuItem(
     ProfileMenuItem(
         next = next,
         onClick = onClick,
-        title = { Text(text = title, color = LocalPalette.current.textColor, fontSize = 18.sp) },
-        content = { Text(text = content, color = LocalPalette.current.textColorDetail) },
+        title = { Text(text = title, color = LocalPalette.current.textColor, fontSize = 16.sp, fontWeight = FontWeight.Medium) },
+        content = { Text(text = content, color = LocalPalette.current.textColorDetail, fontSize = 16.sp) },
     )
 }
 
 @Composable
 fun ProfileMenuItem(
-    next: Boolean,
+    next: Boolean = false,
     onClick: (() -> Unit)? = null,
     title: String,
     content: String,
@@ -241,8 +241,8 @@ fun ProfileMenuItem(
     ProfileMenuItem(
         next = next,
         onClick = onClick,
-        title = { Text(text = title, color = LocalPalette.current.textColor, fontSize = 18.sp) },
-        content = { Text(text = content, color = textColor) },
+        title = { Text(text = title, color = LocalPalette.current.textColor, fontSize = 16.sp, fontWeight = FontWeight.Medium) },
+        content = { Text(text = content, color = textColor, fontSize = 16.sp) },
     )
 }
 

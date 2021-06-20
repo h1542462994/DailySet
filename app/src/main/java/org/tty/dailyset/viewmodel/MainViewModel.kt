@@ -8,7 +8,7 @@ import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.model.entity.Preference
 import org.tty.dailyset.model.entity.User
-import org.tty.dailyset.model.lifetime.DailyTableState2
+import org.tty.dailyset.model.lifetime.dailytable.DailyTableState2
 import org.tty.dailyset.ui.page.MainPageTabs
 
 class MainViewModel(val service: DailySetApplication): ViewModel() {

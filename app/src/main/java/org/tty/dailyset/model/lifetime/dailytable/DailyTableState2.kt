@@ -1,8 +1,9 @@
-package org.tty.dailyset.model.lifetime
+package org.tty.dailyset.model.lifetime.dailytable
 
 import org.tty.dailyset.model.entity.DailyCell
 import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.User
+import org.tty.dailyset.model.lifetime.WeekDayState
 
 /**
  * detail of [dailyTRC], use computing.

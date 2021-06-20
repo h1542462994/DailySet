@@ -19,4 +19,6 @@
     <string name="dailyset_user">用户日程</string>
     <string name="class_table">课表</string>
     <string name="important">重要</string>
+    <string name="add_list">添加列表</string>
+    <string name="global_settings">全局设置</string>
 </resources>

@@ -7,7 +7,7 @@ import androidx.lifecycle.map
 import org.tty.dailyset.model.entity.DailyCell
 import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
-import org.tty.dailyset.model.lifetime.*
+import org.tty.dailyset.model.lifetime.dailytable.*
 import org.tty.dailyset.toWeekStart
 import java.sql.Time
 import java.time.LocalDate
@@ -203,7 +203,8 @@ interface DailyTableScope : PreferenceScope, UserScope {
                         min = null,
                         start = Time.valueOf("08:00:00"),
                         end = Time.valueOf("08:45:00")
-                ))
+                )
+                )
             }
         )
     }
