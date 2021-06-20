@@ -5,6 +5,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 
 private val DarkColorPalette = darkColors(
     primary = Teal200,
@@ -28,27 +29,29 @@ private val LightColorPalette = lightColors(
 )
 
 private val LightPalette = Palette(
-    background1 = Gray5,
-    background2 = Gray20,
+    background1 = Gray1,
     background3 = Teal300,
     backgroundColor = Teal50,
     backgroundTransparent = BlackTransparent,
-    textColor = Gray80,
-    textColorTitle = Teal700,
-    textColorDetail = Gray40,
+    backgroundDialog = Color.White,
+    primary = Gray95,
+    primaryColor = Blue600,
+    lineColor = Gray10,
+    subColor = Gray40,
     textColorInValid = Gray20
 )
 
 private val DarkPalette = Palette(
-    background1 = Gray80,
-    background2 = Gray5,
+    background1 = Gray90,
     background3 = Teal700,
     backgroundColor = Teal900,
     backgroundTransparent = WhiteTransparent,
-    textColor = Gray80,
-    textColorTitle = Teal200,
-    textColorDetail = Gray40,
-    textColorInValid = Gray80
+    backgroundDialog = Gray85,
+    primary = Gray1,
+    primaryColor = Blue300,
+    lineColor = Gray80,
+    subColor = Gray20,
+    textColorInValid = Gray90
 )
 
 /**

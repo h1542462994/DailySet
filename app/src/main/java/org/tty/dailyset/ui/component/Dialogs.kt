@@ -53,7 +53,7 @@ fun NanoDialog(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(color = MaterialTheme.colors.background)
+                    .background(color = LocalPalette.current.backgroundDialog)
                     .align(alignment = Alignment.BottomCenter)
                     .padding(16.dp)
                     .clickable(interactionSource = interactionSource2, indication = null) {}

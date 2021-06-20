@@ -33,13 +33,17 @@ fun MainPage() {
             ) {
                 tabs.forEach { tab ->
                     BottomNavigationItem(
-                        icon = { Icon(painter = painterResource(tab.icon), contentDescription = stringResource(tab.title)) },
+                        icon = {
+                            Icon(
+                                painter = painterResource(tab.icon),
+                                contentDescription = stringResource(tab.title),
+                            ) },
                         label = { Text(stringResource(tab.title)) },
                         selected = tab == selectedTab,
                         onClick = { setSelectedTab(tab) },
                         alwaysShowLabel = false,
-                        selectedContentColor = MaterialTheme.colors.primary,
-                        unselectedContentColor = LocalPalette.current.textColor,
+                        selectedContentColor = LocalPalette.current.primaryColor,
+                        unselectedContentColor = LocalPalette.current.primary,
                     )
                 }
             }

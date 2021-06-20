@@ -9,27 +9,26 @@ import androidx.compose.ui.graphics.Color
  */
 @Stable
 class Palette(
-    background1: Color = Gray5,
-    background2: Color = Gray95,
+    background1: Color = Gray1,
     background3: Color = Teal300,
     backgroundColor: Color = Teal50,
     backgroundTransparent: Color = BlackTransparent,
-    textColor: Color = Gray80,
-    textColorTitle: Color = Teal700,
-    textColorDetail: Color = Gray40,
+    backgroundDialog: Color = Color.White,
+    primary: Color = Gray95,
+    primaryColor: Color = Blue600,
+    lineColor: Color = Gray95,
+    subColor: Color = Gray40,
     textColorInValid: Color = Gray20,
 ) {
     /**
-     * background Level 1 Color
+     * background Level 1 Color.
+     * it will be used on title space and the first cover over background.
+     * if (light) [Gray1] else [Gray90].
      */
     var background1 by mutableStateOf(background1, structuralEqualityPolicy())
         internal set
 
-    /**
-     * background Level 2 Color
-     */
-    var background2 by mutableStateOf(background2, structuralEqualityPolicy())
-        internal set
+
 
     var background3 by mutableStateOf(background3, structuralEqualityPolicy())
         internal set
@@ -40,22 +39,37 @@ class Palette(
     var backgroundTransparent by mutableStateOf(backgroundTransparent, structuralEqualityPolicy())
         internal set
 
+    var backgroundDialog by mutableStateOf(backgroundDialog, structuralEqualityPolicy())
+        internal set
     /**
-     * textColor .black
+     * primary Color black.
+     * it will be used on primary text and icons
+     * if (light) [Gray95] else [Gray40]
      */
-    var textColor by mutableStateOf(textColor, structuralEqualityPolicy())
+    var primary by mutableStateOf(primary, structuralEqualityPolicy())
         internal set
 
     /**
-     * textColorTitle .primary
+     * primary Color colorful.
+     * it will be used on primary colored text and icons
+     * if (light) [Blue600] else [Blue300]
      */
-    var textColorTitle by mutableStateOf(textColorTitle, structuralEqualityPolicy())
+    var primaryColor by mutableStateOf(primaryColor, structuralEqualityPolicy())
         internal set
 
     /**
-     * if Light (204,204,204) (20% black) else (51,51,51)
+     * lineColor, it will be more light over the [subColor]
+     * if (light) [Gray10] else [Gray80]
      */
-    var textColorDetail by mutableStateOf(textColorDetail, structuralEqualityPolicy())
+    var lineColor by mutableStateOf(lineColor, structuralEqualityPolicy())
+        internal set
+
+    /**
+     * subColor
+     * it will be used on text sub of the primary
+     * if (light) [Gray40] else [Gray20]
+     */
+    var subColor by mutableStateOf(subColor, structuralEqualityPolicy())
         internal set
 
     var textColorInValid by mutableStateOf(textColorInValid, structuralEqualityPolicy())
@@ -63,23 +77,25 @@ class Palette(
 
     fun copy(
         background1: Color = this.background1,
-        background2: Color = this.background2,
         background3: Color = this.background3,
         backgroundColor: Color = this.backgroundColor,
         backgroundTransparent: Color = this.backgroundTransparent,
-        textColor: Color = this.textColor,
-        textColorTitle: Color = this.textColorTitle,
-        textColorDetail: Color = this.textColorDetail,
+        backgroundDialog: Color = this.backgroundDialog,
+        primary: Color = this.primary,
+        primaryColor: Color = this.primaryColor,
+        lineColor: Color = this.lineColor,
+        subColor: Color = this.subColor,
         textColorInValid: Color = this.textColorInValid
     ) : Palette = Palette(
         background1,
-        background2,
         background3,
         backgroundColor,
         backgroundTransparent,
-        textColor,
-        textColorTitle,
-        textColorDetail,
+        backgroundDialog,
+        primary,
+        primaryColor,
+        lineColor,
+        subColor,
         textColorInValid
     )
 }

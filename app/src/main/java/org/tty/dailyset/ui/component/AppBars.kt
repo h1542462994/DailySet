@@ -41,7 +41,9 @@ fun TopBar(
                 Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null,
                     modifier = Modifier
                         .padding(8.dp)
-                        .fillMaxSize())
+                        .fillMaxSize(),
+                    tint = LocalPalette.current.primary
+                )
             }
         }
         BoxWithConstraints(modifier = Modifier
@@ -91,7 +93,9 @@ fun CenterBar(
                 Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null,
                     modifier = Modifier
                         .padding(8.dp)
-                        .fillMaxSize())
+                        .fillMaxSize(),
+                    tint = LocalPalette.current.primary
+                )
             }
         }
         var modifier1 = Modifier
@@ -134,7 +138,9 @@ fun BarExtension(
         Icon(imageVector = Icons.Filled.MoreVert, contentDescription = null,
             modifier = Modifier
                 .padding(8.dp)
-                .fillMaxSize())
+                .fillMaxSize(),
+            tint = LocalPalette.current.primary
+        )
         DropdownMenu(
             modifier = Modifier.width(180.dp),
             expanded = expanded, onDismissRequest = { expanded = false },

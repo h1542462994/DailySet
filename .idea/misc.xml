@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/cht/Program/Android/DailySet/app/src/main/res/drawable/ic_baseline_sort_24.xml" value="0.1035" />
         <entry key="..\:/Users/cht/Program/Android/DailySet/app/src/main/res/drawable/ic_baseline_timelapse_24.xml" value="0.1" />
         <entry key="..\:/Users/cht/Program/Android/DailySet/app/src/main/res/drawable/ic_scan_24.xml" value="0.1355" />
         <entry key="..\:/Users/cht/Program/Android/DailySet/app/src/main/res/drawable/ic_set_auto_24.xml" value="0.1355" />
@@ -24,6 +25,7 @@
         <entry key="..\:/Users/cht/Program/Android/DailySet/app/src/main/res/drawable/ic_set_water_24.xml" value="0.1355" />
         <entry key="..\:/Users/cht/Program/Android/DailySet/app/src/main/res/drawable/ic_set_wind_24.xml" value="0.1355" />
         <entry key="..\:/Users/cht/Program/Android/DailySet/app/src/main/res/drawable/ic_user.xml" value="0.1" />
+        <entry key="..\:/Users/cht/Program/Android/DailySet/app/src/main/res/drawable/ic_user_24.xml" value="0.1035" />
       </map>
     </option>
   </component>

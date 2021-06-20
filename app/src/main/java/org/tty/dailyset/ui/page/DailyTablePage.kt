@@ -314,14 +314,14 @@ fun DailyTableTitleDetail(dailyTable: DailyTable, userState: UserState, isPrevie
         DailyTableTitleDescription(
             dailyTable = dailyTable,
             userState = userState,
-            color = LocalPalette.current.textColorDetail
+            color = LocalPalette.current.subColor
         )
         if (!isPreviewPage) {
             Icon(
                 modifier = Modifier.scale(0.8f),
                 imageVector = Icons.Filled.KeyboardArrowDown,
                 contentDescription = null,
-                tint = LocalPalette.current.textColorDetail
+                tint = LocalPalette.current.subColor
             )
         }
     }
@@ -453,7 +453,7 @@ fun DailyTableDropDown(
                 DailyTableTitleDescription(
                     dailyTable = dailyTable,
                     userState = userState,
-                    color = LocalPalette.current.textColor
+                    color = LocalPalette.current.primary
                 )
             }
         }
@@ -475,8 +475,11 @@ fun DailyTableContent(
     DailyTableTipBox(dailyTable = dailyTableState2.dailyTRC.dailyTable, userState = userState)
 
     ProfileMenuItem(
-        icon = ImageResource.cell(), title = "预览", content =
-        "点击以进行预览", onClick = LocalNav.current.action.toTimeTablePreview
+        icon = ImageResource.cell(),
+        useTint = true,
+        title = "预览",
+        content = "点击以进行预览",
+        onClick = LocalNav.current.action.toTimeTablePreview
     )
 
     dailyTableState2.dailyTRC.dailyRCs.forEachIndexed { index, item ->
@@ -594,7 +597,7 @@ fun DailyRCContent(
                 listD.forEachIndexed { index, dailyCell ->
                     val cellIndex = counts[groupIndex] + index
                     val isValid = dailyTableState2.calcIsCellValid(rowIndex, cellIndex)
-                    DailyCellContent(dailyCell = dailyCell, isValid = isValid, index = index, onClick =
+                    DailyCellContent(dailyCell = dailyCell, isValid = isValid, index = cellIndex, onClick =
                         if (!dailyTableState2.readOnly && isValid) {
                             {
                                 upgradeDailyTableModifyCellState(
@@ -646,7 +649,7 @@ fun DailyCellContent(dailyCell: DailyCell, isValid: Boolean, index: Int, onClick
     ProfileMenuItem(
         title = "第${index + 1}节",
         content = "${dailyCell.start.toShortString()}-${dailyCell.end.toShortString()}",
-        textColor = if (isValid) LocalPalette.current.textColorDetail else MaterialTheme.colors.error,
+        textColor = if (isValid) LocalPalette.current.subColor else MaterialTheme.colors.error,
         onClick = onClick
     )
 }
@@ -775,7 +778,7 @@ fun DailyTableCreateDialogCover(
                 DailyTableTitleDescription(
                     dailyTable = it,
                     userState = userState,
-                    color = LocalPalette.current.textColor
+                    color = LocalPalette.current.primary
                 )
 
             }

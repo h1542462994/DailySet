@@ -83,7 +83,7 @@ fun DailyTablePreviewHeader(dailyTableCalc: DailyTableCalc, dailyTablePreviewSta
             val (topLeft, size) = dailyTableCalc.offsetAndSizeBlockHeader(currentIndex)
             drawRect(color = palette.backgroundColor, topLeft = topLeft, size = size)
             // draw bottom line.
-            drawLine(color = palette.background2, start = Offset(x = 0f, y = canvasHeight), end = Offset(x = dailyTableCalc.measuredWidth, y = canvasHeight), strokeWidth = 2.0f)
+            drawLine(color = palette.lineColor, start = Offset(x = 0f, y = canvasHeight), end = Offset(x = dailyTableCalc.measuredWidth, y = canvasHeight), strokeWidth = 2.0f)
         }
 
         /**
@@ -92,7 +92,7 @@ fun DailyTablePreviewHeader(dailyTableCalc: DailyTableCalc, dailyTablePreviewSta
         @Composable
         fun createTextWeekDay(start: LocalDate, index: Int, value: String, style: Int = 0) {
             val dateString = start.plusDays(index.toLong()).toShortDateString()
-            val color = if (style == 0) LocalPalette.current.textColorDetail else LocalPalette.current.textColorTitle
+            val color = if (style == 0) LocalPalette.current.subColor else LocalPalette.current.primaryColor
             val fontWeight = if (style == 0) FontWeight.Normal else FontWeight.Bold
 
             return Column(
@@ -161,14 +161,14 @@ fun DailyTablePreviewBody(dailyTableCalc: DailyTableCalc, dailyTablePreviewState
                     // draw horizontal lines
                     (1 until dailyTableCalc.drawCountHLine).forEach { index ->
                         val (start, end) = dailyTableCalc.offsetsHLine(index)
-                        drawLine(color = palette.background2,
+                        drawLine(color = palette.lineColor,
                             start = start,
                             end = end, strokeWidth = 2.0f)
                     }
                     // draw vertical lines
                     (0 until dailyTableCalc.cellColumnCount).forEach{ index ->
                         val (start, end) = dailyTableCalc.offsetsVLine(index)
-                        drawLine(color = palette.background2,
+                        drawLine(color = palette.lineColor,
                             start = start,
                             end = end, strokeWidth = 2.0f)
                     }
@@ -194,21 +194,21 @@ fun DailyTablePreviewBody(dailyTableCalc: DailyTableCalc, dailyTablePreviewState
                                 .padding(bottom = 4.dp),
                             text = "${currentIndexOfDailyCell + 1}",
                             fontSize = 14.sp,
-                            color = palette.textColorDetail,
+                            color = palette.subColor,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
                             modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
                             text = dailyCell.start.toShortString(),
                             fontSize = 12.sp,
-                            color = palette.textColorDetail,
+                            color = palette.subColor,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
                             modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
                             text = dailyCell.end.toShortString(),
                             fontSize = 12.sp,
-                            color = palette.textColorDetail,
+                            color = palette.subColor,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -251,7 +251,7 @@ fun DailyTablePreviewTitle(currentDailyTable: DailyTable) {
 
         Text(
             modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
-            text = currentDailyTable.name, color = LocalPalette.current.textColorDetail)
+            text = currentDailyTable.name, color = LocalPalette.current.subColor)
 
     }
 }

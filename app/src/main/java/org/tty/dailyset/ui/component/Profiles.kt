@@ -7,7 +7,6 @@ import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -16,11 +15,9 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.tty.dailyset.R
 import org.tty.dailyset.ui.theme.LocalPalette
 
 /**
@@ -52,7 +49,7 @@ fun ProfileMenuGroup(
     title: String,
     body: @Composable () -> Unit) {
     ProfileMenuGroup(
-        title = { Text(text = title, color = LocalPalette.current.textColorTitle, fontWeight = FontWeight.Bold) },
+        title = { Text(text = title, color = LocalPalette.current.primaryColor, fontWeight = FontWeight.Bold) },
         body
     )
 }
@@ -69,7 +66,7 @@ fun ProfileMenuGroup(
     ProfileMenuGroup(
         title = {
             Row {
-                Text(text = title, color = LocalPalette.current.textColorTitle, fontWeight = FontWeight.Bold)
+                Text(text = title, color = LocalPalette.current.primaryColor, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.weight(1f))
                 extension()
             }
@@ -142,7 +139,7 @@ fun ProfileMenuItem(
                 .wrapContentHeight(align = Alignment.CenterVertically)
         ){
             if (next) {
-                Icon(imageVector = Icons.Filled.KeyboardArrowRight, contentDescription = null, tint = LocalPalette.current.textColorDetail)
+                Icon(imageVector = Icons.Filled.KeyboardArrowRight, contentDescription = null, tint = LocalPalette.current.subColor)
             }
         }
     }
@@ -157,8 +154,8 @@ fun ProfileMenuItem(
     content: @Composable () -> Unit = {}
 ) {
     ProfileMenuItem(
-        icon = { Icon(imageVector = icon, contentDescription = null, modifier = Modifier.fillMaxSize(), tint = LocalPalette.current.textColor) },
-        title = { Text(text = title, color = LocalPalette.current.textColor, fontSize = 16.sp, fontWeight = FontWeight.Medium) },
+        icon = { Icon(imageVector = icon, contentDescription = null, modifier = Modifier.fillMaxSize(), tint = LocalPalette.current.primary) },
+        title = { Text(text = title, color = LocalPalette.current.primary, fontSize = 16.sp, fontWeight = FontWeight.Medium) },
         content = { content() },
         next = next,
         onClick = onClick
@@ -175,28 +172,35 @@ fun ProfileMenuItem(
     content: String
 ) {
     ProfileMenuItem(
-        icon = { Icon(imageVector = icon, contentDescription = null, modifier = Modifier.fillMaxSize(), tint = LocalPalette.current.textColor) },
+        icon = { Icon(imageVector = icon, contentDescription = null, modifier = Modifier.fillMaxSize(), tint = LocalPalette.current.primary) },
         next = next,
         onClick = onClick,
-        title = { Text(text = title, color = LocalPalette.current.textColor, fontSize = 16.sp, fontWeight = FontWeight.Medium) },
-        content = { Text(text = content, color = LocalPalette.current.textColorDetail, fontSize = 16.sp) },
+        title = { Text(text = title, color = LocalPalette.current.primary, fontSize = 16.sp, fontWeight = FontWeight.Medium) },
+        content = { Text(text = content, color = LocalPalette.current.subColor, fontSize = 16.sp) },
     )
 }
 
 @Composable
 fun ProfileMenuItem(
     icon: Painter,
+    useTint: Boolean = false,
     next: Boolean = false,
     title: String,
     content: String,
     onClick: (() -> Unit)? = null
 ) {
     ProfileMenuItem(
-        icon = { Icon(painter = icon, contentDescription = null, tint = Color.Unspecified) },
+        icon = { Icon(painter = icon, contentDescription = null,
+            tint = if (useTint) {
+                LocalPalette.current.primary
+            } else {
+                Color.Unspecified
+            }
+        ) },
         next = next,
         onClick = onClick,
-        title = { Text(text = title, color = LocalPalette.current.textColor, fontSize = 16.sp, fontWeight = FontWeight.Medium) },
-        content = { Text(text = content, color = LocalPalette.current.textColorDetail, fontSize = 16.sp) },
+        title = { Text(text = title, color = LocalPalette.current.primary, fontSize = 16.sp, fontWeight = FontWeight.Medium) },
+        content = { Text(text = content, color = LocalPalette.current.subColor, fontSize = 16.sp) },
     )
 }
 
@@ -210,7 +214,7 @@ fun ProfileMenuItem(
     ProfileMenuItem(
         next = next,
         onClick = onClick,
-        title = { Text(text = title, color = LocalPalette.current.textColor, fontSize = 16.sp, fontWeight = FontWeight.Medium) },
+        title = { Text(text = title, color = LocalPalette.current.primary, fontSize = 16.sp, fontWeight = FontWeight.Medium) },
         content = { content() },
     )
 }
@@ -225,8 +229,8 @@ fun ProfileMenuItem(
     ProfileMenuItem(
         next = next,
         onClick = onClick,
-        title = { Text(text = title, color = LocalPalette.current.textColor, fontSize = 16.sp, fontWeight = FontWeight.Medium) },
-        content = { Text(text = content, color = LocalPalette.current.textColorDetail, fontSize = 16.sp) },
+        title = { Text(text = title, color = LocalPalette.current.primary, fontSize = 16.sp, fontWeight = FontWeight.Medium) },
+        content = { Text(text = content, color = LocalPalette.current.subColor, fontSize = 16.sp) },
     )
 }
 
@@ -241,7 +245,7 @@ fun ProfileMenuItem(
     ProfileMenuItem(
         next = next,
         onClick = onClick,
-        title = { Text(text = title, color = LocalPalette.current.textColor, fontSize = 16.sp, fontWeight = FontWeight.Medium) },
+        title = { Text(text = title, color = LocalPalette.current.primary, fontSize = 16.sp, fontWeight = FontWeight.Medium) },
         content = { Text(text = content, color = textColor, fontSize = 16.sp) },
     )
 }
@@ -265,7 +269,7 @@ fun TipBox(value: String) {
         Text(
             modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
             text = value,
-            color = LocalPalette.current.textColorDetail
+            color = LocalPalette.current.subColor
         )
     }
 }
@@ -278,11 +282,11 @@ fun IconText(imageVector: ImageVector, text: String) {
     ) {
         Icon(
             modifier = Modifier.scale(0.8f),
-            imageVector = imageVector, contentDescription = null, tint = LocalPalette.current.textColor
+            imageVector = imageVector, contentDescription = null, tint = LocalPalette.current.primary
         )
         Text(
             modifier = Modifier.align(alignment = Alignment.CenterVertically),
-            text = text, color = LocalPalette.current.textColor
+            text = text, color = LocalPalette.current.primary
         )
     }
 }

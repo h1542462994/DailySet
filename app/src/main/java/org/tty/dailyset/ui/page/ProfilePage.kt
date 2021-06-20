@@ -55,7 +55,7 @@ fun ProfileMenuGroupUser(user: User?) {
         "${user.nickName} ${user.uid}"
     }
     ProfileMenuGroup(title = stringResource(id = R.string.user)) {
-        ProfileMenuItem(icon = ImageResource.user(), title = display, content = "本地账户", next = true)
+        ProfileMenuItem(icon = ImageResource.user(), useTint = true, title = display, content = "本地账户", next = true)
     }
 }
 
@@ -63,14 +63,14 @@ fun ProfileMenuGroupUser(user: User?) {
 @Composable
 fun ProfileMenuGroupUserSettings() {
     ProfileMenuGroup(title = stringResource(id = R.string.user_settings)) {
-        ProfileMenuItem(icon = ImageResource.table(), title = stringResource(id = R.string.time_table), content = "系统默认", next = true, onClick = LocalNav.current.action.toTimeTable)
+        ProfileMenuItem(icon = ImageResource.table(), useTint = true, title = stringResource(id = R.string.time_table), content = "系统默认", next = true, onClick = LocalNav.current.action.toTimeTable)
     }
 }
 
 @Composable
 fun ProfileMenuGroupGlobalSettings() {
     ProfileMenuGroup(title = stringResource(R.string.global_settings)) {
-        ProfileMenuItem(icon = ImageResource.scan(), title = stringResource(R.string.debug), content = "", next = true, onClick = LocalNav.current.action.toTest)
+        ProfileMenuItem(icon = ImageResource.scan(), useTint = true, title = stringResource(R.string.debug), content = "", next = true, onClick = LocalNav.current.action.toTest)
     }
 }
 
