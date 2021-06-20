@@ -92,7 +92,7 @@ fun DailyTablePreviewHeader(dailyTableCalc: DailyTableCalc, dailyTablePreviewSta
         @Composable
         fun createTextWeekDay(start: LocalDate, index: Int, value: String, style: Int = 0) {
             val dateString = start.plusDays(index.toLong()).toShortDateString()
-            val color = if (style == 0) LocalPalette.current.subColor else LocalPalette.current.primaryColor
+            val color = if (style == 0) LocalPalette.current.sub else LocalPalette.current.primaryColor
             val fontWeight = if (style == 0) FontWeight.Normal else FontWeight.Bold
 
             return Column(
@@ -194,21 +194,21 @@ fun DailyTablePreviewBody(dailyTableCalc: DailyTableCalc, dailyTablePreviewState
                                 .padding(bottom = 4.dp),
                             text = "${currentIndexOfDailyCell + 1}",
                             fontSize = 14.sp,
-                            color = palette.subColor,
+                            color = palette.sub,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
                             modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
                             text = dailyCell.start.toShortString(),
                             fontSize = 12.sp,
-                            color = palette.subColor,
+                            color = palette.sub,
                             fontWeight = FontWeight.Bold
                         )
                         Text(
                             modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
                             text = dailyCell.end.toShortString(),
                             fontSize = 12.sp,
-                            color = palette.subColor,
+                            color = palette.sub,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -251,7 +251,7 @@ fun DailyTablePreviewTitle(currentDailyTable: DailyTable) {
 
         Text(
             modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
-            text = currentDailyTable.name, color = LocalPalette.current.subColor)
+            text = currentDailyTable.name, color = LocalPalette.current.sub)
 
     }
 }

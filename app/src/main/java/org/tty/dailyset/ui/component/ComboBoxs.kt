@@ -1,15 +1,15 @@
 package org.tty.dailyset.ui.component
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.OutlinedButton
-import androidx.compose.material.Text
+import androidx.compose.material.*
+import androidx.compose.material.ButtonDefaults.outlinedButtonColors
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.tty.dailyset.ui.theme.LocalPalette
 
 @Composable
 fun ComboBox(
@@ -57,6 +57,7 @@ fun <T> ComboBox(
         ) {
             Text(
                 title,
+                color = LocalPalette.current.primary,
                 modifier = Modifier
                     .wrapContentWidth()
                     .align(alignment = Alignment.CenterVertically),

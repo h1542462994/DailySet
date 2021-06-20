@@ -43,7 +43,7 @@ fun TitleSpace(title: String) {
         spacer()
         Text(text = title,
             modifier = Modifier.align(alignment = Alignment.CenterVertically),
-            color = LocalPalette.current.subColor
+            color = LocalPalette.current.sub
         )
         spacer()
     }
@@ -104,12 +104,12 @@ fun Badge(
     onClick: () -> Unit
 ) {
     if (checked && !readOnly) {
-        Badge(borderColor = LocalPalette.current.backgroundColor, background = MaterialTheme.colors.primary, textColor = MaterialTheme.colors.surface, text = text, onClick = onClick)
+        Badge(borderColor = LocalPalette.current.backgroundColor, background = LocalPalette.current.primaryColor, textColor = LocalPalette.current.primarySurface, text = text, onClick = onClick)
     } else if (checked && readOnly) {
-        Badge(borderColor = LocalPalette.current.backgroundColor, background = LocalPalette.current.background3, textColor = MaterialTheme.colors.surface, text = text)
+        Badge(borderColor = LocalPalette.current.backgroundColor, background = LocalPalette.current.backgroundColor, textColor = LocalPalette.current.textColorInValid, text = text)
     } else if (!checked && !readOnly) {
-        Badge(borderColor = LocalPalette.current.background1, background = MaterialTheme.colors.background, textColor = LocalPalette.current.subColor, text = text, onClick = onClick)
+        Badge(borderColor = LocalPalette.current.backgroundColor, background = MaterialTheme.colors.background, textColor = LocalPalette.current.primary, text = text, onClick = onClick)
     } else if (!checked && readOnly) {
-        Badge(borderColor = LocalPalette.current.background1, background = LocalPalette.current.background1, textColor = LocalPalette.current.textColorInValid, text = text)
+        Badge(borderColor = LocalPalette.current.backgroundInvalid, background = LocalPalette.current.backgroundInvalid, textColor = LocalPalette.current.textColorInValid, text = text)
     }
 }

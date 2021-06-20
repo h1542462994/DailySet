@@ -53,7 +53,7 @@ fun NanoDialog(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(color = LocalPalette.current.backgroundDialog)
+                    .background(color = MaterialTheme.colors.background)
                     .align(alignment = Alignment.BottomCenter)
                     .padding(16.dp)
                     .clickable(interactionSource = interactionSource2, indication = null) {}
@@ -62,7 +62,7 @@ fun NanoDialog(
                     modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colors.primary,
+                    color = LocalPalette.current.primaryColor,
                     text = title
                 )
                 content()
@@ -83,10 +83,15 @@ fun NanoDialogButton(text: String, error: Boolean = false, enabled: Boolean = tr
 
     val colors = if (error) {
         ButtonDefaults.buttonColors(
-            backgroundColor = MaterialTheme.colors.error
+            backgroundColor = MaterialTheme.colors.error,
+            disabledBackgroundColor = LocalPalette.current.backgroundInvalid,
+            disabledContentColor = LocalPalette.current.primary
         )
     } else {
-        ButtonDefaults.buttonColors()
+        ButtonDefaults.buttonColors(
+            disabledBackgroundColor = LocalPalette.current.backgroundInvalid,
+            disabledContentColor = LocalPalette.current.primary
+        )
     }
 
     Row(

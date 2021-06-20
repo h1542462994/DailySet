@@ -139,7 +139,7 @@ fun ProfileMenuItem(
                 .wrapContentHeight(align = Alignment.CenterVertically)
         ){
             if (next) {
-                Icon(imageVector = Icons.Filled.KeyboardArrowRight, contentDescription = null, tint = LocalPalette.current.subColor)
+                Icon(imageVector = Icons.Filled.KeyboardArrowRight, contentDescription = null, tint = LocalPalette.current.sub)
             }
         }
     }
@@ -176,7 +176,7 @@ fun ProfileMenuItem(
         next = next,
         onClick = onClick,
         title = { Text(text = title, color = LocalPalette.current.primary, fontSize = 16.sp, fontWeight = FontWeight.Medium) },
-        content = { Text(text = content, color = LocalPalette.current.subColor, fontSize = 16.sp) },
+        content = { Text(text = content, color = LocalPalette.current.sub, fontSize = 16.sp) },
     )
 }
 
@@ -200,7 +200,7 @@ fun ProfileMenuItem(
         next = next,
         onClick = onClick,
         title = { Text(text = title, color = LocalPalette.current.primary, fontSize = 16.sp, fontWeight = FontWeight.Medium) },
-        content = { Text(text = content, color = LocalPalette.current.subColor, fontSize = 16.sp) },
+        content = { Text(text = content, color = LocalPalette.current.sub, fontSize = 16.sp) },
     )
 }
 
@@ -230,7 +230,7 @@ fun ProfileMenuItem(
         next = next,
         onClick = onClick,
         title = { Text(text = title, color = LocalPalette.current.primary, fontSize = 16.sp, fontWeight = FontWeight.Medium) },
-        content = { Text(text = content, color = LocalPalette.current.subColor, fontSize = 16.sp) },
+        content = { Text(text = content, color = LocalPalette.current.sub, fontSize = 16.sp) },
     )
 }
 
@@ -269,7 +269,7 @@ fun TipBox(value: String) {
         Text(
             modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
             text = value,
-            color = LocalPalette.current.subColor
+            color = LocalPalette.current.sub
         )
     }
 }

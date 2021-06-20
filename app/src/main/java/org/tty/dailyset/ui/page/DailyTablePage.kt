@@ -314,14 +314,14 @@ fun DailyTableTitleDetail(dailyTable: DailyTable, userState: UserState, isPrevie
         DailyTableTitleDescription(
             dailyTable = dailyTable,
             userState = userState,
-            color = LocalPalette.current.subColor
+            color = LocalPalette.current.sub
         )
         if (!isPreviewPage) {
             Icon(
                 modifier = Modifier.scale(0.8f),
                 imageVector = Icons.Filled.KeyboardArrowDown,
                 contentDescription = null,
-                tint = LocalPalette.current.subColor
+                tint = LocalPalette.current.sub
             )
         }
     }
@@ -341,7 +341,6 @@ fun DailyTableTitleDescription(dailyTable: DailyTable, userState: UserState, col
                 modifier = Modifier.scale(0.8f),
                 imageVector = Icons.Filled.Lock, contentDescription = null, tint = color
             )
-
         } else if (dailyTable.referenceUid != userState.currentUserUid) {
             Icon(
                 modifier = Modifier.scale(0.8f),
@@ -649,7 +648,7 @@ fun DailyCellContent(dailyCell: DailyCell, isValid: Boolean, index: Int, onClick
     ProfileMenuItem(
         title = "第${index + 1}节",
         content = "${dailyCell.start.toShortString()}-${dailyCell.end.toShortString()}",
-        textColor = if (isValid) LocalPalette.current.subColor else MaterialTheme.colors.error,
+        textColor = if (isValid) LocalPalette.current.sub else MaterialTheme.colors.error,
         onClick = onClick
     )
 }
@@ -773,6 +772,7 @@ fun DailyTableCreateDialogCover(
         Row {
             ComboBox(
                 title = "基于..创建",
+
                 data = dailyTableSummaries,
                 onSelected = { currentDailyTable = it }) {
                 DailyTableTitleDescription(
