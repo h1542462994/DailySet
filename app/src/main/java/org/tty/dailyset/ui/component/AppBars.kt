@@ -99,10 +99,10 @@ fun CenterBar(
             .weight(1.0f)
             .wrapContentSize(align = Alignment.Center)
 
-        if (extensionArea == null) {
-            modifier1 = modifier1.padding(start = 12.dp, top = 8.dp, end = 12.dp + 56.dp, bottom = 8.dp)
+        modifier1 = if (extensionArea == null) {
+            modifier1.padding(start = 12.dp, top = 0.dp, end = 12.dp + 56.dp, bottom = 0.dp)
         } else {
-            modifier1 = modifier1.padding(horizontal = 12.dp, vertical = 8.dp)
+            modifier1.padding(horizontal = 12.dp, vertical = 0.dp)
         }
 
         BoxWithConstraints(modifier = modifier1) {
