@@ -14,7 +14,7 @@ import org.tty.dailyset.event.EventType
  * usage: with(DataScope) { ... }
  */
 @Immutable
-object DataScope: DailyTableScope, UserScope, EventProcessorCallBack<DailySetApplication> {
+object DataScope: DailyTableScope, UserScope, DailySetScope, EventProcessorCallBack<DailySetApplication> {
 
     override fun eventProcessorAsync(
         eventType: EventType,

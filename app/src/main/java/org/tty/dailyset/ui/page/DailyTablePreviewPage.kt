@@ -36,6 +36,7 @@ fun DailyTablePreviewPage() {
 
     StatusBarToBackground()
 
+
     with(DataScope) {
         //val dailyTableState2 by dailyTableState2()
         val currentDailyTable by currentDailyTable()

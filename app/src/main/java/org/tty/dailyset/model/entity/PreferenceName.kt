@@ -14,7 +14,7 @@ enum class PreferenceName(
     /**
      * 当前使用的账户
      */
-    CURRENT_USER_UID("current_user_uid", "#LOCAL"),
+    CURRENT_USER_UID("current_user_uid", User.local),
     /**
      * 当前使用的亮色主题，值为system表示跟随系统，dark表示深色模式，light表示亮色模式
      */

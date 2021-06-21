@@ -269,3 +269,31 @@ fun TimeSelector(
         }
     }
 }
+
+/**
+ * ListSelector count ver.
+ */
+@Composable
+fun CountSelector(text: String, index: Int, onItemIndexChanged: (Int) -> Unit) {
+    val width = 80.dp
+    Column(modifier = Modifier.width(width)) {
+        Text(
+            modifier = Modifier
+                .padding(bottom = 8.dp)
+                .width(width)
+                .wrapContentWidth(align = Alignment.CenterHorizontally),
+            text = text,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold
+        )
+        ListSelector(
+            data = (1..10).map { it.toString() },
+            height = 180.dp,
+            width = width,
+            cellHeight = 40.dp,
+            itemIndex = index
+        ) {
+            onItemIndexChanged(it)
+        }
+    }
+}

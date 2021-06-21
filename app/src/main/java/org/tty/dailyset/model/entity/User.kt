@@ -19,6 +19,7 @@ data class User (
 ){
     companion object {
         const val system = "#system"
+        const val local = "#LOCAL"
 
         fun default(): User {
             return User(
