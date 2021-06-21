@@ -51,14 +51,11 @@ fun DailyTablePage() {
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
 
-
-
     fun scrollToTop() {
         coroutineScope.launch {
             scrollState.scrollTo(0)
         }
     }
-
 
     with(DataScope) {
         val mainViewModel = mainViewModel()
@@ -229,6 +226,7 @@ fun DailyTablePage() {
                 )
             }
         }
+
         // register dialogs
         DailyTableAddRowDialogCover(
             dailyTableAddRowState = dailyTableAddRowState,

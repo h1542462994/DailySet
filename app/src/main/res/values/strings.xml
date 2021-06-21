@@ -22,4 +22,5 @@
     <string name="add_list">添加列表</string>
     <string name="global_settings">全局设置</string>
     <string name="time_duration">时间段</string>
+    <string name="create_dailyset">创建列表</string>
 </resources>

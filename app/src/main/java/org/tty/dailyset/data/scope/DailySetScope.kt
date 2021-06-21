@@ -9,7 +9,7 @@ import org.tty.dailyset.model.lifetime.dailyset.DailySetCreateState
 interface DailySetScope: PreferenceScope, UserScope {
     @Composable
     fun dailySetCreateState(
-        initDialogOpen: Boolean,
+        initDialogOpen: Boolean = false,
     ): DailySetCreateState {
         return DailySetCreateState(
             dialogOpen = remember {

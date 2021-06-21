@@ -26,69 +26,6 @@ import java.sql.Time
 import java.time.temporal.ChronoUnit
 
 /**
- * DailyTablePage .title d .dialog<create> version = 1
- */
-@Composable
-@Deprecated("there's bug on dismissing the Dialog. use [DailyTableCreateDialogCover] instead.")
-fun DailyTableCreateDialog(dailyTableCreateState: DailyTableCreateState) {
-    val dialogOpen by dailyTableCreateState.dialogOpen
-    val focusRequester = remember { FocusRequester() }
-
-    if (dialogOpen) {
-        AlertDialog(
-            modifier = Modifier
-                .padding(16.dp),
-            onDismissRequest = {},
-            //onDismissRequest = { dailyTableCreateState.dialogOpen.value = false },
-            buttons = {
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                ) {
-                    Spacer(
-                        modifier = Modifier.weight(1f)
-                    )
-                    Button(
-                        modifier = Modifier.background(color = LocalPalette.current.background1),
-                        onClick = {
-                            focusRequester.captureFocus()
-                            focusRequester.freeFocus()
-
-                        }
-                    ) {
-                        Text("取消")
-                    }
-                    Button(
-                        onClick = { }) {
-                        Text("确认")
-                    }
-                }
-            },
-            title = {
-                Text("创建课程表")
-            },
-            text = {
-                Column {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    TextField(
-                        modifier = Modifier.focusRequester(focusRequester),
-                        value = dailyTableCreateState.name.value,
-                        placeholder = {
-                            Text("课程名")
-                        },
-                        onValueChange = {
-                            dailyTableCreateState.name.value = it
-                        })
-                }
-
-            }
-        )
-
-    }
-
-
-}
-
-/**
  * DailyTable .extensionArea.option.dialog<Delete>
  * @param dailyTableState state of the DailyTable
  */
@@ -177,13 +114,23 @@ fun DailyTableAddRowDialogCover(
         title = stringResource(id = R.string.time_table_group_add),
         dialogState = dailyTableAddRowState
     ) {
-        ProfileMenuItem(title = "适用星期", content = {
+        Text(
+            "适用星期",
+            modifier = Modifier.padding(all = 8.dp),
+            fontWeight = FontWeight.Bold
+        )
+        Row (
+            modifier = Modifier
+                .align(Alignment.End)
+                .padding(all = 8.dp)
+        ) {
             DailyRCContentWeekDay(
                 weekDayStateList = dailyTableAddRowState.lastState,
                 onItemSelect = { index ->
                     dailyTableAddRowState.onItemClick(index)
                 })
-        })
+        }
+
         val selectionCount = dailyTableAddRowState.lastState.count {
             it.checked
         }

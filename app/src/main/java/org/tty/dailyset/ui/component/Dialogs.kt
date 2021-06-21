@@ -15,11 +15,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.SecureFlagPolicy
 import org.tty.dailyset.model.lifetime.DialogState
 import org.tty.dailyset.ui.theme.LocalPalette
+import org.tty.dailyset.ui.theme.Shapes
 
 @Composable
 fun NanoDialog(
@@ -42,38 +47,43 @@ fun NanoDialog(
 
 
     if (dialogOpen) {
-        BoxWithConstraints(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color = LocalPalette.current.backgroundTransparent)
-                .clickable(interactionSource = interactionSource1, indication = null) {
-                    dialogOpen = false
-                }
+        Dialog(
+            onDismissRequest = { dialogOpen = false },
         ) {
-            Column(
+            BoxWithConstraints(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .background(color = MaterialTheme.colors.background)
-                    .align(alignment = Alignment.BottomCenter)
-                    .padding(16.dp)
-                    .clickable(interactionSource = interactionSource2, indication = null) {}
+                    .fillMaxSize()
+                    .clickable(interactionSource = interactionSource1, indication = null) {
+                        dialogOpen = false
+                    }
             ) {
-                Text(
-                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp),
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = LocalPalette.current.primaryColor,
-                    text = title
-                )
-                content()
-            }
-        }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(shape = Shapes.medium)
+                        .background(color = MaterialTheme.colors.background)
+                        .align(alignment = Alignment.Center)
+                        .padding(16.dp)
 
-        /**
-         * intercept the back event to hide the dialog.
-         */
-        BackHandler {
-            dialogOpen = false
+                        .clickable(interactionSource = interactionSource2, indication = null) {}
+                ) {
+                    Text(
+                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp),
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = LocalPalette.current.primaryColor,
+                        text = title
+                    )
+                    content()
+                }
+            }
+
+            /**
+             * intercept the back event to hide the dialog.
+             */
+            BackHandler {
+                dialogOpen = false
+            }
         }
     }
 }

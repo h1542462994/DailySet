@@ -8,6 +8,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import org.tty.dailyset.R
+import org.tty.dailyset.data.processor.DailySetProcessor
+import org.tty.dailyset.data.scope.DataScope
+import org.tty.dailyset.model.entity.DailySetIcon
+import org.tty.dailyset.model.entity.DailySetType
+import org.tty.dailyset.model.lifetime.dailyset.DailySetCreateState
 import org.tty.dailyset.ui.component.ProfileMenuItem
 import org.tty.dailyset.ui.component.TitleSpace
 import org.tty.dailyset.ui.image.ImageResource
@@ -15,15 +20,33 @@ import org.tty.dailyset.ui.image.ImageResource
 @Composable
 fun DailySetPage() {
     val scrollState = rememberScrollState()
-    Column (
-        modifier = Modifier.scrollable(state = scrollState, orientation = Orientation.Vertical)
-    ) {
-        DailySetAddPart()
-        TitleSpace()
-        DailySetAutoPart()
-        TitleSpace()
-        DailySetUserPart()
+    with(DataScope) {
+        val mainViewModel = mainViewModel()
+        val service = mainViewModel.service
+        val dailySetCreateState = dailySetCreateState()
+        val dailySetProcessor = object: DailySetProcessor {
+            override fun onCreate(dailySetName: String, icon: DailySetIcon?, type: DailySetType) {
+                TODO("Not yet implemented")
+            }
+
+        }
+
+        Column (
+            modifier = Modifier.scrollable(state = scrollState, orientation = Orientation.Vertical)
+        ) {
+            DailySetAddPart(dailySetCreateState = dailySetCreateState)
+            TitleSpace()
+            DailySetAutoPart()
+            TitleSpace()
+            DailySetUserPart()
+        }
+
+        DailySetCreateDialogCover(
+            dailySetProcessor = dailySetProcessor ,
+            dailySetCreateState = dailySetCreateState)
     }
+
+
 }
 
 /**
@@ -31,8 +54,16 @@ fun DailySetPage() {
  * .add
  */
 @Composable
-fun DailySetAddPart() {
-    ProfileMenuItem(icon = ImageResource.add(), next = false, title = stringResource(R.string.add_list), content = "")
+fun DailySetAddPart(
+    dailySetCreateState: DailySetCreateState
+) {
+    ProfileMenuItem(
+        icon = ImageResource.add(),
+        next = false,
+        title = stringResource(R.string.add_list),
+        content = "") {
+        dailySetCreateState.dialogOpen.value = true
+    }
 }
 
 /**
