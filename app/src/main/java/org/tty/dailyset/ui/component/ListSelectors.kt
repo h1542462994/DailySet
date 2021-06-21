@@ -195,6 +195,7 @@ fun TimeSelector(
     )
 
     val (minH, minM) = min?.hm() ?: Pair(0,0)
+
     val (maxH, maxM) = max?.hm() ?: Pair(23,60)
     val (iniH, iniM) = initTime.hm()
     val finalKey = "${minH}:${minM},${maxH}:${maxM},${iniH}:${iniM}"

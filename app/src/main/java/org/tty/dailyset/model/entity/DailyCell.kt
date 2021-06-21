@@ -14,9 +14,16 @@ data class DailyCell(
     @PrimaryKey
     var uid: String,
     /**
-     * time duration .start
+     * the reference dailyRowUid
+     */
+    var dailyRowUid: String,
+    /**
+     * the index of the total.
      */
     var currentIndex: Int,
+    /**
+     * time duration .start
+     */
     var start: Time,
     /**
      * time duration .end
@@ -30,7 +37,7 @@ data class DailyCell(
      * the index of the current group
      */
     var serialIndex: Int,
-    var dailyRowUid: String,
+
     var updateAt: Timestamp
 ): Comparable<DailyCell> {
     companion object {

@@ -60,7 +60,7 @@ fun DailySetAddPart(
     ProfileMenuItem(
         icon = ImageResource.add(),
         next = false,
-        title = stringResource(R.string.add_list),
+        title = stringResource(R.string.dailyset_list_add),
         content = "") {
         dailySetCreateState.dialogOpen.value = true
     }

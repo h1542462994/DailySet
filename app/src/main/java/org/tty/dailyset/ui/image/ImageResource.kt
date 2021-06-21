@@ -150,4 +150,9 @@ object ImageResource {
     fun set_duration(): Painter {
         return painterResource(id = R.drawable.ic_set_duration_24)
     }
+
+    @Composable
+    fun set_add_emoji(): Painter {
+        return painterResource(id = R.drawable.ic_add_emoji_24)
+    }
 }
