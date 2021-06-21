@@ -56,5 +56,98 @@ object ImageResource {
         return painterResource(id = R.drawable.ic_baseline_sort_24)
     }
 
+    @Composable
+    fun set_bird(): Painter {
+        return painterResource(id = R.drawable.ic_set_bird_24)
+    }
 
+    @Composable
+    fun set_book(): Painter {
+        return painterResource(id = R.drawable.ic_set_book_24)
+    }
+
+    @Composable
+    fun set_cat(): Painter {
+        return painterResource(id = R.drawable.ic_set_cat_24)
+    }
+
+    @Composable
+    fun set_cow(): Painter {
+        return painterResource(id = R.drawable.ic_set_cow_24)
+    }
+
+    @Composable
+    fun set_dog(): Painter {
+        return painterResource(id = R.drawable.ic_set_dog_24)
+    }
+
+    @Composable
+    fun set_duck(): Painter {
+        return painterResource(id = R.drawable.ic_set_duck_24)
+    }
+
+    @Composable
+    fun set_fire(): Painter {
+        return painterResource(id = R.drawable.ic_set_fire_24)
+    }
+
+    @Composable
+    fun set_frog(): Painter {
+        return painterResource(id = R.drawable.ic_set_frog_24)
+    }
+
+    @Composable
+    fun set_idea(): Painter {
+        return painterResource(id = R.drawable.ic_set_idea_24)
+    }
+
+    @Composable
+    fun set_leaf(): Painter {
+        return painterResource(id = R.drawable.ic_set_leaf_24)
+    }
+
+    @Composable
+    fun set_pin(): Painter {
+        return painterResource(id = R.drawable.ic_set_pin_24)
+    }
+
+    @Composable
+    fun set_plane(): Painter {
+        return painterResource(id = R.drawable.ic_set_plane_24)
+    }
+
+    @Composable
+    fun set_running(): Painter {
+        return painterResource(id = R.drawable.ic_set_running_24)
+    }
+
+    @Composable
+    fun set_sea(): Painter {
+        return painterResource(id = R.drawable.ic_set_sea_24)
+    }
+
+    @Composable
+    fun set_tutorial(): Painter {
+        return painterResource(id = R.drawable.ic_set_tutorial_24)
+    }
+
+    @Composable
+    fun set_vacation(): Painter {
+        return painterResource(id = R.drawable.ic_set_vacation_24)
+    }
+
+    @Composable
+    fun set_water(): Painter {
+        return painterResource(id = R.drawable.ic_set_water_24)
+    }
+
+    @Composable
+    fun set_wind(): Painter {
+        return painterResource(id = R.drawable.ic_set_wind_24)
+    }
+
+    @Composable
+    fun set_duration(): Painter {
+        return painterResource(id = R.drawable.ic_set_duration_24)
+    }
 }

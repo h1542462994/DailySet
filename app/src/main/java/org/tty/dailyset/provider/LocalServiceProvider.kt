@@ -1,6 +1,7 @@
 package org.tty.dailyset.provider
 
 import android.app.Application
+import android.view.Window
 import androidx.compose.runtime.*
 import org.tty.dailyset.DailySetApplication
 import org.tty.dailyset.viewmodel.MainViewModel
@@ -13,6 +14,7 @@ import org.tty.dailyset.viewmodel.MainViewModel
 fun LocalServiceProvider(
     application: Application,
     mainViewModel: MainViewModel,
+    window: Window,
     content: @Composable () -> Unit
 ) {
     val dailySetApplicationService = application as DailySetApplication
@@ -22,6 +24,7 @@ fun LocalServiceProvider(
     CompositionLocalProvider(
         LocalServices provides dailySetApplicationService,
         LocalMainViewModel provides mainViewModel,
+        LocalWindow provides window,
         content = content)
 }
 
@@ -32,4 +35,8 @@ internal val LocalServices = compositionLocalOf<DailySetApplication> {
 
 internal val LocalMainViewModel = compositionLocalOf<MainViewModel> {
     error("No MainViewModel Provided")
+}
+
+internal val LocalWindow = compositionLocalOf<Window>() {
+    error("No Window Provided")
 }

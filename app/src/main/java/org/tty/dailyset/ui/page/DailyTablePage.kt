@@ -48,12 +48,15 @@ import java.util.*
 fun DailyTablePage() {
     // TODO: 2021/3/28 仅Page节点可以拥有状态参量，其他所有子构件为无状态。所有事件必须在根节点进行处理。
 
+    StatusBarToBackground()
 
     val dropDownTitleOpenState = remember { mutableStateOf(false) }
     val dropDownExtensionOpenState = remember { mutableStateOf(false) }
     //val columnState = rememberLazyListState()
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
+
+
 
     fun scrollToTop() {
         coroutineScope.launch {
@@ -476,6 +479,7 @@ fun DailyTableContent(
     ProfileMenuItem(
         icon = ImageResource.cell(),
         useTint = true,
+        next = true,
         title = "预览",
         content = "点击以进行预览",
         onClick = LocalNav.current.action.toTimeTablePreview

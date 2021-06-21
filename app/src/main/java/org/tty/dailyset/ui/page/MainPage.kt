@@ -6,15 +6,20 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import org.tty.dailyset.R
 import org.tty.dailyset.provider.LocalMainViewModel
+import org.tty.dailyset.provider.LocalWindow
 import org.tty.dailyset.ui.component.TopBar
 import org.tty.dailyset.ui.theme.LocalPalette
+import org.tty.dailyset.ui.utils.StatusBarToBackground1
 
 @Composable
 fun MainPage() {
@@ -22,6 +27,9 @@ fun MainPage() {
     val selectedTab by LocalMainViewModel.current.mainTab.observeAsState(MainPageTabs.DAILY_SET)
     val setSelectedTab = LocalMainViewModel.current.setMainTab
     val tabs = MainPageTabs.values()
+    val window = LocalWindow.current
+
+    StatusBarToBackground1()
 
     Scaffold(
         topBar = {

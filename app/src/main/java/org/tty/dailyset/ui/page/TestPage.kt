@@ -9,12 +9,15 @@ import org.tty.dailyset.R
 import org.tty.dailyset.LocalNav
 import org.tty.dailyset.data.scope.DataScope
 import org.tty.dailyset.ui.component.TopBar
+import org.tty.dailyset.ui.utils.StatusBarToBackground
 
 /**
  * page for debug and test
  */
 @Composable
 fun TestPage() {
+    StatusBarToBackground()
+
     with(DataScope) {
         val seedVersion by seedVersion()
         val currentUserUid by currentUserUid()

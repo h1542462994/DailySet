@@ -24,9 +24,8 @@ class MainActivity : ComponentActivity() {
 
                 window.statusBarColor = LocalPalette.current.background1.toArgb()
 
-
                 // enable the service.
-                LocalServiceProvider(application = application, mainViewModel = mainViewModel) {
+                LocalServiceProvider(application = application, mainViewModel = mainViewModel, window = window) {
 
                     //MainPage()
                     DailySetApp(onBackPressedDispatcher)
