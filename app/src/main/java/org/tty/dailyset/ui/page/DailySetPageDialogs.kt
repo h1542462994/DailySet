@@ -13,7 +13,7 @@ fun DailySetCreateDialogCover(
     dailySetProcessor: DailySetProcessor,
     dailySetCreateState: DailySetCreateState
 ) {
-    NanoDialog(title = stringResource(R.string.create_dailyset), dialogState = dailySetCreateState) {
+    NanoDialog(title = stringResource(R.string.add_list), dialogState = dailySetCreateState) {
         Text("hello world")
     }
 }
