@@ -89,7 +89,6 @@ fun ProfileMenuItem(
     var modifier1 = Modifier
         .height(56.dp)
         .fillMaxWidth()
-        .background(MaterialTheme.colors.background)
     if (onClick != null){
         modifier1 = modifier1.clickable { onClick() }
     }

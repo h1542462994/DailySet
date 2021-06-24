@@ -160,4 +160,14 @@ object ImageResource {
     fun list(): Painter {
         return painterResource(id = R.drawable.ic_list_24)
     }
+
+    @Composable
+    fun blank(): Painter {
+        return painterResource(id = R.drawable.ic_blank)
+    }
+
+    @Composable
+    fun shift_round(): Painter {
+        return painterResource(id = R.drawable.ic_shift_round_24)
+    }
 }

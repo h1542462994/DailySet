@@ -26,41 +26,43 @@ fun TopBar(
     onBackPressed: () -> Unit = {},
     onTitleClick: (() -> Unit)? = null
 ) {
-    Row(modifier = Modifier
-        .height(56.dp)
-        .background(LocalPalette.current.background1)
-    ) {
-        BoxWithConstraints(modifier = Modifier
-            .width(56.dp)
-            .padding(8.dp)
-            .fillMaxHeight()
-            .wrapContentSize(align = Alignment.Center)
-            .clip(shape = CircleShape)
-            .clickable(onClick = onBackPressed)
+    Surface(elevation = BottomNavigationDefaults.Elevation) {
+        Row(modifier = Modifier
+            .height(56.dp)
+            .background(LocalPalette.current.background1)
         ) {
-            if (useBack) {
-                Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null,
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .fillMaxSize(),
-                    tint = LocalPalette.current.primary
-                )
+            BoxWithConstraints(modifier = Modifier
+                .width(56.dp)
+                .padding(8.dp)
+                .fillMaxHeight()
+                .wrapContentSize(align = Alignment.Center)
+                .clip(shape = CircleShape)
+                .clickable(onClick = onBackPressed)
+            ) {
+                if (useBack) {
+                    Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null,
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .fillMaxSize(),
+                        tint = LocalPalette.current.primary
+                    )
+                }
             }
-        }
-        var titleModifier = Modifier
-            .fillMaxHeight()
-            .weight(1f)
-        if (onTitleClick != null) {
-            titleModifier = titleModifier.clickable {
-                onTitleClick()
+            var titleModifier = Modifier
+                .fillMaxHeight()
+                .weight(1f)
+            if (onTitleClick != null) {
+                titleModifier = titleModifier.clickable {
+                    onTitleClick()
+                }
             }
-        }
-        titleModifier = titleModifier
-            .padding(horizontal = 12.dp, vertical = 8.dp)
-            .wrapContentHeight(align = Alignment.CenterVertically)
+            titleModifier = titleModifier
+                .padding(horizontal = 12.dp, vertical = 8.dp)
+                .wrapContentHeight(align = Alignment.CenterVertically)
 
-        BoxWithConstraints(modifier = titleModifier) {
-            title()
+            BoxWithConstraints(modifier = titleModifier) {
+                title()
+            }
         }
     }
 }
@@ -85,46 +87,48 @@ fun CenterBar(
     extensionArea: (@Composable () -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
-    Row(modifier = Modifier
-        .height(56.dp)
-        .background(LocalPalette.current.background1)
-    ) {
-        BoxWithConstraints(modifier = Modifier
-            .width(56.dp)
-            .padding(8.dp)
-            .fillMaxHeight()
-            .wrapContentSize(align = Alignment.Center)
-            .clip(shape = CircleShape)
-            .clickable(onClick = onBackPressed)
+    Surface(elevation = BottomNavigationDefaults.Elevation) {
+        Row(modifier = Modifier
+            .height(56.dp)
+            .background(LocalPalette.current.background1)
         ) {
-            if (useBack) {
-                Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null,
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .fillMaxSize(),
-                    tint = LocalPalette.current.primary
-                )
+            BoxWithConstraints(modifier = Modifier
+                .width(56.dp)
+                .padding(8.dp)
+                .fillMaxHeight()
+                .wrapContentSize(align = Alignment.Center)
+                .clip(shape = CircleShape)
+                .clickable(onClick = onBackPressed)
+            ) {
+                if (useBack) {
+                    Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null,
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .fillMaxSize(),
+                        tint = LocalPalette.current.primary
+                    )
+                }
             }
-        }
-        var modifier1 = Modifier
-            .fillMaxHeight()
-            .weight(1.0f)
-            .wrapContentSize(align = Alignment.Center)
+            var modifier1 = Modifier
+                .fillMaxHeight()
+                .weight(1.0f)
+                .wrapContentSize(align = Alignment.Center)
 
-        modifier1 = if (extensionArea == null) {
-            modifier1.padding(start = 12.dp, top = 0.dp, end = 12.dp + 56.dp, bottom = 0.dp)
-        } else {
-            modifier1.padding(horizontal = 12.dp, vertical = 0.dp)
-        }
+            modifier1 = if (extensionArea == null) {
+                modifier1.padding(start = 12.dp, top = 0.dp, end = 12.dp + 56.dp, bottom = 0.dp)
+            } else {
+                modifier1.padding(horizontal = 12.dp, vertical = 0.dp)
+            }
 
-        BoxWithConstraints(modifier = modifier1) {
-            content()
-        }
+            BoxWithConstraints(modifier = modifier1) {
+                content()
+            }
 
-        if (extensionArea != null) {
-            extensionArea()
-        }
+            if (extensionArea != null) {
+                extensionArea()
+            }
 
+        }
     }
 }
 

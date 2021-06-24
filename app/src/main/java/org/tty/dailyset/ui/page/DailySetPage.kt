@@ -25,11 +25,14 @@ import org.tty.dailyset.model.lifetime.dailyset.DailySetCreateState
 import org.tty.dailyset.ui.component.ProfileMenuItem
 import org.tty.dailyset.ui.component.TitleSpace
 import org.tty.dailyset.ui.image.ImageResource
+import org.tty.dailyset.ui.utils.StatusBarToBackground
 import java.util.*
 
 @ExperimentalFoundationApi
 @Composable
 fun DailySetPage() {
+
+
     // TODO: 2021/6/24 remember the scroll on page changed.
     val scrollState = rememberScrollState()
     with(DataScope) {

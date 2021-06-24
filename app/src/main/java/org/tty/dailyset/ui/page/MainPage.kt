@@ -73,21 +73,6 @@ fun MainPage() {
 
 }
 
-@Composable
-fun AppBar(@StringRes title: Int, useBack: Boolean = false , onBackPressed: () -> Unit = {}) {
-    TopAppBar(
-        backgroundColor = LocalPalette.current.background1,
-        title = { Text(stringResource(id = title)) },
-        navigationIcon = {
-            if (useBack) {
-                IconButton(onClick = onBackPressed) {
-                    Icon(imageVector = Icons.Filled.ArrowBack, contentDescription = null)
-                }
-            }
-        }
-    )
-}
-
 @ExperimentalFoundationApi
 @Preview
 @Composable
