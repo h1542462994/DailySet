@@ -13,5 +13,10 @@ class DailySetCreateState(
     val name: MutableState<String>,
 
 ): DialogState(dialogOpen) {
-
+    fun clean() {
+        selectIcon.value = false
+        icon.value = null
+        type.value = DailySetType.Normal
+        name.value = ""
+    }
 }

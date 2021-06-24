@@ -127,7 +127,8 @@ fun DailySetCreateDialogCover(
                 )
             }
 
-            val enabled = name.length in 2..10
+            // TODO: 2021/6/24 完成TaskSpecific列表的设计
+            val enabled = name.length in 2..10 && type != DailySetType.TaskSpecific
             NanoDialogButton(text = stringResource(id = R.string.dailyset_list_add), enabled = enabled) {
                 dailySetProcessor.onCreate(name, icon, type)
             }

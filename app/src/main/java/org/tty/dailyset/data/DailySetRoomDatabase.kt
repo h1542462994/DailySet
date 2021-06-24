@@ -67,7 +67,7 @@ abstract class DailySetRoomDatabase: RoomDatabase() {
 
         private const val TAG = "DailySetRoomDatabase"
 
-        const val currentVersion = 4
+        const val currentVersion = 5
 
         fun getDatabase(context: Context, scope: CoroutineScope): DailySetRoomDatabase {
             return INSTANCE ?: synchronized(this) {

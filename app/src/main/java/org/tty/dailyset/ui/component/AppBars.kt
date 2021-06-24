@@ -23,7 +23,8 @@ import org.tty.dailyset.ui.theme.LocalPalette
 fun TopBar(
     title: @Composable () -> Unit,
     useBack: Boolean = false,
-    onBackPressed: () -> Unit = {}
+    onBackPressed: () -> Unit = {},
+    onTitleClick: (() -> Unit)? = null
 ) {
     Row(modifier = Modifier
         .height(56.dp)
@@ -46,12 +47,19 @@ fun TopBar(
                 )
             }
         }
-        BoxWithConstraints(modifier = Modifier
+        var titleModifier = Modifier
             .fillMaxHeight()
             .weight(1f)
+        if (onTitleClick != null) {
+            titleModifier = titleModifier.clickable {
+                onTitleClick()
+            }
+        }
+        titleModifier = titleModifier
             .padding(horizontal = 12.dp, vertical = 8.dp)
             .wrapContentHeight(align = Alignment.CenterVertically)
-        ) {
+
+        BoxWithConstraints(modifier = titleModifier) {
             title()
         }
     }

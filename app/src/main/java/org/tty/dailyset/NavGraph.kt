@@ -10,10 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigate
 import androidx.navigation.compose.rememberNavController
-import org.tty.dailyset.ui.page.MainPage
-import org.tty.dailyset.ui.page.DailyTablePage
-import org.tty.dailyset.ui.page.DailyTablePreviewPage
-import org.tty.dailyset.ui.page.TestPage
+import org.tty.dailyset.ui.page.*
 
 /**
  * Destination used in the ([org.tty.dailyset.DailySetApp])
@@ -23,8 +20,14 @@ object MainDestination {
     const val TIME_TABLE_ROUTE = "time_table"
     const val TIME_TABLE_PREVIEW_ROUTE = "time_table_preview"
     const val TEST_ROUTE = "test"
+    const val DAILY_SET_NORMAL = "daily_set_normal"
+    const val DAILY_SET_CLAZZ = "daily_set_clazz"
+    const val DAILY_SET_TASK = "daily_set_task"
 }
 
+/**
+ * the navigation graph for page navigating.
+ */
 @ExperimentalFoundationApi
 @Composable
 fun NavGraph(startDestination: String = MainDestination.MAIN_ROUTE) {
@@ -50,6 +53,15 @@ fun NavGraph(startDestination: String = MainDestination.MAIN_ROUTE) {
             composable(MainDestination.TEST_ROUTE) {
                 TestPage()
             }
+            composable(MainDestination.DAILY_SET_NORMAL) {
+                NormalDailySetPage()
+            }
+            composable(MainDestination.DAILY_SET_CLAZZ) {
+                ClazzDailySetPage()
+            }
+            composable(MainDestination.DAILY_SET_TASK) {
+                TaskDailySetPage()
+            }
         }
 
     }
@@ -59,6 +71,7 @@ fun NavGraph(startDestination: String = MainDestination.MAIN_ROUTE) {
  * Models the navigation actions in the app.
  */
 class MainActions(navController: NavHostController) {
+    // TODO: 2021/6/24 添加切换动画效果.
     val upPress: () -> Unit = {
         navController.navigateUp()
     }
@@ -71,6 +84,16 @@ class MainActions(navController: NavHostController) {
     val toTest: () -> Unit = {
         navController.navigate(MainDestination.TEST_ROUTE)
     }
+    val toNormalDailySet: () -> Unit = {
+        navController.navigate(MainDestination.DAILY_SET_NORMAL)
+    }
+    val toClazzDailySet: () -> Unit = {
+        navController.navigate(MainDestination.DAILY_SET_CLAZZ)
+    }
+    val toTaskDailySet: () -> Unit = {
+        navController.navigate(MainDestination.DAILY_SET_TASK)
+    }
+
 }
 
 data class Nav<T>(
@@ -79,7 +102,7 @@ data class Nav<T>(
 )
 
 /**
- * support nav Action
+ * support nav Action.
  */
 internal val LocalNav = staticCompositionLocalOf<Nav<MainActions>> {
     error("nav not provided")

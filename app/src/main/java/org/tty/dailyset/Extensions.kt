@@ -6,6 +6,7 @@ import java.sql.Timestamp
 import java.time.*
 import java.time.temporal.ChronoField
 import java.time.temporal.TemporalUnit
+import java.util.*
 
 fun Time.toShortString(): String {
     return this.toString().substring(0,5)
@@ -43,9 +44,11 @@ fun minus(end: LocalDate, start: LocalDate): Long {
 }
 
 fun localTimestampNow(): Timestamp {
-    val current = LocalDateTime.now().nano
-    val timestamp = Timestamp(0)
-    timestamp.nanos = current
+    val instant = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()
+    val time = instant.toEpochMilli()
+    val timestamp = Timestamp(time)
+    timestamp.nanos = instant.nano
+
     return timestamp
 }
 
@@ -95,7 +98,7 @@ fun rangeX(min: Int, max: Int, space: Int): List<Int> {
 }
 
 fun <T> Map<*, List<T>>.startIndexes(): List<Int> {
-    var startIndex = 0;
+    var startIndex = 0
     val record = mutableListOf<Int>()
     forEach { (_, l) ->
         record.add(startIndex)

@@ -28,7 +28,10 @@ enum class DailySetIcon(val key: String) {
 }
 
 @Composable
-fun DailySetIcon.toImageResource(): Painter {
+fun DailySetIcon?.toImageResource(): Painter {
+    if (this == null) {
+        return ImageResource.list()
+    }
     return when (this) {
         DailySetIcon.Bird -> ImageResource.set_bird()
         DailySetIcon.Book -> ImageResource.set_book()

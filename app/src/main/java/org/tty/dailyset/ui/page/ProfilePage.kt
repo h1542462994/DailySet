@@ -4,6 +4,7 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -34,7 +35,7 @@ fun ProfilePage() {
         val scrollState = rememberScrollState()
 
         Column(
-            modifier = Modifier.scrollable(scrollState, orientation = Orientation.Vertical)
+            modifier = Modifier.verticalScroll(scrollState, enabled = true)
         ){
             ProfileMenuGroupUser(user = currentUser)
             ProfileMenuGroupUserSettings()

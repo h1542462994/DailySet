@@ -15,7 +15,7 @@ import java.time.LocalDate
  * represents a long daily duration
  * the daily duration belong to a user
  */
-@Entity
+@Entity(tableName = "daily_duration")
 @TypeConverters(DailyDurationTypeConverter::class, StringLocalDateConverter::class, DailyDurationTagConverter::class, LongTimeStampConverter::class)
 data class DailyDuration(
     /**
@@ -61,10 +61,15 @@ data class DailyDuration(
     /**
      * the property only used on [DailyDurationType.Clazz]
      * the binging PeriodCode
-     * usually 0 means 上学期, 7 means 下学期, 13 means 短学期
+     * usually 0/.. means unspecified, 1 means 上学期, 7 means 下学期, 13 means 短学期
+     * 2 means 上学期期末 8 means 下学期期末
+     * 4 means 寒假 14 means 暑假
      */
     val bindingPeriodCode: Int = 0,
 
+    /**
+     * the serialIndex
+     */
     val serialIndex: Int = 0,
 
     /**

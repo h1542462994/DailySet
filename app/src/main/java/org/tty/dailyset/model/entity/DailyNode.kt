@@ -11,7 +11,7 @@ import java.sql.Timestamp
  * represents a dailyNode
  * a dailyNode is the component of [DailySet]
  */
-@Entity
+@Entity(tableName = "daily_node")
 @TypeConverters(DailyNodeTypeConverter::class, LongTimeStampConverter::class)
 data class DailyNode(
     /**

@@ -155,4 +155,9 @@ object ImageResource {
     fun set_add_emoji(): Painter {
         return painterResource(id = R.drawable.ic_add_emoji_24)
     }
+
+    @Composable
+    fun list(): Painter {
+        return painterResource(id = R.drawable.ic_list_24)
+    }
 }

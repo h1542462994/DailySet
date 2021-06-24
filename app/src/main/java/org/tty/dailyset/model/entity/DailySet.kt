@@ -11,7 +11,7 @@ import java.sql.Timestamp
 /**
  * represents a dailySet
  */
-@Entity
+@Entity(tableName = "daily_set")
 @TypeConverters(DailySetTypeConverter::class, DailySetIconConverter::class, LongTimeStampConverter::class)
 data class DailySet(
     /**
@@ -46,4 +46,18 @@ data class DailySet(
      * the update timestamp
      */
     val updateAt: Timestamp
-)
+) {
+    companion object {
+        fun empty(): DailySet {
+            return DailySet(
+                type = DailySetType.Normal,
+                icon = null,
+                uid = User.system,
+                serialIndex = 0,
+                ownerUid = User.system,
+                name = "",
+                updateAt = Timestamp(0)
+            )
+        }
+    }
+}
