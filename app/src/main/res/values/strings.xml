@@ -29,4 +29,5 @@
     <string name="dailyset_type_normal_description">普通的列表,一般用于记录TODO,事项,日程等.</string>
     <string name="dailyset_type_clazz_description">课表专用类型,用于记录课表相关的日程.</string>
     <string name="dailyset_type_task_description">项目专用日程,用于管理项目中各TODO的依赖关系,委派等.(开发中,暂不可用)</string>
+    <string name="dailyset_delete_emoji">删除表情符号</string>
 </resources>

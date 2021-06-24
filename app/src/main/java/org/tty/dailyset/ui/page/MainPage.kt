@@ -2,6 +2,7 @@ package org.tty.dailyset.ui.page
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,6 +23,7 @@ import org.tty.dailyset.ui.component.TopBar
 import org.tty.dailyset.ui.theme.LocalPalette
 import org.tty.dailyset.ui.utils.StatusBarToBackground1
 
+@ExperimentalFoundationApi
 @Composable
 fun MainPage() {
 
@@ -86,6 +88,7 @@ fun AppBar(@StringRes title: Int, useBack: Boolean = false , onBackPressed: () -
     )
 }
 
+@ExperimentalFoundationApi
 @Preview
 @Composable
 fun MainPagePreview() {

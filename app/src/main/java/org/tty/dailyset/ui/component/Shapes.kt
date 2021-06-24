@@ -115,7 +115,7 @@ fun Badge(
     } else if (checked && readOnly) {
         Badge(borderColor = LocalPalette.current.backgroundColor, background = LocalPalette.current.backgroundColor, textColor = LocalPalette.current.textColorInValid, text = text)
     } else if (!checked && !readOnly) {
-        Badge(borderColor = LocalPalette.current.backgroundColor, background = MaterialTheme.colors.background, textColor = LocalPalette.current.primary, text = text, onClick = onClick)
+        Badge(borderColor = LocalPalette.current.backgroundColor, background = LocalPalette.current.primarySurface, textColor = LocalPalette.current.primary, text = text, onClick = onClick)
     } else if (!checked && readOnly) {
         Badge(borderColor = LocalPalette.current.backgroundInvalid, background = LocalPalette.current.backgroundInvalid, textColor = LocalPalette.current.textColorInValid, text = text)
     }

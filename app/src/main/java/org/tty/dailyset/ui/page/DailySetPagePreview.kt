@@ -1,5 +1,6 @@
 package org.tty.dailyset.ui.page
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import org.tty.dailyset.data.processor.DailySetProcessor
@@ -28,6 +29,7 @@ fun DailySetUserPartPreview() {
     DailySetUserPart()
 }
 
+@ExperimentalFoundationApi
 @Preview
 @Composable
 fun DailySetCreateDialogCoverPreview() {

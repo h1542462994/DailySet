@@ -1,5 +1,12 @@
 package org.tty.dailyset.model.entity
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
+import org.tty.dailyset.model.converter.DailyDurationTagConverter
+import org.tty.dailyset.model.converter.DailyDurationTypeConverter
+import org.tty.dailyset.model.converter.LongTimeStampConverter
+import org.tty.dailyset.model.converter.StringLocalDateConverter
 import java.sql.Timestamp
 import java.time.Instant
 import java.time.LocalDate
@@ -8,6 +15,8 @@ import java.time.LocalDate
  * represents a long daily duration
  * the daily duration belong to a user
  */
+@Entity
+@TypeConverters(DailyDurationTypeConverter::class, StringLocalDateConverter::class, DailyDurationTagConverter::class, LongTimeStampConverter::class)
 data class DailyDuration(
     /**
      * the daily duration type.
@@ -16,6 +25,7 @@ data class DailyDuration(
     /**
      * the unique uid.
      */
+    @PrimaryKey
     val uid: String = "",
     /**
      * the owner uid
@@ -54,6 +64,8 @@ data class DailyDuration(
      * usually 0 means 上学期, 7 means 下学期, 13 means 短学期
      */
     val bindingPeriodCode: Int = 0,
+
+    val serialIndex: Int = 0,
 
     /**
      * the update timestamp

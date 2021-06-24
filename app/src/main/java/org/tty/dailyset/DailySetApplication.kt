@@ -4,6 +4,7 @@ import android.app.Application
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import org.tty.dailyset.data.DailySetRoomDatabase
+import org.tty.dailyset.data.repository.DailySetRepository
 import org.tty.dailyset.data.repository.DailyTableRepository
 import org.tty.dailyset.data.repository.PreferenceRepository
 import org.tty.dailyset.data.repository.UserRepository
@@ -21,6 +22,11 @@ class DailySetApplication: Application() {
             database.dailyTableDao(),
             database.dailyRowDao(),
             database.dailyCellDao()
+        )
+    }
+    val dailySetRepository by lazy {
+        DailySetRepository(
+            database.dailySetDao()
         )
     }
 }

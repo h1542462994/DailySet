@@ -13,13 +13,16 @@ import org.tty.dailyset.model.dao.*
 import org.tty.dailyset.model.entity.*
 
 
-@Database(entities = [Preference::class, User::class, DailyTable::class, DailyRow::class, DailyCell::class], version = DailySetRoomDatabase.currentVersion, exportSchema = false)
+@Database(entities =
+    [Preference::class, User::class, DailyTable::class, DailyRow::class, DailyCell::class, DailySet::class, DailyDuration::class, DailyNode::class],
+    version = DailySetRoomDatabase.currentVersion, exportSchema = false)
 abstract class DailySetRoomDatabase: RoomDatabase() {
     abstract fun userDao(): UserDao
     abstract fun preferenceDao(): PreferenceDao
     abstract fun dailyTableDao(): DailyTableDao
     abstract fun dailyRowDao(): DailyRowDao
     abstract fun dailyCellDao(): DailyCellDao
+    abstract fun dailySetDao(): DailySetDao
 
     private class DailySetDatabaseCallBack(
         private val scope: CoroutineScope
@@ -64,7 +67,7 @@ abstract class DailySetRoomDatabase: RoomDatabase() {
 
         private const val TAG = "DailySetRoomDatabase"
 
-        const val currentVersion = 2
+        const val currentVersion = 4
 
         fun getDatabase(context: Context, scope: CoroutineScope): DailySetRoomDatabase {
             return INSTANCE ?: synchronized(this) {

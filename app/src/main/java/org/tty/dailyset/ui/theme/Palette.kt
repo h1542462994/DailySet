@@ -31,8 +31,6 @@ class Palette(
     var background1 by mutableStateOf(background1, structuralEqualityPolicy())
         internal set
 
-
-
     var background3 by mutableStateOf(background3, structuralEqualityPolicy())
         internal set
 

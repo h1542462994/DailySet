@@ -1,5 +1,7 @@
 package org.tty.dailyset.ui.page
 
+import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Column
@@ -10,6 +12,8 @@ import androidx.compose.ui.res.stringResource
 import org.tty.dailyset.R
 import org.tty.dailyset.data.processor.DailySetProcessor
 import org.tty.dailyset.data.scope.DataScope
+import org.tty.dailyset.event.DailySetCreateEventArgs
+import org.tty.dailyset.event.DailySetEventType
 import org.tty.dailyset.model.entity.DailySetIcon
 import org.tty.dailyset.model.entity.DailySetType
 import org.tty.dailyset.model.lifetime.dailyset.DailySetCreateState
@@ -17,6 +21,7 @@ import org.tty.dailyset.ui.component.ProfileMenuItem
 import org.tty.dailyset.ui.component.TitleSpace
 import org.tty.dailyset.ui.image.ImageResource
 
+@ExperimentalFoundationApi
 @Composable
 fun DailySetPage() {
     val scrollState = rememberScrollState()
@@ -26,7 +31,14 @@ fun DailySetPage() {
         val dailySetCreateState = dailySetCreateState()
         val dailySetProcessor = object: DailySetProcessor {
             override fun onCreate(dailySetName: String, icon: DailySetIcon?, type: DailySetType) {
-                TODO("Not yet implemented")
+                Log.d("DailySetPage", "addSet,${dailySetName},${icon},${type}")
+                val dailySetCreateEventArgs = DailySetCreateEventArgs(dailySetName, type, icon)
+                performProcess(service,
+                    eventType = DailySetEventType.Create,
+                    eventArgs = dailySetCreateEventArgs,
+                    onBefore = {},
+                    onCompletion = {}
+                )
             }
 
         }

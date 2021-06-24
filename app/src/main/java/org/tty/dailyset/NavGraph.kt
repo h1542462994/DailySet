@@ -1,5 +1,6 @@
 package org.tty.dailyset
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -24,6 +25,7 @@ object MainDestination {
     const val TEST_ROUTE = "test"
 }
 
+@ExperimentalFoundationApi
 @Composable
 fun NavGraph(startDestination: String = MainDestination.MAIN_ROUTE) {
     val navController = rememberNavController()
