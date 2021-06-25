@@ -2,7 +2,6 @@ package org.tty.dailyset.model.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.sql.Timestamp
 
 /**
  * 保存当前使用的用户
@@ -10,7 +9,7 @@ import java.sql.Timestamp
 @Entity(tableName = "user")
 data class User (
     @PrimaryKey
-    var uid: String,
+    var userUid: String,
     var name: String,
     var nickName: String,
     var token: String,
@@ -23,7 +22,7 @@ data class User (
 
         fun default(): User {
             return User(
-                uid = PreferenceName.CURRENT_USER_UID.defaultValue,
+                userUid = PreferenceName.CURRENT_USER_UID.defaultValue,
                 name = PreferenceName.CURRENT_USER_UID.defaultValue,
                 nickName = "本地账户",
                 token = "",
@@ -34,7 +33,7 @@ data class User (
 
         fun system(): User {
             return User(
-                uid = system,
+                userUid = system,
                 name = system,
                 nickName = "系统",
                 token = "",

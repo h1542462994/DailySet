@@ -87,20 +87,34 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
     val dailySets = service.dailySetRepository.dailySets.asLiveData()
 
     val currentDailySetUid = MutableLiveData("")
+    @Deprecated("use currentDailySetDurationsLiveData instead.")
     val currentDailySetLiveData = MutableLiveData<LiveData<DailySet?>>()
+    @Deprecated("use currentDailySet instead.")
     val currentDailySet = MutableLiveData(DailySet.empty())
+    val currentDailySetDurationsLiveData = MutableLiveData<LiveData<DailySetDurations?>>()
+    val currentDailySetDurations = MutableLiveData(DailySetDurations.empty())
 
     private fun registerDailySetHook() {
         currentDailySetUid.observeForever {
             Log.d(TAG, "currentDailySetUid changed to $it")
-            postCurrentDailySetLiveData(it)
+            //postCurrentDailySetLiveData(it)
+            postCurrentDailySetDurationsLiveData(it)
         }
-        currentDailySetLiveData.observeForever {
-            Log.d(TAG, "currentDailySetLiveData changed to ${it.value}")
+//        currentDailySetLiveData.observeForever {
+//            Log.d(TAG, "currentDailySetLiveData changed to ${it.value}")
+//            it.observeForever { it2 ->
+//                Log.d(TAG, "currentDailySet changed to $it2")
+//                if (it2 != null) {
+//                    postCurrentDailySet(it2)
+//                }
+//            }
+//        }
+        currentDailySetDurationsLiveData.observeForever {
+            Log.d(TAG, "currentDailySetDurationsLiveData changed to ${it.value}")
             it.observeForever { it2 ->
-                Log.d(TAG, "currentDailySet changed to $it2")
+                Log.d(TAG, "currentDailySetDurations changed to $it2")
                 if (it2 != null) {
-                    postCurrentDailySet(it2)
+                    postCurrentDailySetDurations(it2)
                 }
             }
         }
@@ -117,6 +131,20 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
             dailySet
         )
     }
+
+    private fun postCurrentDailySetDurationsLiveData(dailySetUid: String) {
+        currentDailySetDurationsLiveData.postValue(
+            service.dailySetRepository.loadDailySetDurations(dailySetUid).asLiveData()
+        )
+    }
+
+    private fun postCurrentDailySetDurations(dailySetDurations: DailySetDurations) {
+        currentDailySetDurations.postValue(
+            dailySetDurations
+        )
+    }
+
+
 
     //endregion
 

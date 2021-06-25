@@ -14,14 +14,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.tty.dailyset.LocalNav
+import org.tty.dailyset.R
 import org.tty.dailyset.data.scope.DataScope
 import org.tty.dailyset.model.entity.DailyDuration
 import org.tty.dailyset.model.entity.DailySet
 import org.tty.dailyset.model.entity.toImageResource
+import org.tty.dailyset.model.lifetime.dailyset.ClazzDailyDurationCreateState
+import org.tty.dailyset.ui.component.IconText
 import org.tty.dailyset.ui.component.TopBar
 import org.tty.dailyset.ui.image.ImageResource
 import org.tty.dailyset.ui.theme.LocalPalette
@@ -38,20 +42,30 @@ fun ClazzDailySetPage() {
     with(DataScope) {
         val mainViewModel = mainViewModel()
         val service = mainViewModel.service
-        val currentDailySet by currentDailySet()
-        // TODO: 2021/6/24 use real implementation instead.
-        val dailyDurations by emptyDailyDurations()
+        val dailySetDurations by currentDailySetDurations()
+
+        //region dialogStates
+        val clazzDailyDurationCreateState = clazzDailyDurationCreateState()
+        //endregion
+
         val nav = LocalNav.current
 
         Column {
-            ClazzDailySetAppBar(dailySet = currentDailySet, onBack = nav.action.upPress)
+            ClazzDailySetAppBar(dailySet = dailySetDurations.dailySet, onBack = nav.action.upPress)
             Column(
                 modifier = Modifier.weight(1f)
             ) {
-                ClazzDailySetCenter(dailyDurations = dailyDurations)
+                ClazzDailySetCenter(dailyDurations = dailySetDurations.durations)
             }
-            ClazzDailySetBottom(dailyDurations = dailyDurations)
+            ClazzDailySetBottom(
+                dailyDurations = dailySetDurations.durations,
+                clazzDailyDurationCreateState = clazzDailyDurationCreateState,
+            )
         }
+
+        ClazzDailySetClazzDurationCreateDialogCover(
+            clazzDailyDurationCreateState = clazzDailyDurationCreateState
+        )
     }
 
 }
@@ -115,7 +129,10 @@ fun ClazzDailySetCenter(dailyDurations: List<DailyDuration>) {
 }
 
 @Composable
-fun ClazzDailySetBottom(dailyDurations: List<DailyDuration>) {
+fun ClazzDailySetBottom(
+    dailyDurations: List<DailyDuration>,
+    clazzDailyDurationCreateState: ClazzDailyDurationCreateState
+) {
     Surface(
         elevation = BottomNavigationDefaults.Elevation,
         color = LocalPalette.current.background1
@@ -126,23 +143,61 @@ fun ClazzDailySetBottom(dailyDurations: List<DailyDuration>) {
                 .fillMaxWidth()
                 .wrapContentHeight(align = Alignment.CenterVertically)
         ) {
-            BoxWithConstraints(
-                modifier = Modifier
-                    .width(56.dp)
-                    .wrapContentSize(align = Alignment.Center)
-                    .clip(shape = CircleShape)
-                    .clickable {  }
-            ) {
-                Icon(
-                    painter = ImageResource.shift_round(),
-                    contentDescription = null,
+            if (dailyDurations.isNotEmpty()) {
+                BoxWithConstraints(
                     modifier = Modifier
-                        .padding(12.dp)
-                        .size(18.dp),
-                    tint = LocalPalette.current.primary
-                )
+                        .size(56.dp)
+                        .wrapContentSize(align = Alignment.Center)
+                        .clip(shape = CircleShape)
+                        .clickable { }
+                ) {
+                    Icon(
+                        painter = ImageResource.shift_round(),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(12.dp)
+                            .size(18.dp),
+                        tint = LocalPalette.current.primary
+                    )
+                }
+                BoxWithConstraints(
+                    modifier = Modifier
+                        .padding(end = 56.dp)
+                        .fillMaxSize()
+                        .wrapContentSize(align = Alignment.Center)
+                        .weight(1f)
+                ) {
+                    ClazzDailySetBottomShiftButton()
+                }
+            } else {
+                BoxWithConstraints(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .wrapContentSize(align = Alignment.Center)
+                ) {
+                    ClazzDailySetBottomAddButton(
+                        clazzDailyDurationCreateState = clazzDailyDurationCreateState
+                    )
+                }
             }
         }
     }
 
+}
+
+@Composable
+fun ClazzDailySetBottomAddButton(
+    clazzDailyDurationCreateState: ClazzDailyDurationCreateState
+) {
+    IconText(painter = ImageResource.add(), text = stringResource(id = R.string.dailyset_add_term)) {
+        // open the dialog
+        clazzDailyDurationCreateState.dialogOpen.value = true
+    }
+}
+
+@Composable
+fun ClazzDailySetBottomShiftButton() {
+    IconText(painter = ImageResource.shift(), scale = 0.8f, text = "第8周") {
+        // TODO: 2021/6/25 添加处理逻辑.
+    }
 }

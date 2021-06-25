@@ -7,8 +7,8 @@ data class DailyRC(
     @Embedded val dailyRow: DailyRow,
     @Relation(
         entity = DailyCell::class,
-        parentColumn = "uid",
-        entityColumn = "dailyRowUid"
+        parentColumn = "dailyRowUid",
+        entityColumn = "dailyCellUid"
     )
     val dailyCells: List<DailyCell>
 ): Comparable<DailyRC> {
@@ -21,13 +21,13 @@ data class DailyTRC(
     @Embedded val dailyTable: DailyTable,
     @Relation(
         entity = DailyRow::class,
-        parentColumn = "uid",
-        entityColumn = "dailyTableUid",
+        parentColumn = "dailyTableUid",
+        entityColumn = "dailyRowUid",
     )
     var dailyRCs: List<DailyRC>
 ){
     override fun toString(): String {
-        return "(${dailyTable.uid},${dailyTable.name})"
+        return "(${dailyTable.dailyTableUid},${dailyTable.name})"
     }
 
     companion object {

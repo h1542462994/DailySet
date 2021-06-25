@@ -11,7 +11,7 @@ import java.sql.Timestamp
 @TypeConverters(LongTimeStampConverter::class, StringIntArrayConverter::class)
 data class DailyRow(
     @PrimaryKey
-    var uid: String,
+    var dailyRowUid: String,
     var currentIndex: Int,
     var weekdays: IntArray,
     var counts: IntArray,
@@ -28,7 +28,7 @@ data class DailyRow(
 
         other as DailyRow
 
-        if (uid != other.uid) return false
+        if (dailyRowUid != other.dailyRowUid) return false
         if (currentIndex != other.currentIndex) return false
         if (!weekdays.contentEquals(other.weekdays)) return false
         if (!counts.contentEquals(other.counts)) return false
@@ -39,7 +39,7 @@ data class DailyRow(
     }
 
     override fun hashCode(): Int {
-        var result = uid.hashCode()
+        var result = dailyRowUid.hashCode()
         result = 31 * result + currentIndex
         result = 31 * result + weekdays.contentHashCode()
         result = 31 * result + counts.contentHashCode()
@@ -52,7 +52,7 @@ data class DailyRow(
         const val default = "#default"
         fun default(): DailyRow {
             return DailyRow(
-                uid = default,
+                dailyRowUid = default,
                 currentIndex = 0,
                 weekdays = intArrayOf(1,2,3,4,5,6,7),
                 counts = intArrayOf(5,4,3),

@@ -7,6 +7,7 @@ import org.tty.dailyset.event.DailySetCreateEventArgs
 import org.tty.dailyset.localTimestampNow
 import org.tty.dailyset.model.converter.DailySetTypeConverter
 import org.tty.dailyset.model.entity.DailySet
+import org.tty.dailyset.model.entity.DailySetDurations
 import org.tty.dailyset.model.entity.DailySetType
 
 /**
@@ -29,8 +30,11 @@ interface DailySetDao: DailySetProcessor2Async {
     @Query("select * from daily_set")
     fun all(): Flow<List<DailySet>>
 
-    @Query("select * from daily_set where uid = :dailySetUid")
+    @Query("select * from daily_set where dailySetUid = :dailySetUid")
     fun load(dailySetUid: String): Flow<DailySet?>
+
+    @Query("select * from daily_set where dailySetUid = :dailySetUid")
+    fun loadDetail(dailySetUid: String): Flow<DailySetDurations?>
 
     @Transaction
     override suspend fun create(dailySetCreateEventArgs: DailySetCreateEventArgs) {
@@ -40,7 +44,7 @@ interface DailySetDao: DailySetProcessor2Async {
         val dailySet = DailySet(
             type = type,
             icon = icon,
-            uid = uid,
+            dailySetUid = uid,
             serialIndex = serialIndex,
             ownerUid = ownerUid,
             name = dailySetName,

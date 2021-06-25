@@ -41,7 +41,7 @@ interface DailyTableScope : PreferenceScope, UserScope {
 
         val currentDailyTableUid by mainViewModel.currentDailyTableUid.observeAsState(DailyTable.default)
         return derivedStateOf {
-            dailyTableSummaries.find { it.uid == currentDailyTableUid } ?: DailyTable.default()
+            dailyTableSummaries.find { it.dailyTableUid == currentDailyTableUid } ?: DailyTable.default()
         }
     }
 

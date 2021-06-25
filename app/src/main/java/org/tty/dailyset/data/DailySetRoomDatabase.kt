@@ -14,7 +14,7 @@ import org.tty.dailyset.model.entity.*
 
 
 @Database(entities =
-    [Preference::class, User::class, DailyTable::class, DailyRow::class, DailyCell::class, DailySet::class, DailyDuration::class, DailyNode::class],
+    [Preference::class, User::class, DailyTable::class, DailyRow::class, DailyCell::class, DailySet::class, DailyDuration::class, DailyNode::class, DailySetBinding::class],
     version = DailySetRoomDatabase.currentVersion, exportSchema = false)
 abstract class DailySetRoomDatabase: RoomDatabase() {
     abstract fun userDao(): UserDao
@@ -67,7 +67,7 @@ abstract class DailySetRoomDatabase: RoomDatabase() {
 
         private const val TAG = "DailySetRoomDatabase"
 
-        const val currentVersion = 5
+        const val currentVersion = 7
 
         fun getDatabase(context: Context, scope: CoroutineScope): DailySetRoomDatabase {
             return INSTANCE ?: synchronized(this) {

@@ -30,7 +30,7 @@ data class DailyNode(
      * the unique uid
      */
     @PrimaryKey
-    val uid: String = "",
+    val dailyNodeUid: String = "",
 
     val serialIndex: Int = 0,
     /**

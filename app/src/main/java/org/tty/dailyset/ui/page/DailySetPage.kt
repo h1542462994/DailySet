@@ -2,8 +2,6 @@ package org.tty.dailyset.ui.page
 
 import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -25,7 +23,6 @@ import org.tty.dailyset.model.lifetime.dailyset.DailySetCreateState
 import org.tty.dailyset.ui.component.ProfileMenuItem
 import org.tty.dailyset.ui.component.TitleSpace
 import org.tty.dailyset.ui.image.ImageResource
-import org.tty.dailyset.ui.utils.StatusBarToBackground
 import java.util.*
 
 @ExperimentalFoundationApi
@@ -68,7 +65,7 @@ fun DailySetPage() {
             DailySetAutoPart()
             DailySetUserPart(dailySets) {
                 // change the current dailySet uid to selected
-                mainViewModel.currentDailySetUid.postValue(it.uid)
+                mainViewModel.currentDailySetUid.postValue(it.dailySetUid)
                 // changed the target page
                 when(it.type) {
                     DailySetType.Normal -> {

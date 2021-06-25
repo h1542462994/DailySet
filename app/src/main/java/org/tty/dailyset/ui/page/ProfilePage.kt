@@ -1,7 +1,5 @@
 package org.tty.dailyset.ui.page
 
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -53,7 +51,7 @@ fun ProfileMenuGroupUser(user: User?) {
     val display = if (user == null) {
         "(null)"
     } else {
-        "${user.nickName} ${user.uid}"
+        "${user.nickName} ${user.userUid}"
     }
     ProfileMenuGroup(title = stringResource(id = R.string.user)) {
         ProfileMenuItem(icon = ImageResource.user(), useTint = true, title = display, content = "本地账户", next = true)

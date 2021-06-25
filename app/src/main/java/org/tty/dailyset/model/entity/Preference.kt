@@ -2,7 +2,6 @@ package org.tty.dailyset.model.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.util.*
 
 /**
  * 保存关键配置和用户的个性化配置
@@ -10,7 +9,7 @@ import java.util.*
 @Entity(tableName = "preference")
 data class Preference(
     @PrimaryKey
-    var name: String,
+    var preferenceKey: String,
     var useDefault: Boolean,
     var value: String
 ) {
@@ -41,6 +40,6 @@ data class Preference(
     }
 
     override fun toString(): String {
-        return "($name, $useDefault, $value)"
+        return "($preferenceKey, $useDefault, $value)"
     }
 }

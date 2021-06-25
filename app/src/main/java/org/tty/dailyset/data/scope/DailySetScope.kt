@@ -5,9 +5,8 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import org.tty.dailyset.model.entity.DailyDuration
-import org.tty.dailyset.model.entity.DailySet
-import org.tty.dailyset.model.entity.DailySetType
+import org.tty.dailyset.model.entity.*
+import org.tty.dailyset.model.lifetime.dailyset.ClazzDailyDurationCreateState
 import org.tty.dailyset.model.lifetime.dailyset.DailySetCreateState
 
 interface DailySetScope: PreferenceScope, UserScope {
@@ -24,9 +23,19 @@ interface DailySetScope: PreferenceScope, UserScope {
      * the data entry for current dailySet.
      */
     @Composable
+    @Deprecated("use currentDailySetDurations instead.", level = DeprecationLevel.ERROR)
     fun currentDailySet(): State<DailySet> {
         val mainViewModel = mainViewModel()
         return mainViewModel.currentDailySet.observeAsState(initial = DailySet.empty())
+    }
+
+    /**
+     * the data entry for current dailySet and durations.
+     */
+    @Composable
+    fun currentDailySetDurations(): State<DailySetDurations> {
+        val mainViewModel = mainViewModel()
+        return mainViewModel.currentDailySetDurations.observeAsState(initial = DailySetDurations.empty())
     }
 
     /**
@@ -61,6 +70,38 @@ interface DailySetScope: PreferenceScope, UserScope {
             },
             name = remember {
                 mutableStateOf("")
+            }
+        )
+    }
+
+    /**
+     * create a state represents clazzDailyDurationCreate dialog
+     */
+    @Composable
+    fun clazzDailyDurationCreateState(
+        initDialogOpen: Boolean = false
+    ): ClazzDailyDurationCreateState {
+        return ClazzDailyDurationCreateState(
+            dialogOpen = remember {
+                mutableStateOf(initDialogOpen)
+            },
+            sourceUid = remember {
+                mutableStateOf(null)
+            },
+            startDate = remember {
+                mutableStateOf(null)
+            },
+            endDate = remember {
+                mutableStateOf(null)
+            },
+            weekCount = remember {
+                mutableStateOf(null)
+            },
+            name = remember {
+                mutableStateOf("")
+            },
+            periodCode = remember {
+                mutableStateOf(PeriodCode.UnSpecified)
             }
         )
     }

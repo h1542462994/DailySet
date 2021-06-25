@@ -173,7 +173,7 @@ class DailyTableState2(
 
 
     companion object {
-        fun default(): DailyTableState2 = DailyTableState2(DailyTRC.default(), User.default().uid)
+        fun default(): DailyTableState2 = DailyTableState2(DailyTRC.default(), User.default().userUid)
         fun of(dailyTRC: DailyTRC, currentUserUid: String?): DailyTableState2 =
             DailyTableState2(dailyTRC, currentUserUid)
     }

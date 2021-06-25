@@ -170,4 +170,9 @@ object ImageResource {
     fun shift_round(): Painter {
         return painterResource(id = R.drawable.ic_shift_round_24)
     }
+
+    @Composable
+    fun shift(): Painter {
+        return painterResource(id = R.drawable.ic_shift_24)
+    }
 }

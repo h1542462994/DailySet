@@ -21,12 +21,12 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
     suspend fun update(dailyTable: DailyTable)
 
     @Transaction
-    @Query("SELECT * FROM daily_table WHERE uid = :uid LIMIT 1")
+    @Query("SELECT * FROM daily_table WHERE dailyTableUid = :uid LIMIT 1")
     @Deprecated("use load")
     fun get(uid: String): DailyTRC?
 
     @Transaction
-    @Query("SELECT * FROM daily_table WHERE uid = :uid LIMIT 1")
+    @Query("SELECT * FROM daily_table WHERE dailyTableUid = :uid LIMIT 1")
     fun load(uid: String): Flow<DailyTRC?>
 
     fun loadSorted(uid: String): Flow<DailyTRC?> {
@@ -61,7 +61,7 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
         val (name, cloneFrom, uid, referenceUid) = dailyTableCreateEventArgs
         val newDailyTable = cloneFrom.dailyTable.copy(
             name = name,
-            uid = uid,
+            dailyTableUid = uid,
             referenceUid = referenceUid,
             updateAt = localTimestampNow(),
             global = false
@@ -69,16 +69,16 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
         update(newDailyTable)
         cloneFrom.dailyRCs.forEach { dailyRC ->
             val newDailyRow = dailyRC.dailyRow.copy(
-                uid = UUID.randomUUID().toString(),
+                dailyRowUid = UUID.randomUUID().toString(),
                 updateAt = localTimestampNow(),
                 dailyTableUid = uid
             )
             update(newDailyRow)
             dailyRC.dailyCells.forEach { dailyCell ->
                 val newDailyCell = dailyCell.copy(
-                    uid = UUID.randomUUID().toString(),
+                    dailyCellUid = UUID.randomUUID().toString(),
                     updateAt = localTimestampNow(),
-                    dailyRowUid = newDailyRow.uid
+                    dailyRowUid = newDailyRow.dailyRowUid
                 )
                 update(newDailyCell)
             }
@@ -120,14 +120,14 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
         val currentIndex = dailyTRC.dailyRCs.count()
         val newDailyRC = DailyRC(
             dailyRow = copyFrom.dailyRow.copy(
-                uid = dailyRowUid,
+                dailyRowUid = dailyRowUid,
                 currentIndex = currentIndex,
                 weekdays = weekDays,
                 updateAt = localTimestampNow()
             ),
             dailyCells = copyFrom.dailyCells.map {
                 it.copy(
-                    uid = UUID.randomUUID().toString(),
+                    dailyCellUid = UUID.randomUUID().toString(),
                     dailyRowUid = dailyRowUid,
                     updateAt = localTimestampNow()
                 )
@@ -313,13 +313,13 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
                     val start = last.end.plus(10, ChronoUnit.MINUTES)
                     val end = start.plus(45, ChronoUnit.MINUTES)
                     val newDailyCell = DailyCell(
-                        uid = UUID.randomUUID().toString(),
+                        dailyCellUid = UUID.randomUUID().toString(),
                         currentIndex = startIndex + i,
                         serialIndex = i,
                         start = start,
                         end = end,
                         normalType = normalType,
-                        dailyRowUid = dailyRC.dailyRow.uid,
+                        dailyRowUid = dailyRC.dailyRow.dailyRowUid,
                         updateAt = localTimestampNow()
                     )
                     update(dailyCell = newDailyCell)

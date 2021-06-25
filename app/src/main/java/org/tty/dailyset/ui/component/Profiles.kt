@@ -15,9 +15,12 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.tty.dailyset.R
+import org.tty.dailyset.ui.image.ImageResource
 import org.tty.dailyset.ui.theme.LocalPalette
 
 /**
@@ -286,6 +289,54 @@ fun IconText(imageVector: ImageVector, text: String) {
         Text(
             modifier = Modifier.align(alignment = Alignment.CenterVertically),
             text = text, color = LocalPalette.current.primary
+        )
+    }
+}
+
+/**
+ * icon and text
+ */
+@Composable
+fun IconText(
+    painter: Painter,
+    scale: Float = 1.0f,
+    useTint: Boolean = false,
+    text: String,
+    onClick: (() -> Unit)? = null
+) {
+    val modifier = if (onClick == null) {
+        Modifier.Companion
+    } else {
+        Modifier
+            .clickable { onClick() }
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+    }
+
+    Row(
+        modifier = modifier
+    ) {
+        val color = if (useTint) {
+            LocalPalette.current.primary
+        } else {
+            Color.Unspecified
+        }
+
+        Icon(
+            painter = painter,
+            modifier = Modifier
+                .padding(end = 8.dp)
+                .scale(scale)
+                .align(alignment = Alignment.CenterVertically),
+            contentDescription = null,
+            tint = color
+        )
+        Text(
+            text = text,
+            modifier = Modifier
+                .align(alignment = Alignment.CenterVertically),
+            color = LocalPalette.current.primary,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Medium
         )
     }
 }

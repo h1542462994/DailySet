@@ -12,7 +12,7 @@ interface UserDao {
     @Query("SELECT * FROM USER")
     fun all(): Flow<List<User>>
 
-    @Query("SELECT * FROM USER WHERE uid = :uid LIMIT 1")
+    @Query("SELECT * FROM USER WHERE userUid = :uid LIMIT 1")
     fun load(uid: String): Flow<User?>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
