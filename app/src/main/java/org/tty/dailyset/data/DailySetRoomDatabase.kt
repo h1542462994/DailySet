@@ -23,6 +23,7 @@ abstract class DailySetRoomDatabase: RoomDatabase() {
     abstract fun dailyRowDao(): DailyRowDao
     abstract fun dailyCellDao(): DailyCellDao
     abstract fun dailySetDao(): DailySetDao
+    abstract fun dailyDurationDao(): DailyDurationDao
 
     private class DailySetDatabaseCallBack(
         private val scope: CoroutineScope

@@ -26,7 +26,7 @@ data class DailyDuration(
      * the unique uid.
      */
     @PrimaryKey
-    val dailyDurationUid: String = "",
+    val uid: String = "",
     /**
      * the owner uid
      */
@@ -35,12 +35,12 @@ data class DailyDuration(
     /**
      * the startDate
      */
-    val startDate: LocalDate = LocalDate.from(Instant.EPOCH),
+    val startDate: LocalDate = LocalDate.ofEpochDay(0),
 
     /**
      * the endDate
      */
-    val endDate: LocalDate = LocalDate.from(Instant.EPOCH),
+    val endDate: LocalDate = LocalDate.ofEpochDay(0),
     /**
      * the displayName
      */
@@ -60,5 +60,11 @@ data class DailyDuration(
     /**
      * the update timestamp
      */
-    val updateAt: Timestamp
-)
+    val updateAt: Timestamp = Timestamp(0)
+) {
+    companion object {
+        fun empty(): DailyDuration {
+            return DailyDuration(updateAt = Timestamp(0))
+        }
+    }
+}

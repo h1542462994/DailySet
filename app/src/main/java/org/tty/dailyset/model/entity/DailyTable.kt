@@ -10,7 +10,7 @@ import java.sql.Timestamp
 @TypeConverters(LongTimeStampConverter::class)
 data class DailyTable(
     @PrimaryKey
-    var dailyTableUid: String,
+    var uid: String,
     var name: String,
     var global: Boolean,
     var referenceUid: String,
@@ -21,7 +21,7 @@ data class DailyTable(
 
         fun default(): DailyTable {
             return DailyTable(
-                dailyTableUid = default,
+                uid = default,
                 name = "系统默认",
                 global = true,
                 referenceUid = User.system,

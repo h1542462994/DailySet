@@ -117,7 +117,7 @@ fun DailyTablePage() {
                     onBefore = {},
                     onCompletion = {
                         dailyTableAddRowState.dialogOpen.value = false
-                        mainViewModel.currentDailyTableUid.postValue(currentDailyTRC.dailyTable.dailyTableUid)
+                        mainViewModel.currentDailyTableUid.postValue(currentDailyTRC.dailyTable.uid)
                     }
                 )
             }
@@ -206,7 +206,7 @@ fun DailyTablePage() {
                 ) { dailyTable ->
                     // TODO: 2021/4/7 优化代码
                     scrollToTop()
-                    mainViewModel.currentDailyTableUid.value = dailyTable.dailyTableUid
+                    mainViewModel.currentDailyTableUid.value = dailyTable.uid
 
                     dropDownTitleOpenState.value = false
                 }

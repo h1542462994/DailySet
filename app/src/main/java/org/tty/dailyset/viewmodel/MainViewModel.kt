@@ -85,6 +85,8 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
 
     //region dailySet scope
     val dailySets = service.dailySetRepository.dailySets.asLiveData()
+    val normalDailyDurations = service.dailySetRepository.normalDailyDurations.asLiveData()
+    val clazzDailyDurations = service.dailySetRepository.clazzDailyDurations.asLiveData()
 
     val currentDailySetUid = MutableLiveData("")
     @Deprecated("use currentDailySetDurationsLiveData instead.")
@@ -93,6 +95,7 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
     val currentDailySet = MutableLiveData(DailySet.empty())
     val currentDailySetDurationsLiveData = MutableLiveData<LiveData<DailySetDurations?>>()
     val currentDailySetDurations = MutableLiveData(DailySetDurations.empty())
+
 
     private fun registerDailySetHook() {
         currentDailySetUid.observeForever {

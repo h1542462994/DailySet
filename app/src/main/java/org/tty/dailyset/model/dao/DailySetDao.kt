@@ -30,10 +30,10 @@ interface DailySetDao: DailySetProcessor2Async {
     @Query("select * from daily_set")
     fun all(): Flow<List<DailySet>>
 
-    @Query("select * from daily_set where dailySetUid = :dailySetUid")
+    @Query("select * from daily_set where uid = :dailySetUid")
     fun load(dailySetUid: String): Flow<DailySet?>
 
-    @Query("select * from daily_set where dailySetUid = :dailySetUid")
+    @Query("select * from daily_set where uid = :dailySetUid")
     fun loadDetail(dailySetUid: String): Flow<DailySetDurations?>
 
     @Transaction
@@ -44,7 +44,7 @@ interface DailySetDao: DailySetProcessor2Async {
         val dailySet = DailySet(
             type = type,
             icon = icon,
-            dailySetUid = uid,
+            uid = uid,
             serialIndex = serialIndex,
             ownerUid = ownerUid,
             name = dailySetName,

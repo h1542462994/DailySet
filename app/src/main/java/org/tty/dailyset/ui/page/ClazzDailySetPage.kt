@@ -22,9 +22,11 @@ import org.tty.dailyset.LocalNav
 import org.tty.dailyset.R
 import org.tty.dailyset.data.scope.DataScope
 import org.tty.dailyset.model.entity.DailyDuration
+import org.tty.dailyset.model.entity.DailyDurationType
 import org.tty.dailyset.model.entity.DailySet
 import org.tty.dailyset.model.entity.toImageResource
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailyDurationCreateState
+import org.tty.dailyset.ui.component.DatePicker
 import org.tty.dailyset.ui.component.IconText
 import org.tty.dailyset.ui.component.TopBar
 import org.tty.dailyset.ui.image.ImageResource
@@ -43,6 +45,11 @@ fun ClazzDailySetPage() {
         val mainViewModel = mainViewModel()
         val service = mainViewModel.service
         val dailySetDurations by currentDailySetDurations()
+
+        /**
+         * not include dailyDurations current.
+         */
+        val notIncludedDailyDurations by currentNotIncludedDurations(type = DailyDurationType.Clazz)
 
         //region dialogStates
         val clazzDailyDurationCreateState = clazzDailyDurationCreateState()
@@ -64,8 +71,14 @@ fun ClazzDailySetPage() {
         }
 
         ClazzDailySetClazzDurationCreateDialogCover(
-            clazzDailyDurationCreateState = clazzDailyDurationCreateState
+            clazzDailyDurationCreateState = clazzDailyDurationCreateState,
+            notIncludedDailyDurations = notIncludedDailyDurations,
         )
+
+        DatePicker(onDateSelected = { /*TODO*/ }) {
+
+
+        }
     }
 
 }

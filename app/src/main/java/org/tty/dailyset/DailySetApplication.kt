@@ -26,7 +26,8 @@ class DailySetApplication: Application() {
     }
     val dailySetRepository by lazy {
         DailySetRepository(
-            database.dailySetDao()
+            database.dailySetDao(),
+            database.dailyDurationDao()
         )
     }
 }

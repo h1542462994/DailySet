@@ -1,13 +1,11 @@
 package org.tty.dailyset.data.scope
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import org.tty.dailyset.model.entity.*
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailyDurationCreateState
 import org.tty.dailyset.model.lifetime.dailyset.DailySetCreateState
+import java.util.function.Predicate
 
 interface DailySetScope: PreferenceScope, UserScope {
     /**
@@ -36,6 +34,45 @@ interface DailySetScope: PreferenceScope, UserScope {
     fun currentDailySetDurations(): State<DailySetDurations> {
         val mainViewModel = mainViewModel()
         return mainViewModel.currentDailySetDurations.observeAsState(initial = DailySetDurations.empty())
+    }
+
+    /**
+     * the data entry for not included durations.
+     */
+    @Composable
+    fun currentNotIncludedDurations(type: DailyDurationType): State<List<DailyDuration>> {
+        val mainViewModel = mainViewModel()
+        val dailySetDurations by currentDailySetDurations()
+        val durations = dailySetDurations.durations
+        return if (type == DailyDurationType.Clazz) {
+            val clazzDurations by clazzDailyDurations()
+            derivedStateOf {
+                durations.subtract(clazzDurations).toList()
+            }
+        } else {
+            val normalDurations by normalDailyDurations()
+            derivedStateOf {
+                durations.subtract(normalDurations).toList()
+            }
+        }
+    }
+
+    /**
+     * the data entry for normal dailyDurations
+     */
+    @Composable
+    fun normalDailyDurations(): State<List<DailyDuration>> {
+        val mainViewModel = mainViewModel()
+        return mainViewModel.normalDailyDurations.observeAsState(initial = listOf())
+    }
+
+    /**
+     * the data entry for clazz dailyDurations
+     */
+    @Composable
+    fun clazzDailyDurations(): State<List<DailyDuration>> {
+        val mainViewModel = mainViewModel()
+        return mainViewModel.clazzDailyDurations.observeAsState(initial = listOf())
     }
 
     /**

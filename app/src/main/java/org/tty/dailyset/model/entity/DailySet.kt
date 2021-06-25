@@ -28,7 +28,7 @@ data class DailySet(
      * the unique uid.
      */
     @PrimaryKey
-    val dailySetUid: String = "",
+    val uid: String = "",
 
     val serialIndex: Int = 0,
 
@@ -52,7 +52,7 @@ data class DailySet(
             return DailySet(
                 type = DailySetType.Normal,
                 icon = null,
-                dailySetUid = User.system,
+                uid = User.system,
                 serialIndex = 0,
                 ownerUid = User.system,
                 name = "",

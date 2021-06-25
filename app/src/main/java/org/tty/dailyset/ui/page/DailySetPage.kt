@@ -65,7 +65,7 @@ fun DailySetPage() {
             DailySetAutoPart()
             DailySetUserPart(dailySets) {
                 // change the current dailySet uid to selected
-                mainViewModel.currentDailySetUid.postValue(it.dailySetUid)
+                mainViewModel.currentDailySetUid.postValue(it.uid)
                 // changed the target page
                 when(it.type) {
                     DailySetType.Normal -> {
