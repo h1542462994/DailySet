@@ -30,5 +30,13 @@ data class DailySetBinding(
      */
     val bindingDailyTableUid: String = "",
     val updateAt: Timestamp,
-)
+) {
+    companion object {
+        fun empty(): DailySetBinding {
+            return DailySetBinding(
+                updateAt = Timestamp(0)
+            )
+        }
+    }
+}
 

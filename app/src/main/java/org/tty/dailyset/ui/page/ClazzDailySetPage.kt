@@ -27,11 +27,17 @@ import org.tty.dailyset.event.DailySetCreateDurationAndBindingEventArgs
 import org.tty.dailyset.event.DailySetEventType
 import org.tty.dailyset.model.entity.*
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailyDurationCreateState
+import org.tty.dailyset.model.lifetime.dailyset.ClazzDailySetCursor
+import org.tty.dailyset.model.lifetime.dailyset.ClazzDailySetState
+import org.tty.dailyset.model.lifetime.dailytable.DailyTableCalc
+import org.tty.dailyset.model.lifetime.dailytable.DailyTablePreviewState
 import org.tty.dailyset.ui.component.IconText
 import org.tty.dailyset.ui.component.TopBar
 import org.tty.dailyset.ui.image.ImageResource
 import org.tty.dailyset.ui.theme.LocalPalette
 import org.tty.dailyset.ui.utils.StatusBarToBackground1
+import org.tty.dailyset.ui.utils.measuredWidth
+import org.tty.dailyset.ui.utils.toPx
 import java.time.LocalDate
 import java.util.*
 
@@ -46,9 +52,14 @@ fun ClazzDailySetPage() {
     with(DataScope) {
         val mainViewModel = mainViewModel()
         val service = mainViewModel.service
-        val dailySetDurations by currentDailySetDurations()
+        //val dailySetDurations by currentDailySetDurations()
         val dailyTableSummaries by dailyTableSummaries()
         val userState by currentUserState()
+        val clazzDailySetState by currentClazzDailySetState()
+
+        LaunchedEffect(key1 = clazzDailySetState, block = {
+            Log.d("ClazzDailySetPage", clazzDailySetState.toString())
+        })
 
         /**
          * not include dailyDurations current.
@@ -76,7 +87,7 @@ fun ClazzDailySetPage() {
                 val uuid = uid ?: UUID.randomUUID().toString()
                 performProcess(service, DailySetEventType.CreateDurationAndBinding, DailySetCreateDurationAndBindingEventArgs(
                     dailyDurationUid = uuid,
-                    dailySetUid = dailySetDurations.dailySet.uid,
+                    dailySetUid = clazzDailySetState.dailySet.uid,
                     name = name,
                     ownerUid = userState.currentUserUid,
                     startDate = startDate,
@@ -104,15 +115,17 @@ fun ClazzDailySetPage() {
         val nav = LocalNav.current
 
         Column {
-            ClazzDailySetAppBar(dailySet = dailySetDurations.dailySet, onBack = nav.action.upPress)
+            ClazzDailySetAppBar(dailySet = clazzDailySetState.dailySet, dailyDuration = clazzDailySetState.currentDailyDuration, onBack = nav.action.upPress)
             Column(
                 modifier = Modifier.weight(1f)
             ) {
-                ClazzDailySetCenter(dailyDurations = dailySetDurations.durations)
+                ClazzDailySetCenter(clazzDailySetState = clazzDailySetState)
             }
+            val cursor = clazzDailySetState.cursor
             ClazzDailySetBottom(
-                dailyDurations = dailySetDurations.durations,
+                dailyDurations = clazzDailySetState.durations,
                 clazzDailyDurationCreateState = clazzDailyDurationCreateState,
+                clazzDailySetCursor = cursor
             )
         }
 
@@ -131,7 +144,7 @@ fun ClazzDailySetPage() {
  * clazz dailySetPage .appBar
  */
 @Composable
-fun ClazzDailySetAppBar(dailySet: DailySet, onBack: () -> Unit) {
+fun ClazzDailySetAppBar(dailySet: DailySet, dailyDuration: DailyDuration?, onBack: () -> Unit) {
 
     @Composable
     fun titleArea(dailySet: DailySet) {
@@ -153,12 +166,28 @@ fun ClazzDailySetAppBar(dailySet: DailySet, onBack: () -> Unit) {
                     Color.Unspecified
                 }
             )
-            Text(
-                text = dailySet.name,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.align(alignment = Alignment.CenterVertically)
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .wrapContentSize(align = Alignment.CenterStart)
+            ) {
+                Text(
+                    text = dailySet.name,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+                if (dailyDuration != null) {
+                    Text(
+                        text = dailyDuration.name,
+                        color = LocalPalette.current.sub,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Normal
+                    )
+
+                }
+            }
+
+
         }
     }
 
@@ -166,8 +195,10 @@ fun ClazzDailySetAppBar(dailySet: DailySet, onBack: () -> Unit) {
 }
 
 @Composable
-fun ClazzDailySetCenter(dailyDurations: List<DailyDuration>) {
-    if (dailyDurations.isEmpty()) {
+fun ClazzDailySetCenter(
+    clazzDailySetState: ClazzDailySetState
+) {
+    if (clazzDailySetState.durations.isEmpty()) {
         BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
@@ -180,15 +211,28 @@ fun ClazzDailySetCenter(dailyDurations: List<DailyDuration>) {
             )
         }
     } else {
+        val measuredWidth = measuredWidth()
+        val unit = toPx(dp = 25.dp)
+
+        val dailyTableCalc = DailyTableCalc(
+            dailyTRC = clazzDailySetState.dailyTableState2.dailyTRC,
+            measuredWidth = measuredWidth,
+            unit = unit
+        )
+
+        val dailyTablePreviewState = clazzDailySetState.previewState
+
         // TODO: 2021/6/24 完成实现
-        Text("hello world")
+        DailyTablePreviewHeader(dailyTableCalc = dailyTableCalc, dailyTablePreviewState = dailyTablePreviewState)
+        DailyTablePreviewBody(dailyTableCalc = dailyTableCalc, dailyTablePreviewState = dailyTablePreviewState)
     }
 }
 
 @Composable
 fun ClazzDailySetBottom(
     dailyDurations: List<DailyDuration>,
-    clazzDailyDurationCreateState: ClazzDailyDurationCreateState
+    clazzDailyDurationCreateState: ClazzDailyDurationCreateState,
+    clazzDailySetCursor: ClazzDailySetCursor?
 ) {
     Surface(
         elevation = BottomNavigationDefaults.Elevation,
@@ -223,7 +267,7 @@ fun ClazzDailySetBottom(
                         .wrapContentSize(align = Alignment.Center)
                         .weight(1f)
                 ) {
-                    ClazzDailySetBottomShiftButton()
+                    ClazzDailySetBottomShiftButton(clazzDailySetCursor!!)
                 }
                 ClazzDailySetBottomShiftRightAddIcon(
                     clazzDailyDurationCreateState = clazzDailyDurationCreateState
@@ -255,8 +299,10 @@ fun ClazzDailySetBottomAddButton(
 }
 
 @Composable
-fun ClazzDailySetBottomShiftButton() {
-    IconText(painter = ImageResource.shift(), scale = 0.8f, text = "第8周") {
+fun ClazzDailySetBottomShiftButton(
+    clazzDailySetCursor: ClazzDailySetCursor
+) {
+    IconText(painter = ImageResource.shift(), scale = 0.8f, text = "第${clazzDailySetCursor.index + 1}周") {
         // TODO: 2021/6/25 添加处理逻辑.
     }
 }

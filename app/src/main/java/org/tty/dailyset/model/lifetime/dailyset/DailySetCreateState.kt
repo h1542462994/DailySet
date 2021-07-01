@@ -5,6 +5,9 @@ import org.tty.dailyset.model.entity.DailySetIcon
 import org.tty.dailyset.model.entity.DailySetType
 import org.tty.dailyset.model.lifetime.DialogState
 
+/**
+ * the state for dialog to create a dailySet.
+ */
 class DailySetCreateState(
     override val dialogOpen: MutableState<Boolean>,
     val selectIcon: MutableState<Boolean>,

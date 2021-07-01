@@ -5,6 +5,7 @@ import androidx.lifecycle.*
 import kotlinx.coroutines.launch
 import org.tty.dailyset.DailySetApplication
 import org.tty.dailyset.model.entity.*
+import org.tty.dailyset.model.lifetime.dailyset.ClazzDailySetCursor
 import org.tty.dailyset.model.lifetime.dailytable.DailyTableState2
 import org.tty.dailyset.ui.page.MainPageTabs
 
@@ -96,6 +97,17 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
     val currentDailySetDurationsLiveData = MutableLiveData<LiveData<DailySetDurations?>>()
     val currentDailySetDurations = MutableLiveData(DailySetDurations.empty())
 
+    /**
+     * the cache for clazzDailySetCursorCache
+     */
+    val clazzDailySetCursorCache = HashMap<String, ClazzDailySetCursor>()
+    val currentDailySetBindingKey = MutableLiveData<Pair<String, String>>()
+    val currentDailySetBindingLiveData = MutableLiveData<LiveData<DailySetBinding?>>()
+    val currentDailySetBinding = MutableLiveData(DailySetBinding.empty())
+    var currentDailyTRCBinding = MutableLiveData<LiveData<DailyTRC?>>()
+        internal set
+    var currentDailyTableState2Binding = MutableLiveData(DailyTableState2.default())
+        internal set
 
     private fun registerDailySetHook() {
         currentDailySetUid.observeForever {
@@ -121,14 +133,56 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
                 }
             }
         }
+
+        currentDailySetBindingKey.observeForever {
+            Log.d(TAG, "currentDailySetBindingKey changed to $it")
+            postCurrentDailySetBindingLiveData(it)
+        }
+
+        currentDailySetBindingLiveData.observeForever {
+            Log.d(TAG, "currentDailySetBindingLiveData changed to ${it.value}")
+            it.observeForever { it2 ->
+                Log.d(TAG, "currentDailySetBinding changed to $it2")
+                if (it2 != null) {
+                    postCurrentDailySetBinding(it2)
+                }
+            }
+        }
+
+        currentDailySetBinding.observeForever {
+            Log.d(TAG, "currentDailySetBinding changed to $it")
+            postCurrentDailyTRCBinding(it.bindingDailyTableUid)
+        }
+
+        currentDailyTRCBinding.observeForever {
+            Log.d(TAG, "currentDailyTRCBinding.livedata changed to ${it.value}")
+            // 标记，仅允许在currentDailyTRC改变后重写一次。
+            var oneTick = true
+            it.observeForever { it2 ->
+                // 在这里设置了拦截，奇怪的是，it2会在数据库修改阶段变为DailyTRC.default()
+                if (oneTick || it2 != DailyTRC.default()) {
+                    Log.d(TAG, "currentDailyTRCBinding changed to $it2")
+                    if (it2 != null) {
+                        // TODO: 2021/6/24 hook to user.
+                        postCurrentDailyTableState2Binding(dailyTRC = it2, currentUserUid = currentUserUid.value)
+                    }
+                    oneTick = false
+                }
+            }
+        }
+        currentDailyTableState2Binding.observeForever {
+            Log.d(TAG, "currentDailyTableState2Binding changed to $it")
+        }
     }
 
+    @Deprecated("use postCurrentDailySetDurationsLiveData instead.")
     private fun postCurrentDailySetLiveData(dailySetUid: String) {
         currentDailySetLiveData.postValue(
             service.dailySetRepository.loadDailySet(dailySetUid).asLiveData()
         )
     }
 
+    @Deprecated("use postCurrentDailySetDurations instead.")
     private fun postCurrentDailySet(dailySet: DailySet) {
         currentDailySet.postValue(
             dailySet
@@ -147,7 +201,30 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
         )
     }
 
+    private fun postCurrentDailySetBindingLiveData(key: Pair<String, String>) {
+        currentDailySetBindingLiveData.postValue(
+            service.dailySetRepository.loadDailySetBinding(
+                dailySetUid = key.first,
+                dailyDurationUid = key.second
+            ).asLiveData()
+        )
+    }
 
+    private fun postCurrentDailySetBinding(dailySetBinding: DailySetBinding) {
+        currentDailySetBinding.postValue(
+            dailySetBinding
+        )
+    }
+
+    private fun postCurrentDailyTRCBinding(dailyTableUid: String) {
+        currentDailyTRCBinding.postValue(
+            service.dailyTableRepository.loadDailyTRC(dailyTableUid).asLiveData()
+        )
+    }
+
+    private fun postCurrentDailyTableState2Binding(dailyTRC: DailyTRC, currentUserUid: String?) {
+        currentDailyTableState2Binding.postValue(DailyTableState2.of(dailyTRC = dailyTRC, currentUserUid))
+    }
 
     //endregion
 
