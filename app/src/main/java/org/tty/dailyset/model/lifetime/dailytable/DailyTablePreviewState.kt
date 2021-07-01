@@ -13,9 +13,9 @@ class DailyTablePreviewState(
      */
     val startDate: LocalDate,
     /**
-     * the start date of this week.
+     * the weekday of now, if null, mean today is not in current week.
      */
-    val weekDayNow: Int,
+    val weekDayNow: Int?,
     private val _weedDayCurrent: MutableState<Int>
 ){
     /**

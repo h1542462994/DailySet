@@ -30,9 +30,10 @@ import org.tty.dailyset.model.lifetime.dailyset.ClazzDailyDurationCreateState
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailySetCursor
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailySetState
 import org.tty.dailyset.model.lifetime.dailytable.DailyTableCalc
-import org.tty.dailyset.model.lifetime.dailytable.DailyTablePreviewState
+import org.tty.dailyset.ui.component.IconClick
 import org.tty.dailyset.ui.component.IconText
 import org.tty.dailyset.ui.component.TopBar
+import org.tty.dailyset.ui.component.ViewPager
 import org.tty.dailyset.ui.image.ImageResource
 import org.tty.dailyset.ui.theme.LocalPalette
 import org.tty.dailyset.ui.utils.StatusBarToBackground1
@@ -55,6 +56,12 @@ fun ClazzDailySetPage() {
         //val dailySetDurations by currentDailySetDurations()
         val dailyTableSummaries by dailyTableSummaries()
         val userState by currentUserState()
+
+        val clazzDailySetState2 by currentClazzDailySetState2()
+        mainViewModel.currentClazzDailySetState.postValue(
+            clazzDailySetState2
+        )
+
         val clazzDailySetState by currentClazzDailySetState()
 
         LaunchedEffect(key1 = clazzDailySetState, block = {
@@ -125,7 +132,7 @@ fun ClazzDailySetPage() {
             ClazzDailySetBottom(
                 dailyDurations = clazzDailySetState.durations,
                 clazzDailyDurationCreateState = clazzDailyDurationCreateState,
-                clazzDailySetCursor = cursor
+                clazzDailySetState = clazzDailySetState
             )
         }
 
@@ -219,12 +226,10 @@ fun ClazzDailySetCenter(
             measuredWidth = measuredWidth,
             unit = unit
         )
+        val previewState = clazzDailySetState.previewState
 
-        val dailyTablePreviewState = clazzDailySetState.previewState
-
-        // TODO: 2021/6/24 完成实现
-        DailyTablePreviewHeader(dailyTableCalc = dailyTableCalc, dailyTablePreviewState = dailyTablePreviewState)
-        DailyTablePreviewBody(dailyTableCalc = dailyTableCalc, dailyTablePreviewState = dailyTablePreviewState)
+        DailyTablePreviewHeader(dailyTableCalc = dailyTableCalc, dailyTablePreviewState = previewState)
+        DailyTablePreviewBody(dailyTableCalc = dailyTableCalc, dailyTablePreviewState = previewState)
     }
 }
 
@@ -232,7 +237,7 @@ fun ClazzDailySetCenter(
 fun ClazzDailySetBottom(
     dailyDurations: List<DailyDuration>,
     clazzDailyDurationCreateState: ClazzDailyDurationCreateState,
-    clazzDailySetCursor: ClazzDailySetCursor?
+    clazzDailySetState: ClazzDailySetState
 ) {
     Surface(
         elevation = BottomNavigationDefaults.Elevation,
@@ -267,7 +272,7 @@ fun ClazzDailySetBottom(
                         .wrapContentSize(align = Alignment.Center)
                         .weight(1f)
                 ) {
-                    ClazzDailySetBottomShiftButton(clazzDailySetCursor!!)
+                    ClazzDailySetBottomShiftButton(clazzDailySetState)
                 }
                 ClazzDailySetBottomShiftRightAddIcon(
                     clazzDailyDurationCreateState = clazzDailyDurationCreateState
@@ -300,11 +305,35 @@ fun ClazzDailySetBottomAddButton(
 
 @Composable
 fun ClazzDailySetBottomShiftButton(
-    clazzDailySetCursor: ClazzDailySetCursor
+    clazzDailySetState: ClazzDailySetState
 ) {
-    IconText(painter = ImageResource.shift(), scale = 0.8f, text = "第${clazzDailySetCursor.index + 1}周") {
-        // TODO: 2021/6/25 添加处理逻辑.
+    Row(
+        modifier = Modifier
+            .wrapContentHeight(align = Alignment.CenterVertically)
+    ) {
+        // FIXME: 2021/7/2 出现点击UI层无法响应的问题，无法排查出原因.
+        if (clazzDailySetState.hasPrevCursor) {
+            IconClick(painter = ImageResource.left(), useTint = true) {
+                clazzDailySetState.toPrevCursor()
+            }
+        } else {
+            Spacer(modifier = Modifier.width(56.dp))
+        }
+
+        IconText(painter = ImageResource.shift(), scale = 0.8f, text = "第${clazzDailySetState.cursor!!.index + 1}周") {
+            // TODO: 2021/6/25 添加处理逻辑.
+        }
+
+        if (clazzDailySetState.hasNextCursor) {
+            IconClick(painter = ImageResource.right(), useTint = true) {
+                clazzDailySetState.toNextCursor()
+            }
+        } else {
+            Spacer(modifier = Modifier.width(56.dp))
+        }
+
     }
+
 }
 
 @Composable

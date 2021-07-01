@@ -175,4 +175,14 @@ object ImageResource {
     fun shift(): Painter {
         return painterResource(id = R.drawable.ic_shift_24)
     }
+
+    @Composable
+    fun left(): Painter {
+        return painterResource(id = R.drawable.ic_left_24)
+    }
+
+    @Composable
+    fun right(): Painter {
+        return painterResource(id = R.drawable.ic_right_24)
+    }
 }

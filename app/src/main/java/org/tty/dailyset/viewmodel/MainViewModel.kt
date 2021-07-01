@@ -1,11 +1,13 @@
 package org.tty.dailyset.viewmodel
 
 import android.util.Log
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.*
 import kotlinx.coroutines.launch
 import org.tty.dailyset.DailySetApplication
 import org.tty.dailyset.model.entity.*
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailySetCursor
+import org.tty.dailyset.model.lifetime.dailyset.ClazzDailySetState
 import org.tty.dailyset.model.lifetime.dailytable.DailyTableState2
 import org.tty.dailyset.ui.page.MainPageTabs
 
@@ -108,6 +110,7 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
         internal set
     var currentDailyTableState2Binding = MutableLiveData(DailyTableState2.default())
         internal set
+    var currentClazzDailySetState = MutableLiveData<ClazzDailySetState>()
 
     private fun registerDailySetHook() {
         currentDailySetUid.observeForever {
@@ -172,6 +175,9 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
         }
         currentDailyTableState2Binding.observeForever {
             Log.d(TAG, "currentDailyTableState2Binding changed to $it")
+            postCurrentClazzDailySetState(
+                ClazzDailySetState(currentDailySetDurations.value!!, clazzDailySetCursorCache, currentDailySetBinding.value!!, currentDailyTableState2Binding.value!!, this)
+            )
         }
     }
 
@@ -224,6 +230,10 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
 
     private fun postCurrentDailyTableState2Binding(dailyTRC: DailyTRC, currentUserUid: String?) {
         currentDailyTableState2Binding.postValue(DailyTableState2.of(dailyTRC = dailyTRC, currentUserUid))
+    }
+
+    private fun postCurrentClazzDailySetState(clazzDailySetState: ClazzDailySetState) {
+        currentClazzDailySetState.postValue(clazzDailySetState)
     }
 
     //endregion

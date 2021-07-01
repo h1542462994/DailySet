@@ -305,11 +305,13 @@ fun IconText(
     onClick: (() -> Unit)? = null
 ) {
     val modifier = if (onClick == null) {
-        Modifier.Companion
+        Modifier.wrapContentHeight(align = Alignment.CenterVertically)
     } else {
         Modifier
             .clickable { onClick() }
             .padding(horizontal = 16.dp, vertical = 8.dp)
+            .fillMaxHeight()
+            .wrapContentHeight(align = Alignment.CenterVertically)
     }
 
     Row(

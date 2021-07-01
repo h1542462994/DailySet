@@ -78,7 +78,7 @@ fun DailyTablePreviewHeader(dailyTableCalc: DailyTableCalc, dailyTablePreviewSta
         assert(canvasWidthDp == toDp(dailyTableCalc.measuredWidth))
         val canvasHeightDp = toDp(canvasHeight)
         val currentIndex = dailyTablePreviewState.weekDayCurrent - 1
-        val nowIndex= dailyTablePreviewState.weekDayNow - 1
+        val nowIndex= dailyTablePreviewState.weekDayNow?.minus(1)
 
         Canvas(
             modifier = Modifier.size(width = canvasWidthDp, height = canvasHeightDp)
@@ -97,6 +97,7 @@ fun DailyTablePreviewHeader(dailyTableCalc: DailyTableCalc, dailyTablePreviewSta
         fun createTextWeekDay(start: LocalDate, index: Int, value: String, style: Int = 0) {
             val dateString = start.plusDays(index.toLong()).toShortDateString()
             val color = if (style == 0) LocalPalette.current.sub else LocalPalette.current.primaryColor
+            val color2 = if (style == 0) LocalPalette.current.primary else LocalPalette.current.primaryColor
             val fontWeight = if (style == 0) FontWeight.Normal else FontWeight.Bold
 
             return Column(
@@ -115,15 +116,15 @@ fun DailyTablePreviewHeader(dailyTableCalc: DailyTableCalc, dailyTablePreviewSta
                 Text(
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                     text = value,
-                    fontSize = 12.sp,
+                    fontSize = 14.sp,
                     color = color,
                     fontWeight = fontWeight
                 )
                 Text(
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                     text = dateString,
-                    fontSize = 10.sp,
-                    color = color,
+                    fontSize = 12.sp,
+                    color = color2,
                     fontWeight = fontWeight
                 )
             }
@@ -198,7 +199,7 @@ fun DailyTablePreviewBody(dailyTableCalc: DailyTableCalc, dailyTablePreviewState
                                 .padding(bottom = 4.dp),
                             text = "${currentIndexOfDailyCell + 1}",
                             fontSize = 14.sp,
-                            color = palette.sub,
+                            color = palette.primary,
                             fontWeight = FontWeight.Bold
                         )
                         Text(

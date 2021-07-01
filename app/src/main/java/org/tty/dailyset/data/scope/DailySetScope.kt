@@ -42,13 +42,31 @@ interface DailySetScope: PreferenceScope, UserScope {
 
     @Composable
     fun currentClazzDailySetState(): State<ClazzDailySetState> {
+//        val currentDailySetDurations by currentDailySetDurations()
+//        val mainViewModel = mainViewModel()
+//        val dailySetCursorCache = mainViewModel.clazzDailySetCursorCache
+//        val dailySetBindingKey by mainViewModel.currentDailySetBindingKey.observeAsState()
+//        val dailySetBinding by mainViewModel.currentDailySetBinding.observeAsState(DailySetBinding.empty())
+//        val dailyTableState2 by mainViewModel.currentDailyTableState2Binding.observeAsState(
+//            DailyTableState2.default())
+//        return remember(currentDailySetDurations, dailySetBindingKey,
+//            dailySetCursorCache[currentDailySetDurations.dailySet.uid]) {
+//            mutableStateOf(ClazzDailySetState(currentDailySetDurations, dailySetCursorCache, dailySetBinding, dailyTableState2, mainViewModel))
+//        }
+        return mainViewModel().currentClazzDailySetState.observeAsState(ClazzDailySetState.empty())
+    }
+
+    @Composable
+    fun currentClazzDailySetState2(): State<ClazzDailySetState> {
         val currentDailySetDurations by currentDailySetDurations()
         val mainViewModel = mainViewModel()
         val dailySetCursorCache = mainViewModel.clazzDailySetCursorCache
+        val dailySetBindingKey by mainViewModel.currentDailySetBindingKey.observeAsState()
         val dailySetBinding by mainViewModel.currentDailySetBinding.observeAsState(DailySetBinding.empty())
         val dailyTableState2 by mainViewModel.currentDailyTableState2Binding.observeAsState(
             DailyTableState2.default())
-        return remember(key1 = listOf(currentDailySetDurations, dailySetBinding)) {
+        return remember(currentDailySetDurations, dailySetBindingKey,
+            dailySetCursorCache[currentDailySetDurations.dailySet.uid]) {
             mutableStateOf(ClazzDailySetState(currentDailySetDurations, dailySetCursorCache, dailySetBinding, dailyTableState2, mainViewModel))
         }
     }

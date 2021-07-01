@@ -7,7 +7,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -17,9 +19,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.tty.dailyset.ui.image.ImageResource
 import org.tty.dailyset.ui.theme.LocalPalette
 import org.tty.dailyset.ui.theme.Shapes
 
@@ -163,6 +167,31 @@ fun RoundBadge(
                 LocalPalette.current.primary
             }
 
+        )
+    }
+}
+
+@Composable
+fun IconClick(
+    painter: Painter,
+    useTint: Boolean = false,
+    onClick: () -> Unit
+
+) {
+    BoxWithConstraints(
+        modifier = Modifier
+            .size(56.dp)
+            .wrapContentSize(align = Alignment.Center)
+            .clip(shape = CircleShape)
+            .clickable { onClick() }
+    ) {
+        Icon(
+            painter = painter,
+            contentDescription = null,
+            modifier = Modifier
+                .padding(12.dp)
+                .size(18.dp),
+            tint = if (useTint) { LocalPalette.current.primary } else { Color.Unspecified }
         )
     }
 }
