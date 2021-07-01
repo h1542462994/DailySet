@@ -5,6 +5,8 @@ import androidx.compose.runtime.livedata.observeAsState
 import org.tty.dailyset.model.entity.*
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailyDurationCreateState
 import org.tty.dailyset.model.lifetime.dailyset.DailySetCreateState
+import org.tty.dailyset.toWeekStart
+import java.time.LocalDate
 import java.util.function.Predicate
 
 interface DailySetScope: PreferenceScope, UserScope {
@@ -47,12 +49,12 @@ interface DailySetScope: PreferenceScope, UserScope {
         return if (type == DailyDurationType.Clazz) {
             val clazzDurations by clazzDailyDurations()
             derivedStateOf {
-                durations.subtract(clazzDurations).toList()
+                clazzDurations.subtract(durations).toList()
             }
         } else {
             val normalDurations by normalDailyDurations()
             derivedStateOf {
-                durations.subtract(normalDurations).toList()
+                normalDurations.subtract(durations).toList()
             }
         }
     }
@@ -118,6 +120,10 @@ interface DailySetScope: PreferenceScope, UserScope {
     fun clazzDailyDurationCreateState(
         initDialogOpen: Boolean = false
     ): ClazzDailyDurationCreateState {
+        val startDate = LocalDate.now().toWeekStart()
+        val endDate = startDate.plusDays(7 * 16 - 1)
+        val weekCount = 16
+
         return ClazzDailyDurationCreateState(
             dialogOpen = remember {
                 mutableStateOf(initDialogOpen)
@@ -126,19 +132,22 @@ interface DailySetScope: PreferenceScope, UserScope {
                 mutableStateOf(null)
             },
             startDate = remember {
-                mutableStateOf(null)
+                mutableStateOf(startDate)
             },
             endDate = remember {
-                mutableStateOf(null)
+                mutableStateOf(endDate)
             },
             weekCount = remember {
-                mutableStateOf(null)
+                mutableStateOf(weekCount)
             },
             name = remember {
                 mutableStateOf("")
             },
             periodCode = remember {
                 mutableStateOf(PeriodCode.UnSpecified)
+            },
+            bindingDailyTableUid = remember {
+                mutableStateOf(DailyTable.default)
             }
         )
     }

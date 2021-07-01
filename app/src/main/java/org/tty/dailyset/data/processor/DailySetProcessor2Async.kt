@@ -1,9 +1,6 @@
 package org.tty.dailyset.data.processor
 
-import org.tty.dailyset.event.DailySetCreateEventArgs
-import org.tty.dailyset.event.DailySetEventType
-import org.tty.dailyset.event.EventArgs
-import org.tty.dailyset.event.EventType
+import org.tty.dailyset.event.*
 import java.lang.IllegalArgumentException
 
 /**
@@ -16,6 +13,12 @@ interface DailySetProcessor2Async: EventProcessorAsync {
             DailySetEventType.Create -> {
                 create(eventArgs as DailySetCreateEventArgs)
             }
+            DailySetEventType.CreateDurationAndBinding -> {
+                createDuration(eventArgs as DailySetCreateDurationAndBindingEventArgs)
+            }
+            DailySetEventType.BindingDuration -> {
+                bindingDuration(eventArgs as DailySetBindingDurationEventArgs)
+            }
             else -> {
                 throw IllegalArgumentException("eventType not supported.")
             }
@@ -23,4 +26,6 @@ interface DailySetProcessor2Async: EventProcessorAsync {
     }
 
     suspend fun create(dailySetCreateEventArgs: DailySetCreateEventArgs)
+    suspend fun createDuration(dailySetCreateDurationAndBindingEventArgs: DailySetCreateDurationAndBindingEventArgs)
+    suspend fun bindingDuration(dailySetBindingDurationEventArgs: DailySetBindingDurationEventArgs)
 }

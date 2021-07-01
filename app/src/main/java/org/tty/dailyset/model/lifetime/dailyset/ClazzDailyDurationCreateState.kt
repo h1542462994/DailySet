@@ -12,11 +12,12 @@ import java.time.LocalDate
 class ClazzDailyDurationCreateState(
     override val dialogOpen: MutableState<Boolean>,
     val sourceUid: MutableState<String?>,
-    val startDate: MutableState<LocalDate?>,
-    val endDate: MutableState<LocalDate?>,
-    val weekCount: MutableState<Int?>,
+    val startDate: MutableState<LocalDate>,
+    val endDate: MutableState<LocalDate>,
+    val weekCount: MutableState<Int>,
     val name: MutableState<String>,
-    val periodCode: MutableState<PeriodCode>
+    val periodCode: MutableState<PeriodCode>,
+    val bindingDailyTableUid: MutableState<String>
 ): DialogState(dialogOpen) {
 
 }

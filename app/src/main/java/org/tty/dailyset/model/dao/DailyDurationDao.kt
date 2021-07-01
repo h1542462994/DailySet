@@ -15,9 +15,11 @@ interface DailyDurationDao {
     fun delete(dailyDuration: DailyDuration)
 
     @Query("select * from daily_duration")
-    fun all(): Flow<List<DailyDuration>>
+    fun allDurations(): Flow<List<DailyDuration>>
 
     @Query("select * from daily_duration where type = :type")
     fun typedDurations(type: DailyDurationType): Flow<List<DailyDuration>>
 
+    @Query("select count(*) from daily_duration where type = :type")
+    fun countOfType(type: DailyDurationType): Int
 }

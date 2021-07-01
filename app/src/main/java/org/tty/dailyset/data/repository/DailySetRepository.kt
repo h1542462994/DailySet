@@ -2,6 +2,8 @@ package org.tty.dailyset.data.repository
 
 import kotlinx.coroutines.flow.Flow
 import org.tty.dailyset.data.processor.DailySetProcessor2Async
+import org.tty.dailyset.event.DailySetBindingDurationEventArgs
+import org.tty.dailyset.event.DailySetCreateDurationAndBindingEventArgs
 import org.tty.dailyset.event.DailySetCreateEventArgs
 import org.tty.dailyset.model.dao.DailyDurationDao
 import org.tty.dailyset.model.dao.DailySetDao
@@ -14,7 +16,7 @@ class DailySetRepository(
     private val dailySetDao: DailySetDao,
     private val dailyDurationDao: DailyDurationDao,
 ): DailySetProcessor2Async {
-    val dailySets: Flow<List<DailySet>> = dailySetDao.all()
+    val dailySets: Flow<List<DailySet>> = dailySetDao.allSets()
     val normalDailyDurations: Flow<List<DailyDuration>> = dailyDurationDao.typedDurations(type = DailyDurationType.Normal)
     val clazzDailyDurations: Flow<List<DailyDuration>> = dailyDurationDao.typedDurations(type = DailyDurationType.Clazz)
 
@@ -28,5 +30,13 @@ class DailySetRepository(
 
     override suspend fun create(dailySetCreateEventArgs: DailySetCreateEventArgs) {
         dailySetDao.create(dailySetCreateEventArgs)
+    }
+
+    override suspend fun createDuration(dailySetCreateDurationAndBindingEventArgs: DailySetCreateDurationAndBindingEventArgs) {
+        dailySetDao.createDuration(dailySetCreateDurationAndBindingEventArgs)
+    }
+
+    override suspend fun bindingDuration(dailySetBindingDurationEventArgs: DailySetBindingDurationEventArgs) {
+        dailySetDao.bindingDuration(dailySetBindingDurationEventArgs)
     }
 }

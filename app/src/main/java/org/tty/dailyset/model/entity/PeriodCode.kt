@@ -47,3 +47,16 @@ enum class PeriodCode(val code: Int) {
      */
     SummerVacation(14)
 }
+
+fun PeriodCode.toDisplay(): String{
+    return when (this) {
+        PeriodCode.UnSpecified -> "未确定"
+        PeriodCode.FirstTerm -> "上学期"
+        PeriodCode.FirstTermEnd -> "上学期考试周"
+        PeriodCode.WinterVacation -> "寒假"
+        PeriodCode.SecondTerm -> "下学期"
+        PeriodCode.SecondTermEnd -> "下学期考试周"
+        PeriodCode.ShortTerm -> "短学期"
+        PeriodCode.SummerVacation -> "暑假"
+    }
+}

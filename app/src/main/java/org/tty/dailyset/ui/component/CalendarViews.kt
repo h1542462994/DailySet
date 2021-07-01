@@ -1,24 +1,30 @@
 package org.tty.dailyset.ui.component
 
+import android.util.AttributeSet
 import android.widget.CalendarView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import org.tty.dailyset.model.lifetime.DatePickerDialogState
+import org.tty.dailyset.model.lifetime.DialogState
+import org.tty.dailyset.toEpochMilli
+import org.tty.dailyset.ui.theme.LocalPalette
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoField
+import java.time.temporal.ChronoUnit
 import java.util.*
+import java.util.jar.Attributes
 
 @Composable
 fun DatePicker(onDateSelected: (LocalDate) -> Unit, onDismissRequest: () -> Unit) {
@@ -63,7 +69,7 @@ fun DatePicker(onDateSelected: (LocalDate) -> Unit, onDismissRequest: () -> Unit
 
             CustomCalendarView(onDateSelected = {
                 selDate.value = it
-            })
+            }, initDate = LocalDate.now())
 
             Spacer(modifier = Modifier.size(8.dp))
 
@@ -102,14 +108,71 @@ fun DatePicker(onDateSelected: (LocalDate) -> Unit, onDismissRequest: () -> Unit
     }
 }
 
+/**
+ * the date picker
+ */
 @Composable
-fun CustomCalendarView(onDateSelected: (LocalDate) -> Unit) {
+fun DatePicker(datePickerDialogState: DatePickerDialogState, onDateSelected: (LocalDate) -> Unit) {
+    var date by datePickerDialogState.date
+    val minDate by datePickerDialogState.minDate
+    val maxDate by datePickerDialogState.maxDate
+    var dialogOpen by datePickerDialogState.dialogOpen
+
+    NanoDialog(title = "选择日期", dialogState = datePickerDialogState, autoClose = false) {
+
+
+        CustomCalendarView(initDate = date, minDate = minDate, maxDate = maxDate) {
+            date = it
+        }
+
+        Row(
+            modifier = Modifier.padding(vertical = 16.dp),
+        ){
+            Spacer(modifier = Modifier.weight(1f))
+            Button(
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = LocalPalette.current.lineColor,
+                    disabledBackgroundColor = LocalPalette.current.backgroundInvalid,
+                    disabledContentColor = LocalPalette.current.primary
+                ),
+                enabled = true,
+                onClick = { dialogOpen = false }) {
+                Text("取消")
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Button(
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = LocalPalette.current.primaryColor,
+                    disabledBackgroundColor = LocalPalette.current.backgroundInvalid,
+                    disabledContentColor = LocalPalette.current.primary
+                ),
+                enabled = true,
+                onClick = {
+                    onDateSelected(date)
+                    dialogOpen = false
+                }) {
+                Text("确认")
+            }
+        }
+    }
+}
+
+@Composable
+fun CustomCalendarView(initDate: LocalDate, minDate: LocalDate? = null, maxDate: LocalDate? = null, onDateSelected: (LocalDate) -> Unit) {
     AndroidView(
         modifier = Modifier.wrapContentSize(),
         factory = { context ->
             CalendarView(context)
         },
         update = { view ->
+            view.firstDayOfWeek = Calendar.MONDAY
+            view.date = initDate.toEpochMilli()
+            if (minDate != null) {
+                view.minDate = minDate.toEpochMilli()
+            }
+            if (maxDate != null) {
+                view.maxDate = maxDate.toEpochMilli()
+            }
             // view.minDate = ?
             // view.maxDate = ?
             view.setOnDateChangeListener { _, year, month, dayOfMonth ->

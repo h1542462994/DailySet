@@ -30,7 +30,9 @@ import org.tty.dailyset.ui.theme.Shapes
 fun NanoDialog(
     title: String,
     dialogState: DialogState,
-    content: @Composable ColumnScope.() -> Unit
+    autoClose: Boolean = true,
+    content: @Composable ColumnScope.() -> Unit,
+
     ) {
 
     var dialogOpen by dialogState.dialogOpen
@@ -45,16 +47,23 @@ fun NanoDialog(
      * Use System Service: [android.view.inputmethod.InputMethodManager]
      */
 
+    fun closeDialog() {
+        if (autoClose) {
+            dialogOpen = false
+        }
+    }
 
     if (dialogOpen) {
         Dialog(
-            onDismissRequest = { dialogOpen = false },
+            onDismissRequest = {
+               closeDialog()
+            },
         ) {
             BoxWithConstraints(
                 modifier = Modifier
                     .fillMaxSize()
                     .clickable(interactionSource = interactionSource1, indication = null) {
-                        dialogOpen = false
+                        closeDialog()
                     }
             ) {
                 Column(
@@ -82,7 +91,7 @@ fun NanoDialog(
              * intercept the back event to hide the dialog.
              */
             BackHandler {
-                dialogOpen = false
+                closeDialog()
             }
         }
     }

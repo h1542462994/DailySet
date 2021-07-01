@@ -58,6 +58,14 @@ data class DailyDuration(
     val serialIndex: Int = 0,
 
     /**
+     * the property only used on [DailyDurationType.Clazz]
+     * usually 0/.. means unspecified, 1 means 上学期, 7 means 下学期, 13 means 短学期
+     * 2 means 上学期期末 8 means 下学期期末
+     * 4 means 寒假 14 means 暑假
+     */
+    val bindingPeriodCode: Int = 0,
+
+    /**
      * the update timestamp
      */
     val updateAt: Timestamp = Timestamp(0)

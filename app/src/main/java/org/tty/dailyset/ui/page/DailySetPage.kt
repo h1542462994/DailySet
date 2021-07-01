@@ -15,14 +15,12 @@ import org.tty.dailyset.data.processor.DailySetProcessor
 import org.tty.dailyset.data.scope.DataScope
 import org.tty.dailyset.event.DailySetCreateEventArgs
 import org.tty.dailyset.event.DailySetEventType
-import org.tty.dailyset.model.entity.DailySet
-import org.tty.dailyset.model.entity.DailySetIcon
-import org.tty.dailyset.model.entity.DailySetType
-import org.tty.dailyset.model.entity.toImageResource
+import org.tty.dailyset.model.entity.*
 import org.tty.dailyset.model.lifetime.dailyset.DailySetCreateState
 import org.tty.dailyset.ui.component.ProfileMenuItem
 import org.tty.dailyset.ui.component.TitleSpace
 import org.tty.dailyset.ui.image.ImageResource
+import java.time.LocalDate
 import java.util.*
 
 @ExperimentalFoundationApi
@@ -55,7 +53,6 @@ fun DailySetPage() {
                     }
                 )
             }
-
         }
 
         Column (

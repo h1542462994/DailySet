@@ -17,6 +17,7 @@ fun ComboBox(
     content: @Composable () -> Unit,
     popup: @Composable () -> Unit
 ) {
+    Spacer(modifier = Modifier.height(8.dp))
     var dropDownOpen by remember { mutableStateOf(false) }
     OutlinedButton(
         modifier = Modifier
@@ -42,10 +43,11 @@ fun <T> ComboBox(
     menuTemplate: @Composable (T) -> Unit
 ){
     var dropDownOpen by remember { mutableStateOf(false) }
-    var currentValue by remember {
+    var currentValue by remember(defaultValue) {
         mutableStateOf(defaultValue)
     }
 
+    Spacer(modifier = Modifier.height(8.dp))
     OutlinedButton(
         modifier = Modifier
             .fillMaxWidth(),
@@ -71,13 +73,64 @@ fun <T> ComboBox(
                 menuTemplate(currentValue)
             }
         }
-    }
-
-    DropdownMenu(expanded = dropDownOpen, onDismissRequest = { dropDownOpen = false }) {
-        data.forEach {
-            DropdownMenuItem(onClick = { currentValue = it; onSelected(it) }) {
-                menuTemplate(it)
+        DropdownMenu(expanded = dropDownOpen, onDismissRequest = { dropDownOpen = false }) {
+            data.forEach {
+                DropdownMenuItem(onClick = { currentValue = it; onSelected(it) }) {
+                    menuTemplate(it)
+                }
             }
         }
     }
+
+
+}
+
+@Composable
+fun SelectButton(
+    title: String,
+    content: @Composable () -> Unit,
+    onClick: () -> Unit
+) {
+    Spacer(modifier = Modifier.height(8.dp))
+    OutlinedButton(
+        modifier = Modifier
+            .fillMaxWidth(),
+        onClick = onClick
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(8.dp)
+        ) {
+            Text(
+                title,
+                color = LocalPalette.current.primary,
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .align(alignment = Alignment.CenterVertically),
+                fontSize = 18.sp
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            Row(
+                modifier = Modifier
+                    .wrapContentWidth()
+            ) {
+                content()
+            }
+        }
+    }
+}
+
+@Composable
+fun SelectButton(
+    title: String,
+    content: String,
+    onClick: () -> Unit
+) {
+    SelectButton(title = title, content = {
+        Text(
+            text = content,
+            fontSize = 14.sp,
+            color = LocalPalette.current.sub
+        )
+    }, onClick = onClick)
 }

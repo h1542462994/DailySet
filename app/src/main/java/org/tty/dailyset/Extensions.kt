@@ -39,8 +39,17 @@ fun LocalDate.toShortDateString(): String {
     return "${monthValue}/${dayOfMonth}"
 }
 
+fun LocalDate.toLongDateString(): String {
+    val weekOfDays = listOf("一","")
+    return "${year}/${monthValue}/${dayOfMonth} (${(this.dayOfWeek.value - 1).toWeekDayString()})"
+}
+
 fun minus(end: LocalDate, start: LocalDate): Long {
     return end.toEpochDay() - start.toEpochDay()
+}
+
+fun weekCount(end: LocalDate, start: LocalDate): Long {
+    return (minus(end.toWeekStart(), start.toWeekStart()) / 7) + 1
 }
 
 fun localTimestampNow(): Timestamp {
@@ -109,4 +118,8 @@ fun <T> Map<*, List<T>>.startIndexes(): List<Int> {
 
 fun spanMinutes(start: Time, end: Time): Long {
     return (end.time - start.time) / (1000 * 60)
+}
+
+fun LocalDate.toEpochMilli(): Long {
+    return this.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 }
