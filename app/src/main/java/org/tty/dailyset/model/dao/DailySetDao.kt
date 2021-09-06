@@ -35,6 +35,7 @@ interface DailySetDao: DailySetProcessor2Async, DailyDurationDao, DailySetBindin
     fun load(dailySetUid: String): Flow<DailySet?>
 
     @Query("select * from daily_set where uid = :dailySetUid")
+    @Transaction
     fun loadDetail(dailySetUid: String): Flow<DailySetDurations?>
 
     @Transaction

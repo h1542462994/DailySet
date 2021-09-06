@@ -11,7 +11,9 @@ import java.sql.Timestamp
  * the dailySet and the dailyDuration is all the global data entry.
  * the binding is the relation between
  */
-@Entity(tableName = "daily_set_binding", primaryKeys = ["dailySetUid", "dailyDurationUid"])
+@Entity(tableName = "daily_set_binding", primaryKeys = ["dailySetUid", "dailyDurationUid"], indices = [
+    Index("dailySetUid"), Index("dailyDurationUid"), Index("dailySetUid", "dailyDurationUid")
+])
 
 @TypeConverters(LongTimeStampConverter::class)
 data class DailySetBinding(
