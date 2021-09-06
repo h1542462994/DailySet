@@ -1,14 +1,19 @@
 package org.tty.dailyset
 
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.navigation.animation.AnimatedNavHost
+import com.google.accompanist.navigation.animation.composable
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import org.tty.dailyset.ui.page.*
 
 /**
@@ -27,21 +32,35 @@ object MainDestination {
 /**
  * the navigation graph for page navigating.
  */
+@OptIn(ExperimentalAnimationApi::class)
 @ExperimentalFoundationApi
 @Composable
 fun NavGraph(startDestination: String = MainDestination.MAIN_ROUTE) {
-    val navController = rememberNavController()
+    val navController = rememberAnimatedNavController()
 
     val actions = remember(navController) { MainActions(navController) }
-    val nav = Nav<MainActions>(navController, actions)
+    val nav = Nav(navController, actions)
 
     CompositionLocalProvider(LocalNav provides nav) {
-        NavHost(
+        AnimatedNavHost(
             navController = navController,
-            startDestination = startDestination
+            startDestination = startDestination,
+            enterTransition = { _, _ ->
+                slideInHorizontally(initialOffsetX = { 1000 }, animationSpec = tween(700))
+            },
+            exitTransition = { _, _ ->
+                slideOutHorizontally(targetOffsetX = { -1000 }, animationSpec = tween(700))
+            },
+            popEnterTransition = { _, _ ->
+                slideInHorizontally(initialOffsetX = { -1000 }, animationSpec = tween(700))
+            },
+            popExitTransition = { _,_ ->
+                slideOutHorizontally(targetOffsetX = { 1000 }, animationSpec = tween(700))
+            }
         ) {
             composable(MainDestination.MAIN_ROUTE) {
                 MainPage()
+
             }
             composable(MainDestination.TIME_TABLE_ROUTE) {
                 DailyTablePage()
