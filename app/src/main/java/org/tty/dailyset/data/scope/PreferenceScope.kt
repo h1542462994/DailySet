@@ -10,11 +10,6 @@ import org.tty.dailyset.model.entity.PreferenceName
 @Immutable
 interface PreferenceScope: GlobalScope {
     @Composable
-    fun seedVersionPreference(): State<Preference?> {
-        return mainViewModel().seedVersionPreference.observeAsState()
-    }
-
-    @Composable
     fun seedVersion(): State<Int> {
         return mainViewModel().seedVersion.observeAsState(0)
     }

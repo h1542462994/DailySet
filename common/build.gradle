@@ -58,7 +58,7 @@ dependencies {
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
 
     // --- foundation library
-//    api files("libs/dioc-1.0.0-rc01.jar")
+    api files('libs/core-1.0.0-rc01.jar')
 
     testImplementation "junit:junit:$junit_version"
     androidTestImplementation "androidx.test.ext:junit:$androidx_junit_version"

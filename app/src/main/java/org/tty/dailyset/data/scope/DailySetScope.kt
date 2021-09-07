@@ -2,14 +2,15 @@ package org.tty.dailyset.data.scope
 
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import org.tty.dailyset.common.observable.state
 import org.tty.dailyset.model.entity.*
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailyDurationCreateState
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailySetState
 import org.tty.dailyset.model.lifetime.dailyset.DailySetCreateState
 import org.tty.dailyset.model.lifetime.dailytable.DailyTableState2
+import org.tty.dailyset.provider.mainViewModel
 import org.tty.dailyset.toWeekStart
 import java.time.LocalDate
-import java.util.function.Predicate
 
 interface DailySetScope: PreferenceScope, UserScope {
     /**
@@ -17,8 +18,8 @@ interface DailySetScope: PreferenceScope, UserScope {
      */
     @Composable
     fun dailySets(): State<List<DailySet>> {
-        val mainViewModel = mainViewModel()
-        return mainViewModel.dailySets.observeAsState(initial = listOf())
+        return state(livedata = mainViewModel.dailySets, initial = listOf())
+        //return mainViewModel.dailySets.observeAsState(initial = listOf())
     }
 
     /**

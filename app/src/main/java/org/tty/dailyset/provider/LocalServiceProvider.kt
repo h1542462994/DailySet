@@ -2,8 +2,11 @@ package org.tty.dailyset.provider
 
 import android.app.Application
 import android.view.Window
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import org.tty.dailyset.DailySetApplication
+import org.tty.dailyset.common.local.ComponentViewModel
 import org.tty.dailyset.viewmodel.MainViewModel
 
 /**
@@ -40,3 +43,9 @@ internal val LocalMainViewModel = compositionLocalOf<MainViewModel> {
 internal val LocalWindow = compositionLocalOf<Window>() {
     error("No Window Provided")
 }
+
+/**
+ * [MainViewModel] hold by [ComponentViewModel]
+ * you must call in application region.
+ */
+internal val mainViewModel get() = ComponentViewModel.current() as MainViewModel

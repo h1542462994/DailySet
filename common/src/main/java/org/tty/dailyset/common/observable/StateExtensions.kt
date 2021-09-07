@@ -18,25 +18,25 @@ fun <T> state(value: T, policy: SnapshotMutationPolicy<T> = structuralEqualityPo
 }
 
 /**
- * create a state by [value]
+ * create a state by [livedata]
  * @see LiveData
  * @see observeAsState()
  */
 @Composable
-fun <T> state(value: LiveData<T>, default: T): State<T> {
-    return value.observeAsState(initial = default)
+inline fun <reified T> state(livedata: LiveData<T>, initial: T): State<T> {
+    return livedata.observeAsState(initial = initial)
 }
 
 /**
- * create a state by [value]
+ * create a state by [livedata]
  * @see LiveData
  * @see observeAsState()
  */
 @Composable
-fun <T> state(value: MutableLiveData<T>, default: T): MutableState<T> {
-    val state = value.observeAsState(default)
+inline fun <reified T> state(livedata: MutableLiveData<T>, initial: T): MutableState<T> {
+    val state = livedata.observeAsState(initial)
     val setter = { v: T ->
-        value.postValue(v)
+        livedata.postValue(v)
     }
 
     return object : MutableState<T> {

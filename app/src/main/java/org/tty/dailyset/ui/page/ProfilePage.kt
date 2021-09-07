@@ -24,7 +24,6 @@ import org.tty.dailyset.ui.image.ImageResource
 @Composable
 fun ProfilePage() {
     with(DataScope) {
-        val seedVersionPreference by seedVersionPreference()
         val seedVersion by seedVersion()
 
 

@@ -37,9 +37,15 @@ data class Preference(
                 throw IllegalArgumentException("key $name is not defined.")
             }
         }
+
+
     }
 
     override fun toString(): String {
         return "($preferenceKey, $useDefault, $value)"
     }
+}
+
+val Preference?.value: String? get() {
+    return this?.value
 }

@@ -1,10 +1,13 @@
 package org.tty.dailyset.viewmodel
 
 import android.util.Log
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.*
 import kotlinx.coroutines.launch
 import org.tty.dailyset.DailySetApplication
+import org.tty.dailyset.common.local.ComponentViewModel
+import org.tty.dailyset.common.observable.livedata
+import org.tty.dailyset.common.observable.livedataAsync
+import org.tty.dailyset.common.optional
 import org.tty.dailyset.model.entity.*
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailySetCursor
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailySetState
@@ -12,6 +15,16 @@ import org.tty.dailyset.model.lifetime.dailytable.DailyTableState2
 import org.tty.dailyset.ui.page.MainPageTabs
 
 class MainViewModel(val service: DailySetApplication): ViewModel() {
+
+    init {
+        // register the viewModel
+        ComponentViewModel provides this
+    }
+
+    override fun onCleared() {
+        // unregister the viewModel
+        ComponentViewModel.pop()
+    }
 
     /**
      * init the viewModel
@@ -24,7 +37,7 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
 
 
     //region main scope
-    private var _mainTab = MutableLiveData(MainPageTabs.DAILY_SET)
+    private var _mainTab = livedata(MainPageTabs.DAILY_SET)
     val mainTab = _mainTab
     val setMainTab: (MainPageTabs) -> Unit = { tab ->
         viewModelScope.launch {
@@ -34,18 +47,26 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
     //endregion
 
     //region profile scope
-    val seedVersionPreference: LiveData<Preference?> = service.preferenceRepository.seedVersionPreference.asLiveData()
-    val seedVersion: LiveData<Int> = service.preferenceRepository.seedVersion.asLiveData()
-    val currentUserUid: LiveData<String> = service.preferenceRepository.currentUserUid.asLiveData()
-    val users: LiveData<List<User>> = service.userRepository.users.asLiveData()
+    val seedVersion = livedata(service.preferenceRepository.seedVersionPreference, 0, "seedVersion") {
+        it.optional { value.toInt() }
+    }
+
+    val currentUserUid: LiveData<String> = livedata(service.preferenceRepository.currentUserUid)
+    val users: LiveData<List<User>> = livedata(service.userRepository.users)
     //endregion
 
     //region dailyTable.settings scope
-    val dailyTableSummaries = service.dailyTableRepository.dailyTableSummaries.asLiveData()
-    val currentDailyTableUid = MutableLiveData(DailyTable.default)
+    val dailyTableSummaries = livedata(service.dailyTableRepository.dailyTableSummaries)
+    val currentDailyTableUid = livedata(DailyTable.default)
 
-    var currentDailyTRC = MutableLiveData<LiveData<DailyTRC?>>()
-        internal set
+    val currentDailyTRC = livedataAsync(currentDailyTableUid, DailyTRC.default(), "currentDailyTRC") {
+        service.dailyTableRepository.loadDailyTRC(it)
+    }
+
+
+
+//    var currentDailyTRC = MutableLiveData<LiveData<DailyTRC?>>()
+//        internal set
     var currentDailyTableState2 = MutableLiveData(DailyTableState2.default())
         internal set
 
@@ -241,4 +262,6 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
     companion object {
         const val TAG = "MainViewModel"
     }
+
+
 }

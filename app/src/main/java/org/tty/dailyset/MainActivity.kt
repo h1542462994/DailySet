@@ -36,7 +36,7 @@ class MainActivity : ComponentActivity() {
         }
 
         mainViewModel.init()
-
+        //ComponentViewModel provides mainViewModel
 
     }
 }
