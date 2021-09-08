@@ -1,7 +1,7 @@
 package org.tty.dailyset.common.local
 
 import android.util.Log
-import org.tty.dioc.core.local.Logger
+import org.tty.dioc.util.Logger
 
 object ULog: Logger {
     override fun d(tag: String, message: String) {

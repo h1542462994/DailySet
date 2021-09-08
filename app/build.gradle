@@ -4,10 +4,6 @@ plugins {
     id 'kotlin-kapt'
 }
 
-ext {
-
-}
-
 android {
     signingConfigs {
         debug {

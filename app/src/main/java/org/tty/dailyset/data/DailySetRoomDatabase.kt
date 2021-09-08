@@ -2,7 +2,6 @@ package org.tty.dailyset.data
 
 import android.content.Context
 import android.util.Log
-import androidx.lifecycle.asLiveData
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase

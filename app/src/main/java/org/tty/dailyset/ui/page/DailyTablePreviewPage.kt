@@ -232,7 +232,6 @@ fun DailyTablePreviewBody(dailyTableCalc: DailyTableCalc, dailyTablePreviewState
                 }
 
             }
-
         }
     }
 }
