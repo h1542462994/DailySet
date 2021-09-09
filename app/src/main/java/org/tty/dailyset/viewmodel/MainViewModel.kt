@@ -5,8 +5,8 @@ import androidx.lifecycle.*
 import kotlinx.coroutines.launch
 import org.tty.dailyset.DailySetApplication
 import org.tty.dailyset.common.local.ComponentViewModel
-import org.tty.dailyset.common.observable.livedata
-import org.tty.dailyset.common.observable.livedataAsync
+import org.tty.dailyset.common.observable.liveData
+import org.tty.dailyset.common.observable.liveDataAsync
 import org.tty.dailyset.common.optional
 import org.tty.dailyset.model.entity.*
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailySetCursor
@@ -37,7 +37,7 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
 
 
     //region main scope
-    private var _mainTab = livedata(MainPageTabs.DAILY_SET)
+    private var _mainTab = liveData(MainPageTabs.DAILY_SET)
     val mainTab = _mainTab
     val setMainTab: (MainPageTabs) -> Unit = { tab ->
         viewModelScope.launch {
@@ -47,19 +47,19 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
     //endregion
 
     //region profile scope
-    val seedVersion = livedata(service.preferenceRepository.seedVersionPreference, 0, "seedVersion") {
+    val seedVersion = liveData(service.preferenceRepository.seedVersionPreference, 0, "seedVersion") {
         it.optional { value.toInt() }
     }
 
-    val currentUserUid: LiveData<String> = livedata(service.preferenceRepository.currentUserUid)
-    val users: LiveData<List<User>> = livedata(service.userRepository.users)
+    val currentUserUid: LiveData<String> = liveData(service.preferenceRepository.currentUserUid)
+    val users: LiveData<List<User>> = liveData(service.userRepository.users)
     //endregion
 
     //region dailyTable.settings scope
-    val dailyTableSummaries = livedata(service.dailyTableRepository.dailyTableSummaries)
-    val currentDailyTableUid = livedata(DailyTable.default)
+    val dailyTableSummaries = liveData(service.dailyTableRepository.dailyTableSummaries)
+    val currentDailyTableUid = liveData(DailyTable.default)
 
-    val currentDailyTRC = livedataAsync(currentDailyTableUid, DailyTRC.default(), "currentDailyTRC") {
+    val currentDailyTRC = liveDataAsync(currentDailyTableUid, DailyTRC.default(), "currentDailyTRC") {
         service.dailyTableRepository.loadDailyTRC(it)
     }
 

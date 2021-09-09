@@ -6,18 +6,15 @@ import org.tty.dioc.core.local.ComponentLogger
 import org.tty.dioc.core.local.staticComponentLocalOf
 import org.tty.dioc.util.Logger
 
+
 /**
  * declare a [ComponentLocal] for [ViewModel].
  */
 val ComponentViewModel = staticComponentLocalOf<ViewModel>()
 
-/**
- * declare a [ComponentLocal] for [Logger]
- */
-val ComponentLog = staticComponentLocalOf<Logger> {
-    return@staticComponentLocalOf ULog
-}
-
 val viewModel get() = ComponentViewModel.current
 
-val logger get() = ComponentLogger.current
+val logger: Logger by lazy {
+    ComponentLogger provides ULog
+    ComponentLogger.current
+}

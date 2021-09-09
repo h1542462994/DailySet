@@ -18,7 +18,7 @@ interface DailySetScope: PreferenceScope, UserScope {
      */
     @Composable
     fun dailySets(): State<List<DailySet>> {
-        return state(livedata = mainViewModel.dailySets, initial = listOf())
+        return state(liveData = mainViewModel.dailySets, initial = listOf())
         //return mainViewModel.dailySets.observeAsState(initial = listOf())
     }
 

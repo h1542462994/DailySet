@@ -11,32 +11,70 @@ import androidx.lifecycle.MutableLiveData
  * @see mutableStateOf
  */
 @Composable
-fun <T> state(value: T, policy: SnapshotMutationPolicy<T> = structuralEqualityPolicy()): MutableState<T> {
+inline fun <reified T> state(value: T, policy: SnapshotMutationPolicy<T> = structuralEqualityPolicy()): MutableState<T> {
     return remember {
         mutableStateOf(value = value, policy = policy)
     }
 }
 
 /**
- * create a state by [livedata]
+ * create a state by [liveData]
  * @see LiveData
  * @see observeAsState()
  */
 @Composable
-inline fun <reified T> state(livedata: LiveData<T>, initial: T): State<T> {
-    return livedata.observeAsState(initial = initial)
+inline fun <reified T> state(liveData: LiveData<T>, initial: T): State<T> {
+    return liveData.observeAsState(initial = initial)
 }
 
 /**
- * create a state by [livedata]
+ * create a state by [liveData]
  * @see LiveData
  * @see observeAsState()
  */
 @Composable
-inline fun <reified T> state(livedata: MutableLiveData<T>, initial: T): MutableState<T> {
-    val state = livedata.observeAsState(initial)
+inline fun <reified T> state(liveData: InitialLiveData<T>): State<T> {
+    val (l, i) = liveData
+    return l.observeAsState(initial = i)
+}
+
+/**
+ * create a state by [liveData]
+ * @see MutableLiveData
+ * @see observeAsState()
+ */
+@Composable
+inline fun <reified T> state(liveData: MutableLiveData<T>, initial: T): MutableState<T> {
+    val state = liveData.observeAsState(initial)
     val setter = { v: T ->
-        livedata.postValue(v)
+        liveData.postValue(v)
+    }
+
+    return object : MutableState<T> {
+        override var value: T
+            get() = state.value
+            set(value) {
+                setter.invoke(value)
+            }
+
+        override fun component1(): T = state.value
+
+        override fun component2() = setter
+    }
+}
+
+/**
+ * create a state by [liveData]
+ * @see MutableLiveData
+ * @see observeAsState()
+ */
+@Composable
+inline fun <reified T> state(liveData: InitialMutableLiveData<T>): MutableState<T> {
+    val (l, i) = liveData
+
+    val state = l.observeAsState(i)
+    val setter = { v: T ->
+        l.postValue(v)
     }
 
     return object : MutableState<T> {
