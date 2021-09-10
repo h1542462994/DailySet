@@ -6,6 +6,7 @@ import kotlinx.coroutines.launch
 import org.tty.dailyset.DailySetApplication
 import org.tty.dailyset.common.local.ComponentViewModel
 import org.tty.dailyset.common.observable.liveData
+import org.tty.dailyset.common.observable.liveDataMap
 import org.tty.dailyset.common.observable.liveDataAsync
 import org.tty.dailyset.common.optional
 import org.tty.dailyset.model.entity.*
@@ -47,7 +48,7 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
     //endregion
 
     //region profile scope
-    val seedVersion = liveData(service.preferenceRepository.seedVersionPreference, 0, "seedVersion") {
+    val seedVersion = liveDataMap(service.preferenceRepository.seedVersionPreference, 0, "seedVersion") {
         it.optional { value.toInt() }
     }
 

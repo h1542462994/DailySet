@@ -1,11 +1,9 @@
 package org.tty.dailyset.common.observable
 
 import android.annotation.SuppressLint
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.asLiveData
+import androidx.lifecycle.*
 import kotlinx.coroutines.flow.Flow
+import org.jetbrains.annotations.NotNull
 import org.tty.dailyset.common.local.logger
 import org.tty.dioc.observable.channel.Channels
 import org.tty.dioc.observable.channel.observe
@@ -13,11 +11,13 @@ import kotlin.random.Random
 
 private const val TAG = "o.t.d.c.observable.LiveDataExtension"
 
+//region liveDataBase
+
 /**
  * to create a [InitialMutableLiveData]
  */
-inline fun <reified T> liveData(initial: T): InitialMutableLiveData<T> {
-    return InitialMutableLiveData(MutableLiveData(), initial)
+inline fun <reified T> liveData(@NotNull initial: T): MutableLiveData<T> {
+    return MutableLiveData(initial)
 }
 
 /**
@@ -27,110 +27,185 @@ inline fun <reified T> liveData(flow: Flow<T>): LiveData<T> {
     return flow.asLiveData()
 }
 
-inline fun <reified T> liveData(flow: Flow<T>, initial: T): InitialLiveData<T> {
-    return InitialLiveData(flow.asLiveData(), initial)
+fun <T> liveDataIgnoreNull(flow: Flow<T?>, tag: String = "$flow"): LiveData<T> {
+    val mediator = MediatorLiveData<T>()
+    val signal = Random.nextInt(0, 100)
+    mediator.addSource(flow.asLiveData()) { value ->
+        logger.d(TAG, "$tag.target [$signal] changed to $value")
+        mediator.value = value
+    }
+    return mediator
 }
+
+inline fun <reified T> LiveData<T>.initial(initial: T): InitialLiveData<T> {
+    return InitialLiveData(this, initial)
+}
+
+inline fun <reified T> MutableLiveData<T>.initial(initial: T): InitialMutableLiveData<T> {
+    return InitialMutableLiveData(this, initial)
+}
+
+//endregion
+
+//region liveDataChain1
 
 /**
  * to create a [LiveData] by [source] and [mapper] (sync version)
  * @param source the source liveData.
- * @param mapper transform from source to real data (async).
- * @param initial the initial of the result livedata.
+ * @param action transform from source to real data (async).
  * @param tag the tag for logging.
  */
 @SuppressLint("NullSafeMutableLiveData")
-fun <T, R> liveData(source: LiveData<T>, initial: R, tag: String = "$source", mapper: (T) -> R?): InitialLiveData<R> {
+fun <T, R> liveDataChain(source: LiveData<T>, tag: String = "$source", action: (value: T, collector: LiveCollector<R>) -> Unit): LiveData<R> {
     val mediator = MediatorLiveData<R>()
     val signal = Random.nextInt(0, 100)
-    mediator.addSource(source) { s ->
-        logger.d(TAG, "$tag.source [$signal] changed to $s")
-        val v = mapper.invoke(s)
-        if (v != null) {
-            logger.d(TAG, "$tag.target [$signal] changed to $v")
-            mediator.value = v
+    lateinit var middleLiveData: LiveData<R>
+    var assigned = false
+
+    val collector = object: LiveCollector<R> {
+        override fun emit(value: R) {
+            if (assigned) {
+                assigned = false
+                mediator.removeSource(mediator)
+            }
+            logger.d(TAG, "$tag.target [$signal] changed to $value")
+            mediator.value = value
+        }
+
+        override fun emitSource(liveData: LiveData<R>) {
+            if (assigned) {
+                if (middleLiveData == liveData) {
+                    return
+                }
+                mediator.removeSource(middleLiveData)
+            }
+            logger.d(TAG, "$tag.liveData [$signal, async] changed to $liveData")
+            mediator.addSource(liveData) { v ->
+                logger.d(TAG, "$tag.target [$signal, async] changed to $v")
+                mediator.value = v
+            }
+            assigned = true
+            middleLiveData = liveData
         }
     }
 
-    return InitialLiveData(mediator, initial)
+    mediator.addSource(source) { s ->
+        logger.d(TAG, "$tag.source [$signal] changed to $s")
+        action(s, collector)
+    }
+
+    return mediator
 }
 
 /**
  * to create a [LiveData] by [source] and [mapper] (sync version)
  * @param source the source liveData.
  * @param mapper transform from source to real data (async).
- * @param initial the initial of the result livedata.
  * @param tag the tag for logging.
  */
-inline fun <reified T, reified R> liveData(source: Flow<T>, initial: R, tag: String = "$source", noinline mapper: (T) -> R?): InitialLiveData<R> {
-    return liveData(source.asLiveData(), initial, tag, mapper)
-}
-
-fun <T1, T2, R> liveData2(source1: LiveData<T1>, source2: LiveData<T2>, initial: R, tag: String = "$source1,$source2", mapper: (T1, T2) -> R?): InitialLiveData<R> {
-    val mediator = MediatorLiveData<R>()
-    val signal = Random.nextInt(0, 100)
-    val channel1 = Channels.create<T1>()
-    val channel2 = Channels.create<T2>()
-    Channels.record(channel1, channel2).observe {
-        mediator.value = mapper(it.first, it.second)
+inline fun <reified T, reified R> liveDataMap(source: LiveData<T>, tag: String = "$source", noinline mapper: (T) -> R): LiveData<R> {
+    return liveDataChain(source, tag) { value, collector ->
+        collector.emit(mapper(value))
     }
-
-
 }
 
 /**
- * to create a [LiveData] by [source] and [mapper] (async version)
+ * to create a [LiveData] by [source] and [mapper] (sync version)
  * @param source the source liveData.
  * @param mapper transform from source to real data (async).
- * @param initial the initial of the result livedata.
  * @param tag the tag for logging.
  */
-fun <T, R> liveDataAsync(source: LiveCaster<T>, initial: R, tag: String = "$source", mapper: (T) -> LiveCaster<R?>): InitialLiveData<R> {
+inline fun <reified T, reified R> liveDataMapIgnoreNull(source: LiveData<T>, tag: String = "$source", noinline mapper: (T) -> R?): LiveData<R> {
+    return liveDataChain(source, tag) { value, collector ->
+        val r = mapper(value)
+        if (r != null) {
+            collector.emit(r)
+        }
+    }
+}
+
+inline fun <reified T, reified R> liveDataMapAsync(source: LiveData<T>, tag: String = "$source", noinline mapper: (T) -> Flow<R>): LiveData<R> {
+    return liveDataChain(source, tag) { value, collector ->
+        val flow = mapper(value)
+        collector.emitSource(liveData(flow))
+    }
+}
+
+inline fun <reified T, reified R> liveDataMapAsyncIgnoreNull(source: LiveData<T>, tag: String = "$source", noinline mapper: (T) -> Flow<R?>): LiveData<R> {
+    return liveDataChain(source, tag) { value, collector ->
+        collector.emitSource(liveDataIgnoreNull(mapper(value), "$source.flow"))
+    }
+}
+
+//endregion
+
+//region liveDataChain2
+//endregion
+
+//region liveDataChain3
+//endregion
+
+//region liveDataVarargs
+
+fun <T, R> liveDataVarargsChain(vararg sources: LiveData<T>, tag: String = "$sources", action: (values: List<T>, collector: LiveCollector<R>) -> Unit): LiveData<R> {
     val mediator = MediatorLiveData<R>()
-    val sourceLiveData = source.asLiveData()
     val signal = Random.nextInt(0, 100)
-    lateinit var middleLiveData: LiveData<R?>
+    lateinit var middleLiveData: LiveData<R>
     var assigned = false
 
-    mediator.addSource(sourceLiveData) { s ->
-        logger.d(TAG, "$tag.source [$signal, async] changed to $s")
-        val newLiveData = mapper.invoke(s).asLiveData()
-        if (assigned) {
-            if (middleLiveData == newLiveData) {
-                return@addSource
+    val collector = object: LiveCollector<R> {
+        override fun emit(value: R) {
+            if (assigned) {
+                assigned = false
+                mediator.removeSource(mediator)
             }
-            mediator.removeSource(middleLiveData)
+            logger.d(TAG, "$tag.target [$signal] changed to $value")
+            mediator.value = value!!
         }
-        logger.d(TAG, "$tag.liveData [$signal, async] changed to $newLiveData")
-        mediator.addSource(newLiveData) { value ->
-            logger.d(TAG, "$tag.target [$signal, async] changed to $value")
-            mediator.value = value
+
+        override fun emitSource(liveData: LiveData<R>) {
+            if (assigned) {
+                if (middleLiveData == liveData) {
+                    return
+                }
+                mediator.removeSource(middleLiveData)
+            }
+            logger.d(TAG, "$tag.liveData [$signal, async] changed to $liveData")
+            mediator.addSource(liveData) { v ->
+                logger.d(TAG, "$tag.target [$signal, async] changed to $v")
+                mediator.value = v
+            }
+            assigned = true
+            middleLiveData = liveData
         }
-        assigned = true
-        middleLiveData = newLiveData
     }
 
-    return InitialLiveData(mediator, initial)
+    val length = sources.size
+    val channels = List(length) {
+        Channels.create<T>()
+    }
+    Channels.record(*channels.toTypedArray()).observe { values ->
+        action(values, collector)
+    }
+
+    sources.forEachIndexed { index, liveData ->
+        mediator.addSource(liveData) { value ->
+            logger.d(TAG, "$tag.source($index) changed to $value")
+            channels[index].emit(value)
+        }
+    }
+
+    return mediator
 }
 
-/**
- * to create a [LiveData] by [source] and [mapper] (async version)
- * @param source the source liveData.
- * @param mapper transform from source to real data (async).
- * @param initial the initial of the result livedata.
- * @param tag the tag for logging.
- */
-inline fun <reified T, reified R> liveDataAsync(source: Flow<T>, initial: R, tag: String = "$source", crossinline mapper: (T) -> Flow<R?>): InitialLiveData<R> {
-    return liveDataAsync(source.toLiveCaster(), initial, tag, mapper.toLiveCaster())
+fun <T, R> liveDataVarargsMap(vararg sources: LiveData<T>, tag: String = "$sources", mapper: (values: List<T>) -> R): LiveData<R> {
+    return liveDataVarargsChain(sources = sources, tag = tag) { values, collector ->
+        collector.emit(mapper(values))
+    }
 }
 
-/**
- * to create a [LiveData] by [source] and [mapper] (async version)
- * @param source the source liveData.
- * @param mapper transform from source to real data (async).
- * @param initial the initial of the result livedata.
- * @param tag the tag for logging.
- */
-inline fun <reified T , reified R> liveDataAsync(source: LiveData<T>, initial: R, tag: String = "$source", crossinline mapper: (T) -> Flow<R?>): InitialLiveData<R> {
 
-    return liveDataAsync(source.toLiveCaster(), initial, tag, mapper.toLiveCaster())
-}
+//endregion
+
+//region liveDataFlatmap
+//endregion
