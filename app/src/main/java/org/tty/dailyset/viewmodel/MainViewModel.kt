@@ -5,10 +5,7 @@ import androidx.lifecycle.*
 import kotlinx.coroutines.launch
 import org.tty.dailyset.DailySetApplication
 import org.tty.dailyset.common.local.ComponentViewModel
-import org.tty.dailyset.common.observable.liveData
-import org.tty.dailyset.common.observable.liveDataMap
-import org.tty.dailyset.common.observable.liveDataAsync
-import org.tty.dailyset.common.optional
+import org.tty.dailyset.common.observable.*
 import org.tty.dailyset.model.entity.*
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailySetCursor
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailySetState
@@ -31,11 +28,8 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
      * init the viewModel
      */
     fun init() {
-        registerDailyTableHook()
         registerDailySetHook()
     }
-
-
 
     //region main scope
     private var _mainTab = liveData(MainPageTabs.DAILY_SET)
@@ -48,9 +42,7 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
     //endregion
 
     //region profile scope
-    val seedVersion = liveDataMap(service.preferenceRepository.seedVersionPreference, 0, "seedVersion") {
-        it.optional { value.toInt() }
-    }
+    val seedVersion = liveData(service.preferenceRepository.seedVersion)
 
     val currentUserUid: LiveData<String> = liveData(service.preferenceRepository.currentUserUid)
     val users: LiveData<List<User>> = liveData(service.userRepository.users)
@@ -60,53 +52,20 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
     val dailyTableSummaries = liveData(service.dailyTableRepository.dailyTableSummaries)
     val currentDailyTableUid = liveData(DailyTable.default)
 
-    val currentDailyTRC = liveDataAsync(currentDailyTableUid, DailyTRC.default(), "currentDailyTRC") {
+    val currentDailyTRC = liveDataMapAsync(currentDailyTableUid, "currentDailyTRC") {
         service.dailyTableRepository.loadDailyTRC(it)
     }
+    val currentDailyTRCEnd = currentDailyTRC.ignoreNull().initial(DailyTRC.default())
 
-
-
-//    var currentDailyTRC = MutableLiveData<LiveData<DailyTRC?>>()
-//        internal set
-    var currentDailyTableState2 = MutableLiveData(DailyTableState2.default())
-        internal set
-
-    private fun registerDailyTableHook() {
-        currentDailyTableUid.observeForever {
-            Log.d(TAG, "currentDailyTableUid changed to $it")
-            postCurrentDailyTRC(it)
-        }
-        currentDailyTRC.observeForever {
-            Log.d(TAG, "currentDailyTRC.livedata changed to ${it.value}")
-            // 标记，仅允许在currentDailyTRC改变后重写一次。
-            var oneTick = true
-            it.observeForever { it2 ->
-                // 在这里设置了拦截，奇怪的是，it2会在数据库修改阶段变为DailyTRC.default()
-                if (oneTick || it2 != DailyTRC.default()) {
-                    Log.d(TAG, "currentDailyTRC changed to $it2")
-                    if (it2 != null) {
-                        // TODO: 2021/6/24 hook to user.
-                        postCurrentDailyTableState2(dailyTRC = it2, currentUserUid = currentUserUid.value)
-                    }
-                    oneTick = false
-                }
-            }
-        }
-        currentDailyTableState2.observeForever {
-            Log.d(TAG, "currentDailyTableState2 changed to $it")
+    val currentDailyTableState2 = liveData2Map(currentDailyTRC, currentUserUid, "currentDailyTableState2") { value1, value2 ->
+        return@liveData2Map if (value1 == null) {
+            null
+        } else {
+            DailyTableState2(value1, value2)
         }
     }
-
-    private fun postCurrentDailyTRC(currentDailyTableUid: String = DailyTable.default) {
-        currentDailyTRC.postValue(
-            service.dailyTableRepository.loadDailyTRC(currentDailyTableUid).asLiveData()
-        )
-    }
-
-    private fun postCurrentDailyTableState2(dailyTRC: DailyTRC, currentUserUid: String?) {
-        currentDailyTableState2.postValue(DailyTableState2.of(dailyTRC = dailyTRC, currentUserUid))
-    }
-    //endregion
+    val currentDailyTableState2End = currentDailyTableState2.ignoreNull().initial(
+        DailyTableState2.default())
 
     //region dailySet scope
     val dailySets = service.dailySetRepository.dailySets.asLiveData()

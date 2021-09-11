@@ -27,15 +27,19 @@ inline fun <reified T> liveData(flow: Flow<T>): LiveData<T> {
     return flow.asLiveData()
 }
 
-fun <T> liveDataIgnoreNull(flow: Flow<T?>, tag: String = "$flow"): LiveData<T> {
+fun <T> liveDataIgnoreNull(liveData: LiveData<T?>, tag: String = "$liveData"): LiveData<T> {
     val mediator = MediatorLiveData<T>()
     val signal = Random.nextInt(0, 100)
-    mediator.addSource(flow.asLiveData()) { value ->
+    mediator.addSource(liveData) { value ->
         logger.d(TAG, "$tag.target [$signal] changed to $value")
         mediator.value = value
     }
     return mediator
 }
+
+
+inline fun <reified T> liveDataIgnoreNull(flow: Flow<T?>, tag: String = "$flow"): LiveData<T> =
+    liveDataIgnoreNull(liveData(flow), tag)
 
 inline fun <reified T> LiveData<T>.initial(initial: T): InitialLiveData<T> {
     return InitialLiveData(this, initial)
@@ -44,6 +48,9 @@ inline fun <reified T> LiveData<T>.initial(initial: T): InitialLiveData<T> {
 inline fun <reified T> MutableLiveData<T>.initial(initial: T): InitialMutableLiveData<T> {
     return InitialMutableLiveData(this, initial)
 }
+
+fun <T> LiveData<T?>.ignoreNull(): LiveData<T> =
+    liveDataIgnoreNull(this)
 
 //endregion
 

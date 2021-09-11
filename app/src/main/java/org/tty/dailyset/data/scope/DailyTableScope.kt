@@ -4,6 +4,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.liveData
 import androidx.lifecycle.map
+import org.tty.dailyset.common.observable.state
 import org.tty.dailyset.model.entity.DailyCell
 import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
@@ -52,16 +53,13 @@ interface DailyTableScope : PreferenceScope, UserScope {
     @Composable
     fun currentDailyTableDetail(): State<DailyTRC> {
         val mainViewModel = mainViewModel()
-        val trcLiveData by mainViewModel.currentDailyTRC.observeAsState(liveData { })
-        return trcLiveData.map {
-            it ?: DailyTRC.default()
-        }.observeAsState(initial = DailyTRC.default())
+        return state(mainViewModel.currentDailyTRCEnd)
     }
 
     @Composable
     fun dailyTableState2(): State<DailyTableState2> {
         val mainViewModel = mainViewModel()
-        return mainViewModel.currentDailyTableState2.observeAsState(DailyTableState2.default())
+        return state(mainViewModel.currentDailyTableState2End)
     }
 
 
@@ -93,12 +91,10 @@ interface DailyTableScope : PreferenceScope, UserScope {
         val currentDailyTable = currentDailyTable().value
 
         return DailyTableCreateState(
-            dialogOpen = mutableStateOf(remember { dialogOpen }),
-            name = mutableStateOf(remember { initialName }),
+            dialogOpen = state(dialogOpen),
+            name = state(initialName),
             dailyTableSummaries = dailyTableSummaries(),
-            currentDailyTable = remember {
-                mutableStateOf(currentDailyTable)
-            }
+            currentDailyTable = state(currentDailyTable)
         )
     }
 
@@ -107,9 +103,7 @@ interface DailyTableScope : PreferenceScope, UserScope {
         dialogOpen: Boolean = false
     ): DailyTableDeleteState {
         return DailyTableDeleteState(
-            mutableStateOf(remember {
-                dialogOpen
-            })
+            state(dialogOpen)
         )
     }
 
