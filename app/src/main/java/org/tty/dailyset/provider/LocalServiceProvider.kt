@@ -48,4 +48,4 @@ internal val LocalWindow = compositionLocalOf<Window>() {
  * [MainViewModel] hold by [ComponentViewModel]
  * you must call in application region.
  */
-internal val mainViewModel get() = ComponentViewModel.current() as MainViewModel
+internal val mainViewModel get() = ComponentViewModel.current as MainViewModel

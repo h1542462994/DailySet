@@ -50,7 +50,7 @@ inline fun <reified T> MutableLiveData<T>.initial(initial: T): InitialMutableLiv
 //region liveDataChain1
 
 /**
- * to create a [LiveData] by [source] and [mapper] (sync version)
+ * to create a [LiveData] by [source] and [action] (sync version)
  * @param source the source liveData.
  * @param action transform from source to real data (async).
  * @param tag the tag for logging.
@@ -140,6 +140,38 @@ inline fun <reified T, reified R> liveDataMapAsyncIgnoreNull(source: LiveData<T>
 //endregion
 
 //region liveDataChain2
+inline fun <reified T1, reified T2, R> liveData2Chain(source1: LiveData<T1>, source2: LiveData<T2>, tag: String = "$source1,$source2", noinline action: (value1: T1, value2: T2, collector: LiveCollector<R>) -> Unit): LiveData<R> {
+    return liveDataVarargsChain(sources = arrayOf(liveDataMap(source1, "$tag.source1") { it }, liveDataMap(source2, "$tag.source2") { it }), tag) { values, collector ->
+        action(values[0] as T1, values[1] as T2, collector)
+    }
+}
+
+inline fun <reified T1, reified T2, R> liveData2Map(source1: LiveData<T1>, source2: LiveData<T2>, tag: String = "$source1,$source2", noinline mapper: (value1: T1, value2: T2) -> R): LiveData<R> {
+    return liveData2Chain(source1, source2, tag) { value1, value2, collector ->
+        collector.emit(mapper(value1, value2))
+    }
+}
+
+inline fun <reified T1, reified T2, R> liveData2MapIgnoreNull(source1: LiveData<T1>, source2: LiveData<T2>, tag: String = "$source1,$source2", noinline mapper: (value1: T1, value2: T2) -> R?): LiveData<R> {
+    return liveData2Chain(source1, source2, tag) { value1, value2, collector ->
+        val r = mapper(value1, value2)
+        if (r != null) {
+            collector.emit(r)
+        }
+    }
+}
+
+inline fun <reified T1, reified T2, reified R> liveData2MapAsync(source1: LiveData<T1>, source2: LiveData<T2>, tag: String = "$source1,$source2", noinline mapper: (value1: T1, value2: T2) -> Flow<R>): LiveData<R> {
+    return liveData2Chain(source1, source2, tag) { value1, value2, collector ->
+        collector.emitSource(liveData(mapper(value1, value2)))
+    }
+}
+
+inline fun <reified T1, reified T2, reified R> liveData2MapAsyncIgnore(source1: LiveData<T1>, source2: LiveData<T2>, tag: String = "$source1,$source2", noinline mapper: (value1: T1, value2: T2) -> Flow<R?>): LiveData<R> {
+    return liveData2Chain(source1, source2, tag) { value1, value2, collector ->
+        collector.emitSource(liveDataIgnoreNull(mapper(value1, value2)))
+    }
+}
 //endregion
 
 //region liveDataChain3
@@ -198,12 +230,32 @@ fun <T, R> liveDataVarargsChain(vararg sources: LiveData<T>, tag: String = "$sou
     return mediator
 }
 
-fun <T, R> liveDataVarargsMap(vararg sources: LiveData<T>, tag: String = "$sources", mapper: (values: List<T>) -> R): LiveData<R> {
+inline fun <reified T,reified R> liveDataVarargsMap(vararg sources: LiveData<T>, tag: String = "$sources", noinline mapper: (values: List<T>) -> R): LiveData<R> {
     return liveDataVarargsChain(sources = sources, tag = tag) { values, collector ->
         collector.emit(mapper(values))
     }
 }
 
+inline fun <reified T, reified R> liveDataVarargsMapIgnoreNull(vararg sources: LiveData<T>, tag: String = "$sources", noinline mapper: (values: List<T>) -> R?): LiveData<R> {
+    return liveDataVarargsChain(sources = sources, tag = tag) { values, collector ->
+        val r = mapper(values)
+        if (r != null) {
+            collector.emit(r)
+        }
+    }
+}
+
+inline fun <reified T, reified R> liveDataVarargsMapAsync(vararg sources: LiveData<T>, tag: String = "$sources", noinline mapper: (values: List<T>) -> Flow<R>): LiveData<R> {
+    return liveDataVarargsChain(sources = sources, tag = tag) { values, collector ->
+        return@liveDataVarargsChain collector.emitSource(liveData(mapper(values)))
+    }
+}
+
+inline fun <reified T, reified R> liveDataVarargsMapAsyncNotNull(vararg sources: LiveData<T>, tag: String = "$sources", noinline mapper: (values: List<T>) -> Flow<R?>): LiveData<R> {
+    return liveDataVarargsChain(sources = sources, tag = tag) { values, collector ->
+        return@liveDataVarargsChain collector.emitSource(liveDataIgnoreNull(mapper(values)))
+    }
+}
 
 //endregion
 
