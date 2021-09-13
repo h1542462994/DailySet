@@ -24,17 +24,13 @@ import org.tty.dailyset.ui.image.ImageResource
 @Composable
 fun ProfilePage() {
     with(DataScope) {
-        val seedVersion by seedVersion()
-
-
-        // state of user..
-        val currentUser by currentUser()
+        val userState by currentUserState()
         val scrollState = rememberScrollState()
 
         Column(
             modifier = Modifier.verticalScroll(scrollState, enabled = true)
         ){
-            ProfileMenuGroupUser(user = currentUser)
+            ProfileMenuGroupUser(user = userState.currentUser)
             ProfileMenuGroupUserSettings()
             ProfileMenuGroupGlobalSettings()
         }

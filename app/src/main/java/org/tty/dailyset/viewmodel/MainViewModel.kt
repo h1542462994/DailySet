@@ -1,12 +1,15 @@
 package org.tty.dailyset.viewmodel
 
 import android.util.Log
-import androidx.lifecycle.*
-import kotlinx.coroutines.launch
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import org.tty.dailyset.DailySetApplication
 import org.tty.dailyset.common.local.ComponentViewModel
 import org.tty.dailyset.common.observable.*
 import org.tty.dailyset.model.entity.*
+import org.tty.dailyset.model.lifetime.UserState
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailySetCursor
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailySetState
 import org.tty.dailyset.model.lifetime.dailytable.DailyTableState2
@@ -31,21 +34,24 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
         registerDailySetHook()
     }
 
-    //region main scope
-    private var _mainTab = liveData(MainPageTabs.DAILY_SET)
-    val mainTab = _mainTab
-    val setMainTab: (MainPageTabs) -> Unit = { tab ->
-        viewModelScope.launch {
-            _mainTab.value = tab
-        }
+    //region liveData Internal
+    private val mainTabLiveData = liveData(MainPageTabs.DAILY_SET)
+    private val seedVersionLiveData = liveData(service.preferenceRepository.seedVersion)
+    private val currentUserUidLiveData = liveData(service.preferenceRepository.currentUserUid)
+    private val usersLiveData = liveData(service.userRepository.users)
+    private val currentUserStateLiveData = liveData2Map(usersLiveData, currentUserUidLiveData, "currentUser") { users, currentUserUid ->
+        val currentUser = users.find { it.userUid == currentUserUid } ?: User.default()
+        UserState(currentUser, currentUserUid)
     }
+
+
     //endregion
 
-    //region profile scope
-    val seedVersion = liveData(service.preferenceRepository.seedVersion)
 
-    val currentUserUid: LiveData<String> = liveData(service.preferenceRepository.currentUserUid)
-    val users: LiveData<List<User>> = liveData(service.userRepository.users)
+    //region profile scope
+
+
+
     //endregion
 
     //region dailyTable.settings scope
@@ -57,7 +63,7 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
     }
     val currentDailyTRCEnd = currentDailyTRC.ignoreNull().initial(DailyTRC.default())
 
-    val currentDailyTableState2 = liveData2Map(currentDailyTRC, currentUserUid, "currentDailyTableState2") { value1, value2 ->
+    val currentDailyTableState2 = liveData2Map(currentDailyTRC, currentUserUidLiveData, "currentDailyTableState2") { value1, value2 ->
         return@liveData2Map if (value1 == null) {
             null
         } else {
@@ -148,7 +154,7 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
                     Log.d(TAG, "currentDailyTRCBinding changed to $it2")
                     if (it2 != null) {
                         // TODO: 2021/6/24 hook to user.
-                        postCurrentDailyTableState2Binding(dailyTRC = it2, currentUserUid = currentUserUid.value)
+                        postCurrentDailyTableState2Binding(dailyTRC = it2, currentUserUid = currentUserUidLiveData.value)
                     }
                     oneTick = false
                 }
@@ -217,6 +223,14 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
         currentClazzDailySetState.postValue(clazzDailySetState)
     }
 
+    //endregion
+
+    //region liveData Exports
+    val mainTab = mainTabLiveData.initial(MainPageTabs.DAILY_SET)
+    val seedVersion = seedVersionLiveData.initial(PreferenceName.SEED_VERSION.defaultValue.toInt())
+    val currentUserUid = currentUserUidLiveData.initial(PreferenceName.CURRENT_USER_UID.defaultValue)
+    val users = usersLiveData.initial(listOf())
+    val currentUserState = currentUserStateLiveData.initial(UserState(User.default(), User.local))
     //endregion
 
     companion object {

@@ -40,7 +40,7 @@ internal val LocalMainViewModel = compositionLocalOf<MainViewModel> {
     error("No MainViewModel Provided")
 }
 
-internal val LocalWindow = compositionLocalOf<Window>() {
+internal val LocalWindow = compositionLocalOf<Window> {
     error("No Window Provided")
 }
 

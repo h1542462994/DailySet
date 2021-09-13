@@ -27,13 +27,11 @@ import org.tty.dailyset.event.DailySetCreateDurationAndBindingEventArgs
 import org.tty.dailyset.event.DailySetEventType
 import org.tty.dailyset.model.entity.*
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailyDurationCreateState
-import org.tty.dailyset.model.lifetime.dailyset.ClazzDailySetCursor
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailySetState
 import org.tty.dailyset.model.lifetime.dailytable.DailyTableCalc
 import org.tty.dailyset.ui.component.IconClick
 import org.tty.dailyset.ui.component.IconText
 import org.tty.dailyset.ui.component.TopBar
-import org.tty.dailyset.ui.component.ViewPager
 import org.tty.dailyset.ui.image.ImageResource
 import org.tty.dailyset.ui.theme.LocalPalette
 import org.tty.dailyset.ui.utils.StatusBarToBackground1

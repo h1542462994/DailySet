@@ -3,20 +3,19 @@ package org.tty.dailyset.data.scope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.livedata.observeAsState
-import org.tty.dailyset.model.entity.Preference
-import org.tty.dailyset.model.entity.PreferenceName
+import org.tty.dailyset.common.observable.state
+import org.tty.dailyset.provider.mainViewModel as vm
 
 @Immutable
 interface PreferenceScope: GlobalScope {
     @Composable
     fun seedVersion(): State<Int> {
-        return mainViewModel().seedVersion.observeAsState(0)
+        return state(vm.seedVersion)
     }
 
     @Composable
     fun currentUserUid(): State<String> {
-        return mainViewModel().currentUserUid.observeAsState(Preference.default(PreferenceName.CURRENT_USER_UID).value)
+        return state(vm.currentUserUid)
     }
 
     //companion object: PreferenceScope

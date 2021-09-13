@@ -11,15 +11,12 @@ import org.tty.dailyset.model.entity.DailyDuration
 import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.model.entity.PeriodCode
 import org.tty.dailyset.model.entity.toDisplay
-import org.tty.dailyset.model.lifetime.DatePickerDialogState
 import org.tty.dailyset.model.lifetime.UserState
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailyDurationCreateState
 import org.tty.dailyset.toLongDateString
-import org.tty.dailyset.toShortDateString
 import org.tty.dailyset.ui.component.*
 import org.tty.dailyset.ui.theme.LocalPalette
 import org.tty.dailyset.weekCount
-import java.time.temporal.ChronoField
 
 /**
  * the dailog for create clazz duration and import this to current dailySet ::clazzType.

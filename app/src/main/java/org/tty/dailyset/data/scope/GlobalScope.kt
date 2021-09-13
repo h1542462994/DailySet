@@ -1,19 +1,24 @@
 package org.tty.dailyset.data.scope
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
+import org.tty.dailyset.common.observable.state
 import org.tty.dailyset.model.lifetime.DatePickerDialogState
-import org.tty.dailyset.viewmodel.MainViewModel
 import org.tty.dailyset.provider.LocalMainViewModel
+import org.tty.dailyset.ui.page.MainPageTabs
+import org.tty.dailyset.viewmodel.MainViewModel
 import java.time.LocalDate
+import org.tty.dailyset.provider.mainViewModel as vm
 
 @Immutable
 interface GlobalScope  {
     @Composable
     fun mainViewModel(): MainViewModel {
         return LocalMainViewModel.current
+    }
+
+    @Composable
+    fun mainTab(): MutableState<MainPageTabs> {
+        return state(vm.mainTab)
     }
 
     @Composable

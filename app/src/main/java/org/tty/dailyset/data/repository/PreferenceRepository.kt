@@ -13,7 +13,7 @@ import org.tty.dioc.util.optional
  * it will use db service, see also [org.tty.dailyset.data.DailySetRoomDatabase]
  */
 class PreferenceRepository(private val preferenceDao: PreferenceDao) {
-    val seedVersionPreference: Flow<Preference?> = preferenceDao.load(PreferenceName.SEED_VERSION.key)
+    private val seedVersionPreference: Flow<Preference?> = preferenceDao.load(PreferenceName.SEED_VERSION.key)
     val seedVersion = seedVersionPreference.map { s ->
         s.optional { value.toInt() } ?: Preference.default(PreferenceName.SEED_VERSION).value.toInt()
     }
