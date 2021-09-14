@@ -1,9 +1,6 @@
 package org.tty.dailyset.data.scope
 
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.lifecycle.liveData
-import androidx.lifecycle.map
 import org.tty.dailyset.common.observable.state
 import org.tty.dailyset.model.entity.DailyCell
 import org.tty.dailyset.model.entity.DailyTRC
@@ -12,6 +9,7 @@ import org.tty.dailyset.model.lifetime.dailytable.*
 import org.tty.dailyset.toWeekStart
 import java.sql.Time
 import java.time.LocalDate
+import org.tty.dailyset.provider.mainViewModel as vm
 
 /**
  * a state related operation for [DailyTable], defines much functions return [State].
@@ -28,38 +26,17 @@ interface DailyTableScope : PreferenceScope, UserScope {
      */
     @Composable
     fun dailyTableSummaries(): State<List<DailyTable>> {
-        return mainViewModel().dailyTableSummaries.observeAsState(listOf())
-    }
-
-    /**
-     * state of [dailyTableSummaries] and [org.tty.dailyset.viewmodel.MainViewModel.currentDailyTableUid]
-     * if not initialized, return [DailyTable.default]
-     */
-    @Composable
-    fun currentDailyTable(): State<DailyTable> {
-        val mainViewModel = mainViewModel()
-        val dailyTableSummaries by dailyTableSummaries()
-
-        val currentDailyTableUid by mainViewModel.currentDailyTableUid.observeAsState(DailyTable.default)
-        return derivedStateOf {
-            dailyTableSummaries.find { it.uid == currentDailyTableUid } ?: DailyTable.default()
-        }
-    }
-
-    /**
-     * state of [org.tty.dailyset.viewmodel.MainViewModel.currentDailyTRC]
-     * (temp)
-     */
-    @Composable
-    fun currentDailyTableDetail(): State<DailyTRC> {
-        val mainViewModel = mainViewModel()
-        return state(mainViewModel.currentDailyTRCEnd)
+        return state(vm.dailyTableSummaries)
     }
 
     @Composable
     fun dailyTableState2(): State<DailyTableState2> {
-        val mainViewModel = mainViewModel()
-        return state(mainViewModel.currentDailyTableState2End)
+        return state(vm.currentDailyTableState2)
+    }
+
+    @Composable
+    fun dailyTableUid(): MutableState<String> {
+        return state(vm.currentDailyTableUid)
     }
 
 
@@ -88,7 +65,7 @@ interface DailyTableScope : PreferenceScope, UserScope {
         initialName: String = "",
         dialogOpen: Boolean = false
     ): DailyTableCreateState {
-        val currentDailyTable = currentDailyTable().value
+        val currentDailyTable = dailyTableState2().value.dailyTRC.dailyTable
 
         return DailyTableCreateState(
             dialogOpen = state(dialogOpen),

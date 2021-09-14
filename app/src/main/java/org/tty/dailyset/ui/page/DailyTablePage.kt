@@ -75,6 +75,7 @@ fun DailyTablePage() {
         //val dailyTableState = dailyTableState()
         val dailyTableState2 by dailyTableState2()
         val currentDailyTRC = dailyTableState2.dailyTRC
+        val dailyTableUidState = dailyTableUid()
 
         //region dailyTableProcessor
         val dailyTableProcessor = object : DailyTableProcessor {
@@ -92,7 +93,7 @@ fun DailyTablePage() {
                         require(e is DailyTableCreateEventArgs) {
                             "e is not a DailyTableCreateEventArgs"
                         }
-                        mainViewModel.currentDailyTableUid.postValue(e.uid)
+                        dailyTableUidState.value = e.uid
                         scrollToTop()
                     }
                 )
@@ -102,7 +103,7 @@ fun DailyTablePage() {
                 // TODO: 2021/5/2 加入检查代码，以防止DailyTask引用到空的DailyTable,DailyRow,DailyCell.
                 val deleteEventArgs = DailyTableDeleteEventArgs(currentDailyTRC)
                 performProcess(service, DailyTableEventType.Delete, deleteEventArgs,
-                    onBefore = { mainViewModel.currentDailyTableUid.postValue(DailyTable.default) },
+                    onBefore = { dailyTableUidState.value = DailyTable.default },
                     onCompletion = {}
                 )
             }
@@ -117,7 +118,7 @@ fun DailyTablePage() {
                     onBefore = {},
                     onCompletion = {
                         dailyTableAddRowState.dialogOpen.value = false
-                        mainViewModel.currentDailyTableUid.postValue(currentDailyTRC.dailyTable.uid)
+                        dailyTableUidState.value = currentDailyTRC.dailyTable.uid
                     }
                 )
             }
@@ -206,7 +207,7 @@ fun DailyTablePage() {
                 ) { dailyTable ->
                     // TODO: 2021/4/7 优化代码
                     scrollToTop()
-                    mainViewModel.currentDailyTableUid.value = dailyTable.uid
+                    dailyTableUidState.value = dailyTable.uid
 
                     dropDownTitleOpenState.value = false
                 }

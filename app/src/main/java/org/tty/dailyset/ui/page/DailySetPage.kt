@@ -15,7 +15,10 @@ import org.tty.dailyset.data.processor.DailySetProcessor
 import org.tty.dailyset.data.scope.DataScope
 import org.tty.dailyset.event.DailySetCreateEventArgs
 import org.tty.dailyset.event.DailySetEventType
-import org.tty.dailyset.model.entity.*
+import org.tty.dailyset.model.entity.DailySet
+import org.tty.dailyset.model.entity.DailySetIcon
+import org.tty.dailyset.model.entity.DailySetType
+import org.tty.dailyset.model.entity.toImageResource
 import org.tty.dailyset.model.lifetime.dailyset.DailySetCreateState
 import org.tty.dailyset.ui.component.ProfileMenuItem
 import org.tty.dailyset.ui.component.TitleSpace
@@ -36,6 +39,7 @@ fun DailySetPage() {
         val userState by currentUserState()
         val dailySets by dailySets()
         val nav = LocalNav.current
+        val currentDailySetUid = currentDailySetUid()
 
         val dailySetProcessor = object: DailySetProcessor {
             override fun onCreate(dailySetName: String, icon: DailySetIcon?, type: DailySetType) {
@@ -61,7 +65,7 @@ fun DailySetPage() {
             DailySetAutoPart()
             DailySetUserPart(dailySets) {
                 // change the current dailySet uid to selected
-                mainViewModel.currentDailySetUid.postValue(it.uid)
+                currentDailySetUid.value = it.uid
                 // changed the target page
                 when(it.type) {
                     DailySetType.Normal -> {

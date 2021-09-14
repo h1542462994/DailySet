@@ -51,20 +51,9 @@ fun ClazzDailySetPage() {
     with(DataScope) {
         val mainViewModel = mainViewModel()
         val service = mainViewModel.service
-        //val dailySetDurations by currentDailySetDurations()
         val dailyTableSummaries by dailyTableSummaries()
         val userState by currentUserState()
-
-        val clazzDailySetState2 by currentClazzDailySetState2()
-        mainViewModel.currentClazzDailySetState.postValue(
-            clazzDailySetState2
-        )
-
         val clazzDailySetState by currentClazzDailySetState()
-
-        LaunchedEffect(key1 = clazzDailySetState, block = {
-            Log.d("ClazzDailySetPage", clazzDailySetState.toString())
-        })
 
         /**
          * not include dailyDurations current.

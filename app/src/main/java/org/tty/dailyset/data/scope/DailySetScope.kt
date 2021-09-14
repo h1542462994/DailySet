@@ -1,35 +1,22 @@
 package org.tty.dailyset.data.scope
 
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import org.tty.dailyset.common.observable.state
 import org.tty.dailyset.model.entity.*
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailyDurationCreateState
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailySetState
 import org.tty.dailyset.model.lifetime.dailyset.DailySetCreateState
-import org.tty.dailyset.model.lifetime.dailytable.DailyTableState2
-import org.tty.dailyset.provider.mainViewModel
 import org.tty.dailyset.toWeekStart
 import java.time.LocalDate
+import org.tty.dailyset.provider.mainViewModel as vm
 
-interface DailySetScope: PreferenceScope, UserScope {
+interface DailySetScope: PreferenceScope, UserScope, DailyTableScope {
     /**
      * the data entry for all dailySet.
      */
     @Composable
     fun dailySets(): State<List<DailySet>> {
-        return state(liveData = mainViewModel.dailySets, initial = listOf())
-        //return mainViewModel.dailySets.observeAsState(initial = listOf())
-    }
-
-    /**
-     * the data entry for current dailySet.
-     */
-    @Composable
-    @Deprecated("use currentDailySetDurations instead.", level = DeprecationLevel.ERROR)
-    fun currentDailySet(): State<DailySet> {
-        val mainViewModel = mainViewModel()
-        return mainViewModel.currentDailySet.observeAsState(initial = DailySet.empty())
+        return state(liveData = vm.dailySets)
     }
 
     /**
@@ -37,39 +24,17 @@ interface DailySetScope: PreferenceScope, UserScope {
      */
     @Composable
     fun currentDailySetDurations(): State<DailySetDurations> {
-        val mainViewModel = mainViewModel()
-        return mainViewModel.currentDailySetDurations.observeAsState(initial = DailySetDurations.empty())
+        return state(vm.currentDailySetDurations)
+    }
+
+    @Composable
+    fun currentDailySetUid(): MutableState<String> {
+        return state(vm.currentDailySetUid)
     }
 
     @Composable
     fun currentClazzDailySetState(): State<ClazzDailySetState> {
-//        val currentDailySetDurations by currentDailySetDurations()
-//        val mainViewModel = mainViewModel()
-//        val dailySetCursorCache = mainViewModel.clazzDailySetCursorCache
-//        val dailySetBindingKey by mainViewModel.currentDailySetBindingKey.observeAsState()
-//        val dailySetBinding by mainViewModel.currentDailySetBinding.observeAsState(DailySetBinding.empty())
-//        val dailyTableState2 by mainViewModel.currentDailyTableState2Binding.observeAsState(
-//            DailyTableState2.default())
-//        return remember(currentDailySetDurations, dailySetBindingKey,
-//            dailySetCursorCache[currentDailySetDurations.dailySet.uid]) {
-//            mutableStateOf(ClazzDailySetState(currentDailySetDurations, dailySetCursorCache, dailySetBinding, dailyTableState2, mainViewModel))
-//        }
-        return mainViewModel().currentClazzDailySetState.observeAsState(ClazzDailySetState.empty())
-    }
-
-    @Composable
-    fun currentClazzDailySetState2(): State<ClazzDailySetState> {
-        val currentDailySetDurations by currentDailySetDurations()
-        val mainViewModel = mainViewModel()
-        val dailySetCursorCache = mainViewModel.clazzDailySetCursorCache
-        val dailySetBindingKey by mainViewModel.currentDailySetBindingKey.observeAsState()
-        val dailySetBinding by mainViewModel.currentDailySetBinding.observeAsState(DailySetBinding.empty())
-        val dailyTableState2 by mainViewModel.currentDailyTableState2Binding.observeAsState(
-            DailyTableState2.default())
-        return remember(currentDailySetDurations, dailySetBindingKey,
-            dailySetCursorCache[currentDailySetDurations.dailySet.uid]) {
-            mutableStateOf(ClazzDailySetState(currentDailySetDurations, dailySetCursorCache, dailySetBinding, dailyTableState2, mainViewModel))
-        }
+        return state(vm.currentClazzDailySetState)
     }
 
     /**
@@ -98,8 +63,7 @@ interface DailySetScope: PreferenceScope, UserScope {
      */
     @Composable
     fun normalDailyDurations(): State<List<DailyDuration>> {
-        val mainViewModel = mainViewModel()
-        return mainViewModel.normalDailyDurations.observeAsState(initial = listOf())
+        return state(liveData = vm.normalDailyDurations)
     }
 
     /**
@@ -107,18 +71,7 @@ interface DailySetScope: PreferenceScope, UserScope {
      */
     @Composable
     fun clazzDailyDurations(): State<List<DailyDuration>> {
-        val mainViewModel = mainViewModel()
-        return mainViewModel.clazzDailyDurations.observeAsState(initial = listOf())
-    }
-
-    /**
-     * the empty dailyDurations, just for test
-     */
-    @Composable
-    fun emptyDailyDurations(): State<List<DailyDuration>> {
-        return remember {
-            mutableStateOf(listOf())
-        }
+        return state(liveData = vm.clazzDailyDurations)
     }
 
     /**

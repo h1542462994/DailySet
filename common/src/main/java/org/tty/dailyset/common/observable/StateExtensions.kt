@@ -89,3 +89,11 @@ inline fun <reified T> state(liveData: InitialMutableLiveData<T>): MutableState<
         override fun component2() = setter
     }
 }
+
+inline fun <reified T, R> State<T>.map(crossinline action: (T) -> R): State<R> {
+    val state = this
+    return object: State<R> {
+        override val value: R
+            get() = action(state.value)
+    }
+}

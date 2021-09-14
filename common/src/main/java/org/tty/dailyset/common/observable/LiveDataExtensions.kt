@@ -7,12 +7,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.asLiveData
 import kotlinx.coroutines.flow.Flow
 import org.jetbrains.annotations.NotNull
-import org.tty.dailyset.common.local.Signature
 import org.tty.dailyset.common.local.Tags
 import org.tty.dailyset.common.local.logger
 import org.tty.dioc.observable.channel.Channels
 import org.tty.dioc.observable.channel.observe
-import org.tty.dioc.util.optional
 
 @Suppress("unused")
 val Tags.liveDataExtension: String
@@ -23,8 +21,6 @@ private fun logDIfTag(moduleTag: String, tag: String?, content: String) {
         logger.d(moduleTag, content)
     }
 }
-
-val liveDataSignature = Signature.int()
 
 //region liveDataBase
 
@@ -46,11 +42,13 @@ inline fun <reified T> liveData(flow: Flow<T>): LiveData<T> {
  * create a [LiveData] with [liveData] and ignore null value.
  * if the liveData changes to null, the result will maintain the value.
  */
-fun <T> liveDataIgnoreNull(liveData: LiveData<T?>, tag: String? = null): LiveData<T> {
+fun <T> liveDataIgnoreNull(liveData: LiveData<T?>): LiveData<T> {
     val mediator = MediatorLiveData<T>()
     mediator.addSource(liveData) { value ->
-        logDIfTag(Tags.liveDataExtension, tag, "$tag.target [$signal] changed to $value")
-        mediator.value = value
+        if (value != null) {
+            //logDIfTag(Tags.liveDataExtension, tag, "$tag.target changed to $value")
+            mediator.value = value
+        }
     }
     return mediator
 }
@@ -59,14 +57,15 @@ fun <T> liveDataIgnoreNull(liveData: LiveData<T?>, tag: String? = null): LiveDat
  * create a [LiveData] with [flow] and ignore null value.
  * if the liveData changes to null, the result will maintain the value.
  */
-inline fun <reified T> liveDataIgnoreNull(flow: Flow<T?>, tag: String? = null): LiveData<T> =
-    liveDataIgnoreNull(liveData(flow), tag)
+inline fun <reified T> liveDataIgnoreNull(flow: Flow<T?>): LiveData<T> =
+    liveDataIgnoreNull(liveData(flow))
 
 /**
  * shortcut function for [liveDataIgnoreNull]
  */
 fun <T> LiveData<T?>.ignoreNull(): LiveData<T> =
     liveDataIgnoreNull(this)
+
 
 //endregion
 
@@ -95,9 +94,7 @@ fun <T, R> liveDataChain(
                 assigned = false
                 mediator.removeSource(mediator)
             }
-            signal.withSignal { signal ->
-                logDIfTag(Tags.liveDataExtension, tag, "[$signal] $tag.target ->  $value")
-            }
+            logDIfTag(Tags.liveDataExtension, tag, "$tag.target ->  $value")
             mediator.value = value
         }
 
@@ -108,13 +105,8 @@ fun <T, R> liveDataChain(
                 }
                 mediator.removeSource(middleLiveData)
             }
-            logDIfTag(
-                Tags.liveDataExtension,
-                tag,
-                "[$signal, async] $tag.liveData -> $liveData"
-            )
             mediator.addSource(liveData) { v ->
-                logDIfTag(Tags.liveDataExtension, tag, "[$signal, async] $tag.target -> $v")
+                logDIfTag(Tags.liveDataExtension, tag, "$tag.target (async) ->  $v")
                 mediator.value = v
             }
             assigned = true
@@ -122,7 +114,7 @@ fun <T, R> liveDataChain(
         }
     }
     mediator.addSource(source) { s ->
-        logDIfTag(Tags.liveDataExtension, tag, "[$signal] $tag.source ->  $s")
+        logDIfTag(Tags.liveDataExtension, tag, "$tag.source ->  $s")
         action(s, collector)
     }
 
@@ -141,9 +133,7 @@ fun <T, R> liveDataMap(
     mapper: (T) -> R
 ): LiveData<R> {
     return liveDataChain(source, tag) { value, collector ->
-        signal.withSignal {
-            collector.emit(mapper(value))
-        }
+        collector.emit(mapper(value))
     }
 }
 
@@ -199,9 +189,32 @@ inline fun <reified T, reified R> liveDataMapAsyncIgnoreNull(
     noinline mapper: (T) -> Flow<R?>
 ): LiveData<R> {
     return liveDataChain(source, tag) { value, collector ->
-        collector.emitSource(liveDataIgnoreNull(mapper(value), tag.optional { "$source.flow" }))
+        collector.emitSource(liveDataIgnoreNull(mapper(value)))
     }
 }
+
+/**
+ * effect before the [LiveData] propagate to next.
+ */
+fun <T> LiveData<T>.preEffect(action: (value: T) -> Unit): LiveData<T> {
+    return liveDataChain(this) { value, collector ->
+        action(value)
+        collector.emit(value)
+    }
+}
+
+/**
+ * effect before the [LiveData] propagate to next.
+ */
+fun <T> MutableLiveData<T>.preEffect(action: (value: T) -> Unit): LiveData<T> {
+    val mediator = MediatorLiveData<T>()
+    mediator.addSource(this) {
+        action(it)
+        mediator.postValue(it)
+    }
+    return mediator
+}
+
 
 //endregion
 
@@ -225,8 +238,8 @@ fun <T1, T2, R> liveData2Chain(
     action: (value1: T1, value2: T2, collector: LiveCollector<R>) -> Unit
 ): LiveData<R> {
     return liveDataVarargsChain(sources = arrayOf(
-        liveDataMap(source1, tag.optional { "$tag.source1" }) { it },
-        liveDataMap(source2, tag.optional { "$tag.source2" }) { it }), tag
+        liveDataMap(source1) { it },
+        liveDataMap(source2) { it }), tag
     ) { values, collector ->
         action(values[0] as T1, values[1] as T2, collector)
     }
@@ -336,9 +349,9 @@ inline fun <reified T1, reified T2, reified T3, R> liveData3Chain(
     noinline action: (value1: T1, value2: T2, value3: T3, collector: LiveCollector<R>) -> Unit
 ): LiveData<R> {
     return liveDataVarargsChain(sources = arrayOf(
-        liveDataMap(source1, tag.optional { "$tag.source1" }) { it },
-        liveDataMap(source2, tag.optional { "$tag.source2" }) { it },
-        liveDataMap(source3, tag.optional { "$tag.source3" }) { it }), tag
+        liveDataMap(source1) { it },
+        liveDataMap(source2) { it },
+        liveDataMap(source3) { it }), tag
     ) { values, collector ->
         action(values[0] as T1, values[1] as T2, values[2] as T3, collector)
     }
@@ -463,7 +476,7 @@ fun <T, R> liveDataVarargsChain(
                 assigned = false
                 mediator.removeSource(mediator)
             }
-            logDIfTag(Tags.liveDataExtension, tag, "$tag.target [$signal] changed to $value" )
+            logDIfTag(Tags.liveDataExtension, tag, "$tag.target ->  $value" )
             mediator.value = value!!
         }
 
@@ -474,9 +487,8 @@ fun <T, R> liveDataVarargsChain(
                 }
                 mediator.removeSource(middleLiveData)
             }
-            logDIfTag(Tags.liveDataExtension, tag,"$tag.liveData [$signal, async] changed to $liveData")
             mediator.addSource(liveData) { v ->
-                logDIfTag(Tags.liveDataExtension, tag,"$tag.target [$signal, async] changed to $v")
+                logDIfTag(Tags.liveDataExtension, tag,"$tag.target (async) ->  $v")
                 mediator.value = v
             }
             assigned = true
@@ -494,7 +506,7 @@ fun <T, R> liveDataVarargsChain(
 
     sources.forEachIndexed { index, liveData ->
         mediator.addSource(liveData) { value ->
-            logDIfTag(Tags.liveDataExtension, tag, "$tag.source($index) changed to $value")
+            logDIfTag(Tags.liveDataExtension, tag, "$tag.source[$index] ->  $value")
             channels[index].emit(value)
         }
     }

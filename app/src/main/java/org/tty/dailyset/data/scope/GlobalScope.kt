@@ -1,6 +1,7 @@
 package org.tty.dailyset.data.scope
 
 import androidx.compose.runtime.*
+import org.tty.dailyset.DailySetApplication
 import org.tty.dailyset.common.observable.state
 import org.tty.dailyset.model.lifetime.DatePickerDialogState
 import org.tty.dailyset.provider.LocalMainViewModel
@@ -19,6 +20,11 @@ interface GlobalScope  {
     @Composable
     fun mainTab(): MutableState<MainPageTabs> {
         return state(vm.mainTab)
+    }
+
+    @Composable
+    fun rootService(): DailySetApplication {
+        return vm.service
     }
 
     @Composable

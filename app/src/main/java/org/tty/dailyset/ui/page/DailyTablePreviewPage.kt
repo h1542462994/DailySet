@@ -5,7 +5,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -14,7 +15,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.tty.dailyset.*
-import org.tty.dailyset.LocalNav
 import org.tty.dailyset.R
 import org.tty.dailyset.data.scope.DataScope
 import org.tty.dailyset.model.entity.DailyCell
@@ -38,14 +38,15 @@ fun DailyTablePreviewPage() {
 
 
     with(DataScope) {
-        //val dailyTableState2 by dailyTableState2()
-        val currentDailyTable by currentDailyTable()
+        val dailyTableState2 by dailyTableState2()
+        val currentDailyTRC = dailyTableState2.dailyTRC
+        val currentDailyTable = currentDailyTRC.dailyTable
         // TODO: 2021/3/26 去除硬编码 25.dp
         val unit = toPx(dp = 25.dp)
         val currentUserState by currentUserState()
         // complex state
         val dailyTablePreviewState = dailyTablePreviewState()
-        val currentDailyTRC by currentDailyTableDetail()
+
 
         val measuredWidth = measuredWidth()
         assert(measuredWidth > 0)
