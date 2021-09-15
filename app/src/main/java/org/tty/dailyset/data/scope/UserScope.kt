@@ -17,7 +17,7 @@ interface UserScope: PreferenceScope {
 
     @Composable
     fun currentUserState(): State<UserState> {
-        return state(vm.currentUserState)
+        return state(vm.userState)
     }
 }
 

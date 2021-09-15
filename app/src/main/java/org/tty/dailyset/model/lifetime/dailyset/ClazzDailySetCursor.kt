@@ -1,16 +1,18 @@
 package org.tty.dailyset.model.lifetime.dailyset
 
+import org.tty.dailyset.model.entity.DailyDuration
+
 /**
  * the cursor of the current showed dailySet
  */
 data class ClazzDailySetCursor(
-    val dailyDurationUid: String,
+    val dailyDuration: DailyDuration,
     val index: Int
 ) {
     companion object {
         fun empty(): ClazzDailySetCursor {
             return ClazzDailySetCursor(
-                dailyDurationUid = "",
+                dailyDuration = DailyDuration.empty(),
                 index = 0
             )
         }

@@ -1,14 +1,16 @@
 package org.tty.dailyset.data.scope
 
 import androidx.compose.runtime.*
+import org.tty.dailyset.common.datetime.DateSpan
+import org.tty.dailyset.common.local.Tags
+import org.tty.dailyset.common.local.logger
+import org.tty.dailyset.common.observable.liveDataExtension
 import org.tty.dailyset.common.observable.state
 import org.tty.dailyset.model.entity.DailyCell
 import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.model.lifetime.dailytable.*
-import org.tty.dailyset.toWeekStart
 import java.sql.Time
-import java.time.LocalDate
 import org.tty.dailyset.provider.mainViewModel as vm
 
 /**
@@ -31,32 +33,27 @@ interface DailyTableScope : PreferenceScope, UserScope {
 
     @Composable
     fun dailyTableState2(): State<DailyTableState2> {
-        return state(vm.currentDailyTableState2)
+        return state(vm.dailyTableState2)
     }
 
     @Composable
     fun dailyTableUid(): MutableState<String> {
-        return state(vm.currentDailyTableUid)
+        return state(vm.dailyTableUid)
     }
 
 
     @Composable
     fun dailyTablePreviewState(): DailyTablePreviewState {
-        // TODO: 2021/3/29 添加对时间的依赖
-        // TODO: 2021/3/29 当前仅支持周一开始，需要进行扩展
-
-        val current = LocalDate.now()
-
-
-        val start = current.toWeekStart()
-        val weekDayNow = current.dayOfWeek.value
+        val nowDate by nowDate()
+        val startWeekDay by startWeekDay()
+        val currentWeekDay = state(value = nowDate.dayOfWeek, key1 = nowDate)
+        logger.d(Tags.liveDataExtension, "nowDate = $nowDate")
 
         return DailyTablePreviewState(
-            startDate = start,
-            weekDayNow = weekDayNow,
-            _weedDayCurrent = remember {
-                mutableStateOf(weekDayNow)
-            }
+            dateSpan = DateSpan.ofDate(nowDate, startWeekDay),
+            nowDate(),
+            currentWeekDay,
+            startWeekDay()
         )
     }
 

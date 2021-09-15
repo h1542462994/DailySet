@@ -46,7 +46,6 @@ fun <T> liveDataIgnoreNull(liveData: LiveData<T?>): LiveData<T> {
     val mediator = MediatorLiveData<T>()
     mediator.addSource(liveData) { value ->
         if (value != null) {
-            //logDIfTag(Tags.liveDataExtension, tag, "$tag.target changed to $value")
             mediator.value = value
         }
     }
@@ -63,7 +62,7 @@ inline fun <reified T> liveDataIgnoreNull(flow: Flow<T?>): LiveData<T> =
 /**
  * shortcut function for [liveDataIgnoreNull]
  */
-fun <T> LiveData<T?>.ignoreNull(): LiveData<T> =
+inline fun <reified T> LiveData<T?>.ignoreNull(): LiveData<T> =
     liveDataIgnoreNull(this)
 
 
@@ -127,10 +126,10 @@ fun <T, R> liveDataChain(
  * @param mapper transform from source to real data (async).
  * @param tag the tag for logging.
  */
-fun <T, R> liveDataMap(
+inline fun <reified T, reified R> liveDataMap(
     source: LiveData<T>,
     tag: String? = null,
-    mapper: (T) -> R
+    noinline mapper: (T) -> R
 ): LiveData<R> {
     return liveDataChain(source, tag) { value, collector ->
         collector.emit(mapper(value))
@@ -144,10 +143,10 @@ fun <T, R> liveDataMap(
  * @param tag the tag for logging.
  * @see liveDataChain
  */
-fun <T, R> liveDataMapIgnoreNull(
+inline fun <reified T, reified R> liveDataMapIgnoreNull(
     source: LiveData<T>,
     tag: String? = null,
-    mapper: (T) -> R?
+    noinline mapper: (T) -> R?
 ): LiveData<R> {
     return liveDataChain(source, tag) { value, collector ->
         val r = mapper(value)
@@ -192,30 +191,6 @@ inline fun <reified T, reified R> liveDataMapAsyncIgnoreNull(
         collector.emitSource(liveDataIgnoreNull(mapper(value)))
     }
 }
-
-/**
- * effect before the [LiveData] propagate to next.
- */
-fun <T> LiveData<T>.preEffect(action: (value: T) -> Unit): LiveData<T> {
-    return liveDataChain(this) { value, collector ->
-        action(value)
-        collector.emit(value)
-    }
-}
-
-/**
- * effect before the [LiveData] propagate to next.
- */
-fun <T> MutableLiveData<T>.preEffect(action: (value: T) -> Unit): LiveData<T> {
-    val mediator = MediatorLiveData<T>()
-    mediator.addSource(this) {
-        action(it)
-        mediator.postValue(it)
-    }
-    return mediator
-}
-
-
 //endregion
 
 //region liveDataChain2
@@ -230,12 +205,11 @@ fun <T> MutableLiveData<T>.preEffect(action: (value: T) -> Unit): LiveData<T> {
  * @see liveDataVarargsChain
  */
 
-@Suppress("UNCHECKED_CAST")
-fun <T1, T2, R> liveData2Chain(
+inline fun <reified T1, reified T2, R> liveData2Chain(
     source1: LiveData<T1>,
     source2: LiveData<T2>,
     tag: String? = null,
-    action: (value1: T1, value2: T2, collector: LiveCollector<R>) -> Unit
+    noinline action: (value1: T1, value2: T2, collector: LiveCollector<R>) -> Unit
 ): LiveData<R> {
     return liveDataVarargsChain(sources = arrayOf(
         liveDataMap(source1) { it },
@@ -254,11 +228,11 @@ fun <T1, T2, R> liveData2Chain(
  * @param tag the tag for logging.
  * @see liveData2Chain
  */
-fun <T1, T2, R> liveData2Map(
+inline fun <reified T1, reified T2, R> liveData2Map(
     source1: LiveData<T1>,
     source2: LiveData<T2>,
     tag: String? = null,
-    mapper: (value1: T1, value2: T2) -> R
+    noinline mapper: (value1: T1, value2: T2) -> R
 ): LiveData<R> {
     return liveData2Chain(source1, source2, tag) { value1, value2, collector ->
         collector.emit(mapper(value1, value2))

@@ -1,20 +1,20 @@
 package org.tty.dailyset.viewmodel
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flow
 import org.tty.dailyset.DailySetApplication
 import org.tty.dailyset.common.local.ComponentViewModel
-import org.tty.dailyset.common.local.logger
 import org.tty.dailyset.common.observable.*
-import org.tty.dailyset.model.entity.DailySetDurations
-import org.tty.dailyset.model.entity.DailyTable
-import org.tty.dailyset.model.entity.PreferenceName
-import org.tty.dailyset.model.entity.User
+import org.tty.dailyset.model.entity.*
 import org.tty.dailyset.model.lifetime.UserState
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailySetCursors
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailySetState
 import org.tty.dailyset.model.lifetime.dailytable.DailyTableState2
 import org.tty.dailyset.ui.page.MainPageTabs
-import org.tty.dioc.util.pair
+import java.time.DayOfWeek
 import java.time.LocalDate
 
 class MainViewModel(val service: DailySetApplication): ViewModel() {
@@ -37,23 +37,37 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
 
     //region liveData Internal
     //---main
+    /**
+     * {readOnly, 时钟源} 约10s发送1次数据的时钟源
+     */
+    private val localDateClock = liveData(flow<LocalDate> {
+        emit(LocalDate.now())
+    }.distinctUntilChanged())
+    private val startWeekDayLiveData = liveData(DayOfWeek.MONDAY)
+    /**
+     * {mutable, runtimeOnly}
+     */
     private val mainTabLiveData = liveData(MainPageTabs.DAILY_SET)
-    private val currentDailyTableUidLiveData = liveData(DailyTable.default)
+
+    /**
+     * {mutable, runtimeOnly}
+     */
+    private val dailyTableUidLiveData = liveData(DailyTable.default)
 
     //---user,preference
     private val seedVersionLiveData = liveData(service.preferenceRepository.seedVersion)
-    private val currentUserUidLiveData = liveData(service.preferenceRepository.currentUserUid)
+    private val userUidLiveData = liveData(service.preferenceRepository.currentUserUid)
     private val usersLiveData = liveData(service.userRepository.users)
-    private val currentUserStateLiveData = liveData2Map(usersLiveData, currentUserUidLiveData, "currentUser") { users, currentUserUid ->
+    private val userStateLiveData = liveData2Map(usersLiveData, userUidLiveData, "userState") { users, currentUserUid ->
         val currentUser = users.find { it.userUid == currentUserUid } ?: User.default()
         UserState(currentUser, currentUserUid)
     }
     //---dailyTable
     private val dailyTableSummariesLiveData = liveData(service.dailyTableRepository.dailyTableSummaries)
-    private val currentDailyTRCLiveData = liveDataMapAsync(currentDailyTableUidLiveData, "currentDailyTRC") {
+    private val dailyTRCLiveData = liveDataMapAsync(dailyTableUidLiveData, "dailyTRC") {
         service.dailyTableRepository.loadDailyTRC(it)
     }.ignoreNull()
-    private val currentDailyTableState2LiveData = liveData2Map(currentDailyTRCLiveData, currentUserUidLiveData) { value1, value2 ->
+    private val dailyTableState2LiveData = liveData2Map(dailyTRCLiveData, userUidLiveData) { value1, value2 ->
         DailyTableState2(value1, value2)
     }
     // ---dailySets
@@ -65,56 +79,63 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
      * {mutable, runtimeOnly} the cache for clazzDailySetCursorCache
      */
     private val clazzDailySetCursorCache = HashMap<String, Int>()
-    private val currentDailySetUidLiveData = liveData("")
-    private val currentDailySetUidLiveDataEffect = currentDailySetUidLiveData.preEffect {
-        logger.d(TAG, "dailySetUid -> $it")
-        currentCursorIndexLiveData.postValue(null)
-    }
-    private val currentDailySetDurationsLiveData = liveDataMapAsync(currentDailySetUidLiveDataEffect, "DailySetDurations") {
-        service.dailySetRepository.loadDailySetDurations(it)
+    private val dailySetUidLiveData = liveData("")
+    private val dailySetDurationsLiveData = liveDataChain(dailySetUidLiveData, "dailySetDurations") { value, collector: LiveCollector<DailySetDurations?> ->
+        // invalid the current cursor.
+        clazzCursorIndexLiveData.postValue(null)
+        // change
+        clazzWeekDayLiveData.postValue(LocalDate.now().dayOfWeek)
+        collector.emitSource(liveData(service.dailySetRepository.loadDailySetDurations(value)))
     }.ignoreNull()
-    private val currentCursorsLiveData = liveDataMap(currentDailySetDurationsLiveData, "DailySetCursors") {
-        ClazzDailySetCursors(it)
-    }
-
 
     /**
-     * {mutable}
+     * {mutable, runtimeOnly} the current cursor, if null, the cursor will be re generated.
      */
-    val currentCursorIndexLiveData = liveData<Int?>(null)
-    private val realCursorsAndIndexLiveData = liveData2Map(currentCursorIndexLiveData, currentCursorsLiveData, "realCursorsAndIndexLiveData") { value1, value2 ->
-        // save the cursor to the cache.
-        var needReload = false
-        val cacheKey = value2.dailySetDurations.dailySet.uid
-        if (value1 == null && (clazzDailySetCursorCache[cacheKey] == null
-            || clazzDailySetCursorCache[cacheKey] !in value2.list.indices)
-        ) {
-            needReload = true
-        }
-        if (value1 != null && value1 !in value2.list.indices) {
-            needReload = true
-        }
+    val clazzCursorIndexLiveData = liveData<Int?>(null)
 
-        if (needReload) {
-            val index = value2.findIndex(LocalDate.now())
-            clazzDailySetCursorCache[cacheKey] = index
-            return@liveData2Map pair(value2, index)
-        } else {
-            return@liveData2Map pair(value2, clazzDailySetCursorCache[cacheKey]!!)
+    // --- onlyClazzDailySet
+    private val clazzDailySetCursors: LiveData<ClazzDailySetCursors> = liveData2Chain(clazzCursorIndexLiveData, dailySetDurationsLiveData, "clazzDailySetCursors") { value1, value2, collector ->
+        if (value2.dailySet.type == DailySetType.Clazz) {
+
+            val cursors = ClazzDailySetCursors(value2, 0)
+            var needReload = false
+            val cacheKey = cursors.dailySetDurations.dailySet.uid
+
+            if (clazzDailySetCursorCache[cacheKey] !in cursors.indices) {
+                needReload = true
+            }
+
+            if (needReload) {
+                val index = cursors.findIndex(LocalDate.now())
+                clazzDailySetCursorCache[cacheKey] = index
+                collector.emit(cursors.copy(index = index))
+            } else {
+                val cursorIndex = value1 ?: (clazzDailySetCursorCache[cacheKey] ?: 0)
+                // save the cursor to the cache.
+                clazzDailySetCursorCache[cacheKey] = cursorIndex
+                collector.emit(cursors.copy(index = cursorIndex))
+            }
         }
     }
-    private val currentDailySetBindingLiveData = liveDataMapAsync(realCursorsAndIndexLiveData) {
-        val cursor = it.first.list[it.second]
-        service.dailySetRepository.loadDailySetBinding(it.first.dailySetDurations.dailySet.uid, cursor.dailyDurationUid)
+    private val clazzDailySetBinding = liveDataMapAsync(clazzDailySetCursors) { cursors ->
+        val cursor = cursors.cursor
+        service.dailySetRepository.loadDailySetBinding(cursors.dailySetDurations.dailySet.uid, cursor.dailyDuration.uid)
     }.ignoreNull()
-    private val dailyTableTRCBindingLiveData = liveDataMapAsync(currentDailySetBindingLiveData, "dailyTableTRCBinding") {
+    private val clazzDailyTRCLiveData = liveDataMapAsync(clazzDailySetBinding, "clazzDailyTRC") {
         service.dailyTableRepository.loadDailyTRC(it.bindingDailyTableUid)
     }.ignoreNull()
-    private val dailyTableState2BindingLiveData = liveData2Map(dailyTableTRCBindingLiveData, currentUserUidLiveData, "dailyTableState2Binding") { value1, value2 ->
+    private val clazzDailyTableState2LiveData = liveData2Map(clazzDailyTRCLiveData, userUidLiveData, "clazzDailyTableState2") { value1, value2 ->
         DailyTableState2(value1, value2)
     }
-    private var currentClazzDailySetStateLiveData = liveData2Map(realCursorsAndIndexLiveData, dailyTableState2BindingLiveData, "ClazzDailySetState") { value1, value2 ->
-        ClazzDailySetState(value1.first, value2, value1.second, this)
+
+    /**
+     * {mutable} clazzWeekDay
+     */
+    private val clazzWeekDayLiveData: MutableLiveData<DayOfWeek> = liveData(DayOfWeek.MONDAY)
+
+
+    private val clazzDailySetStateLiveData = liveData2Map(clazzDailyTableState2LiveData, startWeekDayLiveData,  "clazzDailySetState") { value, startDayOfWeek ->
+        ClazzDailySetState(clazzDailySetCursors.value!!, value, startDayOfWeek, this)
     }
 
 
@@ -133,6 +154,15 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
 
     //region liveData Exports
     /**
+     * 现在的日期
+     */
+    val nowDate = liveDataMap(localDateClock, "nowDate") { value ->
+        value
+    }.initial(LocalDate.ofEpochDay(0))
+
+    val startWeekDay = startWeekDayLiveData.initial(DayOfWeek.MONDAY)
+
+    /**
      * {Mutable} MainPage中tab页的设置
      */
     val mainTab = mainTabLiveData.initial(MainPageTabs.DAILY_SET)
@@ -145,7 +175,7 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
     /**
      * 当前用户的Uid
      */
-    val currentUserUid = currentUserUidLiveData.initial(PreferenceName.CURRENT_USER_UID.defaultValue)
+    val userUid = userUidLiveData.initial(PreferenceName.CURRENT_USER_UID.defaultValue)
 
     /**
      * 数据库中记录的用户
@@ -155,7 +185,7 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
     /**
      * 当前用户状态
      */
-    val currentUserState = currentUserStateLiveData.initial(UserState(User.default(), User.local))
+    val userState = userStateLiveData.initial(UserState(User.default(), User.local))
 
     /**
      * 所有DailyTable
@@ -163,14 +193,14 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
     val dailyTableSummaries = dailyTableSummariesLiveData.initial(listOf())
 
     /**
-     * {Mutable} 当前DailyTable的Uid
+     * {mutable} 当前DailyTable的Uid
      */
-    val currentDailyTableUid = currentDailyTableUidLiveData.initial(DailyTable.default)
+    val dailyTableUid = dailyTableUidLiveData.initial(DailyTable.default)
 
     /**
      * 当前DailyTable的状态集
      */
-    val currentDailyTableState2 = currentDailyTableState2LiveData.initial(DailyTableState2.default())
+    val dailyTableState2 = dailyTableState2LiveData.initial(DailyTableState2.default())
 
     /**
      * 所有DailySet
@@ -188,16 +218,25 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
     val clazzDailyDurations = clazzDailyDurationsLiveData.initial(listOf())
 
     /**
-     * 当前dailySetUid
+     * {mutable} 当前dailySetUid
      */
-    val currentDailySetUid = currentDailySetUidLiveData.initial("")
+    val dailySetUid = dailySetUidLiveData.initial("")
 
     /**
      * 当前DailySetDurations
      */
-    val currentDailySetDurations = currentDailySetDurationsLiveData.initial(DailySetDurations.empty())
+    val dailySetDurations = dailySetDurationsLiveData.initial(DailySetDurations.empty())
 
-    val currentClazzDailySetState = currentClazzDailySetStateLiveData.initial(ClazzDailySetState.empty())
+    /**
+     * 当前clazzDailySetState
+     */
+    val clazzDailySetState = clazzDailySetStateLiveData.initial(ClazzDailySetState.empty())
+
+    /**
+     * 当前的clazzWeekDay
+     */
+    val clazzWeekDay = clazzWeekDayLiveData.initial(DayOfWeek.MONDAY)
+
     //endregion
 
 

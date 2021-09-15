@@ -5,23 +5,10 @@ import org.tty.dailyset.model.entity.weekCountAtIndex
 import org.tty.dailyset.weekCount
 import java.time.LocalDate
 
-class ClazzDailySetCursors(
+data class ClazzDailySetCursors(
     val dailySetDurations: DailySetDurations,
-) {
-    var list: List<ClazzDailySetCursor> = iterator {
-        val durations = dailySetDurations.durations
-        for (index in durations.indices) {
-            for (weekIndex in 0 until durations.weekCountAtIndex(index)) {
-                yield(
-                    ClazzDailySetCursor(
-                        dailyDurationUid = durations[index].uid,
-                        index = weekIndex
-                    )
-                )
-            }
-        }
-    }.asSequence().toList()
-    internal set
+    val index: Int
+): List<ClazzDailySetCursor> by generateList(dailySetDurations) {
 
     fun findIndex(date: LocalDate): Int {
         val durations = dailySetDurations.durations.sortedBy { it.startDate }
@@ -30,7 +17,7 @@ class ClazzDailySetCursors(
                 return 0
             }
             date.isAfter(durations.last().endDate) -> {
-                return list.size - 1
+                return this.count() - 1
             }
             else -> {
                 var totalIndex = 0
@@ -51,12 +38,33 @@ class ClazzDailySetCursors(
         }
         return 0
     }
+    val cursor: ClazzDailySetCursor get() = this[index]
+
+    override fun toString(): String {
+        return "ClazzDailySetCursors(dailySet=${dailySetDurations.dailySet.name},page=[${index}/${this.size - 1}])"
+    }
 
     companion object {
         fun empty(): ClazzDailySetCursors {
             return ClazzDailySetCursors(
-                dailySetDurations = DailySetDurations.empty()
+                dailySetDurations = DailySetDurations.empty(),
+                0
             )
+        }
+
+        /**
+         * delegate list.
+         */
+        private fun generateList(dailySetDurations: DailySetDurations): List<ClazzDailySetCursor> {
+            return dailySetDurations.durations.flatMapIndexed { index, dailyDuration ->
+                val weekCount = dailySetDurations.durations.weekCountAtIndex(index)
+                (0 until weekCount).map {
+                    ClazzDailySetCursor(
+                        dailyDuration = dailyDuration,
+                        index = it
+                    )
+                }
+            }
         }
     }
 }

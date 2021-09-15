@@ -7,6 +7,7 @@ import org.tty.dailyset.model.lifetime.DatePickerDialogState
 import org.tty.dailyset.provider.LocalMainViewModel
 import org.tty.dailyset.ui.page.MainPageTabs
 import org.tty.dailyset.viewmodel.MainViewModel
+import java.time.DayOfWeek
 import java.time.LocalDate
 import org.tty.dailyset.provider.mainViewModel as vm
 
@@ -25,6 +26,16 @@ interface GlobalScope  {
     @Composable
     fun rootService(): DailySetApplication {
         return vm.service
+    }
+
+    @Composable
+    fun nowDate(): State<LocalDate> {
+        return state(vm.nowDate)
+    }
+
+    @Composable
+    fun startWeekDay(): State<DayOfWeek> {
+        return state(vm.startWeekDay)
     }
 
     @Composable

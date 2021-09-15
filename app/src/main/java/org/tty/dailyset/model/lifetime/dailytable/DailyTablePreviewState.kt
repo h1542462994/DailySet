@@ -1,7 +1,9 @@
 package org.tty.dailyset.model.lifetime.dailytable
 
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.State
+import org.tty.dailyset.common.datetime.DateSpan
+import java.time.DayOfWeek
 import java.time.LocalDate
 
 /**
@@ -11,18 +13,13 @@ class DailyTablePreviewState(
     /**
      * currentDate, means now.
      */
-    val startDate: LocalDate,
+    val dateSpan: DateSpan,
     /**
-     * the weekday of now, if null, mean today is not in current week.
+     * nowDate
      */
-    val weekDayNow: Int?,
-    private val _weedDayCurrent: MutableState<Int>
+    val nowDate: State<LocalDate>,
+    val currentWeekDay: MutableState<DayOfWeek>,
+    val startWeekDay: State<DayOfWeek>
 ){
-    /**
-     * the selected weekDay, it's handled by state.
-     */
-    val weekDayCurrent by _weedDayCurrent
-    val setWeekDayCurrent: (Int) -> Unit = { value ->
-        _weedDayCurrent.value = value
-    }
+
 }

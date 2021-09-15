@@ -15,7 +15,7 @@ interface PreferenceScope: GlobalScope {
 
     @Composable
     fun currentUserUid(): State<String> {
-        return state(vm.currentUserUid)
+        return state(vm.userUid)
     }
 
     //companion object: PreferenceScope

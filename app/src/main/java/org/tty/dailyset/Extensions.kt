@@ -3,10 +3,11 @@ package org.tty.dailyset
 import org.tty.dailyset.model.lifetime.WeekDayState
 import java.sql.Time
 import java.sql.Timestamp
-import java.time.*
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.temporal.ChronoField
 import java.time.temporal.TemporalUnit
-import java.util.*
 
 fun Time.toShortString(): String {
     return this.toString().substring(0,5)

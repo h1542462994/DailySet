@@ -7,6 +7,7 @@ import org.tty.dailyset.model.lifetime.dailyset.ClazzDailyDurationCreateState
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailySetState
 import org.tty.dailyset.model.lifetime.dailyset.DailySetCreateState
 import org.tty.dailyset.toWeekStart
+import java.time.DayOfWeek
 import java.time.LocalDate
 import org.tty.dailyset.provider.mainViewModel as vm
 
@@ -24,17 +25,17 @@ interface DailySetScope: PreferenceScope, UserScope, DailyTableScope {
      */
     @Composable
     fun currentDailySetDurations(): State<DailySetDurations> {
-        return state(vm.currentDailySetDurations)
+        return state(vm.dailySetDurations)
     }
 
     @Composable
     fun currentDailySetUid(): MutableState<String> {
-        return state(vm.currentDailySetUid)
+        return state(vm.dailySetUid)
     }
 
     @Composable
     fun currentClazzDailySetState(): State<ClazzDailySetState> {
-        return state(vm.currentClazzDailySetState)
+        return state(vm.clazzDailySetState)
     }
 
     /**
@@ -74,6 +75,11 @@ interface DailySetScope: PreferenceScope, UserScope, DailyTableScope {
         return state(liveData = vm.clazzDailyDurations)
     }
 
+    @Composable
+    fun clazzWeekDay(): MutableState<DayOfWeek> {
+        return state(liveData = vm.clazzWeekDay)
+    }
+
     /**
      * create a state represents dailySetCreate dialog.
      */
@@ -108,7 +114,7 @@ interface DailySetScope: PreferenceScope, UserScope, DailyTableScope {
         initDialogOpen: Boolean = false
     ): ClazzDailyDurationCreateState {
         val startDate = LocalDate.now().toWeekStart()
-        val endDate = startDate.plusDays(7 * 16 - 1)
+        val endDate = startDate.plusDays((7 * 16 - 1).toLong())
         val weekCount = 16
 
         return ClazzDailyDurationCreateState(

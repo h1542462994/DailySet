@@ -17,6 +17,13 @@ inline fun <reified T> state(value: T, policy: SnapshotMutationPolicy<T> = struc
     }
 }
 
+@Composable
+inline fun <reified T> state(value: T, key1: Any?, policy: SnapshotMutationPolicy<T> = structuralEqualityPolicy()): MutableState<T> {
+    return remember(key1 = key1) {
+        mutableStateOf(value = value, policy = policy)
+    }
+}
+
 /**
  * create a state by [liveData]
  * @see LiveData

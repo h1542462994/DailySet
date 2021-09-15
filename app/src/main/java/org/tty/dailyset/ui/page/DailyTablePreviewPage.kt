@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -16,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.tty.dailyset.*
 import org.tty.dailyset.R
+import org.tty.dailyset.common.datetime.indexTo
 import org.tty.dailyset.data.scope.DataScope
 import org.tty.dailyset.model.entity.DailyCell
 import org.tty.dailyset.model.entity.DailyRC
@@ -78,8 +81,16 @@ fun DailyTablePreviewHeader(dailyTableCalc: DailyTableCalc, dailyTablePreviewSta
         val canvasWidthDp = measuredWidthDp()
         assert(canvasWidthDp == toDp(dailyTableCalc.measuredWidth))
         val canvasHeightDp = toDp(canvasHeight)
-        val currentIndex = dailyTablePreviewState.weekDayCurrent - 1
-        val nowIndex= dailyTablePreviewState.weekDayNow?.minus(1)
+        val nowDate by dailyTablePreviewState.nowDate
+        val nowWeekDay = nowDate.dayOfWeek
+        var currentWeekDay by dailyTablePreviewState.currentWeekDay
+        val startWeekDay by dailyTablePreviewState.startWeekDay
+        val currentIndex = currentWeekDay.indexTo(startWeekDay)
+        val nowIndex= if (nowDate in dailyTablePreviewState.dateSpan) {
+            nowWeekDay.indexTo(startWeekDay)
+        } else {
+            null
+        }
 
         Canvas(
             modifier = Modifier.size(width = canvasWidthDp, height = canvasHeightDp)
@@ -109,8 +120,7 @@ fun DailyTablePreviewHeader(dailyTableCalc: DailyTableCalc, dailyTablePreviewSta
                     )
                     .absoluteOffset(x = toDp(px = dailyTableCalc.menuWidth + dailyTableCalc.cellWidth * index))
                     .clickable {
-                        dailyTablePreviewState.setWeekDayCurrent(index + 1)
-                        assert(dailyTablePreviewState.weekDayCurrent == index + 1)
+
                     }
                     .wrapContentSize(align = Alignment.Center),
             ) {
@@ -135,9 +145,8 @@ fun DailyTablePreviewHeader(dailyTableCalc: DailyTableCalc, dailyTablePreviewSta
         //val start = LocalDate.now().toWeekStart()
 
         (0 until dailyTableCalc.cellColumnCount).forEach{ index ->
-            // TODO: 2021/3/27 添加国际化的支持
             val style = if (index == nowIndex) 1 else 0
-            createTextWeekDay(start = dailyTablePreviewState.startDate, index = index, value = index.toWeekDayString(), style = style)
+            createTextWeekDay(start = dailyTablePreviewState.dateSpan.startDate, index = index, value = index.toWeekDayString(), style = style)
         }
     }
 }
@@ -152,7 +161,11 @@ fun DailyTablePreviewBody(dailyTableCalc: DailyTableCalc, dailyTablePreviewState
     val canvasWidthDp = measuredWidthDp()
     assert(canvasWidthDp == toDp(dailyTableCalc.measuredWidth))
     val canvasHeightDp = toDp(canvasHeight)
-    val currentIndex = dailyTablePreviewState.weekDayCurrent - 1
+    val currentWeekDay by dailyTablePreviewState.currentWeekDay
+    val startWeekDay by dailyTablePreviewState.startWeekDay
+    val currentIndex by derivedStateOf {
+        currentWeekDay.indexTo(startWeekDay)
+    }
     //val nowIndex= dailyTablePreviewState.weekDayNow - 1
 
     LazyColumn {
@@ -221,7 +234,7 @@ fun DailyTablePreviewBody(dailyTableCalc: DailyTableCalc, dailyTablePreviewState
 
                 }
 
-                val currentDailyRC = dailyTableCalc.dailyTRC.dailyRCs.find { it.dailyRow.weekdays.contains(dailyTablePreviewState.weekDayCurrent) }
+                val currentDailyRC = dailyTableCalc.dailyTRC.dailyRCs.find { it.dailyRow.weekdays.contains(currentWeekDay.value - 1) }
 
                 @Suppress
                 when {

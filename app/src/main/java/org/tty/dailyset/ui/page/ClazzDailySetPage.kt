@@ -213,7 +213,7 @@ fun ClazzDailySetCenter(
             measuredWidth = measuredWidth,
             unit = unit
         )
-        val previewState = clazzDailySetState.previewState
+        val previewState = clazzDailySetState.previewState()
 
         DailyTablePreviewHeader(dailyTableCalc = dailyTableCalc, dailyTablePreviewState = previewState)
         DailyTablePreviewBody(dailyTableCalc = dailyTableCalc, dailyTablePreviewState = previewState)
@@ -307,7 +307,7 @@ fun ClazzDailySetBottomShiftButton(
             Spacer(modifier = Modifier.width(56.dp))
         }
 
-        IconText(painter = ImageResource.shift(), scale = 0.8f, text = "第${clazzDailySetState.cursor!!.index + 1}周") {
+        IconText(painter = ImageResource.shift(), scale = 0.8f, text = "第${clazzDailySetState.cursor.index + 1}周") {
             // TODO: 2021/6/25 添加处理逻辑.
         }
 
