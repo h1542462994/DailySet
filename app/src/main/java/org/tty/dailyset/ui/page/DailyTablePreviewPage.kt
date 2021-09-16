@@ -120,7 +120,7 @@ fun DailyTablePreviewHeader(dailyTableCalc: DailyTableCalc, dailyTablePreviewSta
                     )
                     .absoluteOffset(x = toDp(px = dailyTableCalc.menuWidth + dailyTableCalc.cellWidth * index))
                     .clickable {
-
+                        currentWeekDay = startWeekDay + index.toLong()
                     }
                     .wrapContentSize(align = Alignment.Center),
             ) {
@@ -234,7 +234,7 @@ fun DailyTablePreviewBody(dailyTableCalc: DailyTableCalc, dailyTablePreviewState
 
                 }
 
-                val currentDailyRC = dailyTableCalc.dailyTRC.dailyRCs.find { it.dailyRow.weekdays.contains(currentWeekDay.value - 1) }
+                val currentDailyRC = dailyTableCalc.dailyTRC.dailyRCs.find { it.dailyRow.weekdays.contains(currentWeekDay.value) }
 
                 @Suppress
                 when {

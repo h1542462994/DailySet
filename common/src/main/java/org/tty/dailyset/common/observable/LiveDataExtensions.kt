@@ -59,6 +59,20 @@ fun <T> liveDataIgnoreNull(liveData: LiveData<T?>): LiveData<T> {
 inline fun <reified T> liveDataIgnoreNull(flow: Flow<T?>): LiveData<T> =
     liveDataIgnoreNull(liveData(flow))
 
+fun <T> liveDataValueOrDefault(liveData: LiveData<T?>, default: T): LiveData<T> {
+    val mediator = MediatorLiveData<T>()
+    mediator.addSource(liveData) { value ->
+        if (value != null) {
+            mediator.value = value
+        } else {
+            @Suppress("USELESS_CAST")
+            mediator.value = default as T
+        }
+    }
+    return mediator
+}
+
+
 /**
  * shortcut function for [liveDataIgnoreNull]
  */

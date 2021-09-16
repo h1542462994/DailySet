@@ -94,7 +94,7 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
     val clazzCursorIndexLiveData = liveData<Int?>(null)
 
     // --- onlyClazzDailySet
-    private val clazzDailySetCursors: LiveData<ClazzDailySetCursors> = liveData2Chain(clazzCursorIndexLiveData, dailySetDurationsLiveData, "clazzDailySetCursors") { value1, value2, collector ->
+    private val clazzDailySetCursorsLiveData: LiveData<ClazzDailySetCursors> = liveData2Chain(clazzCursorIndexLiveData, dailySetDurationsLiveData, "clazzDailySetCursors") { value1, value2, collector ->
         if (value2.dailySet.type == DailySetType.Clazz) {
 
             val cursors = ClazzDailySetCursors(value2, 0)
@@ -117,13 +117,17 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
             }
         }
     }
-    private val clazzDailySetBinding = liveDataMapAsync(clazzDailySetCursors) { cursors ->
+    private val clazzDailySetBindingLiveData = liveDataMapAsync(clazzDailySetCursorsLiveData) { cursors ->
         val cursor = cursors.cursor
         service.dailySetRepository.loadDailySetBinding(cursors.dailySetDurations.dailySet.uid, cursor.dailyDuration.uid)
-    }.ignoreNull()
-    private val clazzDailyTRCLiveData = liveDataMapAsync(clazzDailySetBinding, "clazzDailyTRC") {
-        service.dailyTableRepository.loadDailyTRC(it.bindingDailyTableUid)
-    }.ignoreNull()
+    }
+    private val clazzDailyTRCLiveData = liveDataValueOrDefault(liveDataChain(clazzDailySetBindingLiveData, "clazzDailyTRC") { value, collector: LiveCollector<DailyTRC?> ->
+        if (value != null) {
+            collector.emitSource(liveData(service.dailyTableRepository.loadDailyTRC(value.bindingDailyTableUid)))
+        } else {
+            collector.emit(DailyTRC.default())
+        }
+    }, DailyTRC.default())
     private val clazzDailyTableState2LiveData = liveData2Map(clazzDailyTRCLiveData, userUidLiveData, "clazzDailyTableState2") { value1, value2 ->
         DailyTableState2(value1, value2)
     }
@@ -134,8 +138,8 @@ class MainViewModel(val service: DailySetApplication): ViewModel() {
     private val clazzWeekDayLiveData: MutableLiveData<DayOfWeek> = liveData(DayOfWeek.MONDAY)
 
 
-    private val clazzDailySetStateLiveData = liveData2Map(clazzDailyTableState2LiveData, startWeekDayLiveData,  "clazzDailySetState") { value, startDayOfWeek ->
-        ClazzDailySetState(clazzDailySetCursors.value!!, value, startDayOfWeek, this)
+    private val clazzDailySetStateLiveData = liveData3Map(clazzDailySetCursorsLiveData, clazzDailyTableState2LiveData, startWeekDayLiveData,  "clazzDailySetState") { cursors, dailyTableState2, startDayOfWeek ->
+        ClazzDailySetState(cursors, dailyTableState2, startDayOfWeek, this)
     }
 
 

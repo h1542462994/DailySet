@@ -13,7 +13,7 @@ data class ClazzDailySetCursor(
         fun empty(): ClazzDailySetCursor {
             return ClazzDailySetCursor(
                 dailyDuration = DailyDuration.empty(),
-                index = 0
+                index = -1
             )
         }
 //        fun createFrom(dailySetDurations: DailySetDurations): ClazzDailySetCursor {

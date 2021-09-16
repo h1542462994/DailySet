@@ -1,11 +1,10 @@
 package org.tty.dailyset.model.lifetime.dailyset
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import org.tty.dailyset.common.datetime.DateSpan
 import org.tty.dailyset.common.datetime.toWeekStart
-import org.tty.dailyset.common.local.Tags
-import org.tty.dailyset.common.local.logger
-import org.tty.dailyset.common.observable.liveDataExtension
+import org.tty.dailyset.common.observable.state
 import org.tty.dailyset.data.scope.DataScope
 import org.tty.dailyset.model.entity.DailyDuration
 import org.tty.dailyset.model.entity.DailySet
@@ -42,30 +41,31 @@ class ClazzDailySetState(
             ClazzDailySetCursor.empty()
         }
     }
-    private val dateSpan: DateSpan get() {
-        val cursor = cursor
-        logger.d(Tags.liveDataExtension, "cursor = $cursor")
-        val startDate =
-            cursor.dailyDuration.startDate.toWeekStart(startDayOfWeek)
-                .plusDays((7 * cursor.index).toLong())
-        val endDate = startDate.plusDays((7 - 1).toLong())
-        val dateSpan = DateSpan(
-            startDate = startDate,
-            endDateInclusive = endDate,
-            startDayOfWeek = startDayOfWeek
-        )
-        logger.d(Tags.liveDataExtension, "dateSpan = $dateSpan")
-        return dateSpan
-    }
+    private val dateSpan: DateSpan
+        get() {
+            //val cursor = cursor
+            //logger.d(Tags.liveDataExtension, "cursor = $cursor")
+            val startDate =
+                cursor.dailyDuration.startDate.toWeekStart(startDayOfWeek)
+                    .plusDays((7 * cursor.index).toLong())
+            val endDate = startDate.plusDays((7 - 1).toLong())
+            //logger.d(Tags.liveDataExtension, "dateSpan = $dateSpan")
+            return DateSpan(
+                startDate = startDate,
+                endDateInclusive = endDate,
+                startDayOfWeek = startDayOfWeek
+            )
+        }
 
     @Composable
     fun previewState(): DailyTablePreviewState {
         with(DataScope) {
             val dateSpan = dateSpan
+            val nowDate by nowDate()
             return DailyTablePreviewState(
                 dateSpan,
                 nowDate(),
-                clazzWeekDay(),
+                state(value = nowDate.dayOfWeek, key1 = nowDate),
                 startWeekDay()
             )
         }

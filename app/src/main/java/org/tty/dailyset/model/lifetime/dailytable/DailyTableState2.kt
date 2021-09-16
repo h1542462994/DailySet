@@ -10,7 +10,7 @@ import org.tty.dailyset.model.lifetime.WeekDayState
  */
 class DailyTableState2(
     val dailyTRC: DailyTRC,
-    val currentUserUid: String?,
+    private val currentUserUid: String?,
 ) {
     var readOnly: Boolean = true
         internal set

@@ -12,6 +12,9 @@ data class ClazzDailySetCursors(
 
     fun findIndex(date: LocalDate): Int {
         val durations = dailySetDurations.durations.sortedBy { it.startDate }
+        if (durations.isEmpty()) {
+            return 0
+        }
         when {
             date.isBefore(durations.first().startDate) -> {
                 return 0
@@ -34,11 +37,15 @@ data class ClazzDailySetCursors(
                     }
                     totalIndex += weekCount(end, start).toInt()
                 }
+                return totalIndex
             }
         }
-        return 0
     }
-    val cursor: ClazzDailySetCursor get() = this[index]
+    val cursor: ClazzDailySetCursor get() = if(index in indices) {
+        this[index]
+    } else {
+        ClazzDailySetCursor.empty()
+    }
 
     override fun toString(): String {
         return "ClazzDailySetCursors(dailySet=${dailySetDurations.dailySet.name},page=[${index}/${this.size - 1}])"

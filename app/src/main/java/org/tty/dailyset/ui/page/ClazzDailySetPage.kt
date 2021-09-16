@@ -115,7 +115,6 @@ fun ClazzDailySetPage() {
             ) {
                 ClazzDailySetCenter(clazzDailySetState = clazzDailySetState)
             }
-            val cursor = clazzDailySetState.cursor
             ClazzDailySetBottom(
                 dailyDurations = clazzDailySetState.durations,
                 clazzDailyDurationCreateState = clazzDailyDurationCreateState,
@@ -298,7 +297,6 @@ fun ClazzDailySetBottomShiftButton(
         modifier = Modifier
             .wrapContentHeight(align = Alignment.CenterVertically)
     ) {
-        // FIXME: 2021/7/2 出现点击UI层无法响应的问题，无法排查出原因.
         if (clazzDailySetState.hasPrevCursor) {
             IconClick(painter = ImageResource.left(), useTint = true) {
                 clazzDailySetState.toPrevCursor()
