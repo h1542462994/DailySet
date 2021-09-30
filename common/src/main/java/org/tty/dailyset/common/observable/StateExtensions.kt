@@ -45,6 +45,12 @@ inline fun <reified T> state(liveData: InitialLiveData<T>): State<T> {
     return l.observeAsState(initial = i)
 }
 
+@Composable
+inline fun <reified T> state(flow: InitFlow<T>): State<T> {
+    val (f, i) = flow
+    return f.collectAsState(initial = i)
+}
+
 /**
  * create a state by [liveData]
  * @see MutableLiveData
@@ -95,6 +101,11 @@ inline fun <reified T> state(liveData: InitialMutableLiveData<T>): MutableState<
 
         override fun component2() = setter
     }
+}
+
+@Composable
+inline fun <reified T> state(flow: InitMutableStateFlow<T>): MutableState<T> {
+
 }
 
 inline fun <reified T, R> State<T>.map(crossinline action: (T) -> R): State<R> {

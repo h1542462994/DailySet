@@ -18,9 +18,6 @@ import org.tty.dailyset.provider.mainViewModel as vm
  */
 @Immutable
 interface DailyTableScope : PreferenceScope, UserScope {
-
-    // TODO: 2021/5/11 不要在State内存放内部复杂状态。
-
     /**
      * state of [org.tty.dailyset.viewmodel.MainViewModel.dailyTableSummaries]
      * (db related).

@@ -1,6 +1,5 @@
 package org.tty.dailyset.data.scope
 
-import androidx.compose.runtime.Immutable
 import org.tty.dailyset.DailySetApplication
 import org.tty.dailyset.data.processor.EventProcessorAsync
 import org.tty.dailyset.data.processor.EventProcessorCallBack
@@ -14,7 +13,6 @@ import org.tty.dailyset.event.EventType
  * see also [DailyTableScope], [UserScope]
  * usage: with(DataScope) { ... }
  */
-@Immutable
 object DataScope: DailyTableScope, UserScope, DailySetScope, EventProcessorCallBack<DailySetApplication> {
 
     override fun eventProcessorAsync(
