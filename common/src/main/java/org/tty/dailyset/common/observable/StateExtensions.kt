@@ -5,6 +5,8 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 
+//region state by value
+
 /**
  * create a [MutableState] to remember the [value]
  * @see remember
@@ -17,12 +19,21 @@ inline fun <reified T> state(value: T, policy: SnapshotMutationPolicy<T> = struc
     }
 }
 
+/**
+ * create a [MutableState] to remember the [value]
+ * @see remember
+ * @see mutableStateOf
+ */
 @Composable
 inline fun <reified T> state(value: T, key1: Any?, policy: SnapshotMutationPolicy<T> = structuralEqualityPolicy()): MutableState<T> {
     return remember(key1 = key1) {
         mutableStateOf(value = value, policy = policy)
     }
 }
+
+//endregion
+
+//region state by liveData
 
 /**
  * create a state by [liveData]
@@ -45,11 +56,7 @@ inline fun <reified T> state(liveData: InitialLiveData<T>): State<T> {
     return l.observeAsState(initial = i)
 }
 
-@Composable
-inline fun <reified T> state(flow: InitFlow<T>): State<T> {
-    val (f, i) = flow
-    return f.collectAsState(initial = i)
-}
+
 
 /**
  * create a state by [liveData]
@@ -103,15 +110,32 @@ inline fun <reified T> state(liveData: InitialMutableLiveData<T>): MutableState<
     }
 }
 
-@Composable
-inline fun <reified T> state(flow: InitMutableStateFlow<T>): MutableState<T> {
+//endregion
 
+//region state by flow
+
+@Composable
+inline fun <reified T> state(flow: InitialFlow<T>): State<T> {
+    val (f, i) = flow
+    return f.collectAsState(initial = i)
 }
 
-inline fun <reified T, R> State<T>.map(crossinline action: (T) -> R): State<R> {
-    val state = this
-    return object: State<R> {
-        override val value: R
-            get() = action(state.value)
+@Composable
+inline fun <reified T> state(flow: InitialMutableFlow<T>): MutableState<T> {
+    val (f, i) = flow
+    val state = f.collectAsState(i)
+    val setter = { v: T ->
+        f.postValue(v)
+    }
+
+    return object: MutableState<T> {
+        override var value: T
+            get() = state.value
+            set(value) { setter.invoke(value) }
+
+        override fun component1(): T = value
+        override fun component2(): (T) -> Unit = setter
     }
 }
+
+//endregion

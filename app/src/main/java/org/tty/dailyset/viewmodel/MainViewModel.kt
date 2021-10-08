@@ -1,13 +1,14 @@
+
 package org.tty.dailyset.viewmodel
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.asLiveData
 import kotlinx.coroutines.flow.*
 import org.tty.dailyset.DailySetApplication
 import org.tty.dailyset.common.local.ComponentViewModel
-import org.tty.dailyset.common.observable.*
+import org.tty.dailyset.common.observable.flow2
+import org.tty.dailyset.common.observable.initial
+import org.tty.dailyset.common.observable.mutableFlowOf
 import org.tty.dailyset.model.entity.*
 import org.tty.dailyset.model.lifetime.UserState
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailySetCursors
@@ -19,6 +20,7 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 
+@Suppress("EXPERIMENTAL_API_USAGE")
 class MainViewModel(val service: DailySetApplication) : ViewModel() {
 
     init {
@@ -56,35 +58,36 @@ class MainViewModel(val service: DailySetApplication) : ViewModel() {
     /**
      * mutable | 一周的开始星期，限制为[DayOfWeek.MONDAY],[DayOfWeek.SATURDAY] (不常见),[DayOfWeek.SUNDAY]之一。
      */
-    private val startWeekDayLiveData = liveData(DayOfWeek.MONDAY)
+    private val startWeekDayFlow = mutableFlowOf(DayOfWeek.MONDAY)
 
     /**
      * mutable | 主界面的Tab页
      */
-    private val mainTabLiveData = liveData(MainPageTabs.DAILY_SET)
+    private val mainTabFlow = mutableFlowOf(MainPageTabs.DAILY_SET)
 
     /**
      * 数据库seed数据的版本号
      */
-    private val seedVersionLiveData = liveData(service.preferenceRepository.seedVersion)
+    private val seedVersionFlow = service.preferenceRepository.seedVersion
 
     /**
      * userUid
      */
-    private val userUidLiveData = liveData(service.preferenceRepository.currentUserUid)
+    private val userUidFlow = service.preferenceRepository.currentUserUid
+
 
     /**
      * users
      */
-    private val usersLiveData = liveData(service.userRepository.users)
+    private val usersFlow = service.userRepository.users
 
     /**
      * userState
      */
-    private val userStateLiveData =
-        liveData2Map(usersLiveData, userUidLiveData, "userState") { users, currentUserUid ->
-            val currentUser = users.find { it.userUid == currentUserUid } ?: User.default()
-            UserState(currentUser, currentUserUid)
+    private val userStateFlow =
+        flow2(usersFlow, userUidFlow) { users, userUid ->
+            val user = users.find { it.userUid == userUid } ?: User.default()
+            UserState(user, userUid)
         }
 
     //endregion
@@ -93,23 +96,20 @@ class MainViewModel(val service: DailySetApplication) : ViewModel() {
     /**
      * mutable | dailyTableUid
      */
-    private val dailyTableUidLiveData = liveData(DailyTable.default)
-    private val dailyTableSummariesLiveData =
-        liveData(service.dailyTableRepository.dailyTableSummaries)
-    private val dailyTRCLiveData = liveDataMapAsync(dailyTableUidLiveData, "dailyTRC") {
+    private val dailyTableUidFlow = mutableFlowOf(DailyTable.default)
+    private val dailyTableSummariesFlow = service.dailyTableRepository.dailyTableSummaries
+    
+
+    private val dailyTRCFlow = dailyTableUidFlow.flatMapLatest {
         service.dailyTableRepository.loadDailyTRC(it)
-    }.ignoreNull()
-    private val dailyTableState2LiveData =
-        liveData2Map(dailyTRCLiveData, userUidLiveData) { value1, value2 ->
-            DailyTableState2(value1, value2)
-        }
+    }.filterNotNull()
+
+    private val dailyTableState2Flow = flow2(dailyTRCFlow, userUidFlow) { value1, value2 ->  DailyTableState2(value1, value2) }
 
     // ---dailySets
-    private val dailySetsLiveData = liveData(service.dailySetRepository.dailySets)
-    private val normalDailyDurationsLiveData =
-        liveData(service.dailySetRepository.normalDailyDurations)
-    private val clazzDailyDurationsLiveData =
-        liveData(service.dailySetRepository.clazzDailyDurations)
+    private val dailySetsFlow = service.dailySetRepository.dailySets
+    private val normalDailyDurationsFlow = service.dailySetRepository.normalDailyDurations
+    private val clazzDailyDurationsFlow = service.dailySetRepository.clazzDailyDurations
 
     //region ---------------------------- data flow -------------------------------------------
     // dailySetUid -----------------> dailySetDurations
@@ -132,14 +132,14 @@ class MainViewModel(val service: DailySetApplication) : ViewModel() {
      * {mutable, runtimeOnly} the cache for clazzDailySetCursorCache
      */
     private val clazzDailySetCursorCache = HashMap<String, Int>()
-    private val dailySetUidFlow = MutableStateFlow("")
+    private val dailySetUidFlow = mutableFlowOf("")
     /**
      * mutable | clazzWeekDay
      */
-    private val clazzWeekDayFlow = MutableStateFlow(DayOfWeek.MONDAY)
+    private val clazzWeekDayFlow = mutableFlowOf(DayOfWeek.MONDAY)
     private val dailySetDurationsFlow = dailySetUidFlow.transform { value ->
-        clazzCursorIndexFlow.emit(null)
-        clazzWeekDayFlow.emit(LocalDate.now().dayOfWeek)
+        clazzCursorIndexFlow.postValue(null)
+        clazzWeekDayFlow.postValue(LocalDate.now().dayOfWeek)
         emitAll(service.dailySetRepository.loadDailySetDurations(value))
     }.filterNotNull()
 
@@ -147,7 +147,7 @@ class MainViewModel(val service: DailySetApplication) : ViewModel() {
     /**
      * {mutable, runtimeOnly} the current cursor, if null, the cursor will be re generated.
      */
-    val clazzCursorIndexFlow = MutableStateFlow<Int?>(null)
+    val clazzCursorIndexFlow = mutableFlowOf<Int?>(null)
     private val clazzDailySetCursorsFlow = clazzCursorIndexFlow.combine(dailySetDurationsFlow) { value1, value2 ->
         pair(value1, value2)
     }.transform { pair ->
@@ -203,7 +203,7 @@ class MainViewModel(val service: DailySetApplication) : ViewModel() {
 //        }
 //    }
 
-    private val clazzDailySetStatePartFlow = ClazzDailySetStatePart(this, clazzDailySetCursorsFlow, userUidLiveData.asFlow(), startWeekDayLiveData.asFlow())
+    private val clazzDailySetStatePartFlow = ClazzDailySetStatePart(this, clazzDailySetCursorsFlow, userUidFlow, startWeekDayFlow)
     private val clazzDailySetStateLiveData = clazzDailySetStatePartFlow.current.asLiveData()
 
 //    private val clazzDailySetBindingLiveData =
@@ -258,64 +258,64 @@ class MainViewModel(val service: DailySetApplication) : ViewModel() {
     /**
      * 现在的日期
      */
-    val nowDate = liveData(nowDateFlow).initial(LocalDate.ofEpochDay(0))
+    val nowDate = nowDateFlow.initial(LocalDate.ofEpochDay(0))
 
-    val startWeekDay = startWeekDayLiveData.initial(DayOfWeek.MONDAY)
+    val startWeekDay = startWeekDayFlow.initial(DayOfWeek.MONDAY)
 
     /**
      * {Mutable} MainPage中tab页的设置
      */
-    val mainTab = mainTabLiveData.initial(MainPageTabs.DAILY_SET)
+    val mainTab = mainTabFlow.initial(MainPageTabs.DAILY_SET)
 
     /**
      * 数据库的版本号
      */
-    val seedVersion = seedVersionLiveData.initial(PreferenceName.SEED_VERSION.defaultValue.toInt())
+    val seedVersion = seedVersionFlow.initial(PreferenceName.SEED_VERSION.defaultValue.toInt())
 
     /**
      * 当前用户的Uid
      */
-    val userUid = userUidLiveData.initial(PreferenceName.CURRENT_USER_UID.defaultValue)
+    val userUid = userUidFlow.initial(PreferenceName.CURRENT_USER_UID.defaultValue)
 
     /**
      * 数据库中记录的用户
      */
-    val users = usersLiveData.initial(listOf())
+    val users = usersFlow.initial(listOf())
 
     /**
      * 当前用户状态
      */
-    val userState = userStateLiveData.initial(UserState(User.default(), User.local))
+    val userState = userStateFlow.initial(UserState(User.default(), User.local))
 
     /**
      * 所有DailyTable
      */
-    val dailyTableSummaries = dailyTableSummariesLiveData.initial(listOf())
+    val dailyTableSummaries = dailyTableSummariesFlow.initial(listOf())
 
     /**
      * {mutable} 当前DailyTable的Uid
      */
-    val dailyTableUid = dailyTableUidLiveData.initial(DailyTable.default)
+    val dailyTableUid = dailyTableUidFlow.initial(DailyTable.default)
 
     /**
      * 当前DailyTable的状态集
      */
-    val dailyTableState2 = dailyTableState2LiveData.initial(DailyTableState2.default())
+    val dailyTableState2 = dailyTableState2Flow.initial(DailyTableState2.default())
 
     /**
      * 所有DailySet
      */
-    val dailySets = dailySetsLiveData.initial(listOf())
+    val dailySets = dailySetsFlow.initial(listOf())
 
     /**
      * 所有normal DailyDuration
      */
-    val normalDailyDurations = normalDailyDurationsLiveData.initial(listOf())
+    val normalDailyDurations = normalDailyDurationsFlow.initial(listOf())
 
     /**
      * 所有clazz DailyDuration
      */
-    val clazzDailyDurations = clazzDailyDurationsLiveData.initial(listOf())
+    val clazzDailyDurations = clazzDailyDurationsFlow.initial(listOf())
 
     /**
      * {mutable} 当前dailySetUid
@@ -325,7 +325,7 @@ class MainViewModel(val service: DailySetApplication) : ViewModel() {
     /**
      * 当前DailySetDurations
      */
-    val dailySetDurations = dailySetDurationsLiveData.initial(DailySetDurations.empty())
+    val dailySetDurations = dailySetDurationsFlow.initial(DailySetDurations.empty())
 
     /**
      * 当前clazzDailySetState
