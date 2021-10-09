@@ -17,7 +17,7 @@ interface DailySetScope: PreferenceScope, UserScope, DailyTableScope {
      */
     @Composable
     fun dailySets(): State<List<DailySet>> {
-        return state(liveData = vm.dailySets)
+        return state(vm.dailySets)
     }
 
     /**
@@ -43,7 +43,6 @@ interface DailySetScope: PreferenceScope, UserScope, DailyTableScope {
      */
     @Composable
     fun currentNotIncludedDurations(type: DailyDurationType): State<List<DailyDuration>> {
-        val mainViewModel = mainViewModel()
         val dailySetDurations by currentDailySetDurations()
         val durations = dailySetDurations.durations
         return if (type == DailyDurationType.Clazz) {
@@ -64,7 +63,7 @@ interface DailySetScope: PreferenceScope, UserScope, DailyTableScope {
      */
     @Composable
     fun normalDailyDurations(): State<List<DailyDuration>> {
-        return state(liveData = vm.normalDailyDurations)
+        return state(vm.normalDailyDurations)
     }
 
     /**
@@ -72,12 +71,12 @@ interface DailySetScope: PreferenceScope, UserScope, DailyTableScope {
      */
     @Composable
     fun clazzDailyDurations(): State<List<DailyDuration>> {
-        return state(liveData = vm.clazzDailyDurations)
+        return state(vm.clazzDailyDurations)
     }
 
     @Composable
     fun clazzWeekDay(): MutableState<DayOfWeek> {
-        return state(liveData = vm.clazzWeekDay)
+        return state(vm.clazzWeekDay)
     }
 
     /**

@@ -581,7 +581,3 @@ inline fun <reified T, reified R> liveDataVarargsMapAsyncNotNull(
 
 //endregion
 
-//region liveData
-
-
-//endregion
