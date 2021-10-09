@@ -7,12 +7,14 @@ import androidx.lifecycle.asLiveData
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import org.tty.dailyset.DailySetApplication
 import org.tty.dailyset.common.local.ComponentViewModel
 import org.tty.dailyset.common.local.Tags
 import org.tty.dailyset.common.local.logger
 import org.tty.dailyset.common.observable.*
 import org.tty.dailyset.model.entity.*
+import org.tty.dailyset.model.lifetime.PagerInfo
 import org.tty.dailyset.model.lifetime.UserState
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailySetCursors
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailySetState
@@ -54,7 +56,11 @@ class MainViewModel(val service: DailySetApplication) : ViewModel() {
     /**
      * 今天的日期
      */
-    private val nowDateFlow = nowFlow.map { it.toLocalDate() }.distinctUntilChanged()
+    private val nowDateFlow = nowFlow.map { it.toLocalDate() }.distinctUntilChanged().onEach {
+        // side effect.
+        // update the clazzWeekDay.
+        clazzWeekDayLiveData.postValue(it.dayOfWeek)
+    }
 
     /**
      * mutable | 一周的开始星期，限制为[DayOfWeek.MONDAY],[DayOfWeek.SATURDAY] (不常见),[DayOfWeek.SUNDAY]之一。
@@ -119,11 +125,11 @@ class MainViewModel(val service: DailySetApplication) : ViewModel() {
     //                    |                  |
     //                    |                  |
     // clazzCursorIndex <-+                  |
-    //         |          |                  |
-    //          ---------(|)-----------------+-> clazzDailySetDurations --> ClazzDailySetStatePart.List
-    //                    |                                                          ^
-    //                    |                                                          |
-    // clazzWeekDay <-----                                                           |
+    //         |                            |
+    //          ----------------------------+-> clazzDailySetCursorsAndIndex --> %ClazzDailySetStatePart%
+    //                                                                               ^
+    //                                                                               |
+    //                                                                               |
     //                                                                               |
     // userUid ----------------------------------------------------------------------+
     //                                                                               |
@@ -132,9 +138,10 @@ class MainViewModel(val service: DailySetApplication) : ViewModel() {
     //endregion ---------------------------------------------------------------------------------------
 
     /**
-     * {mutable, runtimeOnly} the cache for clazzDailySetCursorCache
+     * mutable, runtimeOnly the cache for clazzDailySetCursorCache
      */
     private val clazzDailySetCursorCache = HashMap<String, Int>()
+
     private val dailySetUidLiveData = liveData("")
     /**
      * mutable | clazzWeekDay
@@ -142,10 +149,10 @@ class MainViewModel(val service: DailySetApplication) : ViewModel() {
     private val clazzWeekDayLiveData = liveData(DayOfWeek.MONDAY)
     private val dailySetDurationsLiveData = liveDataChain(dailySetUidLiveData, "dailySetDurations") { value, collector: LiveCollector<DailySetDurations?> ->
         logger.d(Tags.liveDataExtension, "dailySetUid changed to $value")
+
         // invalid the current cursor.
         clazzCursorIndexLiveData.postValue(null)
-        // change
-        clazzWeekDayLiveData.postValue(LocalDate.now().dayOfWeek)
+
         collector.emitSource(liveData(service.dailySetRepository.loadDailySetDurations(value)))
     }.ignoreNull()
 
@@ -156,14 +163,14 @@ class MainViewModel(val service: DailySetApplication) : ViewModel() {
     val clazzCursorIndexLiveData = liveData<Int?>(null)
 
     // --- onlyClazzDailySet
-    private val clazzDailySetCursorsLiveData: LiveData<ClazzDailySetCursors> = liveData2Chain(
+    private val clazzDailySetCursorsAndIndexLiveData: LiveData<Pair<Int, ClazzDailySetCursors>> = liveData2Chain(
         clazzCursorIndexLiveData,
         dailySetDurationsLiveData,
         "clazzDailySetCursors"
     ) { value1, value2, collector ->
         if (value2.dailySet.type == DailySetType.Clazz) {
 
-            val cursors = ClazzDailySetCursors(value2, 0)
+            val cursors = ClazzDailySetCursors(value2)
             var needReload = false
             val cacheKey = cursors.dailySetDurations.dailySet.uid
 
@@ -174,18 +181,34 @@ class MainViewModel(val service: DailySetApplication) : ViewModel() {
             if (needReload) {
                 val index = cursors.findIndex(LocalDate.now())
                 clazzDailySetCursorCache[cacheKey] = index
-                collector.emit(cursors.copy(index = index))
+                collector.emit(Pair(index, cursors))
+
+                // side effect.
+                // update the clazzWeekDay.
+//                clazzWeekDayLiveData.postValue(LocalDate.now().dayOfWeek)
             } else {
                 val cursorIndex = value1 ?: (clazzDailySetCursorCache[cacheKey] ?: 0)
                 // save the cursor to the cache.
                 clazzDailySetCursorCache[cacheKey] = cursorIndex
-                collector.emit(cursors.copy(index = cursorIndex))
+                collector.emit(Pair(cursorIndex, cursors))
             }
         }
     }
 
-    private val clazzDailySetStatePartFlow = ClazzDailySetStatePart(this, clazzDailySetCursorsLiveData.asFlow(), userUidLiveData.asFlow(), startWeekDayLiveData.asFlow())
-    private val clazzDailySetStateLiveData = clazzDailySetStatePartFlow.current.asLiveData()
+    private val clazzDailySetPagerInfoLiveData = liveDataMap(clazzDailySetCursorsAndIndexLiveData, "clazzDailySetPageLength") {
+        val (index, cursors) = it
+        PagerInfo(
+            size = cursors.size,
+            pageIndex = index
+        )
+    }
+
+
+    private val clazzDailySetStatePart = ClazzDailySetStatePart(this, clazzDailySetCursorsAndIndexLiveData.asFlow().map { it.second }, userUidLiveData.asFlow(), startWeekDayLiveData.asFlow())
+    private val clazzDailySetStateLiveData = liveDataMapAsync(clazzDailySetCursorsAndIndexLiveData) {
+        val (index, _) = it
+        clazzDailySetStatePart[index]
+    }
 
 //    private val clazzDailySetBindingLiveData =
 //        liveDataMapAsync(clazzDailySetCursorsLiveData) { cursors ->
@@ -317,6 +340,12 @@ class MainViewModel(val service: DailySetApplication) : ViewModel() {
      * 当前的clazzWeekDay
      */
     val clazzWeekDay = clazzWeekDayLiveData.initial(DayOfWeek.MONDAY)
+
+    val clazzDailySetPagerInfo = clazzDailySetPagerInfoLiveData.initial(PagerInfo.empty())
+
+    fun clazzDailySetStateOfIndex(index: Int): InitialLiveData<ClazzDailySetState> {
+        return clazzDailySetStatePart[index].asLiveData().initial(ClazzDailySetState.empty())
+    }
 
     //endregion
 

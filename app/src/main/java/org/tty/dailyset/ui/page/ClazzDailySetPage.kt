@@ -19,6 +19,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.rememberPagerState
 import org.tty.dailyset.LocalNav
 import org.tty.dailyset.R
 import org.tty.dailyset.data.processor.ClazzDailySetProcessor
@@ -26,6 +29,7 @@ import org.tty.dailyset.data.scope.DataScope
 import org.tty.dailyset.event.DailySetCreateDurationAndBindingEventArgs
 import org.tty.dailyset.event.DailySetEventType
 import org.tty.dailyset.model.entity.*
+import org.tty.dailyset.model.lifetime.PagerInfo
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailyDurationCreateState
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailySetState
 import org.tty.dailyset.model.lifetime.dailytable.DailyTableCalc
@@ -44,6 +48,7 @@ import java.util.*
  * clazz dailySet page.
  */
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun ClazzDailySetPage() {
     StatusBarToBackground1()
@@ -53,7 +58,11 @@ fun ClazzDailySetPage() {
         val service = mainViewModel.service
         val dailyTableSummaries by dailyTableSummaries()
         val userState by currentUserState()
-        val clazzDailySetState by currentClazzDailySetState()
+        //val clazzDailySetState by currentClazzDailySetState()
+        val pagerInfo by clazzDailySetPagerInfo()
+
+        val clazzDailySetState by clazzDailySetStateOfIndex(index = pagerInfo.pageIndex)
+
 
         /**
          * not include dailyDurations current.
@@ -113,7 +122,7 @@ fun ClazzDailySetPage() {
             Column(
                 modifier = Modifier.weight(1f)
             ) {
-                ClazzDailySetCenter(clazzDailySetState = clazzDailySetState)
+                ClazzDailySetCenter(pagerInfo = pagerInfo)
             }
             ClazzDailySetBottom(
                 dailyDurations = clazzDailySetState.durations,
@@ -187,11 +196,12 @@ fun ClazzDailySetAppBar(dailySet: DailySet, dailyDuration: DailyDuration?, onBac
     TopBar(title = { titleArea(dailySet) }, useBack = true, onBackPressed = onBack, onTitleClick = {})
 }
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun ClazzDailySetCenter(
-    clazzDailySetState: ClazzDailySetState
+     pagerInfo: PagerInfo
 ) {
-    if (clazzDailySetState.durations.isEmpty()) {
+    if (pagerInfo.size == 0) {
         BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
@@ -204,18 +214,43 @@ fun ClazzDailySetCenter(
             )
         }
     } else {
+
+        // cache strategy: the change of the initial page will not due to the recreation of the pagerState.
+        val pagerState = rememberPagerState(pageCount = pagerInfo.size, initialPage = pagerInfo.pageIndex)
+
+        // if the pageIndex is changed, you should launched the effect to animate scroll to page.
+        LaunchedEffect(key1 = pagerInfo) {
+            if (pagerInfo.pageIndex != pagerState.currentPage) {
+                pagerState.animateScrollToPage(pagerInfo.pageIndex)
+            }
+        }
+
+        // if the current page is changed, submit the change to the liveData. this will be transmit to the viewmodel receiver.
+        // problem: @snapshot the current page will not be updated if the animation is in progress.
+        LaunchedEffect(key1 = pagerState.currentPage) {
+           ClazzDailySetState.toIndexedPage(pagerState.currentPage)
+        }
+
         val measuredWidth = measuredWidth()
         val unit = toPx(dp = 25.dp)
 
-        val dailyTableCalc = DailyTableCalc(
-            dailyTRC = clazzDailySetState.dailyTableState2.dailyTRC,
-            measuredWidth = measuredWidth,
-            unit = unit
-        )
-        val previewState = clazzDailySetState.previewState()
+        with(DataScope) {
+            HorizontalPager(state = pagerState) { page: Int ->
+                val currentState by clazzDailySetStateOfIndex(index = page)
+                val dailyTableCalc = DailyTableCalc(
+                    dailyTRC = currentState.dailyTableState2.dailyTRC,
+                    measuredWidth = measuredWidth,
+                    unit = unit
+                )
+                val previewState = currentState.previewState()
 
-        DailyTablePreviewHeader(dailyTableCalc = dailyTableCalc, dailyTablePreviewState = previewState)
-        DailyTablePreviewBody(dailyTableCalc = dailyTableCalc, dailyTablePreviewState = previewState)
+                Column {
+                    DailyTablePreviewHeader(dailyTableCalc = dailyTableCalc, dailyTablePreviewState = previewState)
+                    DailyTablePreviewBody(dailyTableCalc = dailyTableCalc, dailyTablePreviewState = previewState)
+                }
+
+            }
+        }
     }
 }
 

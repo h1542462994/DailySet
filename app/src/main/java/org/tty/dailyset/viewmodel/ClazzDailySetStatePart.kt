@@ -13,9 +13,6 @@ import java.time.DayOfWeek
 @Suppress("EXPERIMENTAL_IS_NOT_ENABLED")
 @OptIn(ExperimentalCoroutinesApi::class)
 class ClazzDailySetStatePart(
-
-
-
     private val mainViewModel: MainViewModel,
     private val clazzDailySetCursorsFlow: Flow<ClazzDailySetCursors>,
     private val userUidFlow: Flow<String>,
@@ -28,6 +25,20 @@ class ClazzDailySetStatePart(
         if (item != null) {
             return item
         }
+
+        /**
+         * index -------------------
+         *                          |
+         * clazzDailySetCursors ----+----> clazzDailySetBinding -----> clazzDailyTRC
+         *                |                                                    |
+         *                |                                                    |
+         * userUid ------(|)---------------------------------------------------+-----> clazzDailyTableState2
+         *                |                                                                   |
+         * startWeekDay --+---------------------+----------clazzDailySetState                 |
+         *                                      ^                                             |
+         *                                      |---------------------------------------------
+         *
+         */
 
         val clazzDailySetBindingFlow = clazzDailySetCursorsFlow
             .transform<ClazzDailySetCursors, DailySetBinding?> tran@ { cursors ->
@@ -55,14 +66,10 @@ class ClazzDailySetStatePart(
             DailyTableState2(value1, value2)
         }
         val clazzDailySetStateFlow = flow3(clazzDailySetCursorsFlow, clazzDailyTableState2Flow, startWeekDayFlow) { cursors, dailyTableState2, startWeekDay ->
-            ClazzDailySetState(cursors, dailyTableState2, startWeekDay, mainViewModel)
+            ClazzDailySetState(cursors, index, dailyTableState2, startWeekDay, mainViewModel)
         }
 
         cache[index] = clazzDailySetStateFlow
         return clazzDailySetStateFlow
-    }
-
-    val current: Flow<ClazzDailySetState> = clazzDailySetCursorsFlow.transform { value ->
-        emitAll(get(value.index))
     }
 }

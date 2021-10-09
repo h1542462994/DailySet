@@ -3,6 +3,7 @@ package org.tty.dailyset.data.scope
 import androidx.compose.runtime.*
 import org.tty.dailyset.common.observable.state
 import org.tty.dailyset.model.entity.*
+import org.tty.dailyset.model.lifetime.PagerInfo
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailyDurationCreateState
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailySetState
 import org.tty.dailyset.model.lifetime.dailyset.DailySetCreateState
@@ -34,8 +35,19 @@ interface DailySetScope: PreferenceScope, UserScope, DailyTableScope {
     }
 
     @Composable
+    @Deprecated("not used.")
     fun currentClazzDailySetState(): State<ClazzDailySetState> {
         return state(vm.clazzDailySetState)
+    }
+
+    @Composable
+    fun clazzDailySetPagerInfo(): State<PagerInfo> {
+        return state(vm.clazzDailySetPagerInfo)
+    }
+
+    @Composable
+    fun clazzDailySetStateOfIndex(index: Int): State<ClazzDailySetState> {
+        return state(vm.clazzDailySetStateOfIndex(index))
     }
 
     /**

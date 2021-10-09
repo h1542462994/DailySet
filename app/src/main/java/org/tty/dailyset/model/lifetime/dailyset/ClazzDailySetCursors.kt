@@ -6,8 +6,10 @@ import org.tty.dailyset.weekCount
 import java.time.LocalDate
 
 data class ClazzDailySetCursors(
+    /**
+     * the reference data source.
+     */
     val dailySetDurations: DailySetDurations,
-    val index: Int
 ): List<ClazzDailySetCursor> by generateList(dailySetDurations) {
 
     fun findIndex(date: LocalDate): Int {
@@ -41,21 +43,16 @@ data class ClazzDailySetCursors(
             }
         }
     }
-    val cursor: ClazzDailySetCursor get() = if(index in indices) {
-        this[index]
-    } else {
-        ClazzDailySetCursor.empty()
-    }
+
 
     override fun toString(): String {
-        return "ClazzDailySetCursors(dailySet=${dailySetDurations.dailySet.name},page=[${index}/${this.size - 1}])"
+        return "ClazzDailySetCursors(dailySet=${dailySetDurations.dailySet.name},page=[?/${this.size - 1}])"
     }
 
     companion object {
         fun empty(): ClazzDailySetCursors {
             return ClazzDailySetCursors(
                 dailySetDurations = DailySetDurations.empty(),
-                0
             )
         }
 
