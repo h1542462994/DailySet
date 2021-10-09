@@ -4,9 +4,13 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.asLiveData
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import org.tty.dailyset.DailySetApplication
 import org.tty.dailyset.common.local.ComponentViewModel
+import org.tty.dailyset.common.local.Tags
+import org.tty.dailyset.common.local.logger
 import org.tty.dailyset.common.observable.*
 import org.tty.dailyset.model.entity.*
 import org.tty.dailyset.model.lifetime.UserState
@@ -14,7 +18,6 @@ import org.tty.dailyset.model.lifetime.dailyset.ClazzDailySetCursors
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailySetState
 import org.tty.dailyset.model.lifetime.dailytable.DailyTableState2
 import org.tty.dailyset.ui.page.MainPageTabs
-import org.tty.dioc.util.pair
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -132,27 +135,34 @@ class MainViewModel(val service: DailySetApplication) : ViewModel() {
      * {mutable, runtimeOnly} the cache for clazzDailySetCursorCache
      */
     private val clazzDailySetCursorCache = HashMap<String, Int>()
-    private val dailySetUidFlow = MutableStateFlow("")
+    private val dailySetUidLiveData = liveData("")
     /**
      * mutable | clazzWeekDay
      */
-    private val clazzWeekDayFlow = MutableStateFlow(DayOfWeek.MONDAY)
-    private val dailySetDurationsFlow = dailySetUidFlow.transform { value ->
-        clazzCursorIndexFlow.emit(null)
-        clazzWeekDayFlow.emit(LocalDate.now().dayOfWeek)
-        emitAll(service.dailySetRepository.loadDailySetDurations(value))
-    }.filterNotNull()
+    private val clazzWeekDayLiveData = liveData(DayOfWeek.MONDAY)
+    private val dailySetDurationsLiveData = liveDataChain(dailySetUidLiveData, "dailySetDurations") { value, collector: LiveCollector<DailySetDurations?> ->
+        logger.d(Tags.liveDataExtension, "dailySetUid changed to $value")
+        // invalid the current cursor.
+        clazzCursorIndexLiveData.postValue(null)
+        // change
+        clazzWeekDayLiveData.postValue(LocalDate.now().dayOfWeek)
+        collector.emitSource(liveData(service.dailySetRepository.loadDailySetDurations(value)))
+    }.ignoreNull()
 
 
     /**
      * {mutable, runtimeOnly} the current cursor, if null, the cursor will be re generated.
      */
-    val clazzCursorIndexFlow = MutableStateFlow<Int?>(null)
-    private val clazzDailySetCursorsFlow = clazzCursorIndexFlow.combine(dailySetDurationsFlow) { value1, value2 ->
-        pair(value1, value2)
-    }.transform { pair ->
-        val (value1, value2) = pair
+    val clazzCursorIndexLiveData = liveData<Int?>(null)
+
+    // --- onlyClazzDailySet
+    private val clazzDailySetCursorsLiveData: LiveData<ClazzDailySetCursors> = liveData2Chain(
+        clazzCursorIndexLiveData,
+        dailySetDurationsLiveData,
+        "clazzDailySetCursors"
+    ) { value1, value2, collector ->
         if (value2.dailySet.type == DailySetType.Clazz) {
+
             val cursors = ClazzDailySetCursors(value2, 0)
             var needReload = false
             val cacheKey = cursors.dailySetDurations.dailySet.uid
@@ -164,46 +174,17 @@ class MainViewModel(val service: DailySetApplication) : ViewModel() {
             if (needReload) {
                 val index = cursors.findIndex(LocalDate.now())
                 clazzDailySetCursorCache[cacheKey] = index
-                emit(cursors.copy(index = index))
+                collector.emit(cursors.copy(index = index))
             } else {
                 val cursorIndex = value1 ?: (clazzDailySetCursorCache[cacheKey] ?: 0)
                 // save the cursor to the cache.
                 clazzDailySetCursorCache[cacheKey] = cursorIndex
-                emit(cursors.copy(index = cursorIndex))
+                collector.emit(cursors.copy(index = cursorIndex))
             }
         }
     }
 
-    // --- onlyClazzDailySet
-//    private val clazzDailySetCursorsLiveData: LiveData<ClazzDailySetCursors> = liveData2Chain(
-//        clazzCursorIndexFlow,
-//        dailySetDurationsLiveData,
-//        "clazzDailySetCursors"
-//    ) { value1, value2, collector ->
-//        if (value2.dailySet.type == DailySetType.Clazz) {
-//
-//            val cursors = ClazzDailySetCursors(value2, 0)
-//            var needReload = false
-//            val cacheKey = cursors.dailySetDurations.dailySet.uid
-//
-//            if (clazzDailySetCursorCache[cacheKey] !in cursors.indices) {
-//                needReload = true
-//            }
-//
-//            if (needReload) {
-//                val index = cursors.findIndex(LocalDate.now())
-//                clazzDailySetCursorCache[cacheKey] = index
-//                collector.emit(cursors.copy(index = index))
-//            } else {
-//                val cursorIndex = value1 ?: (clazzDailySetCursorCache[cacheKey] ?: 0)
-//                // save the cursor to the cache.
-//                clazzDailySetCursorCache[cacheKey] = cursorIndex
-//                collector.emit(cursors.copy(index = cursorIndex))
-//            }
-//        }
-//    }
-
-    private val clazzDailySetStatePartFlow = ClazzDailySetStatePart(this, clazzDailySetCursorsFlow, userUidLiveData.asFlow(), startWeekDayLiveData.asFlow())
+    private val clazzDailySetStatePartFlow = ClazzDailySetStatePart(this, clazzDailySetCursorsLiveData.asFlow(), userUidLiveData.asFlow(), startWeekDayLiveData.asFlow())
     private val clazzDailySetStateLiveData = clazzDailySetStatePartFlow.current.asLiveData()
 
 //    private val clazzDailySetBindingLiveData =
@@ -320,7 +301,7 @@ class MainViewModel(val service: DailySetApplication) : ViewModel() {
     /**
      * {mutable} 当前dailySetUid
      */
-    val dailySetUid = dailySetUidFlow.initial("")
+    val dailySetUid = dailySetUidLiveData.initial("")
 
     /**
      * 当前DailySetDurations
@@ -335,7 +316,7 @@ class MainViewModel(val service: DailySetApplication) : ViewModel() {
     /**
      * 当前的clazzWeekDay
      */
-    val clazzWeekDay = clazzWeekDayFlow.initial(DayOfWeek.MONDAY)
+    val clazzWeekDay = clazzWeekDayLiveData.initial(DayOfWeek.MONDAY)
 
     //endregion
 

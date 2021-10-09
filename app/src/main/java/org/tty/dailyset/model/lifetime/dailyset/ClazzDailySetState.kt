@@ -76,7 +76,7 @@ class ClazzDailySetState(
      */
     fun toPrevCursor() {
         mainViewModel.optional {
-            clazzCursorIndexFlow.postValue(index - 1)
+            clazzCursorIndexLiveData.postValue(index - 1)
         }
     }
 
@@ -85,7 +85,7 @@ class ClazzDailySetState(
      */
     fun toNextCursor() {
         mainViewModel.optional {
-            clazzCursorIndexFlow.postValue(index + 1)
+            clazzCursorIndexLiveData.postValue(index + 1)
         }
     }
 
