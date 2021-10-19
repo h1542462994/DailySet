@@ -2,10 +2,10 @@ package org.tty.dailyset.model.entity
 
 import androidx.room.Entity
 import androidx.room.Index
-import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
-import org.tty.dailyset.model.converter.LongTimeStampConverter
-import java.sql.Timestamp
+import org.tty.dailyset.common.datetime.epochLocalDateTime
+import org.tty.dailyset.model.converter.StringLocalDateTimeConverter
+import java.time.LocalDateTime
 
 /**
  * the dailySet and the dailyDuration is all the global data entry.
@@ -15,7 +15,7 @@ import java.sql.Timestamp
     Index("dailySetUid"), Index("dailyDurationUid"), Index("dailySetUid", "dailyDurationUid")
 ])
 
-@TypeConverters(LongTimeStampConverter::class)
+@TypeConverters(StringLocalDateTimeConverter::class)
 data class DailySetBinding(
     /**
      * the binding dailySetUid
@@ -31,12 +31,12 @@ data class DailySetBinding(
      * the property only used on [DailyDurationType.Clazz]
      */
     val bindingDailyTableUid: String = "",
-    val updateAt: Timestamp,
+    val updateAt: LocalDateTime,
 ) {
     companion object {
         fun empty(): DailySetBinding {
             return DailySetBinding(
-                updateAt = Timestamp(0)
+                updateAt = epochLocalDateTime()
             )
         }
     }

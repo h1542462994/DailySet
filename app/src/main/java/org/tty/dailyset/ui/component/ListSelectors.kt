@@ -4,7 +4,10 @@ import android.util.Log
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -17,10 +20,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
-import org.tty.dailyset.hm
 import org.tty.dailyset.rangeX
 import org.tty.dailyset.ui.utils.toPx
-import java.sql.Time
+import java.time.LocalTime
 import kotlin.math.roundToInt
 
 @Composable
@@ -181,11 +183,11 @@ fun ListSelector(
 fun TimeSelector(
     height: Dp,
     cellHeight: Dp,
-    initTime: Time,
+    initTime: LocalTime,
     minuteSpace: Int = 5,
-    min: Time? = null,
-    max: Time? = null,
-    onTimeChanged: (Time) -> Unit
+    min: LocalTime? = null,
+    max: LocalTime? = null,
+    onTimeChanged: (LocalTime) -> Unit
 ) {
     val TAG = "TimeSelector"
 
@@ -229,7 +231,7 @@ fun TimeSelector(
     val minuteIndex = (rememberTime.minute - cMinM) / minuteSpace
 
     LaunchedEffect(key1 = rememberTime, block = {
-        val time = Time.valueOf("${rememberTime.hour}:${rememberTime.minute}:0")
+        val time = LocalTime.of(rememberTime.hour, rememberTime.minute)
         Log.d(TAG,"time changed to ${time}, so notify it")
         onTimeChanged(time)
     })
@@ -297,4 +299,8 @@ fun CountSelector(text: String, index: Int, onItemIndexChanged: (Int) -> Unit) {
             onItemIndexChanged(it)
         }
     }
+}
+
+internal fun LocalTime.hm(): Pair<Int, Int> {
+    return Pair(this.hour, this.minute)
 }

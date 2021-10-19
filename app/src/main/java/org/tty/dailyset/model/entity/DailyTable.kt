@@ -3,18 +3,19 @@ package org.tty.dailyset.model.entity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
-import org.tty.dailyset.model.converter.LongTimeStampConverter
-import java.sql.Timestamp
+import org.tty.dailyset.common.datetime.epochLocalDateTime
+import org.tty.dailyset.model.converter.StringLocalDateTimeConverter
+import java.time.LocalDateTime
 
 @Entity(tableName = "daily_table")
-@TypeConverters(LongTimeStampConverter::class)
+@TypeConverters(StringLocalDateTimeConverter::class)
 data class DailyTable(
     @PrimaryKey
     var uid: String,
     var name: String,
     var global: Boolean,
     var referenceUid: String,
-    var updateAt: Timestamp
+    var updateAt: LocalDateTime
 ) {
     companion object {
         const val default = "#default"
@@ -25,7 +26,7 @@ data class DailyTable(
                 name = "系统默认",
                 global = true,
                 referenceUid = User.system,
-                updateAt = Timestamp(0)
+                updateAt = epochLocalDateTime()
             )
         }
     }

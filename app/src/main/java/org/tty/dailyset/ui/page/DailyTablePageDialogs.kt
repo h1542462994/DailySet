@@ -11,15 +11,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.tty.dailyset.R
+import org.tty.dailyset.common.datetime.minutesTo
 import org.tty.dailyset.data.processor.DailyTableProcessor
-import org.tty.dailyset.day
 import org.tty.dailyset.model.lifetime.UserState
 import org.tty.dailyset.model.lifetime.dailytable.*
-import org.tty.dailyset.plus
-import org.tty.dailyset.spanMinutes
 import org.tty.dailyset.ui.component.*
 import org.tty.dailyset.ui.theme.LocalPalette
-import java.sql.Time
+import java.time.LocalTime
 import java.time.temporal.ChronoUnit
 
 /**
@@ -270,8 +268,8 @@ fun DailyTableModifyCellDialogCover(
     })
 
     data class TimeRange(
-        val start: Time,
-        val end: Time
+        val start: LocalTime,
+        val end: LocalTime
     )
 
     var current by remember(key1 = state) {
@@ -279,9 +277,11 @@ fun DailyTableModifyCellDialogCover(
     }
     val endMin =
         minOf(current.end, current.start.plus(5, ChronoUnit.MINUTES))
-    val isEndTimeValid = current.end.day() == 0L
 
-    // TODO: 2021/5/21 完成该功能
+    // TODO: 溢出时间修正
+    val isEndTimeValid = true
+
+
     NanoDialog(
         title = "调整该节课时间",
         dialogState = dailyTableModifyCellState) {
@@ -306,7 +306,7 @@ fun DailyTableModifyCellDialogCover(
                     initTime = current.start,
                     min = min
                 ) {
-                    val span = spanMinutes(current.start, current.end)
+                    val span = current.start minutesTo current.end
 
                     current = TimeRange(it, it.plus(span, ChronoUnit.MINUTES))
                 }

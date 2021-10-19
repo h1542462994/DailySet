@@ -3,16 +3,17 @@ package org.tty.dailyset.model.entity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
+import org.tty.dailyset.common.datetime.epochLocalDateTime
 import org.tty.dailyset.model.converter.DailySetIconConverter
 import org.tty.dailyset.model.converter.DailySetTypeConverter
-import org.tty.dailyset.model.converter.LongTimeStampConverter
-import java.sql.Timestamp
+import org.tty.dailyset.model.converter.StringLocalDateTimeConverter
+import java.time.LocalDateTime
 
 /**
  * represents a dailySet
  */
 @Entity(tableName = "daily_set")
-@TypeConverters(DailySetTypeConverter::class, DailySetIconConverter::class, LongTimeStampConverter::class)
+@TypeConverters(DailySetTypeConverter::class, DailySetIconConverter::class, StringLocalDateTimeConverter::class)
 data class DailySet(
     /**
      * the dailySet type.
@@ -45,7 +46,7 @@ data class DailySet(
     /**
      * the update timestamp
      */
-    val updateAt: Timestamp
+    val updateAt: LocalDateTime
 ) {
     companion object {
         fun empty(): DailySet {
@@ -56,7 +57,7 @@ data class DailySet(
                 serialIndex = 0,
                 ownerUid = User.system,
                 name = "",
-                updateAt = Timestamp(0)
+                updateAt = epochLocalDateTime()
             )
         }
     }

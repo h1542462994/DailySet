@@ -3,15 +3,14 @@ package org.tty.dailyset.model.dao
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import org.tty.dailyset.common.datetime.minutesTo
 import org.tty.dailyset.data.processor.DailyTableProcessor2Async
 import org.tty.dailyset.event.*
 import org.tty.dailyset.model.entity.DailyCell
 import org.tty.dailyset.model.entity.DailyRC
 import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
-import org.tty.dailyset.localTimestampNow
-import org.tty.dailyset.plus
-import org.tty.dailyset.spanMinutes
+import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.*
 
@@ -63,21 +62,21 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
             name = name,
             uid = uid,
             referenceUid = referenceUid,
-            updateAt = localTimestampNow(),
+            updateAt = LocalDateTime.now(),
             global = false
         )
         update(newDailyTable)
         cloneFrom.dailyRCs.forEach { dailyRC ->
             val newDailyRow = dailyRC.dailyRow.copy(
                 uid = UUID.randomUUID().toString(),
-                updateAt = localTimestampNow(),
+                updateAt = LocalDateTime.now(),
                 dailyTableUid = uid
             )
             update(newDailyRow)
             dailyRC.dailyCells.forEach { dailyCell ->
                 val newDailyCell = dailyCell.copy(
                     uid = UUID.randomUUID().toString(),
-                    updateAt = localTimestampNow(),
+                    updateAt = LocalDateTime.now(),
                     dailyRowUid = newDailyRow.uid
                 )
                 update(newDailyCell)
@@ -123,13 +122,13 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
                 uid = dailyRowUid,
                 currentIndex = currentIndex,
                 weekdays = weekDays,
-                updateAt = localTimestampNow()
+                updateAt = LocalDateTime.now()
             ),
             dailyCells = copyFrom.dailyCells.map {
                 it.copy(
                     uid = UUID.randomUUID().toString(),
                     dailyRowUid = dailyRowUid,
-                    updateAt = localTimestampNow()
+                    updateAt = LocalDateTime.now()
                 )
             }
         )
@@ -140,7 +139,7 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
 
         update(
             dailyTRC.dailyTable.copy(
-                updateAt = localTimestampNow()
+                updateAt = LocalDateTime.now()
             )
         )
     }
@@ -166,7 +165,7 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
                     update(
                         dailyRow = target.copy(
                             weekdays = target.weekdays.filter { it != weekDay }.toIntArray(),
-                            updateAt = localTimestampNow()
+                            updateAt = LocalDateTime.now()
                         )
                     )
                 }
@@ -176,7 +175,7 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
             update(
                 dailyRow = source.copy(
                     weekdays = source.weekdays.plus(weekDay).sortedArray(),
-                    updateAt = localTimestampNow()
+                    updateAt = LocalDateTime.now()
                 )
             )
         } else {
@@ -184,21 +183,21 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
             update(
                 dailyRow = source.copy(
                     weekdays = source.weekdays.filter { it != weekDay }.toIntArray(),
-                    updateAt = localTimestampNow()
+                    updateAt = LocalDateTime.now()
                 )
             )
             val target = dailyRowOfRowIndex(rowIndex + 1)
             update(
                 dailyRow = target.copy(
                     weekdays = target.weekdays.plus(weekDay).sortedArray(),
-                    updateAt = localTimestampNow()
+                    updateAt = LocalDateTime.now()
                 )
             )
         }
 
         update(
             dailyTRC.dailyTable.copy(
-                updateAt = localTimestampNow()
+                updateAt = LocalDateTime.now()
             )
         )
     }
@@ -212,7 +211,7 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
         update(
             dailyTable = dailyTRC.dailyTable.copy(
                 name = name,
-                updateAt = localTimestampNow()
+                updateAt = LocalDateTime.now()
             )
         )
     }
@@ -231,7 +230,7 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
         update(
             dailyRow = dailyRowOfRowIndex(rowIndex - 1).copy(
                 weekdays = weekDays,
-                updateAt = localTimestampNow()
+                updateAt = LocalDateTime.now()
             )
         )
         // modify the next
@@ -240,7 +239,7 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
             update(
                 dailyRow = current.copy(
                     currentIndex = current.currentIndex - 1,
-                    updateAt = localTimestampNow()
+                    updateAt = LocalDateTime.now()
                 )
             )
         }
@@ -249,7 +248,7 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
         // update the dailyTable
         update(
             dailyTable = dailyTRC.dailyTable.copy(
-                updateAt = localTimestampNow()
+                updateAt = LocalDateTime.now()
             )
         )
     }
@@ -288,7 +287,7 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
                             dailyCell.copy(
                                 currentIndex = startIndex + index,
                                 serialIndex = index,
-                                updateAt = localTimestampNow()
+                                updateAt = LocalDateTime.now()
                             )
                         )
                     } else {
@@ -302,7 +301,7 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
                         dailyCell.copy(
                             currentIndex = startIndex + index,
                             serialIndex = index,
-                            updateAt = localTimestampNow()
+                            updateAt = LocalDateTime.now()
                         )
                     )
                 }
@@ -320,7 +319,7 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
                         end = end,
                         normalType = normalType,
                         dailyRowUid = dailyRC.dailyRow.uid,
-                        updateAt = localTimestampNow()
+                        updateAt = LocalDateTime.now()
                     )
                     update(dailyCell = newDailyCell)
                     last = newDailyCell
@@ -334,7 +333,7 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
         update(
             dailyRC.dailyRow.copy(
                 counts = counts,
-                updateAt = localTimestampNow()
+                updateAt = LocalDateTime.now()
             )
         )
     }
@@ -347,12 +346,12 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
         fun dailyCell(rowIndex:Int, cellIndex: Int) = dailyRowOfRowIndex(rowIndex).dailyCells[cellIndex]
         val oldCell = dailyCell(rowIndex, cellIndex)
         // the offsets of the follow cells
-        val spanMinutes = spanMinutes(oldCell.end, end)
+        val spanMinutes = oldCell.end minutesTo end
         update(
             dailyCell = oldCell.copy(
                 start = start,
                 end = end,
-                updateAt = localTimestampNow()
+                updateAt = LocalDateTime.now()
             )
         )
         // update follows
@@ -362,20 +361,20 @@ interface DailyTableDao : DailyRowDao, DailyCellDao, DailyTableProcessor2Async {
         follows.forEach {
             update(
                 dailyCell = it.copy(
-                    start = it.start.plus(spanMinutes, ChronoUnit.MINUTES),
+                    start = it.start.plusMinutes(spanMinutes),
                     end = it.end.plus(spanMinutes, ChronoUnit.MINUTES),
-                    updateAt = localTimestampNow()
+                    updateAt = LocalDateTime.now()
                 )
             )
         }
         update(
             dailyRow = dailyRowOfRowIndex(rowIndex).dailyRow.copy(
-                updateAt = localTimestampNow()
+                updateAt = LocalDateTime.now()
             )
         )
         update(
             dailyTable = dailyTRC.dailyTable.copy(
-                updateAt = localTimestampNow()
+                updateAt = LocalDateTime.now()
             )
         )
 

@@ -163,14 +163,15 @@ class MainViewModel(val service: DailySetApplication) : ViewModel() {
     val clazzCursorIndexLiveData = liveData<Int?>(null)
 
     // --- onlyClazzDailySet
-    private val clazzDailySetCursorsAndIndexLiveData: LiveData<Pair<Int, ClazzDailySetCursors>> = liveData2Chain(
+    private val clazzDailySetCursorsAndIndexLiveData: LiveData<Pair<Int, ClazzDailySetCursors>> = liveData3Chain(
         clazzCursorIndexLiveData,
         dailySetDurationsLiveData,
+        startWeekDayLiveData,
         "clazzDailySetCursors"
-    ) { value1, value2, collector ->
-        if (value2.dailySet.type == DailySetType.Clazz) {
+    ) { clazzCursorIndex, dailySetDurations, startWeekDay, collector ->
+        if (dailySetDurations.dailySet.type == DailySetType.Clazz) {
 
-            val cursors = ClazzDailySetCursors(value2)
+            val cursors = ClazzDailySetCursors(dailySetDurations, startWeekDay)
             var needReload = false
             val cacheKey = cursors.dailySetDurations.dailySet.uid
 
@@ -187,7 +188,7 @@ class MainViewModel(val service: DailySetApplication) : ViewModel() {
                 // update the clazzWeekDay.
 //                clazzWeekDayLiveData.postValue(LocalDate.now().dayOfWeek)
             } else {
-                val cursorIndex = value1 ?: (clazzDailySetCursorCache[cacheKey] ?: 0)
+                val cursorIndex = clazzCursorIndex ?: (clazzDailySetCursorCache[cacheKey] ?: 0)
                 // save the cursor to the cache.
                 clazzDailySetCursorCache[cacheKey] = cursorIndex
                 collector.emit(Pair(cursorIndex, cursors))
@@ -195,7 +196,7 @@ class MainViewModel(val service: DailySetApplication) : ViewModel() {
         }
     }
 
-    private val clazzDailySetPagerInfoLiveData = liveDataMap(clazzDailySetCursorsAndIndexLiveData, "clazzDailySetPageLength") {
+    private val clazzDailySetPagerInfoLiveData = liveDataMap(clazzDailySetCursorsAndIndexLiveData, "clazzDailySetPagerInfo") {
         val (index, cursors) = it
         PagerInfo(
             size = cursors.size,

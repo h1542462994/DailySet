@@ -1,13 +1,13 @@
 package org.tty.dailyset.data.scope
 
 import androidx.compose.runtime.*
+import org.tty.dailyset.common.datetime.toWeekStart
 import org.tty.dailyset.common.observable.state
 import org.tty.dailyset.model.entity.*
 import org.tty.dailyset.model.lifetime.PagerInfo
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailyDurationCreateState
 import org.tty.dailyset.model.lifetime.dailyset.ClazzDailySetState
 import org.tty.dailyset.model.lifetime.dailyset.DailySetCreateState
-import org.tty.dailyset.toWeekStart
 import java.time.DayOfWeek
 import java.time.LocalDate
 import org.tty.dailyset.provider.mainViewModel as vm
@@ -124,7 +124,9 @@ interface DailySetScope: PreferenceScope, UserScope, DailyTableScope {
     fun clazzDailyDurationCreateState(
         initDialogOpen: Boolean = false
     ): ClazzDailyDurationCreateState {
-        val startDate = LocalDate.now().toWeekStart()
+        val startWeekDay by startWeekDay()
+
+        val startDate = LocalDate.now().toWeekStart(startWeekDay)
         val endDate = startDate.plusDays((7 * 16 - 1).toLong())
         val weekCount = 16
 

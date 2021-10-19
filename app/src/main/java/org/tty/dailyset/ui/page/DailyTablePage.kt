@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import org.tty.dailyset.*
 import org.tty.dailyset.R
+import org.tty.dailyset.common.datetime.toShortString
 import org.tty.dailyset.data.processor.DailyTableProcessor
 import org.tty.dailyset.data.scope.DataScope
 import org.tty.dailyset.event.*
@@ -33,7 +34,7 @@ import org.tty.dailyset.ui.component.*
 import org.tty.dailyset.ui.image.ImageResource
 import org.tty.dailyset.ui.theme.LocalPalette
 import org.tty.dailyset.ui.utils.StatusBarToBackground
-import java.sql.Time
+import java.time.LocalTime
 import java.util.*
 
 /**
@@ -169,7 +170,7 @@ fun DailyTablePage() {
                 )
             }
 
-            override fun onModifyCell(rowIndex: Int, cellIndex: Int, start: Time, end: Time) {
+            override fun onModifyCell(rowIndex: Int, cellIndex: Int, start: LocalTime, end: LocalTime) {
                 val dailyTableModifyCellEventArgs =
                     DailyTableModifyCellEventArgs(currentDailyTRC, rowIndex, cellIndex, start, end)
                 performProcess(service, DailyTableEventType.ModifyCell, dailyTableModifyCellEventArgs,
@@ -593,7 +594,7 @@ fun DailyRCContent(
                 TitleSpace(title = titles[groupIndex])
                 listD.forEachIndexed { index, dailyCell ->
                     val cellIndex = counts[groupIndex] + index
-                    val isValid = dailyTableState2.calcIsCellValid(rowIndex, cellIndex)
+                    val isValid = true
                     DailyCellContent(dailyCell = dailyCell, isValid = isValid, index = cellIndex, onClick =
                         if (!dailyTableState2.readOnly && isValid) {
                             {

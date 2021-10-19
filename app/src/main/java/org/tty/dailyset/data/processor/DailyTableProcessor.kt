@@ -1,10 +1,8 @@
 package org.tty.dailyset.data.processor
 
 import androidx.compose.runtime.Immutable
-import org.tty.dailyset.model.entity.DailyTRC
-import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.model.lifetime.WeekDayState
-import java.sql.Time
+import java.time.LocalTime
 
 /**
  * dailyTable related operations, used in ui interactive.
@@ -18,5 +16,5 @@ interface DailyTableProcessor {
     fun onRename(name: String)
     fun onDeleteDailyRow(rowIndex: Int)
     fun onModifySection(rowIndex: Int, counts: IntArray)
-    fun onModifyCell(rowIndex: Int, cellIndex: Int, start: Time, end: Time)
+    fun onModifyCell(rowIndex: Int, cellIndex: Int, start: LocalTime, end: LocalTime)
 }

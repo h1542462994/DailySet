@@ -4,8 +4,8 @@ import java.time.LocalDate
 import java.time.Month
 
 data class MonthWeek(
-    val month: Month,
     val week: Int,
+    val month: Month,
     val weekStart: LocalDate
 ) {
 }

@@ -6,10 +6,10 @@ import org.tty.dailyset.data.processor.DailySetProcessor2Async
 import org.tty.dailyset.event.DailySetBindingDurationEventArgs
 import org.tty.dailyset.event.DailySetCreateDurationAndBindingEventArgs
 import org.tty.dailyset.event.DailySetCreateEventArgs
-import org.tty.dailyset.localTimestampNow
 import org.tty.dailyset.model.converter.DailyDurationTypeConverter
 import org.tty.dailyset.model.converter.DailySetTypeConverter
 import org.tty.dailyset.model.entity.*
+import java.time.LocalDateTime
 
 /**
  * the dailySet dao object.
@@ -50,7 +50,7 @@ interface DailySetDao: DailySetProcessor2Async, DailyDurationDao, DailySetBindin
             serialIndex = serialIndex,
             ownerUid = ownerUid,
             name = dailySetName,
-            updateAt = localTimestampNow()
+            updateAt = LocalDateTime.now()
         )
         update(dailySet)
     }
@@ -71,7 +71,7 @@ interface DailySetDao: DailySetProcessor2Async, DailyDurationDao, DailySetBindin
             tag = DailyDurationTag.Normal,
             serialIndex = serialIndex,
             bindingPeriodCode = periodCode.code,
-            updateAt = localTimestampNow()
+            updateAt = LocalDateTime.now()
         )
         update(dailyDuration)
 
@@ -90,7 +90,7 @@ interface DailySetDao: DailySetProcessor2Async, DailyDurationDao, DailySetBindin
             dailySetUid = dailySetUid,
             dailyDurationUid = dailyDurationUid,
             bindingDailyTableUid = bindingDailyTableUid,
-            updateAt = localTimestampNow()
+            updateAt = LocalDateTime.now()
         )
         update(dailySetBinding)
 

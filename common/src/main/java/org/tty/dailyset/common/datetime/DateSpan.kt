@@ -1,22 +1,31 @@
+@file:Suppress("MemberVisibilityCanBePrivate")
+
 package org.tty.dailyset.common.datetime
 
 import java.time.DayOfWeek
+import java.time.Duration
 import java.time.LocalDate
-import java.time.Period
 
 /**
  * describe a date span from [startDate] to [endDateInclusive]
  */
+
 data class DateSpan(
-    val startDate: LocalDate,
-    val endDateInclusive: LocalDate,
-    val startDayOfWeek: DayOfWeek = DayOfWeek.MONDAY
-) {
     /**
-     * 将其转化为period
+     * the startDate of the span.
      */
-    fun toPeriod(): Period {
-        return Period.between(startDate, endDateInclusive.plusDays(1))
+    val startDate: LocalDate,
+    /**
+     * the endDateInclusive of the span.
+     */
+    val endDateInclusive: LocalDate,
+    /**
+     * the startWeekDay
+     */
+    val startDayOfWeek: DayOfWeek = defaultStartDayOfWeek
+) {
+    fun toDuration(): Duration {
+        return Duration.between(startDate.atStartOfDay(), endDateExclusive.atStartOfDay())
     }
 
     /**
@@ -25,32 +34,55 @@ data class DateSpan(
     fun expandToFullWeek(): DateSpan {
         return DateSpan(
             startDate = startDate.toWeekStart(startDayOfWeek),
-            endDateInclusive = endDateInclusive.toWeekStart(startDayOfWeek).plusDays((daysOneWeek - 1).toLong()),
+            endDateInclusive = endDateInclusive.toWeekEnd(),
             startDayOfWeek = startDayOfWeek
         )
     }
 
     operator fun contains(date: LocalDate): Boolean {
-        return date.isAfter(startDate.minusDays(1)) && date.isBefore(endDateInclusive.plusDays(1))
+        return date.isAfter(startDate.minusDays(1)) && date.isBefore(endDateExclusive)
+    }
+
+    override fun toString(): String {
+        return "$startDate - $endDateInclusive ${startDayOfWeek.name} (${totalDays} days, $weekCount weeks, $weekCountFull weeks of full)"
+    }
+
+    val endDateExclusive: LocalDate = endDateInclusive.plusDays(1)
+
+    val totalDays: Int get() {
+        return toDuration().toDays().toInt()
     }
 
     /**
-     * 获取这段时间所占用的周数
+     * the weekCount of the period, 7 days as a week. not enough calculate as a week.
      */
     val weekCount: Int get() {
-        val period = Period.between(
-            startDate.toWeekStart(startDayOfWeek), endDateInclusive.toWeekStart(startDayOfWeek).plusDays(1)
-        )
-        return period.days / 7 + 1
+        return (totalDays - 1) / 7 + 1
+    }
+
+    /**
+     * the weekCount of the period
+      */
+    val weekCountFull: Int get() {
+        return this.expandToFullWeek().weekCount
     }
 
     companion object {
+
+        fun ofInclusive(startDate: LocalDate, endDateInclusive: LocalDate, startDayOfWeek: DayOfWeek): DateSpan {
+            return DateSpan(startDate, endDateInclusive, startDayOfWeek)
+        }
+
+        fun ofExclusive(startDate: LocalDate, endDateExclusive: LocalDate, startDayOfWeek: DayOfWeek): DateSpan {
+            return DateSpan(startDate, endDateExclusive.minusDays(1), startDayOfWeek)
+        }
+
         /**
          * 获取[date]所在的星期的时间段
          */
         fun ofDate(date: LocalDate, startDayOfWeek: DayOfWeek): DateSpan {
             val startDate = date.toWeekStart(startDayOfWeek)
-            val endDateInclusive = startDate.plusDays((daysOneWeek - 1).toLong())
+            val endDateInclusive = date.toWeekEnd(startDayOfWeek)
             return DateSpan(
                 startDate, endDateInclusive, startDayOfWeek
             )

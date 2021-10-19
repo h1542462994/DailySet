@@ -3,7 +3,11 @@ package org.tty.dailyset.ui.page
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import org.tty.dailyset.common.datetime.DateSpan
 import org.tty.dailyset.data.processor.ClazzDailySetProcessor
 import org.tty.dailyset.data.scope.DataScope
 import org.tty.dailyset.minus
@@ -16,7 +20,7 @@ import org.tty.dailyset.model.lifetime.dailyset.ClazzDailyDurationCreateState
 import org.tty.dailyset.toLongDateString
 import org.tty.dailyset.ui.component.*
 import org.tty.dailyset.ui.theme.LocalPalette
-import org.tty.dailyset.weekCount
+import java.time.DayOfWeek
 
 /**
  * the dailog for create clazz duration and import this to current dailySet ::clazzType.
@@ -42,13 +46,13 @@ fun ClazzDailySetClazzDurationCreateDialogCover(
     var periodCode by clazzDailyDurationCreateState.periodCode
     var dailyTableUid by clazzDailyDurationCreateState.bindingDailyTableUid
 
-    fun update() {
+    fun update(startWeekDay: DayOfWeek) {
         if (sourceUid != null) {
             val duration = notIncludedDailyDurations.find { it.uid == sourceUid }!!
             name = duration.name
             startDate = duration.startDate
             endDate = duration.endDate
-            weekCount = weekCount(endDate, startDate).toInt()
+            weekCount = DateSpan(endDate, startDate, startWeekDay).weekCountFull
             periodCode = PeriodCode.values().find { it.code == duration.bindingPeriodCode }!!
         }
     }
@@ -67,6 +71,7 @@ fun ClazzDailySetClazzDurationCreateDialogCover(
             date = endDate,
             minDate = startDate
         )
+        val startWeekDay by startWeekDay()
 
         LaunchedEffect(key1 = startDate, block = {
             startDatePickerDialogState.date.value = startDate
@@ -89,6 +94,7 @@ fun ClazzDailySetClazzDurationCreateDialogCover(
                 val dailyTable = dailyTableSummaries.find {
                     it.uid == dailyTableUid
                 }!!
+
                 ComboBox(
                     title = "引用源",
                     data = selections,
@@ -99,7 +105,7 @@ fun ClazzDailySetClazzDurationCreateDialogCover(
                         } else {
                             it.uid
                         }
-                        update()
+                        update(startWeekDay)
                     }) {
                     Text(
                         text = if (it == DailyDuration.empty()) "(新建)" else it.name
@@ -158,7 +164,7 @@ fun ClazzDailySetClazzDurationCreateDialogCover(
         }
         DatePicker(datePickerDialogState = endDatePickerDialogState) {
             endDate = it
-            weekCount = weekCount(endDate, startDate).toInt()
+            weekCount = DateSpan(endDate, startDate, startWeekDay).weekCountFull
         }
     }
 

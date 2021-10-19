@@ -10,7 +10,7 @@ import org.tty.dailyset.model.entity.DailyCell
 import org.tty.dailyset.model.entity.DailyTRC
 import org.tty.dailyset.model.entity.DailyTable
 import org.tty.dailyset.model.lifetime.dailytable.*
-import java.sql.Time
+import java.time.LocalTime
 import org.tty.dailyset.provider.mainViewModel as vm
 
 /**
@@ -166,8 +166,8 @@ interface DailyTableScope : PreferenceScope, UserScope {
                         rowIndex = 0,
                         cellIndex = 0,
                         min = null,
-                        start = Time.valueOf("08:00:00"),
-                        end = Time.valueOf("08:45:00")
+                        start = LocalTime.parse("08:00:00"),
+                        end = LocalTime.parse("08:45:00")
                 )
                 )
             }

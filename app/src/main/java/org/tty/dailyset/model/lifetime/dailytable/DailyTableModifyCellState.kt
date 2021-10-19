@@ -2,7 +2,7 @@ package org.tty.dailyset.model.lifetime.dailytable
 
 import androidx.compose.runtime.MutableState
 import org.tty.dailyset.model.lifetime.DialogState
-import java.sql.Time
+import java.time.LocalTime
 
 class DailyTableModifyCellState(
     override val dialogOpen: MutableState<Boolean>,
@@ -12,7 +12,7 @@ class DailyTableModifyCellState(
 data class ModifyCellStateWrap(
     val rowIndex: Int,
     val cellIndex: Int,
-    val min: Time?,
-    val start: Time,
-    val end: Time
+    val min: LocalTime?,
+    val start: LocalTime,
+    val end: LocalTime
 )

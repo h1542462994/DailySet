@@ -18,24 +18,6 @@ fun Int.toWeekDayString(): String {
     return  "周${strArray[this]}"
 }
 
-fun LocalDateTime.toWeekStart(): LocalDateTime {
-    // the ordinal of the day
-    val ordinal = this.dayOfWeek.value - 1
-    return this.minusDays(ordinal.toLong())
-}
-
-fun LocalDateTime.toShortDateString(): String {
-    return "${monthValue}/${dayOfMonth}"
-}
-
-
-// TODO: 2021/3/27 添加扩展支持
-fun LocalDate.toWeekStart(): LocalDate {
-    // the ordinal of the day
-    val ordinal = this.dayOfWeek.value - 1
-    return this.minusDays(ordinal.toLong())
-}
-
 fun LocalDate.toShortDateString(): String {
     return "${monthValue}/${dayOfMonth}"
 }
@@ -47,10 +29,6 @@ fun LocalDate.toLongDateString(): String {
 
 fun minus(end: LocalDate, start: LocalDate): Long {
     return end.toEpochDay() - start.toEpochDay()
-}
-
-fun weekCount(end: LocalDate, start: LocalDate): Long {
-    return (minus(end.toWeekStart(), start.toWeekStart()) / 7) + 1
 }
 
 fun localTimestampNow(): Timestamp {

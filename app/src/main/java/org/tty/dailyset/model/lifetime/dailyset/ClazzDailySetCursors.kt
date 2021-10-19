@@ -1,8 +1,9 @@
 package org.tty.dailyset.model.lifetime.dailyset
 
+import org.tty.dailyset.common.datetime.DateSpan
 import org.tty.dailyset.model.entity.DailySetDurations
 import org.tty.dailyset.model.entity.weekCountAtIndex
-import org.tty.dailyset.weekCount
+import java.time.DayOfWeek
 import java.time.LocalDate
 
 data class ClazzDailySetCursors(
@@ -10,7 +11,8 @@ data class ClazzDailySetCursors(
      * the reference data source.
      */
     val dailySetDurations: DailySetDurations,
-): List<ClazzDailySetCursor> by generateList(dailySetDurations) {
+    val startWeekDay: DayOfWeek
+): List<ClazzDailySetCursor> by generateList(dailySetDurations, startWeekDay) {
 
     fun findIndex(date: LocalDate): Int {
         val durations = dailySetDurations.durations.sortedBy { it.startDate }
@@ -35,9 +37,9 @@ data class ClazzDailySetCursors(
                     }
                     val start = duration.startDate
                     if (date < end) {
-                        return totalIndex + weekCount(date, start).toInt() - 1
+                        return totalIndex + DateSpan(date, start, startWeekDay).weekCountFull
                     }
-                    totalIndex += weekCount(end, start).toInt()
+                    totalIndex += DateSpan(end, start, startWeekDay).weekCountFull
                 }
                 return totalIndex
             }
@@ -46,22 +48,23 @@ data class ClazzDailySetCursors(
 
 
     override fun toString(): String {
-        return "ClazzDailySetCursors(dailySet=${dailySetDurations.dailySet.name},page=[?/${this.size - 1}])"
+        return "ClazzDailySetCursors(dailySet=${dailySetDurations.dailySet.name},pageCount=${size})"
     }
 
     companion object {
         fun empty(): ClazzDailySetCursors {
             return ClazzDailySetCursors(
                 dailySetDurations = DailySetDurations.empty(),
+                startWeekDay = DayOfWeek.MONDAY
             )
         }
 
         /**
          * delegate list.
          */
-        private fun generateList(dailySetDurations: DailySetDurations): List<ClazzDailySetCursor> {
+        private fun generateList(dailySetDurations: DailySetDurations, startWeekDay: DayOfWeek): List<ClazzDailySetCursor> {
             return dailySetDurations.durations.flatMapIndexed { index, dailyDuration ->
-                val weekCount = dailySetDurations.durations.weekCountAtIndex(index)
+                val weekCount = dailySetDurations.durations.weekCountAtIndex(index, startWeekDay = startWeekDay)
                 (0 until weekCount).map {
                     ClazzDailySetCursor(
                         dailyDuration = dailyDuration,

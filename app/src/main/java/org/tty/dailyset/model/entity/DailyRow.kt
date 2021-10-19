@@ -3,19 +3,20 @@ package org.tty.dailyset.model.entity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
-import org.tty.dailyset.model.converter.LongTimeStampConverter
+import org.tty.dailyset.common.datetime.epochLocalDateTime
 import org.tty.dailyset.model.converter.StringIntArrayConverter
-import java.sql.Timestamp
+import org.tty.dailyset.model.converter.StringLocalDateTimeConverter
+import java.time.LocalDateTime
 
 @Entity(tableName = "daily_row")
-@TypeConverters(LongTimeStampConverter::class, StringIntArrayConverter::class)
+@TypeConverters(StringLocalDateTimeConverter::class, StringIntArrayConverter::class)
 data class DailyRow(
     @PrimaryKey
     var uid: String,
     var currentIndex: Int,
     var weekdays: IntArray,
     var counts: IntArray,
-    var updateAt: Timestamp,
+    var updateAt: LocalDateTime,
     val dailyTableUid: String,
     ): Comparable<DailyRow> {
 
@@ -56,7 +57,7 @@ data class DailyRow(
                 currentIndex = 0,
                 weekdays = intArrayOf(1,2,3,4,5,6,7),
                 counts = intArrayOf(5,4,3),
-                updateAt = Timestamp(0),
+                updateAt = epochLocalDateTime(),
                 dailyTableUid = DailyTable.default
             )
         }

@@ -4,15 +4,15 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import org.tty.dailyset.model.converter.DailyNodeTypeConverter
-import org.tty.dailyset.model.converter.LongTimeStampConverter
-import java.sql.Timestamp
+import org.tty.dailyset.model.converter.StringLocalDateTimeConverter
+import java.time.LocalDateTime
 
 /**
  * represents a dailyNode
  * a dailyNode is the component of [DailySet]
  */
 @Entity(tableName = "daily_node")
-@TypeConverters(DailyNodeTypeConverter::class, LongTimeStampConverter::class)
+@TypeConverters(DailyNodeTypeConverter::class, StringLocalDateTimeConverter::class)
 data class DailyNode(
     /**
      * the dailyNode type
@@ -36,5 +36,5 @@ data class DailyNode(
     /**
      * the update timestamp
      */
-    val updateAt: Timestamp
+    val updateAt: LocalDateTime
 )
