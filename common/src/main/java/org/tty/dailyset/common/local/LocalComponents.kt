@@ -1,3 +1,5 @@
+// the file defines several components
+
 package org.tty.dailyset.common.local
 
 import androidx.lifecycle.ViewModel

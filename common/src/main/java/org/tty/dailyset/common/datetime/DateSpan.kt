@@ -9,7 +9,6 @@ import java.time.LocalDate
 /**
  * describe a date span from [startDate] to [endDateInclusive]
  */
-
 data class DateSpan(
     /**
      * the startDate of the span.
@@ -24,12 +23,16 @@ data class DateSpan(
      */
     val startDayOfWeek: DayOfWeek = defaultStartDayOfWeek
 ) {
+
+    /**
+     * to [Duration]
+     */
     fun toDuration(): Duration {
         return Duration.between(startDate.atStartOfDay(), endDateExclusive.atStartOfDay())
     }
 
     /**
-     * 将日期扩展到整周
+     * expand the [DateSpan] to the full week.
      */
     fun expandToFullWeek(): DateSpan {
         return DateSpan(
@@ -68,17 +71,22 @@ data class DateSpan(
     }
 
     companion object {
-
+        /**
+         * date span of ([startDate],[endDateExclusive]]
+         */
         fun ofInclusive(startDate: LocalDate, endDateInclusive: LocalDate, startDayOfWeek: DayOfWeek): DateSpan {
             return DateSpan(startDate, endDateInclusive, startDayOfWeek)
         }
 
+        /**
+         * date span of ([startDate],[endDateExclusive])
+         */
         fun ofExclusive(startDate: LocalDate, endDateExclusive: LocalDate, startDayOfWeek: DayOfWeek): DateSpan {
             return DateSpan(startDate, endDateExclusive.minusDays(1), startDayOfWeek)
         }
 
         /**
-         * 获取[date]所在的星期的时间段
+         * the date week start with [startDayOfWeek] and contains [date].
          */
         fun ofDate(date: LocalDate, startDayOfWeek: DayOfWeek): DateSpan {
             val startDate = date.toWeekStart(startDayOfWeek)

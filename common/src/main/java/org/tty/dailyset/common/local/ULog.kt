@@ -46,4 +46,5 @@ object ULog: Logger, LoggerConfig {
     private fun checkTag(tag: String): Boolean {
         return tags.contains(tag)
     }
+
 }
