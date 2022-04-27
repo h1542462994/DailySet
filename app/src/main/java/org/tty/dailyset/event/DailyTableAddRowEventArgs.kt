@@ -1,7 +1,6 @@
 package org.tty.dailyset.event
 
-import org.tty.dailyset.model.entity.DailyTRC
-import org.tty.dailyset.model.lifetime.WeekDayState
+import org.tty.dailyset.bean.entity.DailyTRC
 
 data class DailyTableAddRowEventArgs(
     val dailyTRC: DailyTRC,

@@ -4,11 +4,11 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import org.tty.dailyset.common.datetime.epochLocalDateTime
-import org.tty.dailyset.data.processor.DailySetProcessor
-import org.tty.dailyset.data.scope.DataScope
-import org.tty.dailyset.model.entity.DailySet
-import org.tty.dailyset.model.entity.DailySetIcon
-import org.tty.dailyset.model.entity.DailySetType
+import org.tty.dailyset.database.processor.DailySetProcessor
+import org.tty.dailyset.database.scope.DataScope
+import org.tty.dailyset.bean.entity.DailySet
+import org.tty.dailyset.bean.entity.DailySetIcon
+import org.tty.dailyset.bean.entity.DailySetType
 
 @Preview
 @Composable

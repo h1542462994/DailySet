@@ -1,6 +1,6 @@
 package org.tty.dailyset.event
 
-import org.tty.dailyset.model.entity.PeriodCode
+import org.tty.dailyset.bean.entity.PeriodCode
 import java.time.LocalDate
 
 data class DailySetCreateDurationAndBindingEventArgs(

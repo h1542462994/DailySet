@@ -3,11 +3,12 @@ package org.tty.dailyset.viewmodel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import org.tty.dailyset.common.observable.flow3
-import org.tty.dailyset.model.entity.DailySetBinding
-import org.tty.dailyset.model.entity.DailyTRC
-import org.tty.dailyset.model.lifetime.dailyset.ClazzDailySetCursors
-import org.tty.dailyset.model.lifetime.dailyset.ClazzDailySetState
-import org.tty.dailyset.model.lifetime.dailytable.DailyTableState2
+import org.tty.dailyset.bean.entity.DailySetBinding
+import org.tty.dailyset.bean.entity.DailyTRC
+import org.tty.dailyset.bean.lifetime.dailyset.ClazzDailySetCursors
+import org.tty.dailyset.bean.lifetime.dailyset.ClazzDailySetState
+import org.tty.dailyset.bean.lifetime.dailytable.DailyTableState2
+import org.tty.dailyset.component.common.MainViewModel
 import java.time.DayOfWeek
 
 @Suppress("EXPERIMENTAL_IS_NOT_ENABLED")
@@ -44,7 +45,7 @@ class ClazzDailySetStatePart(
             .transform<ClazzDailySetCursors, DailySetBinding?> tran@ { cursors ->
                 if (index in cursors.indices) {
                     val cursor = cursors[index]
-                    emitAll(mainViewModel.service.dailySetRepository.loadDailySetBinding(
+                    emitAll(mainViewModel.dailySetRepository.loadDailySetBinding(
                         cursors.dailySetDurations.dailySet.uid,
                         cursor.dailyDuration.uid
                     ))
@@ -56,7 +57,7 @@ class ClazzDailySetStatePart(
         val clazzDailyTRCFlow = clazzDailySetBindingFlow
             .transform { value ->
                 if (value != null) {
-                    emitAll(mainViewModel.service.dailyTableRepository.loadDailyTRC(value.bindingDailyTableUid))
+                    emitAll(mainViewModel.dailyTableRepository.loadDailyTRC(value.bindingDailyTableUid))
                 } else {
                     emit(DailyTRC.default())
                 }

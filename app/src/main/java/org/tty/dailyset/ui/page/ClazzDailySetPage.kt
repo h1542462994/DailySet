@@ -24,15 +24,15 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import org.tty.dailyset.LocalNav
 import org.tty.dailyset.R
-import org.tty.dailyset.data.processor.ClazzDailySetProcessor
-import org.tty.dailyset.data.scope.DataScope
+import org.tty.dailyset.database.processor.ClazzDailySetProcessor
+import org.tty.dailyset.database.scope.DataScope
 import org.tty.dailyset.event.DailySetCreateDurationAndBindingEventArgs
 import org.tty.dailyset.event.DailySetEventType
-import org.tty.dailyset.model.entity.*
-import org.tty.dailyset.model.lifetime.PagerInfo
-import org.tty.dailyset.model.lifetime.dailyset.ClazzDailyDurationCreateState
-import org.tty.dailyset.model.lifetime.dailyset.ClazzDailySetState
-import org.tty.dailyset.model.lifetime.dailytable.DailyTableCalc
+import org.tty.dailyset.bean.entity.*
+import org.tty.dailyset.bean.lifetime.PagerInfo
+import org.tty.dailyset.bean.lifetime.dailyset.ClazzDailyDurationCreateState
+import org.tty.dailyset.bean.lifetime.dailyset.ClazzDailySetState
+import org.tty.dailyset.bean.lifetime.dailytable.DailyTableCalc
 import org.tty.dailyset.ui.component.IconClick
 import org.tty.dailyset.ui.component.IconText
 import org.tty.dailyset.ui.component.TopBar
@@ -55,7 +55,7 @@ fun ClazzDailySetPage() {
 
     with(DataScope) {
         val mainViewModel = mainViewModel()
-        val service = mainViewModel.service
+        val service = mainViewModel.sharedComponents
         val dailyTableSummaries by dailyTableSummaries()
         val userState by currentUserState()
         //val clazzDailySetState by currentClazzDailySetState()

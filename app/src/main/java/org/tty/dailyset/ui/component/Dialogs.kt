@@ -20,9 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import androidx.compose.ui.window.SecureFlagPolicy
-import org.tty.dailyset.model.lifetime.DialogState
+import org.tty.dailyset.bean.lifetime.DialogState
 import org.tty.dailyset.ui.theme.LocalPalette
 import org.tty.dailyset.ui.theme.Shapes
 

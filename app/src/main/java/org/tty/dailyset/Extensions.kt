@@ -1,6 +1,6 @@
 package org.tty.dailyset
 
-import org.tty.dailyset.model.lifetime.WeekDayState
+import org.tty.dailyset.bean.lifetime.WeekDayState
 import java.sql.Time
 import java.sql.Timestamp
 import java.time.LocalDate

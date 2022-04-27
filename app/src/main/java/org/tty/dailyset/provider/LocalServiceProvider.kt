@@ -5,9 +5,9 @@ import android.view.Window
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
-import org.tty.dailyset.DailySetApplication
+import org.tty.dailyset.component.common.DailySetApplication
 import org.tty.dailyset.common.local.ComponentViewModel
-import org.tty.dailyset.viewmodel.MainViewModel
+import org.tty.dailyset.component.common.MainViewModel
 
 /**
  * provide the service [LocalServices] and [LocalMainViewModel],

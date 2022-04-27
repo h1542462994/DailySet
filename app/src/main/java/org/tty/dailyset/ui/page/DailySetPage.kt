@@ -11,15 +11,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import org.tty.dailyset.LocalNav
 import org.tty.dailyset.R
-import org.tty.dailyset.data.processor.DailySetProcessor
-import org.tty.dailyset.data.scope.DataScope
+import org.tty.dailyset.database.processor.DailySetProcessor
+import org.tty.dailyset.database.scope.DataScope
 import org.tty.dailyset.event.DailySetCreateEventArgs
 import org.tty.dailyset.event.DailySetEventType
-import org.tty.dailyset.model.entity.DailySet
-import org.tty.dailyset.model.entity.DailySetIcon
-import org.tty.dailyset.model.entity.DailySetType
-import org.tty.dailyset.model.entity.toImageResource
-import org.tty.dailyset.model.lifetime.dailyset.DailySetCreateState
+import org.tty.dailyset.bean.entity.DailySet
+import org.tty.dailyset.bean.entity.DailySetIcon
+import org.tty.dailyset.bean.entity.DailySetType
+import org.tty.dailyset.bean.entity.toImageResource
+import org.tty.dailyset.bean.lifetime.dailyset.DailySetCreateState
 import org.tty.dailyset.ui.component.ProfileMenuItem
 import org.tty.dailyset.ui.component.TitleSpace
 import org.tty.dailyset.ui.image.ImageResource
@@ -34,7 +34,7 @@ fun DailySetPage() {
     val scrollState = rememberScrollState()
     with(DataScope) {
         val mainViewModel = mainViewModel()
-        val service = mainViewModel.service
+        val service = mainViewModel.sharedComponents
         val dailySetCreateState = dailySetCreateState()
         val userState by currentUserState()
         val dailySets by dailySets()

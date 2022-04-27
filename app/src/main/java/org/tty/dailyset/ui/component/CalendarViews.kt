@@ -1,6 +1,5 @@
 package org.tty.dailyset.ui.component
 
-import android.util.AttributeSet
 import android.widget.CalendarView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -10,21 +9,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.max
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import org.tty.dailyset.model.lifetime.DatePickerDialogState
-import org.tty.dailyset.model.lifetime.DialogState
+import org.tty.dailyset.bean.lifetime.DatePickerDialogState
 import org.tty.dailyset.toEpochMilli
 import org.tty.dailyset.ui.theme.LocalPalette
 import java.time.LocalDate
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoField
-import java.time.temporal.ChronoUnit
 import java.util.*
-import java.util.jar.Attributes
 
 @Composable
 fun DatePicker(onDateSelected: (LocalDate) -> Unit, onDismissRequest: () -> Unit) {

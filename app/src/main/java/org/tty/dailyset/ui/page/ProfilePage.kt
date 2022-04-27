@@ -11,8 +11,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import org.tty.dailyset.LocalNav
 import org.tty.dailyset.R
 import org.tty.dailyset.annotation.UseViewModel
-import org.tty.dailyset.data.scope.DataScope
-import org.tty.dailyset.model.entity.User
+import org.tty.dailyset.database.scope.DataScope
+import org.tty.dailyset.bean.entity.User
 import org.tty.dailyset.ui.component.ProfileMenuGroup
 import org.tty.dailyset.ui.component.ProfileMenuItem
 import org.tty.dailyset.ui.image.ImageResource

@@ -2,9 +2,9 @@ package org.tty.dailyset.ui.page
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import org.tty.dailyset.model.entity.DailyTable
-import org.tty.dailyset.model.entity.User
-import org.tty.dailyset.model.lifetime.UserState
+import org.tty.dailyset.bean.entity.DailyTable
+import org.tty.dailyset.bean.entity.User
+import org.tty.dailyset.bean.lifetime.UserState
 
 @Preview
 @Composable

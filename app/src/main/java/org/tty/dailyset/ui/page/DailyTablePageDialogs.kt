@@ -12,9 +12,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.tty.dailyset.R
 import org.tty.dailyset.common.datetime.minutesTo
-import org.tty.dailyset.data.processor.DailyTableProcessor
-import org.tty.dailyset.model.lifetime.UserState
-import org.tty.dailyset.model.lifetime.dailytable.*
+import org.tty.dailyset.database.processor.DailyTableProcessor
+import org.tty.dailyset.bean.lifetime.UserState
+import org.tty.dailyset.bean.lifetime.dailytable.*
 import org.tty.dailyset.ui.component.*
 import org.tty.dailyset.ui.theme.LocalPalette
 import java.time.LocalTime

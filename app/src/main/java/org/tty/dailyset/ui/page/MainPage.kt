@@ -18,7 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import org.tty.dailyset.R
-import org.tty.dailyset.data.scope.DataScope
+import org.tty.dailyset.database.scope.DataScope
 import org.tty.dailyset.provider.LocalWindow
 import org.tty.dailyset.ui.component.TopBar
 import org.tty.dailyset.ui.theme.LocalPalette

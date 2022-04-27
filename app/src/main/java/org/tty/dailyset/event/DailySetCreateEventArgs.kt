@@ -1,7 +1,7 @@
 package org.tty.dailyset.event
 
-import org.tty.dailyset.model.entity.DailySetIcon
-import org.tty.dailyset.model.entity.DailySetType
+import org.tty.dailyset.bean.entity.DailySetIcon
+import org.tty.dailyset.bean.entity.DailySetType
 
 data class DailySetCreateEventArgs(
     val dailySetName: String,

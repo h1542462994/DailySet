@@ -21,15 +21,15 @@ import kotlinx.coroutines.launch
 import org.tty.dailyset.*
 import org.tty.dailyset.R
 import org.tty.dailyset.common.datetime.toShortString
-import org.tty.dailyset.data.processor.DailyTableProcessor
-import org.tty.dailyset.data.scope.DataScope
+import org.tty.dailyset.database.processor.DailyTableProcessor
+import org.tty.dailyset.database.scope.DataScope
 import org.tty.dailyset.event.*
-import org.tty.dailyset.model.entity.DailyCell
-import org.tty.dailyset.model.entity.DailyRC
-import org.tty.dailyset.model.entity.DailyTable
-import org.tty.dailyset.model.lifetime.UserState
-import org.tty.dailyset.model.lifetime.WeekDayState
-import org.tty.dailyset.model.lifetime.dailytable.*
+import org.tty.dailyset.bean.entity.DailyCell
+import org.tty.dailyset.bean.entity.DailyRC
+import org.tty.dailyset.bean.entity.DailyTable
+import org.tty.dailyset.bean.lifetime.UserState
+import org.tty.dailyset.bean.lifetime.WeekDayState
+import org.tty.dailyset.bean.lifetime.dailytable.*
 import org.tty.dailyset.ui.component.*
 import org.tty.dailyset.ui.image.ImageResource
 import org.tty.dailyset.ui.theme.LocalPalette
@@ -60,7 +60,7 @@ fun DailyTablePage() {
 
     with(DataScope) {
         val mainViewModel = mainViewModel()
-        val service = mainViewModel().service
+        val service = mainViewModel().sharedComponents
 
         val dailyTableSummaries by dailyTableSummaries()
         //val currentDailyTRC by currentDailyTableDetail()

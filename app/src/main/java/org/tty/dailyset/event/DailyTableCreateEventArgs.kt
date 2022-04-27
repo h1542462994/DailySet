@@ -1,5 +1,5 @@
 package org.tty.dailyset.event
-import org.tty.dailyset.model.entity.DailyTRC
+import org.tty.dailyset.bean.entity.DailyTRC
 
 data class DailyTableCreateEventArgs(
     val name: String,

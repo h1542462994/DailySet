@@ -13,21 +13,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.tty.dailyset.R
-import org.tty.dailyset.data.processor.DailySetProcessor
-import org.tty.dailyset.model.entity.DailySetIcon
-import org.tty.dailyset.model.entity.DailySetType
-import org.tty.dailyset.model.entity.toImageResource
-import org.tty.dailyset.model.lifetime.dailyset.DailySetCreateState
+import org.tty.dailyset.database.processor.DailySetProcessor
+import org.tty.dailyset.bean.entity.DailySetIcon
+import org.tty.dailyset.bean.entity.DailySetType
+import org.tty.dailyset.bean.entity.toImageResource
+import org.tty.dailyset.bean.lifetime.dailyset.DailySetCreateState
 import org.tty.dailyset.ui.component.Badge
 import org.tty.dailyset.ui.component.NanoDialog
 import org.tty.dailyset.ui.component.NanoDialogButton
-import org.tty.dailyset.ui.component.RoundBadge
 import org.tty.dailyset.ui.image.ImageResource
 import org.tty.dailyset.ui.theme.LocalPalette
 
