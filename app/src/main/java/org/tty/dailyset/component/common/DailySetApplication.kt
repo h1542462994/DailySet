@@ -1,22 +1,25 @@
 package org.tty.dailyset.component.common
 
 import android.app.Application
+import androidx.lifecycle.Lifecycle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import org.tty.dailyset.database.DailySetRoomDatabase
 import org.tty.dailyset.datasource.DataSourceCollection
 import org.tty.dailyset.datasource.DbSourceCollection
 import org.tty.dailyset.datasource.db.*
+import org.tty.dailyset.datasource.runtime.RuntimeDataSourceImpl
 import org.tty.dailyset.repository.*
 
 /**
  * Provide services for application
  */
-class DailySetApplication: Application(), SharedComponents {
+class DailySetApplication : Application(), SharedComponents {
 
     private var mutableSharedComponents: MutableSharedComponents = MutableSharedComponents()
 
-    init {
+    override fun onCreate() {
+        super.onCreate()
         mutableSharedComponents.useApplicationScope { CoroutineScope(SupervisorJob()) }
         mutableSharedComponents.useDatabase { DailySetRoomDatabase.getDatabase(this, mutableSharedComponents.applicationScope) }
         mutableSharedComponents.useDbSourceCollection { object: DbSourceCollection {
@@ -41,6 +44,12 @@ class DailySetApplication: Application(), SharedComponents {
         mutableSharedComponents.useDailySetRepository {
             DailySetRepository(mutableSharedComponents)
         }
+        mutableSharedComponents.useRuntimeDataSource {
+            RuntimeDataSourceImpl(mutableSharedComponents)
+        }
+        mutableSharedComponents.useStateStore {
+            StateStoreImpl(mutableSharedComponents)
+        }
     }
 
     override val applicationScope: CoroutineScope
@@ -53,6 +62,12 @@ class DailySetApplication: Application(), SharedComponents {
         get() = mutableSharedComponents.repositoryCollection
     override val stateStore: StateStore
         get() = mutableSharedComponents.stateStore
+    override val lifecycle: Lifecycle
+        get() = mutableSharedComponents.lifecycle
 
+    fun setLifecycle(action: () -> Lifecycle) {
+        mutableSharedComponents.useLifecycle(action)
+        mutableSharedComponents.dataSourceCollection.runtimeDataSource.init()
+    }
 
 }

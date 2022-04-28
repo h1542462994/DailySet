@@ -88,6 +88,23 @@ fun LocalDate.toShortString(): String {
     return "${this.monthValue}/${this.dayOfMonth}"
 }
 
+fun LocalDateTime.toShortString(): String {
+    return "${this.toLocalDate().toShortString()} ${this.toLocalTime().toShortString()}"
+}
+
+fun LocalDateTime.toStandardString(): String {
+    return this.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+}
+
 infix fun LocalTime.minutesTo(end: LocalTime): Long {
     return end.getLong(ChronoField.MINUTE_OF_DAY) - getLong(ChronoField.MINUTE_OF_DAY)
+}
+
+fun DayOfWeek.toDisplayString(): String {
+    val strArray = listOf("一","二","三","四","五","六","日")
+    return  "周${strArray[this.value - 1]}"
+}
+
+fun intToDayOfWeek(dayOfWeek: Int): DayOfWeek {
+    return DayOfWeek.of(dayOfWeek)
 }

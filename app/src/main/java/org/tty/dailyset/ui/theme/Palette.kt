@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.Color
 @Stable
 class Palette(
     background1: Color = Gray1,
+    background2: Color = Gray5,
     background3: Color = Teal300,
     backgroundColor: Color = Blue50,
     backgroundTransparent: Color = BlackTransparent,
@@ -29,6 +30,9 @@ class Palette(
      * if (light) [Gray1] else [Gray90].
      */
     var background1 by mutableStateOf(background1, structuralEqualityPolicy())
+        internal set
+
+    var background2 by mutableStateOf(background2, structuralEqualityPolicy())
         internal set
 
     var background3 by mutableStateOf(background3, structuralEqualityPolicy())
@@ -111,6 +115,7 @@ class Palette(
 
     fun copy(
         background1: Color = this.background1,
+        background2: Color = this.background2,
         background3: Color = this.background3,
         backgroundColor: Color = this.backgroundColor,
         backgroundTransparent: Color = this.backgroundTransparent,
@@ -125,6 +130,7 @@ class Palette(
         textColorInValid: Color = this.textColorInValid
     ) : Palette = Palette(
         background1,
+        background2,
         background3,
         backgroundColor,
         backgroundTransparent,
@@ -151,4 +157,11 @@ fun DailySetPalette(
 ) {
     val rememberedPalette = remember { palette.copy() }
     CompositionLocalProvider(LocalPalette provides rememberedPalette, content = content)
+}
+
+object DailySetTheme {
+    val color
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalPalette.current
 }

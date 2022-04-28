@@ -48,17 +48,17 @@ abstract class DailySetRoomDatabase: RoomDatabase() {
         suspend fun populateDatabase(database: DailySetRoomDatabase) {
             val seeder = DailySetDatabaseSeeder(database)
             // FIXED BUG: couldn't collect the data when onOpen(db)
-            var oldVersionPreference = database.preferenceDao().get(PreferenceName.SEED_VERSION.key)
+            val oldVersionPreference = database.preferenceDao().get(PreferenceName.SEED_VERSION.key)
             val oldVersion = Preference.defaultOrValue(oldVersionPreference, PreferenceName.SEED_VERSION).toInt()
-            Log.d(TAG, "oldVersion: $oldVersionPreference")
+//            Log.d(TAG, "oldVersion: $oldVersionPreference")
             val newVersion = seeder.currentVersion()
             if (newVersion > oldVersion) {
                 seeder.seed(oldVersion)
             }
-            Log.d(TAG, "newVersion: $newVersion")
+//            Log.d(TAG, "newVersion: $newVersion")
             database.preferenceDao().insert(Preference(PreferenceName.SEED_VERSION.key, false, newVersion.toString()))
-            oldVersionPreference = database.preferenceDao().get(PreferenceName.SEED_VERSION.key)
-            Log.d(TAG, "migratedVersion: $oldVersionPreference")
+//            oldVersionPreference = database.preferenceDao().get(PreferenceName.SEED_VERSION.key)
+            Log.d(TAG, "database seed migrate from $oldVersion -> $newVersion")
         }
     }
 

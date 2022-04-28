@@ -11,6 +11,7 @@ import org.tty.dioc.util.Logger
 /**
  * declare a [ComponentLocal] for [ViewModel].
  */
+@Deprecated("viewModel should not be exported.")
 val ComponentViewModel = staticComponentLocalOf<ViewModel>()
 
 val ComponentLoggerConfig = staticComponentLocalOf<LoggerConfig>()
@@ -19,6 +20,7 @@ val ComponentLoggerConfig = staticComponentLocalOf<LoggerConfig>()
  * the [ViewModel] for current module, get from [ComponentViewModel]
  * @see ComponentViewModel
  */
+@Deprecated("viewModel should not be exported.", ReplaceWith("ComponentViewModel.current"))
 val viewModel get() = ComponentViewModel.current
 
 /**

@@ -1,5 +1,6 @@
 package org.tty.dailyset.component.common
 
+import androidx.lifecycle.Lifecycle
 import kotlinx.coroutines.CoroutineScope
 import org.tty.dailyset.database.DailySetRoomDatabase
 import org.tty.dailyset.datasource.DataSourceCollection
@@ -8,19 +9,21 @@ import org.tty.dailyset.datasource.NetSourceCollection
 import org.tty.dailyset.datasource.runtime.RuntimeDataSource
 import org.tty.dailyset.repository.*
 
-class MutableSharedComponents: SharedComponents {
+class MutableSharedComponents() : SharedComponents {
 
     private lateinit var applicationScopeInternalGet: () -> CoroutineScope
     private val dataSourceCollectionInternal = MutableDataSourceCollection()
     private lateinit var databaseInternalGet: () -> DailySetRoomDatabase
     private val repositoryCollectionInternal = MutableRepositoryCollection()
-    private lateinit var stateStoreInternal: StateStore
+    private lateinit var stateStoreInternalGet: () -> StateStore
+    private lateinit var lifecycleInternalGet: () -> Lifecycle
 
     override val dataSourceCollection: DataSourceCollection get() = dataSourceCollectionInternal
     override val database: DailySetRoomDatabase by lazy { databaseInternalGet.invoke() }
     override val repositoryCollection: RepositoryCollection by lazy { repositoryCollectionInternal }
-    override val stateStore: StateStore by lazy { stateStoreInternal }
+    override val stateStore: StateStore by lazy { stateStoreInternalGet.invoke() }
     override val applicationScope: CoroutineScope by lazy { applicationScopeInternalGet.invoke() }
+    override val lifecycle: Lifecycle by lazy { lifecycleInternalGet.invoke() }
 
     class MutableDataSourceCollection: DataSourceCollection {
         internal lateinit var dbSourceCollectionInternalGet: () -> DbSourceCollection
@@ -74,6 +77,18 @@ class MutableSharedComponents: SharedComponents {
 
     fun useDailySetRepository(func: () -> DailySetRepository) {
         this.repositoryCollectionInternal.dailySetRepositoryInternalGet = func
+    }
+
+    fun useRuntimeDataSource(func: () -> RuntimeDataSource) {
+        this.dataSourceCollectionInternal.runtimeDataSourceInternalGet = func
+    }
+
+    fun useLifecycle(func: () -> Lifecycle) {
+        this.lifecycleInternalGet = func
+    }
+
+    fun useStateStore(func: () -> StateStore) {
+        this.stateStoreInternalGet = func
     }
 
 }

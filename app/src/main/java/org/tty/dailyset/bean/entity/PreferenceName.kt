@@ -31,4 +31,9 @@ enum class PreferenceName(
      * 表示当前的host
      */
     CURRENT_HOST("current_host", "192.168.31.1"),
+
+    /**
+     * 一周的开始星期
+     */
+    START_DAY_OF_WEEK("start_day_of_week", "1")
 }

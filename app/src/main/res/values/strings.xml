@@ -31,4 +31,9 @@
     <string name="dailyset_type_task_description">项目专用日程,用于管理项目中各TODO的依赖关系,委派等.(开发中,暂不可用)</string>
     <string name="dailyset_delete_emoji">删除表情符号</string>
     <string name="dailyset_add_term">添加学期</string>
+
+    <string name="seed_version_description">数据库种子版本号</string>
+    <string name="current_user_uid_description">当前用户uid</string>
+    <string name="now_description">当前时间</string>
+    <string name="now_day_of_week_description">当前星期</string>
 </resources>
