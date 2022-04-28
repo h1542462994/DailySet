@@ -42,7 +42,7 @@ class DailySetApplication : Application(), SharedComponents {
             DailyTableRepository(mutableSharedComponents)
         }
         mutableSharedComponents.useDailySetRepository {
-            DailySetRepository(mutableSharedComponents)
+            DailyRepository(mutableSharedComponents)
         }
         mutableSharedComponents.useRuntimeDataSource {
             RuntimeDataSourceImpl(mutableSharedComponents)

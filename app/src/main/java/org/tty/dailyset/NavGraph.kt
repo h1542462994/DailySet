@@ -10,6 +10,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.navigation.NavHostController
+import androidx.navigation.NavOptions
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
@@ -88,29 +89,31 @@ fun NavGraph(startDestination: String = MainDestination.MAIN_ROUTE) {
 /**
  * Models the navigation actions in the app.
  */
-class MainActions(navController: NavHostController) {
-    // TODO: 2021/6/24 添加切换动画效果.
-    val upPress: () -> Unit = {
+class MainActions(private val navController: NavHostController) {
+
+
+    fun upPress() {
         navController.navigateUp()
     }
-    val toTimeTable: () -> Unit = {
+    fun toTimeTable() {
         navController.navigate(MainDestination.TIME_TABLE_ROUTE)
     }
-    val toTimeTablePreview: () -> Unit = {
+    fun toTimeTablePreview() {
         navController.navigate(MainDestination.TIME_TABLE_PREVIEW_ROUTE)
     }
-    val toTest: () -> Unit = {
+    fun toDebug() {
         navController.navigate(MainDestination.TEST_ROUTE)
     }
-    val toNormalDailySet: () -> Unit = {
+    fun toNormalDailySet() {
         navController.navigate(MainDestination.DAILY_SET_NORMAL)
     }
-    val toClazzDailySet: () -> Unit = {
+    fun toClazzDailySet() {
         navController.navigate(MainDestination.DAILY_SET_CLAZZ)
     }
-    val toTaskDailySet: () -> Unit = {
+    fun toTaskDailySet() {
         navController.navigate(MainDestination.DAILY_SET_TASK)
     }
+
 
 }
 

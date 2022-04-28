@@ -118,7 +118,7 @@ fun ClazzDailySetPage() {
         val nav = LocalNav.current
 
         Column {
-            ClazzDailySetAppBar(dailySet = clazzDailySetState.dailySet, dailyDuration = clazzDailySetState.currentDailyDuration, onBack = nav.action.upPress)
+            ClazzDailySetAppBar(dailySet = clazzDailySetState.dailySet, dailyDuration = clazzDailySetState.currentDailyDuration, onBack = { nav.action.upPress() } )
             Column(
                 modifier = Modifier.weight(1f)
             ) {

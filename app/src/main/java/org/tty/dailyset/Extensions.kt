@@ -102,3 +102,4 @@ fun spanMinutes(start: Time, end: Time): Long {
 fun LocalDate.toEpochMilli(): Long {
     return this.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
 }
+

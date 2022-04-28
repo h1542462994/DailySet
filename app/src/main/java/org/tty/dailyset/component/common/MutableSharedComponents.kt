@@ -39,12 +39,12 @@ class MutableSharedComponents() : SharedComponents {
         internal lateinit var userRepositoryInternalGet: () -> UserRepository
         internal lateinit var preferenceRepositoryInternalGet: () -> PreferenceRepository
         internal lateinit var dailyTableRepositoryInternalGet: () -> DailyTableRepository
-        internal lateinit var dailySetRepositoryInternalGet: () -> DailySetRepository
+        internal lateinit var dailySetRepositoryInternalGet: () -> DailyRepository
 
         override val userRepository: UserRepository by lazy { userRepositoryInternalGet.invoke() }
         override val preferenceRepository: PreferenceRepository by lazy { preferenceRepositoryInternalGet.invoke() }
         override val dailyTableRepository: DailyTableRepository by lazy { dailyTableRepositoryInternalGet.invoke() }
-        override val dailySetRepository: DailySetRepository by lazy { dailySetRepositoryInternalGet.invoke() }
+        override val dailySetRepository: DailyRepository by lazy { dailySetRepositoryInternalGet.invoke() }
     }
 
     fun useApplicationScope(func: () -> CoroutineScope) {
@@ -75,7 +75,7 @@ class MutableSharedComponents() : SharedComponents {
         this.repositoryCollectionInternal.dailyTableRepositoryInternalGet = func
     }
 
-    fun useDailySetRepository(func: () -> DailySetRepository) {
+    fun useDailySetRepository(func: () -> DailyRepository) {
         this.repositoryCollectionInternal.dailySetRepositoryInternalGet = func
     }
 

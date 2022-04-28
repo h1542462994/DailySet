@@ -1,17 +1,17 @@
 package org.tty.dailyset.repository
 
+import androidx.room.withTransaction
 import kotlinx.coroutines.flow.Flow
+import org.tty.dailyset.bean.entity.*
+import org.tty.dailyset.common.uuid
+import org.tty.dailyset.component.common.SharedComponents
 import org.tty.dailyset.database.processor.DailySetProcessor2Async
 import org.tty.dailyset.event.DailySetBindingDurationEventArgs
 import org.tty.dailyset.event.DailySetCreateDurationAndBindingEventArgs
 import org.tty.dailyset.event.DailySetCreateEventArgs
-import org.tty.dailyset.datasource.db.DailyDurationDao
-import org.tty.dailyset.datasource.db.DailySetBindingDao
-import org.tty.dailyset.datasource.db.DailySetDao
-import org.tty.dailyset.bean.entity.*
-import org.tty.dailyset.component.common.SharedComponents
+import java.time.LocalDateTime
 
-class DailySetRepository(private val sharedComponents: SharedComponents): DailySetProcessor2Async {
+class DailyRepository(private val sharedComponents: SharedComponents): DailySetProcessor2Async {
     private val dailySetDao get() = sharedComponents.dataSourceCollection.dbSourceCollection.dailySetDao
     private val dailyDurationDao get() = sharedComponents.dataSourceCollection.dbSourceCollection.dailyDurationDao
     private val dailySetBindingDao get() = sharedComponents.dataSourceCollection.dbSourceCollection.dailySetBindingDao
@@ -43,5 +43,22 @@ class DailySetRepository(private val sharedComponents: SharedComponents): DailyS
 
     override suspend fun bindingDuration(dailySetBindingDurationEventArgs: DailySetBindingDurationEventArgs) {
         dailySetDao.bindingDuration(dailySetBindingDurationEventArgs)
+    }
+
+    suspend fun createDailySet(dailySetName: String, type: DailySetType, icon: DailySetIcon?) {
+        sharedComponents.database.withTransaction {
+            val serialIndex = dailySetDao.countOfType(type)
+            val uid = uuid()
+            val dailySet = DailySet(
+                type = type,
+                icon = icon,
+                uid = uid,
+                serialIndex = serialIndex,
+                ownerUid = sharedComponents.stateStore.currentUserUidSnapshot,
+                name = dailySetName,
+                updateAt = LocalDateTime.now()
+            )
+            dailySetDao.update(dailySet)
+        }
     }
 }

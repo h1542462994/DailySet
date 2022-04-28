@@ -1,6 +1,5 @@
 package org.tty.dailyset.database.scope
 
-import org.tty.dailyset.component.common.DailySetApplication
 import org.tty.dailyset.component.common.SharedComponents
 import org.tty.dailyset.database.processor.EventProcessorAsync
 import org.tty.dailyset.database.processor.EventProcessorCallBack

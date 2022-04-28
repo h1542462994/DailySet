@@ -1,25 +1,25 @@
 package org.tty.dailyset.ui.page
 
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import org.tty.dailyset.LocalNav
+import androidx.compose.ui.tooling.preview.Preview
 import org.tty.dailyset.R
-import org.tty.dailyset.database.processor.DailySetProcessor
-import org.tty.dailyset.database.scope.DataScope
-import org.tty.dailyset.event.DailySetCreateEventArgs
-import org.tty.dailyset.event.DailySetEventType
+import org.tty.dailyset.annotation.UseViewModel
 import org.tty.dailyset.bean.entity.DailySet
 import org.tty.dailyset.bean.entity.DailySetIcon
 import org.tty.dailyset.bean.entity.DailySetType
 import org.tty.dailyset.bean.entity.toImageResource
-import org.tty.dailyset.bean.lifetime.dailyset.DailySetCreateState
+import org.tty.dailyset.common.datetime.epochLocalDateTime
+import org.tty.dailyset.common.observable.collectAsState
+import org.tty.dailyset.component.dailyset.DailySetCreateDialogVM
+import org.tty.dailyset.component.dailyset.dailySetVM
 import org.tty.dailyset.ui.component.ProfileMenuItem
 import org.tty.dailyset.ui.component.TitleSpace
 import org.tty.dailyset.ui.image.ImageResource
@@ -27,65 +27,37 @@ import java.util.*
 
 @ExperimentalFoundationApi
 @Composable
+@UseViewModel("/dailyset")
 fun DailySetPage() {
-
-
-    // TODO: 2021/6/24 remember the scroll on page changed.
     val scrollState = rememberScrollState()
-    with(DataScope) {
-        val mainViewModel = mainViewModel()
-        val service = mainViewModel.sharedComponents
-        val dailySetCreateState = dailySetCreateState()
-        val userState by currentUserState()
-        val dailySets by dailySets()
-        val nav = LocalNav.current
-        val currentDailySetUid = currentDailySetUid()
+    val dailySetVM = dailySetVM()
+    val dailySets by dailySetVM.dailySets.collectAsState()
+    val nav = dailySetVM().nav
 
-        val dailySetProcessor = object: DailySetProcessor {
-            override fun onCreate(dailySetName: String, icon: DailySetIcon?, type: DailySetType) {
-                Log.d("DailySetPage", "addSet,${dailySetName},${icon},${type}")
-                val uid = UUID.randomUUID().toString()
-                val dailySetCreateEventArgs = DailySetCreateEventArgs(dailySetName, uid, userState.currentUserUid, type, icon)
-                performProcess(service,
-                    eventType = DailySetEventType.Create,
-                    eventArgs = dailySetCreateEventArgs,
-                    onBefore = {},
-                    onCompletion = {
-                        dailySetCreateState.clean()
-                        dailySetCreateState.dialogOpen.value = false
-                    }
-                )
-            }
-        }
-
-        Column (
-            modifier = Modifier.verticalScroll(state = scrollState, enabled = true)
-        ) {
-            DailySetAddPart(dailySetCreateState = dailySetCreateState)
-            DailySetAutoPart()
-            DailySetUserPart(dailySets) {
-                // change the current dailySet uid to selected
-                currentDailySetUid.value = it.uid
-                // changed the target page
-                when(it.type) {
-                    DailySetType.Normal -> {
-                        nav.action.toNormalDailySet()
-                    }
-                    DailySetType.Clazz -> {
-                        nav.action.toClazzDailySet()
-                    }
-                    DailySetType.TaskSpecific -> {
-                        nav.action.toTaskDailySet()
-                    }
+    Column (
+        modifier = Modifier.verticalScroll(state = scrollState, enabled = true)
+    ) {
+        DailySetAddPart(dailySetCreateDialogVM = dailySetVM.dailySetCreateDialogVM)
+        DailySetAutoPart()
+        DailySetUserPart(dailySets) {
+            // change the current dailySet uid to selected
+            dailySetVM.setCurrentDailySetUid(it.uid)
+            // changed the target page
+            when(it.type) {
+                DailySetType.Normal -> {
+                    nav.toNormalDailySet()
+                }
+                DailySetType.Clazz -> {
+                    nav.toClazzDailySet()
+                }
+                DailySetType.TaskSpecific -> {
+                    nav.toTaskDailySet()
                 }
             }
         }
-
-        DailySetCreateDialogCover(
-            dailySetProcessor = dailySetProcessor ,
-            dailySetCreateState = dailySetCreateState)
     }
 
+    DailySetCreateDialogCover(dailySetVM.dailySetCreateDialogVM)
 
 }
 
@@ -94,15 +66,17 @@ fun DailySetPage() {
  * .add
  */
 @Composable
+@UseViewModel("/dailyset?add")
 fun DailySetAddPart(
-    dailySetCreateState: DailySetCreateState
+    dailySetCreateDialogVM: DailySetCreateDialogVM
 ) {
+    var dialogOpen by dailySetCreateDialogVM.dialogOpen.collectAsState()
     ProfileMenuItem(
         icon = ImageResource.add(),
         next = false,
         title = stringResource(R.string.dailyset_list_add),
         content = "") {
-        dailySetCreateState.dialogOpen.value = true
+        dialogOpen = true
     }
 }
 
@@ -174,4 +148,24 @@ fun DailySetElement(dailySet: DailySet, onClick: (DailySet) -> Unit) {
             onClick(dailySet)
         }
     )
+}
+
+
+@Preview
+@Composable
+fun DailySetAutoPartPreview() {
+    DailySetAutoPart()
+}
+
+@Preview
+@Composable
+fun DailySetUserPartPreview() {
+    val dailySets = listOf(
+        DailySet(type = DailySetType.Normal, icon = DailySetIcon.Book, updateAt = epochLocalDateTime()),
+        DailySet(type = DailySetType.Clazz, icon = DailySetIcon.Book, updateAt = epochLocalDateTime()),
+        DailySet(type = DailySetType.TaskSpecific, icon = DailySetIcon.Book, updateAt = epochLocalDateTime())
+    )
+    DailySetUserPart(dailySets) {
+
+    }
 }

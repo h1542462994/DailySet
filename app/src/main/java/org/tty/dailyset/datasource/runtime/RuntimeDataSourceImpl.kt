@@ -7,6 +7,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import org.tty.dailyset.common.local.logger
 import org.tty.dailyset.component.common.SharedComponents
+import org.tty.dailyset.ui.page.MainPageTabs
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -23,6 +24,10 @@ class RuntimeDataSourceImpl(private val sharedComponents: SharedComponents): Run
     override val nowDate: Flow<LocalDate> = now.map { it.toLocalDate() }.distinctUntilChanged()
 
     override val nowDayOfWeek: Flow<DayOfWeek> = nowDate.map { it.dayOfWeek }.distinctUntilChanged()
+
+    override val mainTab = MutableStateFlow(MainPageTabs.SUMMARY)
+
+    override val currentDailySetUid = MutableStateFlow("")
 
     /**
      * 初始化

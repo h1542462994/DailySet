@@ -18,11 +18,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.tty.dailyset.R
+import org.tty.dailyset.annotation.UseViewModel
 import org.tty.dailyset.database.processor.DailySetProcessor
 import org.tty.dailyset.bean.entity.DailySetIcon
 import org.tty.dailyset.bean.entity.DailySetType
 import org.tty.dailyset.bean.entity.toImageResource
 import org.tty.dailyset.bean.lifetime.dailyset.DailySetCreateState
+import org.tty.dailyset.common.observable.collectAsState
+import org.tty.dailyset.component.dailyset.DailySetCreateDialogVM
 import org.tty.dailyset.ui.component.Badge
 import org.tty.dailyset.ui.component.NanoDialog
 import org.tty.dailyset.ui.component.NanoDialogButton
@@ -31,17 +34,17 @@ import org.tty.dailyset.ui.theme.LocalPalette
 
 @ExperimentalFoundationApi
 @Composable
+@UseViewModel("/dailyset/create")
 fun DailySetCreateDialogCover(
-    dailySetProcessor: DailySetProcessor,
-    dailySetCreateState: DailySetCreateState
+    dailySetCreateDialogVM: DailySetCreateDialogVM
 ) {
-    var selectIcon by dailySetCreateState.selectIcon
-    var icon by dailySetCreateState.icon
-    var type by dailySetCreateState.type
-    var name by dailySetCreateState.name
+    var selectIcon by dailySetCreateDialogVM.selectIcon.collectAsState()
+    var icon by dailySetCreateDialogVM.icon.collectAsState()
+    var type by dailySetCreateDialogVM.type.collectAsState()
+    var name by dailySetCreateDialogVM.name.collectAsState()
+    val currentUserUid by dailySetCreateDialogVM.currentUserUid.collectAsState()
 
-
-    NanoDialog(title = stringResource(R.string.dailyset_list_add), dialogState = dailySetCreateState) {
+    NanoDialog(title = stringResource(R.string.dailyset_list_add), dialogVM = dailySetCreateDialogVM) {
         Row(
             modifier = Modifier
                 .height(64.dp)
@@ -128,7 +131,7 @@ fun DailySetCreateDialogCover(
             // TODO: 2021/6/24 完成TaskSpecific列表的设计
             val enabled = name.length in 2..10 && type != DailySetType.TaskSpecific
             NanoDialogButton(text = stringResource(id = R.string.dailyset_list_add), enabled = enabled) {
-                dailySetProcessor.onCreate(name, icon, type)
+                dailySetCreateDialogVM.createDailySet(name, type, icon)
             }
         } else {
             BoxWithConstraints(

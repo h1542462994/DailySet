@@ -57,11 +57,13 @@ fun DailyTablePreviewPage() {
         val measuredWidth = measuredWidth()
         assert(measuredWidth > 0)
 
+        val nav = LocalNav.current
+
         Column {
             // must provide a placeholder, otherwise measuredWidth will return not correctly.
             CenterBar(
                 useBack = true,
-                onBackPressed = LocalNav.current.action.upPress,
+                onBackPressed = nav.action::upPress,
                 content = { DailyTableTitle(dailyTable = currentDailyTable, userState = currentUserState, isPreviewPage = true) }
             )
 

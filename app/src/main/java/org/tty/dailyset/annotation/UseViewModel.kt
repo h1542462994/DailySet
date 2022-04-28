@@ -3,7 +3,7 @@ package org.tty.dailyset.annotation
 /**
  *
  */
-@Retention(AnnotationRetention.SOURCE)
+@Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.FUNCTION)
-annotation class UseViewModel
+annotation class UseViewModel(val value: String = "")
 

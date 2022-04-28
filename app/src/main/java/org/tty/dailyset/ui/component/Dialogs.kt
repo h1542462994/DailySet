@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import org.tty.dailyset.bean.lifetime.DialogState
+import org.tty.dailyset.common.observable.collectAsState
+import org.tty.dailyset.component.common.DialogVM
 import org.tty.dailyset.ui.theme.LocalPalette
 import org.tty.dailyset.ui.theme.Shapes
 
@@ -54,7 +56,7 @@ fun NanoDialog(
     if (dialogOpen) {
         Dialog(
             onDismissRequest = {
-               closeDialog()
+                closeDialog()
             },
         ) {
             BoxWithConstraints(
@@ -96,7 +98,27 @@ fun NanoDialog(
 }
 
 @Composable
-fun NanoDialogButton(text: String, error: Boolean = false, enabled: Boolean = true, onClick: () -> Unit) {
+fun NanoDialog(
+    title: String,
+    dialogVM: DialogVM,
+    autoClose: Boolean = true,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    NanoDialog(
+        title = title,
+        dialogState = DialogState(dialogOpen = dialogVM.dialogOpen.collectAsState()),
+        autoClose = autoClose,
+        content = content
+    )
+}
+
+@Composable
+fun NanoDialogButton(
+    text: String,
+    error: Boolean = false,
+    enabled: Boolean = true,
+    onClick: () -> Unit
+) {
 
     val colors = if (error) {
         ButtonDefaults.buttonColors(
@@ -113,12 +135,13 @@ fun NanoDialogButton(text: String, error: Boolean = false, enabled: Boolean = tr
 
     Row(
         modifier = Modifier.padding(vertical = 16.dp),
-    ){
+    ) {
         Spacer(modifier = Modifier.weight(1f))
         Button(
             colors = colors,
             enabled = enabled,
-            onClick = onClick) {
+            onClick = onClick
+        ) {
             Text(text)
         }
     }

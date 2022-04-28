@@ -19,9 +19,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.tty.dailyset.R
 import org.tty.dailyset.LocalNav
+import org.tty.dailyset.annotation.UseViewModel
 import org.tty.dailyset.common.datetime.toDisplayString
 import org.tty.dailyset.common.datetime.toStandardString
 import org.tty.dailyset.common.observable.collectAsState
+import org.tty.dailyset.component.common.nav
 import org.tty.dailyset.component.debug.debugVM
 import org.tty.dailyset.database.scope.DataScope
 import org.tty.dailyset.ui.component.ProfileMenuItem
@@ -35,21 +37,24 @@ import org.tty.dailyset.ui.utils.StatusBarToBackground
  * page for debug and test
  */
 @Composable
+@UseViewModel("/debug")
 fun TestPage() {
     StatusBarToBackground()
     val scrollState = rememberScrollState()
     val debugVM = debugVM()
+    val nav = nav()
     val seedVersion by debugVM.seedVersion.collectAsState()
     val currentUserUid by debugVM.currentUserUid.collectAsState()
     val now by debugVM.now.collectAsState()
     val nowDayOfWeek by debugVM.nowDayOfWeek.collectAsState()
     val startDayOfWeek by debugVM.startDayOfWeek.collectAsState()
+    val currentUser by debugVM.currentUser.collectAsState()
 
     Column {
         TopBar(
             title = stringResource(id = R.string.debug),
             true,
-            onBackPressed = LocalNav.current.action.upPress
+            onBackPressed = nav::upPress
         )
         LazyColumn(
             modifier = Modifier
@@ -85,8 +90,21 @@ fun TestPage() {
                 )
             }
             item {
-                DebugLine(title = "开始星期", subTitle = "startDayOfWeek", value = startDayOfWeek.toDisplayString())
+                DebugLine(
+                    title = "开始星期",
+                    subTitle = "startDayOfWeek",
+                    value = startDayOfWeek.toDisplayString()
+                )
+
             }
+            item {
+                DebugLine(
+                    title = "当前用户",
+                    subTitle = "currentUser",
+                    value = "${currentUser.nickName}(${currentUser.userUid})"
+                )
+            }
+
 
         }
 

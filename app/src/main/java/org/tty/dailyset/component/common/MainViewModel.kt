@@ -18,7 +18,7 @@ import org.tty.dailyset.bean.lifetime.UserState
 import org.tty.dailyset.bean.lifetime.dailyset.ClazzDailySetCursors
 import org.tty.dailyset.bean.lifetime.dailyset.ClazzDailySetState
 import org.tty.dailyset.bean.lifetime.dailytable.DailyTableState2
-import org.tty.dailyset.repository.DailySetRepository
+import org.tty.dailyset.repository.DailyRepository
 import org.tty.dailyset.repository.DailyTableRepository
 import org.tty.dailyset.repository.PreferenceRepository
 import org.tty.dailyset.repository.UserRepository
@@ -43,7 +43,7 @@ class MainViewModel(val sharedComponents: SharedComponents) : ViewModel() {
     val preferenceRepository: PreferenceRepository by lazy { sharedComponents.repositoryCollection.preferenceRepository }
     val userRepository: UserRepository by lazy { sharedComponents.repositoryCollection.userRepository }
     val dailyTableRepository: DailyTableRepository by lazy {  sharedComponents.repositoryCollection.dailyTableRepository }
-    val dailySetRepository: DailySetRepository by lazy {  sharedComponents.repositoryCollection.dailySetRepository }
+    val dailySetRepository: DailyRepository by lazy {  sharedComponents.repositoryCollection.dailySetRepository }
 
     /**
      * init the viewModel
@@ -58,6 +58,7 @@ class MainViewModel(val sharedComponents: SharedComponents) : ViewModel() {
     /**
      * 时钟源
      */
+    @Deprecated("use StateStore instead.")
     private val nowFlow = flow<LocalDateTime> {
         emit(LocalDateTime.now())
     }
@@ -65,6 +66,7 @@ class MainViewModel(val sharedComponents: SharedComponents) : ViewModel() {
     /**
      * 今天的日期
      */
+    @Deprecated("use StateStore instead.")
     private val nowDateFlow = nowFlow.map { it.toLocalDate() }.distinctUntilChanged().onEach {
         // side effect.
         // update the clazzWeekDay.
@@ -74,31 +76,37 @@ class MainViewModel(val sharedComponents: SharedComponents) : ViewModel() {
     /**
      * mutable | 一周的开始星期，限制为[DayOfWeek.MONDAY],[DayOfWeek.SATURDAY] (不常见),[DayOfWeek.SUNDAY]之一。
      */
+    @Deprecated("use StateStore instead.")
     private val startWeekDayLiveData = liveData(DayOfWeek.MONDAY)
 
     /**
      * mutable | 主界面的Tab页
      */
+    @Deprecated("use StateStore instead.")
     private val mainTabLiveData = liveData(MainPageTabs.DAILY_SET)
 
     /**
      * 数据库seed数据的版本号
      */
+    @Deprecated("use StateStore instead.")
     private val seedVersionLiveData = liveData(preferenceRepository.seedVersion)
 
     /**
      * userUid
      */
+    @Deprecated("use StateStore instead.")
     private val userUidLiveData = liveData(preferenceRepository.currentUserUid)
 
     /**
      * users
      */
+    @Deprecated("use StateStore instead.")
     private val usersLiveData = liveData(userRepository.users)
 
     /**
      * userState
      */
+    @Deprecated("use StateStore instead.")
     private val userStateLiveData =
         liveData2Map(usersLiveData, userUidLiveData, "userState") { users, currentUserUid ->
             val currentUser = users.find { it.userUid == currentUserUid } ?: User.default()
@@ -112,6 +120,7 @@ class MainViewModel(val sharedComponents: SharedComponents) : ViewModel() {
      * mutable | dailyTableUid
      */
     private val dailyTableUidLiveData = liveData(DailyTable.default)
+    @Deprecated("use StateStore instead.")
     private val dailyTableSummariesLiveData =
         liveData(dailyTableRepository.dailyTableSummaries)
     private val dailyTRCLiveData = liveDataMapAsync(dailyTableUidLiveData, "dailyTRC") {
@@ -272,8 +281,10 @@ class MainViewModel(val sharedComponents: SharedComponents) : ViewModel() {
     /**
      * 现在的日期
      */
+    @Deprecated("use StateStore instead.")
     val nowDate = liveData(nowDateFlow).initial(LocalDate.ofEpochDay(0))
 
+    @Deprecated("use StateStore instead.")
     val startWeekDay = startWeekDayLiveData.initial(DayOfWeek.MONDAY)
 
     /**

@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -27,6 +28,7 @@ import org.tty.dailyset.event.*
 import org.tty.dailyset.bean.entity.DailyCell
 import org.tty.dailyset.bean.entity.DailyRC
 import org.tty.dailyset.bean.entity.DailyTable
+import org.tty.dailyset.bean.entity.User
 import org.tty.dailyset.bean.lifetime.UserState
 import org.tty.dailyset.bean.lifetime.WeekDayState
 import org.tty.dailyset.bean.lifetime.dailytable.*
@@ -77,6 +79,7 @@ fun DailyTablePage() {
         val dailyTableState2 by dailyTableState2()
         val currentDailyTRC = dailyTableState2.dailyTRC
         val dailyTableUidState = dailyTableUid()
+        val nav = LocalNav.current
 
         //region dailyTableProcessor
         val dailyTableProcessor = object : DailyTableProcessor {
@@ -184,7 +187,7 @@ fun DailyTablePage() {
         //endregion
 
         Column {
-            CenterBar(true, LocalNav.current.action.upPress,
+            CenterBar(true, { nav.action.upPress() },
                 extensionArea = {
                     DailyTableExtensionDropDown(
                         dropDownExtensionOpenState = dropDownExtensionOpenState,
@@ -471,13 +474,15 @@ fun DailyTableContent(
 ) {
     DailyTableTipBox(dailyTable = dailyTableState2.dailyTRC.dailyTable, userState = userState)
 
+    val nav = LocalNav.current
+
     ProfileMenuItem(
         icon = ImageResource.cell(),
         useTint = true,
         next = true,
         title = "预览",
         content = "点击以进行预览",
-        onClick = LocalNav.current.action.toTimeTablePreview
+        onClick = nav.action::toTimeTablePreview
     )
 
     dailyTableState2.dailyTRC.dailyRCs.forEachIndexed { index, item ->
@@ -649,5 +654,18 @@ fun DailyCellContent(dailyCell: DailyCell, isValid: Boolean, index: Int, onClick
         content = "${dailyCell.start.toShortString()}-${dailyCell.end.toShortString()}",
         textColor = if (isValid) LocalPalette.current.sub else MaterialTheme.colors.error,
         onClick = onClick
+    )
+}
+
+
+@Preview
+@Composable
+fun DailyTableTitlePreview() {
+    DailyTableTitle(
+        dailyTable = DailyTable.default(),
+        userState = UserState(
+            currentUser = User.default(),
+            User.local
+        )
     )
 }

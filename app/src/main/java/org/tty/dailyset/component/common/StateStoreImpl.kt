@@ -1,19 +1,40 @@
 package org.tty.dailyset.component.common
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import androidx.lifecycle.asFlow
+import androidx.lifecycle.asLiveData
+import kotlinx.coroutines.flow.*
+import org.tty.dailyset.bean.entity.DailySet
+import org.tty.dailyset.bean.entity.DailyTable
 import org.tty.dailyset.bean.entity.PreferenceName
+import org.tty.dailyset.bean.entity.User
+import org.tty.dailyset.common.observable.flow2
+import org.tty.dailyset.ui.page.MainPageTabs
 import org.tty.dioc.util.optional
 import java.time.DayOfWeek
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 class StateStoreImpl(private val sharedComponents: SharedComponents): StateStore {
 
     override val seedVersion: Flow<Int> = loadPreference(PreferenceName.SEED_VERSION, mapper = { it.toInt() })
-    override val currentUserUid: Flow<String> = loadPreference(PreferenceName.CURRENT_USER_UID)
+    override val currentUserUid: Flow<String> = loadPreference<String>(PreferenceName.CURRENT_USER_UID).onEach {
+        currentUserUidSnapshot = it
+    }
+    override var currentUserUidSnapshot: String = ""
+
     override val now: Flow<LocalDateTime> = sharedComponents.dataSourceCollection.runtimeDataSource.now
+    override val nowDate: Flow<LocalDate> = sharedComponents.dataSourceCollection.runtimeDataSource.nowDate
     override val nowDayOfWeek: Flow<DayOfWeek> = sharedComponents.dataSourceCollection.runtimeDataSource.nowDayOfWeek
     override val startDayOfWeek: Flow<DayOfWeek> = loadPreference(PreferenceName.START_DAY_OF_WEEK, mapper = { DayOfWeek.of(it.toInt()) })
+    override val mainTab: MutableSharedFlow<MainPageTabs> = sharedComponents.dataSourceCollection.runtimeDataSource.mainTab
+
+    override val users: Flow<List<User>> = sharedComponents.dataSourceCollection.dbSourceCollection.userDao.all()
+    override val currentUser = flow2(currentUserUid, users) { uid, users ->
+        users.find { it.userUid == uid } ?: User.default()
+    }
+    override val dailyTables: Flow<List<DailyTable>> = sharedComponents.dataSourceCollection.dbSourceCollection.dailyTableDao.all()
+    override val dailySets: Flow<List<DailySet>> = sharedComponents.dataSourceCollection.dbSourceCollection.dailySetDao.allSets()
+    override val currentDailySetUid: MutableSharedFlow<String> = sharedComponents.dataSourceCollection.runtimeDataSource.currentDailySetUid
 
     @Suppress("UNCHECKED_CAST")
     private fun <T> loadPreference(preferenceName: PreferenceName, mapper: (it: String) -> T = { it as T }): Flow<T> {

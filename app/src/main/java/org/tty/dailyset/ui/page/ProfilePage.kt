@@ -13,6 +13,8 @@ import org.tty.dailyset.R
 import org.tty.dailyset.annotation.UseViewModel
 import org.tty.dailyset.database.scope.DataScope
 import org.tty.dailyset.bean.entity.User
+import org.tty.dailyset.common.observable.collectAsState
+import org.tty.dailyset.component.profile.profileVM
 import org.tty.dailyset.ui.component.ProfileMenuGroup
 import org.tty.dailyset.ui.component.ProfileMenuItem
 import org.tty.dailyset.ui.image.ImageResource
@@ -20,23 +22,20 @@ import org.tty.dailyset.ui.image.ImageResource
 /**
  * ProfilePage, including user,settings
  */
-@UseViewModel
+@UseViewModel("/profile")
 @Composable
 fun ProfilePage() {
-    with(DataScope) {
-        val userState by currentUserState()
-        val scrollState = rememberScrollState()
+    val scrollState = rememberScrollState()
+    val profileVM = profileVM()
+    val user by profileVM.currentUser.collectAsState()
 
-        Column(
-            modifier = Modifier.verticalScroll(scrollState, enabled = true)
-        ){
-            ProfileMenuGroupUser(user = userState.currentUser)
-            ProfileMenuGroupUserSettings()
-            ProfileMenuGroupGlobalSettings()
-        }
+    Column(
+        modifier = Modifier.verticalScroll(scrollState, enabled = true)
+    ){
+        ProfileMenuGroupUser(user = user)
+        ProfileMenuGroupUserSettings()
+        ProfileMenuGroupGlobalSettings()
     }
-
-
 }
 
 @Composable
@@ -56,15 +55,19 @@ fun ProfileMenuGroupUser(user: User?) {
 
 @Composable
 fun ProfileMenuGroupUserSettings() {
+    val nav = LocalNav.current
+
     ProfileMenuGroup(title = stringResource(id = R.string.user_settings)) {
-        ProfileMenuItem(icon = ImageResource.table(), useTint = true, title = stringResource(id = R.string.time_table), content = "系统默认", next = true, onClick = LocalNav.current.action.toTimeTable)
+        ProfileMenuItem(icon = ImageResource.table(), useTint = true, title = stringResource(id = R.string.time_table), content = "系统默认", next = true, onClick = nav.action::toTimeTable)
     }
 }
 
 @Composable
 fun ProfileMenuGroupGlobalSettings() {
+    val nav = LocalNav.current
+
     ProfileMenuGroup(title = stringResource(R.string.global_settings)) {
-        ProfileMenuItem(icon = ImageResource.scan(), useTint = true, title = stringResource(R.string.debug), content = "", next = true, onClick = LocalNav.current.action.toTest)
+        ProfileMenuItem(icon = ImageResource.scan(), useTint = true, title = stringResource(R.string.debug), content = "", next = true, onClick = nav.action::toDebug)
     }
 }
 
