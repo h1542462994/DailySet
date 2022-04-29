@@ -26,7 +26,7 @@ fun TopBar(
     onBackPressed: () -> Unit = {},
     onTitleClick: (() -> Unit)? = null
 ) {
-    Surface(elevation = BottomNavigationDefaults.Elevation) {
+    Surface {
         Row(modifier = Modifier
             .height(56.dp)
             .background(LocalPalette.current.background1)

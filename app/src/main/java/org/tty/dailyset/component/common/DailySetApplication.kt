@@ -1,9 +1,13 @@
 package org.tty.dailyset.component.common
 
 import android.app.Application
+import android.content.Context
+import android.view.Window
 import androidx.lifecycle.Lifecycle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import org.tty.dailyset.MainActions
+import org.tty.dailyset.Nav
 import org.tty.dailyset.database.DailySetRoomDatabase
 import org.tty.dailyset.datasource.DataSourceCollection
 import org.tty.dailyset.datasource.DbSourceCollection
@@ -64,10 +68,59 @@ class DailySetApplication : Application(), SharedComponents {
         get() = mutableSharedComponents.stateStore
     override val lifecycle: Lifecycle
         get() = mutableSharedComponents.lifecycle
+    override val activityScope: CoroutineScope
+        get() = mutableSharedComponents.activityScope
+    override val nav: Nav<MainActions>
+        get() = mutableSharedComponents.nav
+    override val window: Window
+        get() = mutableSharedComponents.window
+    override val activityContext: Context
+        get() = mutableSharedComponents.activityContext
 
-    fun setLifecycle(action: () -> Lifecycle) {
+    override fun useLifecycle(action: () -> Lifecycle) {
         mutableSharedComponents.useLifecycle(action)
-        mutableSharedComponents.dataSourceCollection.runtimeDataSource.init()
+//        mutableSharedComponents.dataSourceCollection.runtimeDataSource.init()
+        initializeStart("lifecycle")
+    }
+
+    override fun useNav(nav: () -> Nav<MainActions>) {
+        mutableSharedComponents.useNav(nav)
+        initializeStart("nav")
+    }
+
+    override fun useWindow(window: () -> Window) {
+        mutableSharedComponents.useWindow(window)
+        initializeStart("window")
+    }
+
+    override fun useActivityContext(context: () -> Context) {
+        mutableSharedComponents.useActivityContext(context)
+        initializeStart("activityContext")
+    }
+
+    override fun useActivityScope(scope: () -> CoroutineScope) {
+        mutableSharedComponents.useActivityScope(scope)
+        initializeStart("activityScope")
+    }
+
+    private val componentAvailable = mutableMapOf(
+        "lifecycle" to false,
+        "nav" to false,
+        "window" to false,
+        "activityContext" to false,
+        "activityScope" to false
+    )
+    private var initialized = false
+
+    private fun initializeStart(component: String) {
+        componentAvailable[component] = true
+
+        if (componentAvailable.entries.all { it.value }) {
+            if (!initialized) {
+                initialized = true
+                mutableSharedComponents.dataSourceCollection.runtimeDataSource.init()
+            }
+        }
     }
 
 }

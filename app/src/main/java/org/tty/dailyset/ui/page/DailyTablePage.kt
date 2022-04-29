@@ -32,10 +32,10 @@ import org.tty.dailyset.bean.entity.User
 import org.tty.dailyset.bean.lifetime.UserState
 import org.tty.dailyset.bean.lifetime.WeekDayState
 import org.tty.dailyset.bean.lifetime.dailytable.*
+import org.tty.dailyset.component.common.StatusBarToBackground
 import org.tty.dailyset.ui.component.*
 import org.tty.dailyset.ui.image.ImageResource
 import org.tty.dailyset.ui.theme.LocalPalette
-import org.tty.dailyset.ui.utils.StatusBarToBackground
 import java.time.LocalTime
 import java.util.*
 

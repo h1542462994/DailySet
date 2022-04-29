@@ -1,7 +1,11 @@
 package org.tty.dailyset.component.common
 
+import android.content.Context
+import android.view.Window
 import androidx.lifecycle.Lifecycle
 import kotlinx.coroutines.CoroutineScope
+import org.tty.dailyset.MainActions
+import org.tty.dailyset.Nav
 import org.tty.dailyset.database.DailySetRoomDatabase
 import org.tty.dailyset.datasource.DataSourceCollection
 import org.tty.dailyset.datasource.DbSourceCollection
@@ -17,6 +21,10 @@ class MutableSharedComponents() : SharedComponents {
     private val repositoryCollectionInternal = MutableRepositoryCollection()
     private lateinit var stateStoreInternalGet: () -> StateStore
     private lateinit var lifecycleInternalGet: () -> Lifecycle
+    private lateinit var navInternalGet: () -> Nav<MainActions>
+    private lateinit var windowInternalGet: () -> Window
+    private lateinit var activityContextInternalGet: () -> Context
+    private lateinit var activityScopeInternalGet: () -> CoroutineScope
 
     override val dataSourceCollection: DataSourceCollection get() = dataSourceCollectionInternal
     override val database: DailySetRoomDatabase by lazy { databaseInternalGet.invoke() }
@@ -24,6 +32,10 @@ class MutableSharedComponents() : SharedComponents {
     override val stateStore: StateStore by lazy { stateStoreInternalGet.invoke() }
     override val applicationScope: CoroutineScope by lazy { applicationScopeInternalGet.invoke() }
     override val lifecycle: Lifecycle by lazy { lifecycleInternalGet.invoke() }
+    override val nav: Nav<MainActions> by lazy { navInternalGet.invoke() }
+    override val window: Window by lazy { windowInternalGet.invoke() }
+    override val activityContext: Context by lazy { activityContextInternalGet.invoke() }
+    override val activityScope: CoroutineScope by lazy { activityScopeInternalGet.invoke() }
 
     class MutableDataSourceCollection: DataSourceCollection {
         internal lateinit var dbSourceCollectionInternalGet: () -> DbSourceCollection
@@ -83,12 +95,28 @@ class MutableSharedComponents() : SharedComponents {
         this.dataSourceCollectionInternal.runtimeDataSourceInternalGet = func
     }
 
-    fun useLifecycle(func: () -> Lifecycle) {
-        this.lifecycleInternalGet = func
+    override fun useLifecycle(action: () -> Lifecycle) {
+        this.lifecycleInternalGet = action
     }
 
     fun useStateStore(func: () -> StateStore) {
         this.stateStoreInternalGet = func
+    }
+
+    override fun useNav(nav: () -> Nav<MainActions>) {
+        this.navInternalGet = nav
+    }
+
+    override fun useWindow(window: () -> Window) {
+        this.windowInternalGet = window
+    }
+
+    override fun useActivityContext(context: () -> Context) {
+        this.activityContextInternalGet = context
+    }
+
+    override fun useActivityScope(scope: () -> CoroutineScope) {
+        this.activityScopeInternalGet = scope
     }
 
 }

@@ -1,38 +1,40 @@
 package org.tty.dailyset.provider
 
-import android.app.Application
 import android.view.Window
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
-import org.tty.dailyset.component.common.DailySetApplication
 import org.tty.dailyset.common.local.ComponentViewModel
 import org.tty.dailyset.component.common.MainViewModel
+import org.tty.dailyset.component.common.SharedComponents
+import org.tty.dioc.core.local.staticComponentLocalOf
 
 /**
- * provide the service [LocalServices] and [LocalMainViewModel],
+ * provide the service [LocalSharedComponents0] and [LocalMainViewModel],
  * seed the database
  */
 @Composable
 fun LocalServiceProvider(
-    application: Application,
+    sharedComponents: SharedComponents,
     mainViewModel: MainViewModel,
     window: Window,
     content: @Composable () -> Unit
 ) {
-    val dailySetApplicationService = application as DailySetApplication
 
 
     // provides the compositionLocal
     CompositionLocalProvider(
-        LocalServices provides dailySetApplicationService,
+        LocalSharedComponents0 provides sharedComponents,
         LocalMainViewModel provides mainViewModel,
         LocalWindow provides window,
         content = content)
 }
 
+internal val LocalSharedComponents = staticComponentLocalOf<SharedComponents> {
+    error("No LocalShared Component0 Provided.")
+}
 
-internal val LocalServices = compositionLocalOf<DailySetApplication> {
+internal val LocalSharedComponents0 = compositionLocalOf<SharedComponents> {
     error("No DailySetService Provided")
 }
 

@@ -12,9 +12,9 @@ interface RuntimeDataSource {
     val now: Flow<LocalDateTime>
     val nowDate: Flow<LocalDate>
     val nowDayOfWeek: Flow<DayOfWeek>
-    val mainTab: MutableSharedFlow<MainPageTabs>
-    val currentDailySetUid: MutableSharedFlow<String>
-
+    val mainTab: MutableStateFlow<MainPageTabs>
+//    val rootRoute: MutableSharedFlow<String>
+    val currentDailySetUid: MutableStateFlow<String>
     fun init()
 
 }

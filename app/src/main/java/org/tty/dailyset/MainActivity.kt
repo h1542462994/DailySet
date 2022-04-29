@@ -6,22 +6,28 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.graphics.toArgb
+import androidx.lifecycle.lifecycleScope
 import org.tty.dailyset.component.common.DailySetApplication
 import org.tty.dailyset.provider.LocalServiceProvider
 import org.tty.dailyset.ui.theme.DailySetTheme
 import org.tty.dailyset.ui.theme.LocalPalette
 import org.tty.dailyset.component.common.MainViewModel
 import org.tty.dailyset.component.common.MainViewModelFactory
+import org.tty.dailyset.component.common.SharedComponents
+import org.tty.dailyset.provider.LocalSharedComponents
 
 class MainActivity : ComponentActivity() {
     private val mainViewModel: MainViewModel by viewModels {
-        MainViewModelFactory((application as DailySetApplication))
+        MainViewModelFactory((application as SharedComponents))
     }
 
     @ExperimentalFoundationApi
     override fun onCreate(savedInstanceState: Bundle?) {
+        val sharedComponents = application as SharedComponents
+
         super.onCreate(savedInstanceState)
 
+        LocalSharedComponents.provides(sharedComponents)
 
         setContent {
             DailySetTheme {
@@ -29,8 +35,7 @@ class MainActivity : ComponentActivity() {
                 window.statusBarColor = LocalPalette.current.background1.toArgb()
 
                 // enable the service.
-                LocalServiceProvider(application = application, mainViewModel = mainViewModel, window = window) {
-
+                LocalServiceProvider(sharedComponents = sharedComponents, mainViewModel = mainViewModel, window = window) {
                     //MainPage()
                     DailySetApp(onBackPressedDispatcher)
                 }
@@ -38,10 +43,14 @@ class MainActivity : ComponentActivity() {
         }
 
 
+
+
         mainViewModel.init()
         //ComponentViewModel provides mainViewModel
-
-        (application as DailySetApplication).setLifecycle { this.lifecycle }
+        sharedComponents.useActivityScope { this.lifecycleScope }
+        sharedComponents.useLifecycle { this.lifecycle }
+        sharedComponents.useActivityContext { this }
+        sharedComponents.useWindow { window }
     }
 }
 

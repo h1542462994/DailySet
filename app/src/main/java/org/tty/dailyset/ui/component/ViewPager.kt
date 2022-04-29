@@ -13,8 +13,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.launch
-import org.tty.dailyset.ui.utils.measuredWidthDp
-import org.tty.dailyset.ui.utils.toPx
+import org.tty.dailyset.component.common.measuredWidthDp
+import org.tty.dailyset.component.common.toPx
 import kotlin.math.floor
 
 @Composable

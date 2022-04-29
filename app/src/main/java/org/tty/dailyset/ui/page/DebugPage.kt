@@ -18,20 +18,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.tty.dailyset.R
-import org.tty.dailyset.LocalNav
 import org.tty.dailyset.annotation.UseViewModel
 import org.tty.dailyset.common.datetime.toDisplayString
 import org.tty.dailyset.common.datetime.toStandardString
 import org.tty.dailyset.common.observable.collectAsState
+import org.tty.dailyset.component.common.StatusBarToBackground
 import org.tty.dailyset.component.common.nav
 import org.tty.dailyset.component.debug.debugVM
-import org.tty.dailyset.database.scope.DataScope
-import org.tty.dailyset.ui.component.ProfileMenuItem
 import org.tty.dailyset.ui.component.TopBar
 import org.tty.dailyset.ui.theme.DailySetTheme
-import org.tty.dailyset.ui.theme.LocalPalette
-import org.tty.dailyset.ui.theme.Palette
-import org.tty.dailyset.ui.utils.StatusBarToBackground
 
 /**
  * page for debug and test

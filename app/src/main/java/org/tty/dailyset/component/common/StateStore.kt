@@ -2,6 +2,7 @@ package org.tty.dailyset.component.common
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.tty.dailyset.bean.entity.DailySet
 import org.tty.dailyset.bean.entity.DailyTable
@@ -46,10 +47,12 @@ interface StateStore {
      */
     val startDayOfWeek: Flow<DayOfWeek>
 
-    val mainTab: MutableSharedFlow<MainPageTabs>
+    val mainTab: MutableStateFlow<MainPageTabs>
     val users: Flow<List<User>>
     val currentUser: Flow<User>
     val dailyTables: Flow<List<DailyTable>>
     val dailySets: Flow<List<DailySet>>
-    val currentDailySetUid: MutableSharedFlow<String>
+    val currentDailySetUid: MutableStateFlow<String>
+    val firstLoadUser: Flow<Boolean>
+    val firstLoadUserSnapshot: Boolean
 }

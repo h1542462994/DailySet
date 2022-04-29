@@ -1,6 +1,7 @@
 package org.tty.dailyset.ui.theme
 
 import androidx.compose.material.Typography
+import androidx.compose.runtime.*
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -11,7 +12,7 @@ val Typography = Typography(
     body1 = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
-        fontSize = 16.sp
+        fontSize = 18.sp
     )
     /* Other default text styles to override
     button = TextStyle(
@@ -26,3 +27,35 @@ val Typography = Typography(
     )
     */
 )
+
+
+class DailyTypography(
+    linkText: TextStyle = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Bold,
+        fontSize = 18.sp
+    ),
+    buttonText: TextStyle = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Bold,
+        fontSize = 18.sp
+    ),
+) {
+    var linkText by mutableStateOf(linkText, structuralEqualityPolicy())
+        internal set
+    var buttonText by mutableStateOf(buttonText, structuralEqualityPolicy())
+        internal set
+
+    fun copy(
+        linkText: TextStyle = this.linkText,
+        buttonText: TextStyle = this.buttonText
+    ): DailyTypography {
+        return DailyTypography(linkText = linkText, buttonText = buttonText)
+    }
+}
+
+
+val LocalTypography = staticCompositionLocalOf {
+    DailyTypography()
+}
+

@@ -35,5 +35,7 @@ enum class PreferenceName(
     /**
      * 一周的开始星期
      */
-    START_DAY_OF_WEEK("start_day_of_week", "1")
+    START_DAY_OF_WEEK("start_day_of_week", "1"),
+
+    FIRST_LOAD_USER("first_load_user", "true")
 }

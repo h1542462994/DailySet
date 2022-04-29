@@ -20,12 +20,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import org.tty.dailyset.R
 import org.tty.dailyset.annotation.UseViewModel
 import org.tty.dailyset.common.observable.collectAsState
+import org.tty.dailyset.component.common.StatusBarToBackground1
 import org.tty.dailyset.component.main.mainVM
-import org.tty.dailyset.database.scope.DataScope
-import org.tty.dailyset.provider.LocalWindow
 import org.tty.dailyset.ui.component.TopBar
 import org.tty.dailyset.ui.theme.LocalPalette
-import org.tty.dailyset.ui.utils.StatusBarToBackground1
 
 @UseViewModel("/")
 @ExperimentalFoundationApi

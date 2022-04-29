@@ -15,6 +15,11 @@ object ImageResource {
     }
 
     @Composable
+    fun password(): Painter {
+        return painterResource(id = R.drawable.ic_password_24)
+    }
+
+    @Composable
     fun cell(): Painter {
         return painterResource(id = R.drawable.ic_cell_24)
     }
@@ -27,6 +32,11 @@ object ImageResource {
     @Composable
     fun scan(): Painter {
         return painterResource(id = R.drawable.ic_scan_24)
+    }
+
+    @Composable
+    fun dailySet(): Painter {
+        return painterResource(id = R.drawable.ic_dailyset_400)
     }
 
     @Composable

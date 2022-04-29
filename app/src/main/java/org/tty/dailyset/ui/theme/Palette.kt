@@ -150,18 +150,4 @@ internal val LocalPalette = staticCompositionLocalOf<Palette> {
     Palette()
 }
 
-@Composable
-fun DailySetPalette(
-    palette: Palette,
-    content: @Composable () -> Unit
-) {
-    val rememberedPalette = remember { palette.copy() }
-    CompositionLocalProvider(LocalPalette provides rememberedPalette, content = content)
-}
 
-object DailySetTheme {
-    val color
-        @Composable
-        @ReadOnlyComposable
-        get() = LocalPalette.current
-}

@@ -5,16 +5,13 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.navigation.NavHostController
-import androidx.navigation.NavOptions
-import androidx.navigation.compose.rememberNavController
+import androidx.compose.runtime.*
+import androidx.navigation.*
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import org.tty.dailyset.component.common.sharedComponents0
+import org.tty.dailyset.component.login.LoginInput
 import org.tty.dailyset.ui.page.*
 
 /**
@@ -28,6 +25,8 @@ object MainDestination {
     const val DAILY_SET_NORMAL = "daily_set_normal"
     const val DAILY_SET_CLAZZ = "daily_set_clazz"
     const val DAILY_SET_TASK = "daily_set_task"
+    const val INDEX = "index"
+    const val LOGIN = "login"
 }
 
 /**
@@ -36,16 +35,22 @@ object MainDestination {
 @OptIn(ExperimentalAnimationApi::class)
 @ExperimentalFoundationApi
 @Composable
-fun NavGraph(startDestination: String = MainDestination.MAIN_ROUTE) {
+fun NavGraph() {
     val navController = rememberAnimatedNavController()
+    val arguments = remember { mutableMapOf<String, Any>() }
+    val actions = remember(navController) { MainActions(navController, arguments) }
+    val nav = Nav(navController, actions, arguments)
+    val sharedComponents = sharedComponents0()
 
-    val actions = remember(navController) { MainActions(navController) }
-    val nav = Nav(navController, actions)
+    LaunchedEffect(key1 = "", block = {
+        sharedComponents.useNav { nav }
+//        sharedComponents.dataSourceCollection.runtimeDataSource.init()
+    })
 
     CompositionLocalProvider(LocalNav provides nav) {
         AnimatedNavHost(
             navController = navController,
-            startDestination = startDestination,
+            startDestination = MainDestination.INDEX,
             enterTransition = { _, _ ->
                 slideInHorizontally(initialOffsetX = { 1000 }, animationSpec = tween(700))
             },
@@ -61,7 +66,6 @@ fun NavGraph(startDestination: String = MainDestination.MAIN_ROUTE) {
         ) {
             composable(MainDestination.MAIN_ROUTE) {
                 MainPage()
-
             }
             composable(MainDestination.TIME_TABLE_ROUTE) {
                 DailyTablePage()
@@ -81,15 +85,24 @@ fun NavGraph(startDestination: String = MainDestination.MAIN_ROUTE) {
             composable(MainDestination.DAILY_SET_TASK) {
                 TaskDailySetPage()
             }
+            composable(MainDestination.INDEX) {
+                IndexPage()
+            }
+            composable(MainDestination.LOGIN) {
+                val input = arguments[MainDestination.LOGIN] as LoginInput
+                LoginPage(input)
+            }
         }
 
     }
+
+
 }
 
 /**
  * Models the navigation actions in the app.
  */
-class MainActions(private val navController: NavHostController) {
+class MainActions(private val navController: NavHostController, private val arguments: MutableMap<String, Any>) {
 
 
     fun upPress() {
@@ -113,13 +126,21 @@ class MainActions(private val navController: NavHostController) {
     fun toTaskDailySet() {
         navController.navigate(MainDestination.DAILY_SET_TASK)
     }
+    fun toLogin(input: LoginInput) {
+        arguments[MainDestination.LOGIN] = input
+        navController.navigate(MainDestination.LOGIN)
+    }
+    fun toMain() {
+        navController.navigate(MainDestination.MAIN_ROUTE)
+    }
 
 
 }
 
 data class Nav<T>(
     val navController: NavHostController,
-    val action: T
+    val action: T,
+    val arguments: MutableMap<String, Any>
 )
 
 /**

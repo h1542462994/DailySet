@@ -1,9 +1,11 @@
 package org.tty.dailyset.component.debug
 
 import androidx.compose.runtime.Composable
+import kotlinx.coroutines.flow.StateFlow
 import org.tty.dailyset.bean.entity.User
 import org.tty.dailyset.common.observable.InitialFlow
 import org.tty.dailyset.common.observable.initial
+import org.tty.dailyset.component.common.asActivityColdStateFlow
 import org.tty.dailyset.component.common.sharedComponents
 import java.time.DayOfWeek
 import java.time.LocalDateTime
@@ -13,8 +15,7 @@ fun debugVM(): DebugVM {
     val sharedComponents = sharedComponents()
 
     return object: DebugVM {
-        override val seedVersion: InitialFlow<Int>
-            get() = sharedComponents.stateStore.seedVersion.initial(0)
+        override val seedVersion: StateFlow<Int> = sharedComponents.stateStore.seedVersion.asActivityColdStateFlow(0)
         override val currentUserUid: InitialFlow<String>
             get() = sharedComponents.stateStore.currentUserUid.initial(User.local)
         override val currentUser: InitialFlow<User>

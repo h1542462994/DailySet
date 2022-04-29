@@ -1,7 +1,7 @@
 package org.tty.dailyset.component.common
 
-import org.tty.dailyset.common.observable.InitialMutableSharedFlow
+import org.tty.dailyset.common.observable.InitialMutableStateFlow
 
 interface DialogVM {
-    val dialogOpen: InitialMutableSharedFlow<Boolean>
+    val dialogOpen: InitialMutableStateFlow<Boolean>
 }
