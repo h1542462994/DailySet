@@ -5,6 +5,7 @@ import androidx.compose.runtime.remember
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import org.tty.dailyset.annotation.UseComponent
 import org.tty.dailyset.bean.entity.DailySet
 import org.tty.dailyset.bean.entity.DailySetIcon
 import org.tty.dailyset.bean.entity.DailySetType
@@ -14,6 +15,7 @@ import org.tty.dailyset.component.common.asActivityColdStateFlow
 import org.tty.dailyset.component.common.sharedComponents0
 
 @Composable
+@UseComponent
 fun rememberDailySetVM(): DailySetVM {
     val sharedComponents = sharedComponents0()
     return remember {

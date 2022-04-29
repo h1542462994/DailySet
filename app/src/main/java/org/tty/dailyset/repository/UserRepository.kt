@@ -27,8 +27,8 @@ class UserRepository(private val sharedComponents: SharedComponents) {
         delay(1000)
         return if (firstLoad) {
             withContext(Dispatchers.Main) {
-                sharedComponents.nav.action.toLogin(LoginInput(MainDestination.INDEX))
-                //sharedComponents.nav.action.toMain()
+                //sharedComponents.nav.action.toLogin(LoginInput(MainDestination.INDEX))
+                sharedComponents.nav.action.toMain()
             }
             IndexLoadResult.NotLoad
         } else {
