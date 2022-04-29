@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -17,22 +18,21 @@ import org.tty.dailyset.bean.entity.DailySetIcon
 import org.tty.dailyset.bean.entity.DailySetType
 import org.tty.dailyset.bean.entity.toImageResource
 import org.tty.dailyset.common.datetime.epochLocalDateTime
-import org.tty.dailyset.common.observable.collectAsState
+import org.tty.dailyset.component.common.asMutableState
 import org.tty.dailyset.component.dailyset.DailySetCreateDialogVM
-import org.tty.dailyset.component.dailyset.dailySetVM
+import org.tty.dailyset.component.dailyset.rememberDailySetVM
 import org.tty.dailyset.ui.component.ProfileMenuItem
 import org.tty.dailyset.ui.component.TitleSpace
 import org.tty.dailyset.ui.image.ImageResource
-import java.util.*
 
 @ExperimentalFoundationApi
 @Composable
 @UseViewModel("/dailyset")
 fun DailySetPage() {
     val scrollState = rememberScrollState()
-    val dailySetVM = dailySetVM()
+    val dailySetVM = rememberDailySetVM()
     val dailySets by dailySetVM.dailySets.collectAsState()
-    val nav = dailySetVM().nav
+    val nav = rememberDailySetVM().nav
 
     Column (
         modifier = Modifier.verticalScroll(state = scrollState, enabled = true)
@@ -70,7 +70,7 @@ fun DailySetPage() {
 fun DailySetAddPart(
     dailySetCreateDialogVM: DailySetCreateDialogVM
 ) {
-    var dialogOpen by dailySetCreateDialogVM.dialogOpen.collectAsState()
+    var dialogOpen by dailySetCreateDialogVM.dialogOpen.asMutableState()
     ProfileMenuItem(
         icon = ImageResource.add(),
         next = false,

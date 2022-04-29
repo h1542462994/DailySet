@@ -25,14 +25,3 @@ fun <T1, T2, T3, R> flow3(flow1: Flow<T1>, flow2: Flow<T2>, flow3: Flow<T3>, tra
         transform(pair.first, pair.second, value3)
     }
 }
-
-
-suspend fun <T> Flow<T>.collectValue(): T {
-    var value: T? = null
-    withContext(Dispatchers.Main) {
-        collect {
-            value = it
-        }
-    }
-    return value!!
-}

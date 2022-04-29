@@ -1,8 +1,8 @@
 package org.tty.dailyset.component.profile
 
+import kotlinx.coroutines.flow.StateFlow
 import org.tty.dailyset.bean.entity.User
-import org.tty.dailyset.common.observable.InitialFlow
 
 interface ProfileVM {
-    val currentUser: InitialFlow<User>
+    val currentUser: StateFlow<User>
 }

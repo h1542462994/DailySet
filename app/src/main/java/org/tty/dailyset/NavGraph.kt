@@ -1,18 +1,22 @@
 package org.tty.dailyset
 
-import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.*
-import androidx.navigation.*
+import androidx.navigation.NavController
+import androidx.navigation.NavDestination
+import androidx.navigation.NavHostController
+import androidx.navigation.NavOptions
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
-import org.tty.dailyset.component.common.sharedComponents0
+import org.tty.dailyset.component.common.sharedComponents
 import org.tty.dailyset.component.login.LoginInput
 import org.tty.dailyset.ui.page.*
+import kotlin.collections.MutableMap
+import kotlin.collections.mutableMapOf
+import kotlin.collections.set
 
 /**
  * Destination used in the ([org.tty.dailyset.DailySetApp])
@@ -27,6 +31,7 @@ object MainDestination {
     const val DAILY_SET_TASK = "daily_set_task"
     const val INDEX = "index"
     const val LOGIN = "login"
+    const val REGISTER = "register"
 }
 
 /**
@@ -40,7 +45,7 @@ fun NavGraph() {
     val arguments = remember { mutableMapOf<String, Any>() }
     val actions = remember(navController) { MainActions(navController, arguments) }
     val nav = Nav(navController, actions, arguments)
-    val sharedComponents = sharedComponents0()
+    val sharedComponents = sharedComponents()
 
     LaunchedEffect(key1 = "", block = {
         sharedComponents.useNav { nav }
@@ -92,6 +97,9 @@ fun NavGraph() {
                 val input = arguments[MainDestination.LOGIN] as LoginInput
                 LoginPage(input)
             }
+            composable(MainDestination.REGISTER) {
+                RegisterPage()
+            }
         }
 
     }
@@ -109,29 +117,32 @@ class MainActions(private val navController: NavHostController, private val argu
         navController.navigateUp()
     }
     fun toTimeTable() {
-        navController.navigate(MainDestination.TIME_TABLE_ROUTE)
+        navController.navigateExceptEqual(MainDestination.TIME_TABLE_ROUTE)
     }
     fun toTimeTablePreview() {
-        navController.navigate(MainDestination.TIME_TABLE_PREVIEW_ROUTE)
+        navController.navigateExceptEqual(MainDestination.TIME_TABLE_PREVIEW_ROUTE)
     }
     fun toDebug() {
-        navController.navigate(MainDestination.TEST_ROUTE)
+        navController.navigateExceptEqual(MainDestination.TEST_ROUTE)
     }
     fun toNormalDailySet() {
-        navController.navigate(MainDestination.DAILY_SET_NORMAL)
+        navController.navigateExceptEqual(MainDestination.DAILY_SET_NORMAL)
     }
     fun toClazzDailySet() {
-        navController.navigate(MainDestination.DAILY_SET_CLAZZ)
+        navController.navigateExceptEqual(MainDestination.DAILY_SET_CLAZZ)
     }
     fun toTaskDailySet() {
-        navController.navigate(MainDestination.DAILY_SET_TASK)
+        navController.navigateExceptEqual(MainDestination.DAILY_SET_TASK)
     }
     fun toLogin(input: LoginInput) {
         arguments[MainDestination.LOGIN] = input
-        navController.navigate(MainDestination.LOGIN)
+        navController.navigateExceptEqual(MainDestination.LOGIN)
     }
     fun toMain() {
-        navController.navigate(MainDestination.MAIN_ROUTE)
+        navController.navigateExceptEqual(MainDestination.MAIN_ROUTE)
+    }
+    fun toRegister() {
+        navController.navigateExceptEqual(MainDestination.REGISTER)
     }
 
 
@@ -148,4 +159,10 @@ data class Nav<T>(
  */
 internal val LocalNav = staticCompositionLocalOf<Nav<MainActions>> {
     error("nav not provided")
+}
+
+fun NavController.navigateExceptEqual(route: String) {
+    if (currentDestination?.route != route) {
+        navigate(route)
+    }
 }

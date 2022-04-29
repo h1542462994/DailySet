@@ -6,8 +6,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.*
+import androidx.compose.material.Icon
+import androidx.compose.material.OutlinedTextField
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -19,12 +22,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.tty.dailyset.R
 import org.tty.dailyset.annotation.UseViewModel
-import org.tty.dailyset.database.processor.DailySetProcessor
 import org.tty.dailyset.bean.entity.DailySetIcon
 import org.tty.dailyset.bean.entity.DailySetType
 import org.tty.dailyset.bean.entity.toImageResource
-import org.tty.dailyset.bean.lifetime.dailyset.DailySetCreateState
-import org.tty.dailyset.common.observable.collectAsState
+import org.tty.dailyset.component.common.asMutableState
 import org.tty.dailyset.component.dailyset.DailySetCreateDialogVM
 import org.tty.dailyset.ui.component.Badge
 import org.tty.dailyset.ui.component.NanoDialog
@@ -38,10 +39,10 @@ import org.tty.dailyset.ui.theme.LocalPalette
 fun DailySetCreateDialogCover(
     dailySetCreateDialogVM: DailySetCreateDialogVM
 ) {
-    var selectIcon by dailySetCreateDialogVM.selectIcon.collectAsState()
-    var icon by dailySetCreateDialogVM.icon.collectAsState()
-    var type by dailySetCreateDialogVM.type.collectAsState()
-    var name by dailySetCreateDialogVM.name.collectAsState()
+    var selectIcon by dailySetCreateDialogVM.selectIcon.asMutableState()
+    var icon by dailySetCreateDialogVM.icon.asMutableState()
+    var type by dailySetCreateDialogVM.type.asMutableState()
+    var name by dailySetCreateDialogVM.name.asMutableState()
     val currentUserUid by dailySetCreateDialogVM.currentUserUid.collectAsState()
 
     NanoDialog(title = stringResource(R.string.dailyset_list_add), dialogVM = dailySetCreateDialogVM) {

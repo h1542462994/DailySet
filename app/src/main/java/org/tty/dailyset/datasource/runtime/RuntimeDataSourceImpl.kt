@@ -11,8 +11,6 @@ import java.time.LocalDateTime
 
 class RuntimeDataSourceImpl(private val sharedComponents: SharedComponents) : RuntimeDataSource {
 
-    private var scheduleJob: Job? = null
-
     /**
      * 时钟源
      */

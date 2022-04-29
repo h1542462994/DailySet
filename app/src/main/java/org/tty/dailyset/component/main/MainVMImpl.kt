@@ -1,16 +1,20 @@
 package org.tty.dailyset.component.main
 
 import androidx.compose.runtime.Composable
-import org.tty.dailyset.common.observable.InitialMutableStateFlow
-import org.tty.dailyset.common.observable.initial
-import org.tty.dailyset.component.common.sharedComponents0
+import androidx.compose.runtime.remember
+import kotlinx.coroutines.flow.MutableStateFlow
+import org.tty.dailyset.annotation.UseComponent
+import org.tty.dailyset.component.common.sharedComponents
 import org.tty.dailyset.ui.page.MainPageTabs
 
 @Composable
-fun mainVM(): MainVM {
-    val sharedComponents = sharedComponents0()
+@UseComponent
+fun rememberMainVM(): MainVM {
+    val sharedComponents = sharedComponents()
 
-    return object: MainVM {
-        override val mainTab: InitialMutableStateFlow<MainPageTabs> = sharedComponents.stateStore.mainTab.initial(MainPageTabs.SUMMARY)
+    return remember {
+        object: MainVM {
+            override val mainTab: MutableStateFlow<MainPageTabs> = sharedComponents.stateStore.mainTab
+        }
     }
 }

@@ -1,7 +1,7 @@
 package org.tty.dailyset.component.common
 
-import org.tty.dailyset.common.observable.InitialMutableStateFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 
 interface DialogVM {
-    val dialogOpen: InitialMutableStateFlow<Boolean>
+    val dialogOpen: MutableStateFlow<Boolean>
 }

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -11,10 +12,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import org.tty.dailyset.LocalNav
 import org.tty.dailyset.R
 import org.tty.dailyset.annotation.UseViewModel
-import org.tty.dailyset.database.scope.DataScope
 import org.tty.dailyset.bean.entity.User
-import org.tty.dailyset.common.observable.collectAsState
-import org.tty.dailyset.component.profile.profileVM
+import org.tty.dailyset.component.profile.rememberProfileVM
 import org.tty.dailyset.ui.component.ProfileMenuGroup
 import org.tty.dailyset.ui.component.ProfileMenuItem
 import org.tty.dailyset.ui.image.ImageResource
@@ -26,7 +25,7 @@ import org.tty.dailyset.ui.image.ImageResource
 @Composable
 fun ProfilePage() {
     val scrollState = rememberScrollState()
-    val profileVM = profileVM()
+    val profileVM = rememberProfileVM()
     val user by profileVM.currentUser.collectAsState()
 
     Column(

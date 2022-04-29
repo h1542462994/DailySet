@@ -21,8 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import org.tty.dailyset.bean.lifetime.DialogState
-import org.tty.dailyset.common.observable.collectAsState
 import org.tty.dailyset.component.common.DialogVM
+import org.tty.dailyset.component.common.asMutableState
 import org.tty.dailyset.ui.theme.LocalPalette
 import org.tty.dailyset.ui.theme.Shapes
 
@@ -106,7 +106,7 @@ fun NanoDialog(
 ) {
     NanoDialog(
         title = title,
-        dialogState = DialogState(dialogOpen = dialogVM.dialogOpen.collectAsState()),
+        dialogState = DialogState(dialogOpen = dialogVM.dialogOpen.asMutableState()),
         autoClose = autoClose,
         content = content
     )

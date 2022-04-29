@@ -1,19 +1,17 @@
 package org.tty.dailyset.component.login
 
 import kotlinx.coroutines.flow.MutableStateFlow
-import org.tty.dailyset.common.observable.InitialFlow
+import kotlinx.coroutines.flow.StateFlow
 
 interface LoginVM {
-    val loginButtonEnabled: InitialFlow<Boolean>
-    val userTipValue: InitialFlow<String>
-    val passwordTipValue: InitialFlow<String>
-    val isOnLogin: InitialFlow<Boolean>
-
+    val loginButtonEnabled: StateFlow<Boolean>
+    val userTipValue: StateFlow<String>
+    val passwordTipValue: StateFlow<String>
+    val isOnLogin: StateFlow<Boolean>
     val userText: MutableStateFlow<String>
-    val userTextInitial: String
-    fun setUserText(value: String)
-    val passwordTextInitial: String
-    fun setPasswordText(value: String)
+    val passwordText: MutableStateFlow<String>
 
     fun loginWithPassword(uid: String, password: String)
+    fun toRegister()
+
 }

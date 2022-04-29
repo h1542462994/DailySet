@@ -8,9 +8,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import org.tty.dailyset.MainActions
 import org.tty.dailyset.annotation.UseComponent
-import org.tty.dailyset.common.local.logger
 import org.tty.dailyset.provider.LocalSharedComponents
 import org.tty.dailyset.provider.LocalSharedComponents0
 import org.tty.dailyset.ui.theme.LocalPalette
@@ -99,20 +99,26 @@ fun <T> Flow<T>.asActivityColdStateFlow(initialValue: T): StateFlow<T> {
     return this.stateIn(sharedComponents.activityScope, SharingStarted.WhileSubscribed(), initialValue)
 }
 
+/**
+ * create a remembered mutableState base on [MutableStateFlow] initialValue,
+ * when set the value, it will callback to the [MutableStateFlow] and the backend mutableState.
+ * after create the remembered mutableState, change of the [MutableStateFlow] will **not effect** the remembered mutableState.
+ * we recommend use **[asMutableState]**.
+ */
 @Composable
 fun <T> MutableStateFlow<T>.rememberAsMutableState(): MutableState<T> {
 
     // collect the value and save a snapshot.
-//    LaunchedEffect(key1 = "", block = {
-//        this@rememberAsMutableState.collect()
-//    })
+    LaunchedEffect(key1 = "", block = {
+        this@rememberAsMutableState.collect()
+    })
 
     // collect the initial value, the value will not be changed in recomposition.
     val valueState = remember { mutableStateOf(value) }
     val setValueDelegate = { it: T ->
         valueState.value = it
         // update the source flow with value.
-        logger.d("CommonExtensions", "setValueDelegate: $it, ${this@rememberAsMutableState}")
+        //logger.d("CommonExtensions", "setValueDelegate: $it, ${this@rememberAsMutableState}")
         this@rememberAsMutableState.value = it
     }
 
@@ -134,12 +140,60 @@ fun <T> MutableStateFlow<T>.rememberAsMutableState(): MutableState<T> {
 
 }
 
-suspend fun <T> MutableStateFlow<T>.collectSkipFirst(action: (T) -> Unit) {
+/**
+ * create a remembered mutableState base on [MutableStateFlow] initialValue,
+ * when set the value, it will callback to the [MutableStateFlow] and the backend mutableState.
+ * after create the remembered mutableState, change of the [MutableStateFlow] will **effect** the remembered mutableState.
+ */
+@Composable
+fun <T> MutableStateFlow<T>.asMutableState(): MutableState<T> {
+
+    // collect the value and save a snapshot.
+    LaunchedEffect(key1 = "", block = {
+        this@asMutableState.collect()
+    })
+
+    // collect the initial value, the value will not be changed in recomposition.
+    val valueState = remember(key1 = this.value) { mutableStateOf(value) }
+    val setValueDelegate = { it: T ->
+        valueState.value = it
+        this@asMutableState.value = it
+    }
+
+    val state = object: MutableState<T> {
+        override var value: T
+            get() = valueState.value
+            set(value) {
+                setValueDelegate(value)
+            }
+
+        override fun component1(): T {
+            return valueState.value
+        }
+
+        override fun component2(): (T) -> Unit = setValueDelegate
+    }
+
+    return state
+
+}
+
+suspend inline fun <T> MutableStateFlow<T>.collectSkipFirst(crossinline action: suspend (T) -> Unit) {
     var first = true
     this.collect {
         if (first) {
             first = false
         } else {
+            action(it)
+        }
+    }
+}
+
+@UseComponent
+inline fun <T> MutableStateFlow<T>.observeOnApplicationScope(crossinline action: suspend (T) -> Unit) {
+    val sharedComponents = sharedComponents()
+    sharedComponents.applicationScope.launch {
+        this@observeOnApplicationScope.collectSkipFirst {
             action(it)
         }
     }

@@ -19,9 +19,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import org.tty.dailyset.R
 import org.tty.dailyset.annotation.UseViewModel
-import org.tty.dailyset.common.observable.collectAsState
 import org.tty.dailyset.component.common.StatusBarToBackground1
-import org.tty.dailyset.component.main.mainVM
+import org.tty.dailyset.component.common.rememberAsMutableState
+import org.tty.dailyset.component.main.rememberMainVM
 import org.tty.dailyset.ui.component.TopBar
 import org.tty.dailyset.ui.theme.LocalPalette
 
@@ -29,8 +29,8 @@ import org.tty.dailyset.ui.theme.LocalPalette
 @ExperimentalFoundationApi
 @Composable
 fun MainPage() {
-    val mainVM = mainVM()
-    var selectedTab by mainVM.mainTab.collectAsState()
+    val mainVM = rememberMainVM()
+    var selectedTab by mainVM.mainTab.rememberAsMutableState()
     val tabs = MainPageTabs.values()
     StatusBarToBackground1()
 

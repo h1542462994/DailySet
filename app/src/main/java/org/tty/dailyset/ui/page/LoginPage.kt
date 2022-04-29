@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import org.tty.dailyset.MainDestination
 import org.tty.dailyset.R
 import org.tty.dailyset.component.common.StatusBarToBackground
+import org.tty.dailyset.component.common.asMutableState
 import org.tty.dailyset.component.common.rememberAsMutableState
 import org.tty.dailyset.component.common.showToast
 import org.tty.dailyset.component.login.LoginInput
@@ -34,19 +35,12 @@ fun LoginPage(input: LoginInput) {
     StatusBarToBackground()
 
     val loginVM = rememberLoginVM()
-    var userTextField by remember("") { mutableStateOf(loginVM.userTextInitial) }
-    fun updateUserText(text: String) {
-        userTextField = text
-        loginVM.setUserText(text)
-    }
 
-    var userText by loginVM.userText.rememberAsMutableState()
-    var passwordTextField by remember("") { mutableStateOf(loginVM.passwordTextInitial) }
-    fun updatePasswordText(text: String) {
-        passwordTextField = text
-        loginVM.setPasswordText(text)
-    }
-
+    var userText by loginVM.userText.asMutableState()
+    var passwordText by loginVM.passwordText.asMutableState()
+    val loginButtonEnabled by loginVM.loginButtonEnabled.collectAsState()
+    val userTipValue by loginVM.userTipValue.collectAsState()
+    val passwordTipValue by loginVM.passwordTipValue.collectAsState()
 
     Column {
         CenterBar(content = stringResource(id = R.string.login))
@@ -62,7 +56,8 @@ fun LoginPage(input: LoginInput) {
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
                     .fillMaxWidth(fraction = 0.7f),
-                label = { Text(stringResource(R.string.login_user_field)) },
+                label = { Text(stringResource(R.string.login_user_field) + userTipValue) },
+                isError = userTipValue.isNotEmpty(),
                 placeholder = { Text(stringResource(R.string.login_user_field_tip)) },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
@@ -82,19 +77,20 @@ fun LoginPage(input: LoginInput) {
 
         Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
             OutlinedTextField(
-                value = passwordTextField,
-                onValueChange = { updatePasswordText(it) },
+                value = passwordText,
+                onValueChange = { passwordText = it },
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
                     .fillMaxWidth(fraction = 0.7f),
-                label = { Text(stringResource(id = R.string.login_user_password)) },
+                label = { Text(stringResource(id = R.string.login_user_password) + passwordTipValue) },
+                isError = passwordTipValue.isNotEmpty(),
                 placeholder = { Text(stringResource(id = R.string.login_user_password_tip)) },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
                     imeAction = ImeAction.Send
                 ),
                 maxLines = 1,
-                visualTransformation = PasswordVisualTransformation(mask = '\u273c'),
+                visualTransformation = PasswordVisualTransformation(),
                 leadingIcon = {
                     ImageBox(
                         painter = ImageResource.password()
@@ -107,17 +103,18 @@ fun LoginPage(input: LoginInput) {
 
         Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
             Text(
-                text = "立即注册",
+                text = stringResource(id = R.string.login_register_action_tip),
                 style = DailySetTheme.typography.linkText,
                 color = DailySetTheme.color.primaryColor,
                 modifier = Modifier
                     .clickable {
-                        showToast("该功能暂未实现。")
+                        //showToast("该功能暂未实现。")
+                        loginVM.toRegister()
                     }
                     .padding(8.dp)
             )
             Text(
-                text = "忘记密码？",
+                text = stringResource(id = R.string.login_forget_password_action_tip),
                 style = DailySetTheme.typography.linkText,
                 modifier = Modifier
                     .clickable {
@@ -127,12 +124,15 @@ fun LoginPage(input: LoginInput) {
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
-        Button(modifier = Modifier
-            .align(Alignment.CenterHorizontally)
-            .padding(8.dp)
-            .fillMaxWidth(0.7f), onClick = { /*TODO*/ }) {
+        Button(
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(8.dp)
+                .fillMaxWidth(0.7f), onClick = { /*TODO*/ },
+            enabled = loginButtonEnabled
+        ) {
             Text(
-                "登录",
+                stringResource(id = R.string.login),
                 modifier = Modifier.padding(4.dp),
                 style = DailySetTheme.typography.buttonText
             )

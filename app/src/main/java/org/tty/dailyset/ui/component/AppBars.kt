@@ -87,7 +87,7 @@ fun CenterBar(
     extensionArea: (@Composable () -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
-    Surface(elevation = BottomNavigationDefaults.Elevation) {
+    Surface {
         Row(modifier = Modifier
             .height(56.dp)
             .background(LocalPalette.current.background1)

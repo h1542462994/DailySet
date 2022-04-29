@@ -21,10 +21,9 @@ import org.tty.dailyset.R
 import org.tty.dailyset.annotation.UseViewModel
 import org.tty.dailyset.common.datetime.toDisplayString
 import org.tty.dailyset.common.datetime.toStandardString
-import org.tty.dailyset.common.observable.collectAsState
 import org.tty.dailyset.component.common.StatusBarToBackground
 import org.tty.dailyset.component.common.nav
-import org.tty.dailyset.component.debug.debugVM
+import org.tty.dailyset.component.debug.rememberDebugVM
 import org.tty.dailyset.ui.component.TopBar
 import org.tty.dailyset.ui.theme.DailySetTheme
 
@@ -36,7 +35,7 @@ import org.tty.dailyset.ui.theme.DailySetTheme
 fun TestPage() {
     StatusBarToBackground()
     val scrollState = rememberScrollState()
-    val debugVM = debugVM()
+    val debugVM = rememberDebugVM()
     val nav = nav()
     val seedVersion by debugVM.seedVersion.collectAsState()
     val currentUserUid by debugVM.currentUserUid.collectAsState()
