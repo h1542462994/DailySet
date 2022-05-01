@@ -23,9 +23,7 @@ interface StateStore {
     /**
      * **currentUserUid** 当前用户uid
      */
-    val currentUserUid: Flow<String>
-
-    val currentUserUidSnapshot: String
+    val currentUserUid: StateFlow<String>
 
     /**
      * **now** 当前时间
@@ -54,5 +52,10 @@ interface StateStore {
     val dailySets: Flow<List<DailySet>>
     val currentDailySetUid: MutableStateFlow<String>
     val firstLoadUser: Flow<Boolean>
-    val firstLoadUserSnapshot: Boolean
+    val currentHttpServerAddress: Flow<String>
+
+    /**
+     * **deviceCode** 设备码，默认为空，只要该设备登录成功过一次，就会赋予一个唯一的设备码
+     */
+    val deviceCode: StateFlow<String>
 }

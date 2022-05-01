@@ -6,12 +6,14 @@ import android.view.Window
 import androidx.lifecycle.Lifecycle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import org.tty.dailyset.MainActions
 import org.tty.dailyset.Nav
 import org.tty.dailyset.database.DailySetRoomDatabase
 import org.tty.dailyset.datasource.DataSourceCollection
 import org.tty.dailyset.datasource.DbSourceCollection
 import org.tty.dailyset.datasource.db.*
+import org.tty.dailyset.datasource.net.NetSourceCollectionImpl
 import org.tty.dailyset.datasource.runtime.RuntimeDataSourceImpl
 import org.tty.dailyset.repository.*
 
@@ -53,6 +55,9 @@ class DailySetApplication : Application(), SharedComponents {
         }
         mutableSharedComponents.useStateStore {
             StateStoreImpl(mutableSharedComponents)
+        }
+        mutableSharedComponents.useNetSourceCollection {
+            NetSourceCollectionImpl(mutableSharedComponents)
         }
     }
 
@@ -118,7 +123,12 @@ class DailySetApplication : Application(), SharedComponents {
         if (componentAvailable.entries.all { it.value }) {
             if (!initialized) {
                 initialized = true
-                mutableSharedComponents.dataSourceCollection.runtimeDataSource.init()
+
+                applicationScope.launch {
+
+                    mutableSharedComponents.repositoryCollection.userRepository.init()
+                    mutableSharedComponents.dataSourceCollection.netSourceCollection.init()
+                }
             }
         }
     }

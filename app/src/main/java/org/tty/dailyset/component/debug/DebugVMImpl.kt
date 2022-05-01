@@ -3,8 +3,10 @@ package org.tty.dailyset.component.debug
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import org.tty.dailyset.annotation.UseComponent
 import org.tty.dailyset.bean.entity.User
+import org.tty.dailyset.bean.enums.PreferenceName
 import org.tty.dailyset.component.common.asActivityColdStateFlow
 import org.tty.dailyset.component.common.sharedComponents
 import java.time.DayOfWeek
@@ -23,6 +25,16 @@ fun rememberDebugVM(): DebugVM {
             override val now: StateFlow<LocalDateTime> = sharedComponents.stateStore.now.asActivityColdStateFlow(LocalDateTime.now())
             override val nowDayOfWeek: StateFlow<DayOfWeek> = sharedComponents.stateStore.nowDayOfWeek.asActivityColdStateFlow(LocalDateTime.now().dayOfWeek)
             override val startDayOfWeek: StateFlow<DayOfWeek> = sharedComponents.stateStore.startDayOfWeek.asActivityColdStateFlow(DayOfWeek.MONDAY)
+            override val users: StateFlow<List<User>> = sharedComponents.stateStore.users.asActivityColdStateFlow(
+                listOf())
+            override val currentHttpServerAddress: StateFlow<String> = sharedComponents.stateStore.currentHttpServerAddress.asActivityColdStateFlow("")
+            override val deviceCode: StateFlow<String> = sharedComponents.stateStore.deviceCode
+
+            override fun setFirstLoadUser(value: Boolean) {
+                sharedComponents.applicationScope.launch {
+                    sharedComponents.repositoryCollection.preferenceRepository.save(PreferenceName.FIRST_LOAD_USER, value)
+                }
+            }
         }
     }
 }

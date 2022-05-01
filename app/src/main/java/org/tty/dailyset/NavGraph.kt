@@ -111,8 +111,6 @@ fun NavGraph() {
  * Models the navigation actions in the app.
  */
 class MainActions(private val navController: NavHostController, private val arguments: MutableMap<String, Any>) {
-
-
     fun upPress() {
         navController.navigateUp()
     }
@@ -144,7 +142,6 @@ class MainActions(private val navController: NavHostController, private val argu
     fun toRegister() {
         navController.navigateExceptEqual(MainDestination.REGISTER)
     }
-
 
 }
 

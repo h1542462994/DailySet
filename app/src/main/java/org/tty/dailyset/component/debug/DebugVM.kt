@@ -13,5 +13,10 @@ interface DebugVM: BaseVM {
     val now: StateFlow<LocalDateTime>
     val nowDayOfWeek: StateFlow<DayOfWeek>
     val startDayOfWeek: StateFlow<DayOfWeek>
+    val users: StateFlow<List<User>>
+    val currentHttpServerAddress: StateFlow<String>
+    val deviceCode: StateFlow<String>
+
+    fun setFirstLoadUser(value: Boolean)
 }
 

@@ -54,7 +54,7 @@ class DailyRepository(private val sharedComponents: SharedComponents): DailySetP
                 icon = icon,
                 uid = uid,
                 serialIndex = serialIndex,
-                ownerUid = sharedComponents.stateStore.currentUserUidSnapshot,
+                ownerUid = sharedComponents.stateStore.currentUserUid.value,
                 name = dailySetName,
                 updateAt = LocalDateTime.now()
             )

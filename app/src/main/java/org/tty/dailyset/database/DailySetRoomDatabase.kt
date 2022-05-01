@@ -10,6 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.tty.dailyset.datasource.db.*
 import org.tty.dailyset.bean.entity.*
+import org.tty.dailyset.bean.enums.PreferenceName
 
 
 @Database(entities =

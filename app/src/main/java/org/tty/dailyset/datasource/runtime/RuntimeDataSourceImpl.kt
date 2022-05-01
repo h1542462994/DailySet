@@ -2,8 +2,7 @@ package org.tty.dailyset.datasource.runtime
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import org.tty.dailyset.component.common.SharedComponents
-import org.tty.dailyset.component.common.asActivityColdStateFlow
+import org.tty.dailyset.component.common.*
 import org.tty.dailyset.ui.page.MainPageTabs
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -60,10 +59,11 @@ class RuntimeDataSourceImpl(private val sharedComponents: SharedComponents) : Ru
 //            }
 //        })
 
-        sharedComponents.applicationScope.launch {
-            sharedComponents.repositoryCollection.userRepository.firstLoad()
-        }
+//        sharedComponents.stateStore.firstLoadUser.observeOnApplicationScope {  }
+//        sharedComponents.stateStore.currentHttpServerAddress.observeOnApplicationScope { }
+//        sharedComponents.stateStore.deviceCode.observeOnApplicationScope {  }
 
+//        sharedComponents.repositoryCollection.userRepository.init()
     }
 
     /**

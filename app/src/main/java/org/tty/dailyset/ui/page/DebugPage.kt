@@ -7,6 +7,7 @@ import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -43,6 +44,9 @@ fun TestPage() {
     val nowDayOfWeek by debugVM.nowDayOfWeek.collectAsState()
     val startDayOfWeek by debugVM.startDayOfWeek.collectAsState()
     val currentUser by debugVM.currentUser.collectAsState()
+    val users by debugVM.users.collectAsState()
+    val currentHttpServerAddress by debugVM.currentHttpServerAddress.collectAsState()
+    val deviceCode by debugVM.deviceCode.collectAsState()
 
     Column {
         TopBar(
@@ -98,7 +102,24 @@ fun TestPage() {
                     value = "${currentUser.nickName}(${currentUser.userUid})"
                 )
             }
-
+            item {
+                DebugLine(title = "所有用户", subTitle = "users", value = users.joinToString(
+                    separator = ","
+                ) { it.userUid })
+            }
+            item {
+                DebugLine(title = "当前服务器地址", subTitle = "currentHttpServerAddress", value = currentHttpServerAddress)
+            }
+            item {
+                DebugLine(title = "设备码", subTitle = "deviceCode", value = deviceCode)
+            }
+            item {
+                Button(onClick = {
+                    debugVM.setFirstLoadUser(true)
+                }) {
+                    Text(text = "退出登录")
+                }
+            }
 
         }
 

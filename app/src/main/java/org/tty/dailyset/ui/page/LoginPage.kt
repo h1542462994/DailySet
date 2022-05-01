@@ -4,10 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Button
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,6 +38,7 @@ fun LoginPage(input: LoginInput) {
     val loginButtonEnabled by loginVM.loginButtonEnabled.collectAsState()
     val userTipValue by loginVM.userTipValue.collectAsState()
     val passwordTipValue by loginVM.passwordTipValue.collectAsState()
+    val isOnLogin by loginVM.isOnLogin.collectAsState()
 
     Column {
         CenterBar(content = stringResource(id = R.string.login))
@@ -128,14 +126,29 @@ fun LoginPage(input: LoginInput) {
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .padding(8.dp)
-                .fillMaxWidth(0.7f), onClick = { /*TODO*/ },
-            enabled = loginButtonEnabled
+                .fillMaxWidth(0.7f), onClick = { loginVM.loginWithPassword() },
+            enabled = loginButtonEnabled && !isOnLogin
         ) {
-            Text(
-                stringResource(id = R.string.login),
-                modifier = Modifier.padding(4.dp),
-                style = DailySetTheme.typography.buttonText
-            )
+            if (isOnLogin) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = DailySetTheme.color.primaryColor
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    stringResource(id = R.string.login_on_login),
+                    modifier = Modifier.padding(4.dp),
+                    style = DailySetTheme.typography.buttonText
+                )
+            } else {
+                Text(
+                    text = stringResource(id = R.string.login),
+                    modifier = Modifier.padding(4.dp),
+                    style = DailySetTheme.typography.buttonText
+                )
+            }
+
+
         }
 
         Spacer(modifier = Modifier.weight(3.0f))

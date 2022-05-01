@@ -7,6 +7,8 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.newCoroutineContext
 import org.tty.dailyset.component.common.DailySetApplication
 import org.tty.dailyset.provider.LocalServiceProvider
 import org.tty.dailyset.ui.theme.DailySetTheme
@@ -47,7 +49,9 @@ class MainActivity : ComponentActivity() {
 
         mainViewModel.init()
         //ComponentViewModel provides mainViewModel
-        sharedComponents.useActivityScope { this.lifecycleScope }
+        sharedComponents.useActivityScope {
+            this.lifecycleScope
+        }
         sharedComponents.useLifecycle { this.lifecycle }
         sharedComponents.useActivityContext { this }
         sharedComponents.useWindow { window }

@@ -7,6 +7,8 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import org.tty.dailyset.MainActions
@@ -14,6 +16,8 @@ import org.tty.dailyset.annotation.UseComponent
 import org.tty.dailyset.provider.LocalSharedComponents
 import org.tty.dailyset.provider.LocalSharedComponents0
 import org.tty.dailyset.ui.theme.LocalPalette
+import java.io.InterruptedIOException
+import java.net.SocketException
 
 @Composable
 fun sharedComponents0(): SharedComponents {
@@ -90,6 +94,15 @@ fun showToast(text: String) {
     Toast.makeText(sharedComponents.activityContext, text, Toast.LENGTH_SHORT).show()
 }
 
+fun showToastOfNetworkError(title: String, error: Exception) {
+    val message: String = if (error is SocketException || error is InterruptedIOException) {
+        "${title}, 无法连接到目标服务器"
+    } else {
+        "${title}, 未知异常: ${error.message}"
+    }
+    showToast(message)
+}
+
 /**
  *
  */
@@ -97,6 +110,11 @@ fun showToast(text: String) {
 fun <T> Flow<T>.asActivityColdStateFlow(initialValue: T): StateFlow<T> {
     val sharedComponents = LocalSharedComponents.current
     return this.stateIn(sharedComponents.activityScope, SharingStarted.WhileSubscribed(), initialValue)
+}
+
+fun <T> Flow<T>.asActivityHotStateFlow(initialValue: T): StateFlow<T> {
+    val sharedComponents = LocalSharedComponents.current
+    return this.stateIn(sharedComponents.activityScope, SharingStarted.Eagerly, initialValue)
 }
 
 /**
@@ -178,7 +196,7 @@ fun <T> MutableStateFlow<T>.asMutableState(): MutableState<T> {
 
 }
 
-suspend inline fun <T> MutableStateFlow<T>.collectSkipFirst(crossinline action: suspend (T) -> Unit) {
+suspend inline fun <T> Flow<T>.collectSkipFirst(crossinline action: suspend (T) -> Unit) {
     var first = true
     this.collect {
         if (first) {
@@ -189,12 +207,37 @@ suspend inline fun <T> MutableStateFlow<T>.collectSkipFirst(crossinline action: 
     }
 }
 
+suspend inline fun <T> Flow<T>.collectFirst(crossinline action: suspend (T) -> Unit) {
+    this.take(1).collect {
+        action(it)
+    }
+}
+
 @UseComponent
-inline fun <T> MutableStateFlow<T>.observeOnApplicationScope(crossinline action: suspend (T) -> Unit) {
+inline fun <T> Flow<T>.observeOnApplicationScope(crossinline action: suspend (T) -> Unit) {
     val sharedComponents = sharedComponents()
     sharedComponents.applicationScope.launch {
-        this@observeOnApplicationScope.collectSkipFirst {
+        this@observeOnApplicationScope.collect {
             action(it)
         }
     }
 }
+
+inline fun <T> Flow<T>.observeOnApplicationScopeDropFirst(crossinline action: suspend (T) -> Unit) {
+    val sharedComponents = sharedComponents()
+    sharedComponents.applicationScope.launch {
+        this@observeOnApplicationScopeDropFirst.drop(1).collect() {
+            action(it)
+        }
+    }
+}
+
+inline fun <T> Flow<T>.observeOnApplicationScopeOnlyFirst(crossinline action: suspend (T) -> Unit) {
+    val sharedComponents = sharedComponents()
+    sharedComponents.applicationScope.launch {
+        this@observeOnApplicationScopeOnlyFirst.take(1).collect {
+            action(it)
+        }
+    }
+}
+

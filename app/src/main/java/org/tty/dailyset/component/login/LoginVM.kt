@@ -11,7 +11,7 @@ interface LoginVM {
     val userText: MutableStateFlow<String>
     val passwordText: MutableStateFlow<String>
 
-    fun loginWithPassword(uid: String, password: String)
+    fun loginWithPassword()
     fun toRegister()
 
 }

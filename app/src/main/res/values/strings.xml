@@ -45,6 +45,6 @@
     <string name="login_user_password_tip">请输入密码</string>
     <string name="login_register_action_tip">立即注册</string>
     <string name="login_forget_password_action_tip">忘记密码？</string>
-
+    <string name="login_on_login">正在登录</string>
     <!--endregion -->
 </resources>

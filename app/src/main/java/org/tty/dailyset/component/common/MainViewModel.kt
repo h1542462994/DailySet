@@ -13,6 +13,7 @@ import org.tty.dailyset.common.local.Tags
 import org.tty.dailyset.common.local.logger
 import org.tty.dailyset.common.observable.*
 import org.tty.dailyset.bean.entity.*
+import org.tty.dailyset.bean.enums.PreferenceName
 import org.tty.dailyset.bean.lifetime.PagerInfo
 import org.tty.dailyset.bean.lifetime.UserState
 import org.tty.dailyset.bean.lifetime.dailyset.ClazzDailySetCursors
@@ -28,6 +29,7 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 
+@Deprecated("viewModel will not be used.")
 class MainViewModel(val sharedComponents: SharedComponents) : ViewModel() {
 
     init {

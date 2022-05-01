@@ -13,7 +13,7 @@ fun validUserTextField(value: String): String? {
         }
 
         val number = value.toIntOrNull()
-        if (number == null || number <= 10000 || number > 99999999) {
+        if (number == null || number <= 100000 || number > 99999999) {
             return " (无效的用户名) "
         }
 
@@ -37,4 +37,12 @@ fun validPasswordTextField(value: String): String? {
 
         return null
     }
+}
+
+fun anyTextEmpty(vararg texts: String?): Boolean {
+    return texts.any { it.isNullOrEmpty() }
+}
+
+fun anyIntEmpty(vararg ints: Int?): Boolean {
+    return ints.any { it == null }
 }

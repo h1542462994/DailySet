@@ -4,8 +4,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.SaverScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.tty.dailyset.annotation.UseComponent
+import org.tty.dailyset.bean.enums.PlatformCode
+import org.tty.dailyset.bean.req.UserLoginReq
 import org.tty.dailyset.bean.util.validPasswordTextField
 import org.tty.dailyset.bean.util.validUserTextField
 import org.tty.dailyset.component.common.SharedComponents
@@ -32,12 +37,27 @@ class LoginVMImpl(private val sharedComponents: SharedComponents) : LoginVM {
     override val userText: MutableStateFlow<String> = MutableStateFlow("")
     override val passwordText: MutableStateFlow<String> = MutableStateFlow("")
 
-    override fun loginWithPassword(uid: String, password: String) {
-        TODO("Not yet implemented")
+    override fun loginWithPassword() {
+        sharedComponents.activityScope.launch {
+            val uid = userText.value
+            val password = passwordText.value
+            setOnLogin()
+            sharedComponents.repositoryCollection.userRepository.login(uid, password)
+            setOffLogin()
+        }
     }
 
     override fun toRegister() {
         sharedComponents.nav.action.toRegister()
+    }
+
+    private fun setOnLogin() {
+        loginButtonEnabled.value = false
+        isOnLogin.value = true
+    }
+
+    private fun setOffLogin() {
+        isOnLogin.value = false
     }
 
     private fun valid(user: String, password: String) {

@@ -1,5 +1,6 @@
 package org.tty.dailyset.ui.page
 
+import androidx.activity.compose.BackHandler
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -73,6 +74,9 @@ fun MainPage() {
         }
     }
 
+    BackHandler {
+
+    }
 }
 
 

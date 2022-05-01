@@ -2,6 +2,7 @@ package org.tty.dailyset.bean.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import org.tty.dailyset.bean.enums.PreferenceName
 
 /**
  * 保存当前使用的用户

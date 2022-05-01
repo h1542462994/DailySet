@@ -1,4 +1,6 @@
-package org.tty.dailyset.bean.entity
+package org.tty.dailyset.bean.enums
+
+import org.tty.dailyset.bean.entity.User
 
 /**
  * defined name-value pairs in [Preference]
@@ -32,10 +34,19 @@ enum class PreferenceName(
      */
     CURRENT_HOST("current_host", "192.168.31.1"),
 
+    CURRENT_HTTP_SERVER_ADDRESS("current_http_address", "http://192.168.31.10:8086/"),
     /**
      * 一周的开始星期
      */
     START_DAY_OF_WEEK("start_day_of_week", "1"),
 
-    FIRST_LOAD_USER("first_load_user", "true")
+    /**
+     * 是否是第一次加载
+     */
+    FIRST_LOAD_USER("first_load_user", "true"),
+
+    /**
+     * 设备码
+     */
+    DEVICE_CODE("device_code", "")
 }

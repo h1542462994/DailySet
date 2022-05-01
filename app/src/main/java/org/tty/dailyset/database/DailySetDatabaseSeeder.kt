@@ -1,6 +1,7 @@
 package org.tty.dailyset.database
 
 import org.tty.dailyset.bean.entity.*
+import org.tty.dailyset.bean.enums.PreferenceName
 
 /**
  * the seeder of the [database]

@@ -11,7 +11,7 @@ import org.tty.dailyset.bean.entity.Preference
 @Dao
 interface PreferenceDao {
     @Query("SELECT * FROM preference WHERE preferenceKey = :name LIMIT 1")
-    fun get(name: String): Preference?
+    suspend fun get(name: String): Preference?
 
     @Query("SELECT * FROM preference WHERE preferenceKey = :name LIMIT 1")
     fun load(name: String): Flow<Preference?>
