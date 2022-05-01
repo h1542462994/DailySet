@@ -13,13 +13,13 @@ import org.tty.dailyset.datasource.NetSourceCollection
 import org.tty.dailyset.datasource.runtime.RuntimeDataSource
 import org.tty.dailyset.repository.*
 
-class MutableSharedComponents() : SharedComponents {
+class MutableSharedComponents : SharedComponents {
 
     private lateinit var applicationScopeInternal: CoroutineScope
     private val dataSourceCollectionInternal = MutableDataSourceCollection()
     private lateinit var databaseInternal:  DailySetRoomDatabase
     private val repositoryCollectionInternal = MutableRepositoryCollection()
-    private lateinit var stateStoreInternalGet: () -> StateStore
+    private lateinit var stateStoreInternal: StateStore
     private lateinit var lifecycleInternal: Lifecycle
     private lateinit var navInternal: Nav<MainActions>
     private lateinit var windowInternal: Window
@@ -30,7 +30,7 @@ class MutableSharedComponents() : SharedComponents {
     override val dataSourceCollection: DataSourceCollection get() = dataSourceCollectionInternal
     override val database: DailySetRoomDatabase get() = databaseInternal
     override val repositoryCollection: RepositoryCollection by lazy { repositoryCollectionInternal }
-    override val stateStore: StateStore by lazy { stateStoreInternalGet.invoke() }
+    override val stateStore: StateStore get() = stateStoreInternal
     override val applicationScope: CoroutineScope get() = applicationScopeInternal
     override val lifecycle: Lifecycle get() = lifecycleInternal
     override val nav: Nav<MainActions> get() = navInternal
@@ -40,24 +40,24 @@ class MutableSharedComponents() : SharedComponents {
     override val ltsVMSaver: LtsVMSaver get() = ltsVMSaverInternal
     class MutableDataSourceCollection: DataSourceCollection {
         internal lateinit var dbSourceCollectionInternal: DbSourceCollection
-        internal lateinit var netSourceCollectionInternalGet: () -> NetSourceCollection
-        internal lateinit var runtimeDataSourceInternalGet: () -> RuntimeDataSource
+        internal lateinit var netSourceCollectionInternal: NetSourceCollection
+        internal lateinit var runtimeDataSourceInternal: RuntimeDataSource
 
         override val dbSourceCollection: DbSourceCollection get() =  dbSourceCollectionInternal
-        override val netSourceCollection: NetSourceCollection by lazy { netSourceCollectionInternalGet.invoke() }
-        override val runtimeDataSource: RuntimeDataSource by lazy { runtimeDataSourceInternalGet.invoke() }
+        override val netSourceCollection: NetSourceCollection get() =  netSourceCollectionInternal
+        override val runtimeDataSource: RuntimeDataSource get() = runtimeDataSourceInternal
     }
 
     class MutableRepositoryCollection: RepositoryCollection {
-        internal lateinit var userRepositoryInternalGet: () -> UserRepository
-        internal lateinit var preferenceRepositoryInternalGet: () -> PreferenceRepository
-        internal lateinit var dailyTableRepositoryInternalGet: () -> DailyTableRepository
-        internal lateinit var dailySetRepositoryInternalGet: () -> DailyRepository
+        internal lateinit var userRepositoryInternal:  UserRepository
+        internal lateinit var preferenceRepositoryInternal:  PreferenceRepository
+        internal lateinit var dailyTableRepositoryInternal:  DailyTableRepository
+        internal lateinit var dailySetRepositoryInternal: DailyRepository
 
-        override val userRepository: UserRepository by lazy { userRepositoryInternalGet.invoke() }
-        override val preferenceRepository: PreferenceRepository by lazy { preferenceRepositoryInternalGet.invoke() }
-        override val dailyTableRepository: DailyTableRepository by lazy { dailyTableRepositoryInternalGet.invoke() }
-        override val dailySetRepository: DailyRepository by lazy { dailySetRepositoryInternalGet.invoke() }
+        override val userRepository: UserRepository get() = userRepositoryInternal
+        override val preferenceRepository: PreferenceRepository get() = preferenceRepositoryInternal
+        override val dailyTableRepository: DailyTableRepository get() = dailyTableRepositoryInternal
+        override val dailySetRepository: DailyRepository get() = dailySetRepositoryInternal
     }
 
     fun useApplicationScope(applicationScope: CoroutineScope) {
@@ -72,36 +72,36 @@ class MutableSharedComponents() : SharedComponents {
         this.dataSourceCollectionInternal.dbSourceCollectionInternal = dbSourceCollection
     }
 
-    fun useNetSourceCollection(func: () -> NetSourceCollection) {
-        this.dataSourceCollectionInternal.netSourceCollectionInternalGet = func
+    fun useNetSourceCollection(netSourceCollection:  NetSourceCollection) {
+        this.dataSourceCollectionInternal.netSourceCollectionInternal = netSourceCollection
     }
 
-    fun useUserRepository(func: () -> UserRepository) {
-        this.repositoryCollectionInternal.userRepositoryInternalGet = func
+    fun useUserRepository(userRepository: UserRepository) {
+        this.repositoryCollectionInternal.userRepositoryInternal = userRepository
     }
 
-    fun usePreferenceRepository(func: () -> PreferenceRepository) {
-        this.repositoryCollectionInternal.preferenceRepositoryInternalGet = func
+    fun usePreferenceRepository(preferenceRepository: PreferenceRepository) {
+        this.repositoryCollectionInternal.preferenceRepositoryInternal = preferenceRepository
     }
 
-    fun useDailyTableRepository(func: () -> DailyTableRepository) {
-        this.repositoryCollectionInternal.dailyTableRepositoryInternalGet = func
+    fun useDailyTableRepository(dailyTableRepository: DailyTableRepository) {
+        this.repositoryCollectionInternal.dailyTableRepositoryInternal = dailyTableRepository
     }
 
-    fun useDailySetRepository(func: () -> DailyRepository) {
-        this.repositoryCollectionInternal.dailySetRepositoryInternalGet = func
+    fun useDailyRepository(dailyRepository:  DailyRepository) {
+        this.repositoryCollectionInternal.dailySetRepositoryInternal = dailyRepository
     }
 
-    fun useRuntimeDataSource(func: () -> RuntimeDataSource) {
-        this.dataSourceCollectionInternal.runtimeDataSourceInternalGet = func
+    fun useRuntimeDataSource(runtimeDataSource: RuntimeDataSource) {
+        this.dataSourceCollectionInternal.runtimeDataSourceInternal = runtimeDataSource
     }
 
     override fun useLifecycle(lifecycle: Lifecycle) {
         this.lifecycleInternal = lifecycle
     }
 
-    fun useStateStore(func: () -> StateStore) {
-        this.stateStoreInternalGet = func
+    fun useStateStore(stateStore: StateStore) {
+        this.stateStoreInternal = stateStore
     }
 
     override fun useNav(nav: Nav<MainActions>) {

@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
 
         super.onCreate(savedInstanceState)
 
-        LocalSharedComponents.provides(sharedComponents)
+        //LocalSharedComponents.provides(sharedComponents)
 
         setContent {
             DailySetTheme {

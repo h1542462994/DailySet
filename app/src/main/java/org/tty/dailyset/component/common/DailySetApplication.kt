@@ -16,6 +16,7 @@ import org.tty.dailyset.datasource.DbSourceCollection
 import org.tty.dailyset.datasource.db.*
 import org.tty.dailyset.datasource.net.NetSourceCollectionImpl
 import org.tty.dailyset.datasource.runtime.RuntimeDataSourceImpl
+import org.tty.dailyset.provider.LocalSharedComponents
 import org.tty.dailyset.repository.*
 
 /**
@@ -27,6 +28,9 @@ class DailySetApplication : Application(), SharedComponents {
 
     override fun onCreate() {
         super.onCreate()
+        // WARNING: 你必须在这里进行初始化声明，否则会报错。
+        LocalSharedComponents provides this
+
         logger.d("DailySetApplication", "called DailySetApplication.onCreate()")
         mutableSharedComponents.useApplicationScope(CoroutineScope(SupervisorJob()))
         mutableSharedComponents.useDatabase(DailySetRoomDatabase.getDatabase(this, mutableSharedComponents.applicationScope))
@@ -40,27 +44,28 @@ class DailySetApplication : Application(), SharedComponents {
             override val dailyDurationDao: DailyDurationDao get() = mutableSharedComponents.database.dailyDurationDao()
             override val dailySetBindingDao: DailySetBindingDao get() = mutableSharedComponents.database.dailySetBindingDao()
         })
-        mutableSharedComponents.useUserRepository {
+        // repository
+        mutableSharedComponents.useUserRepository(
             UserRepository(mutableSharedComponents)
-        }
-        mutableSharedComponents.usePreferenceRepository {
+        )
+        mutableSharedComponents.usePreferenceRepository(
             PreferenceRepository(mutableSharedComponents)
-        }
-        mutableSharedComponents.useDailyTableRepository {
+        )
+        mutableSharedComponents.useDailyTableRepository(
             DailyTableRepository(mutableSharedComponents)
-        }
-        mutableSharedComponents.useDailySetRepository {
+        )
+        mutableSharedComponents.useDailyRepository(
             DailyRepository(mutableSharedComponents)
-        }
-        mutableSharedComponents.useRuntimeDataSource {
+        )
+        mutableSharedComponents.useRuntimeDataSource(
             RuntimeDataSourceImpl(mutableSharedComponents)
-        }
-        mutableSharedComponents.useStateStore {
+        )
+        mutableSharedComponents.useStateStore(
             StateStoreImpl(mutableSharedComponents)
-        }
-        mutableSharedComponents.useNetSourceCollection {
+        )
+        mutableSharedComponents.useNetSourceCollection(
             NetSourceCollectionImpl(mutableSharedComponents)
-        }
+        )
         mutableSharedComponents.useLtsVMSaver(LtsVMSaver())
     }
 
