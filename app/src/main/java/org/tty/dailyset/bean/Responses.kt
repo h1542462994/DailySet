@@ -5,18 +5,12 @@
 
 package org.tty.dailyset.bean
 
-import org.tty.dailyset.bean.ResponseCodes.argError
-import org.tty.dailyset.bean.ResponseCodes.deviceCodeError
-import org.tty.dailyset.bean.ResponseCodes.fail
-import org.tty.dailyset.bean.ResponseCodes.passwordError
-import org.tty.dailyset.bean.ResponseCodes.success
-import org.tty.dailyset.bean.ResponseCodes.tokenError
-import org.tty.dailyset.bean.ResponseCodes.userNoExists
+import kotlinx.serialization.Serializable
 
 /**
  * data class of response
  */
-@kotlinx.serialization.Serializable
+@Serializable
 data class Responses<T>(
     val code: Int, // data
     val message: String, // message

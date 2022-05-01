@@ -146,8 +146,24 @@ class Palette(
     )
 }
 
-internal val LocalPalette = staticCompositionLocalOf<Palette> {
+internal val LocalPalette = compositionLocalOf<Palette> {
     Palette()
 }
 
+internal fun Palette.updatePaletteFrom(other: Palette) {
+    background1 = other.background1
+    background2 = other.background2
+    background3 = other.background3
+    backgroundColor = other.backgroundColor
+    backgroundTransparent = other.backgroundTransparent
+    backgroundDialog = other.backgroundDialog
+    backgroundInvalid = other.backgroundInvalid
+    primary = other.primary
+    primarySurface = other.primarySurface
+    primaryColor = other.primaryColor
+    lineColor = other.lineColor
+    sub = other.sub
+    subColor = other.subColor
+    textColorInValid = other.textColorInValid
+}
 

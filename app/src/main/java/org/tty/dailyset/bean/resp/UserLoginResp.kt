@@ -5,7 +5,9 @@
 
 package org.tty.dailyset.bean.resp
 
-@kotlinx.serialization.Serializable
+import kotlinx.serialization.Serializable
+
+@Serializable
 class UserLoginResp(
     val uid: Int,
     val nickname: String,

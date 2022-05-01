@@ -22,10 +22,11 @@ interface SharedComponents {
     val nav: Nav<MainActions>
     val window: Window
     val activityContext: Context
-    fun useNav(nav: () -> Nav<MainActions>)
+    val ltsVMSaver: LtsVMSaver
+    fun useNav(nav: Nav<MainActions>)
     @Deprecated("use activityScope instead.")
-    fun useLifecycle(action: () -> Lifecycle)
-    fun useWindow(window: () -> Window)
-    fun useActivityContext(context: () -> Context)
-    fun useActivityScope(scope: () -> CoroutineScope)
+    fun useLifecycle(lifecycle: Lifecycle)
+    fun useWindow(window: Window)
+    fun useActivityContext(context: Context)
+    fun useActivityScope(scope: CoroutineScope)
 }

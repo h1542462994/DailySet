@@ -15,34 +15,35 @@ import org.tty.dailyset.repository.*
 
 class MutableSharedComponents() : SharedComponents {
 
-    private lateinit var applicationScopeInternalGet: () -> CoroutineScope
+    private lateinit var applicationScopeInternal: CoroutineScope
     private val dataSourceCollectionInternal = MutableDataSourceCollection()
-    private lateinit var databaseInternalGet: () -> DailySetRoomDatabase
+    private lateinit var databaseInternal:  DailySetRoomDatabase
     private val repositoryCollectionInternal = MutableRepositoryCollection()
     private lateinit var stateStoreInternalGet: () -> StateStore
-    private lateinit var lifecycleInternalGet: () -> Lifecycle
-    private lateinit var navInternalGet: () -> Nav<MainActions>
-    private lateinit var windowInternalGet: () -> Window
-    private lateinit var activityContextInternalGet: () -> Context
-    private lateinit var activityScopeInternalGet: () -> CoroutineScope
+    private lateinit var lifecycleInternal: Lifecycle
+    private lateinit var navInternal: Nav<MainActions>
+    private lateinit var windowInternal: Window
+    private lateinit var activityContextInternal:  Context
+    private lateinit var activityScopeInternal: CoroutineScope
+    private lateinit var ltsVMSaverInternal: LtsVMSaver
 
     override val dataSourceCollection: DataSourceCollection get() = dataSourceCollectionInternal
-    override val database: DailySetRoomDatabase by lazy { databaseInternalGet.invoke() }
+    override val database: DailySetRoomDatabase get() = databaseInternal
     override val repositoryCollection: RepositoryCollection by lazy { repositoryCollectionInternal }
     override val stateStore: StateStore by lazy { stateStoreInternalGet.invoke() }
-    override val applicationScope: CoroutineScope by lazy { applicationScopeInternalGet.invoke() }
-    override val lifecycle: Lifecycle by lazy { lifecycleInternalGet.invoke() }
-    override val nav: Nav<MainActions> by lazy { navInternalGet.invoke() }
-    override val window: Window by lazy { windowInternalGet.invoke() }
-    override val activityContext: Context by lazy { activityContextInternalGet.invoke() }
-    override val activityScope: CoroutineScope by lazy { activityScopeInternalGet.invoke() }
-
+    override val applicationScope: CoroutineScope get() = applicationScopeInternal
+    override val lifecycle: Lifecycle get() = lifecycleInternal
+    override val nav: Nav<MainActions> get() = navInternal
+    override val window: Window get() = windowInternal
+    override val activityContext: Context get() = activityContextInternal
+    override val activityScope: CoroutineScope get() = activityScopeInternal
+    override val ltsVMSaver: LtsVMSaver get() = ltsVMSaverInternal
     class MutableDataSourceCollection: DataSourceCollection {
-        internal lateinit var dbSourceCollectionInternalGet: () -> DbSourceCollection
+        internal lateinit var dbSourceCollectionInternal: DbSourceCollection
         internal lateinit var netSourceCollectionInternalGet: () -> NetSourceCollection
         internal lateinit var runtimeDataSourceInternalGet: () -> RuntimeDataSource
 
-        override val dbSourceCollection: DbSourceCollection by lazy { dbSourceCollectionInternalGet.invoke() }
+        override val dbSourceCollection: DbSourceCollection get() =  dbSourceCollectionInternal
         override val netSourceCollection: NetSourceCollection by lazy { netSourceCollectionInternalGet.invoke() }
         override val runtimeDataSource: RuntimeDataSource by lazy { runtimeDataSourceInternalGet.invoke() }
     }
@@ -59,16 +60,16 @@ class MutableSharedComponents() : SharedComponents {
         override val dailySetRepository: DailyRepository by lazy { dailySetRepositoryInternalGet.invoke() }
     }
 
-    fun useApplicationScope(func: () -> CoroutineScope) {
-        this.applicationScopeInternalGet = func
+    fun useApplicationScope(applicationScope: CoroutineScope) {
+        this.applicationScopeInternal = applicationScope
     }
 
-    fun useDatabase(func: () -> DailySetRoomDatabase) {
-        this.databaseInternalGet = func
+    fun useDatabase(database: DailySetRoomDatabase) {
+        this.databaseInternal = database
     }
 
-    fun useDbSourceCollection(func: () -> DbSourceCollection) {
-        this.dataSourceCollectionInternal.dbSourceCollectionInternalGet = func
+    fun useDbSourceCollection(dbSourceCollection: DbSourceCollection) {
+        this.dataSourceCollectionInternal.dbSourceCollectionInternal = dbSourceCollection
     }
 
     fun useNetSourceCollection(func: () -> NetSourceCollection) {
@@ -95,28 +96,32 @@ class MutableSharedComponents() : SharedComponents {
         this.dataSourceCollectionInternal.runtimeDataSourceInternalGet = func
     }
 
-    override fun useLifecycle(action: () -> Lifecycle) {
-        this.lifecycleInternalGet = action
+    override fun useLifecycle(lifecycle: Lifecycle) {
+        this.lifecycleInternal = lifecycle
     }
 
     fun useStateStore(func: () -> StateStore) {
         this.stateStoreInternalGet = func
     }
 
-    override fun useNav(nav: () -> Nav<MainActions>) {
-        this.navInternalGet = nav
+    override fun useNav(nav: Nav<MainActions>) {
+        this.navInternal = nav
     }
 
-    override fun useWindow(window: () -> Window) {
-        this.windowInternalGet = window
+    fun useLtsVMSaver(ltsVMSaver: LtsVMSaver) {
+        this.ltsVMSaverInternal = ltsVMSaver
     }
 
-    override fun useActivityContext(context: () -> Context) {
-        this.activityContextInternalGet = context
+    override fun useWindow(window: Window) {
+        this.windowInternal = window
     }
 
-    override fun useActivityScope(scope: () -> CoroutineScope) {
-        this.activityScopeInternalGet = scope
+    override fun useActivityContext(context: Context) {
+        this.activityContextInternal = context
+    }
+
+    override fun useActivityScope(scope: CoroutineScope) {
+        this.activityScopeInternal = scope
     }
 
 }

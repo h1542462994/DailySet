@@ -9,35 +9,35 @@ object ResponseCodes {
     /**
      * success: 0
      */
-    val ResponseCodes.success: Int get() = 0
+    const val success: Int = 0
 
     /**
      * fail: 1
      */
-    val ResponseCodes.fail: Int get() = 1
+    const val fail: Int = 1
 
     /**
      * argError: 2
      */
-    val ResponseCodes.argError: Int get() = 2
+    const val argError: Int = 2
 
     /**
      * userNotExist: 101
      */
-    val ResponseCodes.userNoExists: Int get() = 101
+    const val userNoExists: Int = 101
 
     /**
      * passwordError: 102
      */
-    val ResponseCodes.passwordError: Int get() = 102
+    const val passwordError: Int = 102
 
     /**
      * tokenError: 103
      */
-    val ResponseCodes.tokenError: Int get() = 103
+    const val tokenError: Int = 103
 
     /**
      * deviceCodeError: 104
      */
-    val ResponseCodes.deviceCodeError: Int get() = 104
+    const val deviceCodeError: Int = 104
 }

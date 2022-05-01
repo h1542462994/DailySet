@@ -29,7 +29,9 @@ inline fun <reified T> state(value: T, key1: Any?, policy: SnapshotMutationPolic
  * @see LiveData
  * @see observeAsState()
  */
+@Suppress("DeprecatedCallableAddReplaceWith")
 @Composable
+@Deprecated("liveData is not used future, replace with StateFlow<T> instead.")
 inline fun <reified T> state(liveData: LiveData<T>, initial: T): State<T> {
     return liveData.observeAsState(initial = initial)
 }
@@ -40,6 +42,7 @@ inline fun <reified T> state(liveData: LiveData<T>, initial: T): State<T> {
  * @see observeAsState()
  */
 @Composable
+@Deprecated("liveData is not used future, replace with StateFlow<T> instead.")
 inline fun <reified T> state(liveData: InitialLiveData<T>): State<T> {
     val (l, i) = liveData
     return l.observeAsState(initial = i)
@@ -51,6 +54,7 @@ inline fun <reified T> state(liveData: InitialLiveData<T>): State<T> {
  * @see observeAsState()
  */
 @Composable
+@Deprecated("liveData is not used future, replace with MutableStateFlow<T> instead.")
 inline fun <reified T> state(liveData: MutableLiveData<T>, initial: T): MutableState<T> {
     val state = liveData.observeAsState(initial)
     val setter = { v: T ->
@@ -76,6 +80,7 @@ inline fun <reified T> state(liveData: MutableLiveData<T>, initial: T): MutableS
  * @see observeAsState()
  */
 @Composable
+@Deprecated("liveData is not used future, replace with MutableStateFlow<T> instead.")
 inline fun <reified T> state(liveData: InitialMutableLiveData<T>): MutableState<T> {
     val (l, i) = liveData
 

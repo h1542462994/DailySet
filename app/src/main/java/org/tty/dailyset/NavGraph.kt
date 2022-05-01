@@ -1,22 +1,18 @@
 package org.tty.dailyset
 
-import androidx.compose.animation.*
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.*
-import androidx.navigation.NavController
-import androidx.navigation.NavDestination
-import androidx.navigation.NavHostController
-import androidx.navigation.NavOptions
+import androidx.navigation.*
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import org.tty.dailyset.component.common.sharedComponents
 import org.tty.dailyset.component.login.LoginInput
 import org.tty.dailyset.ui.page.*
-import kotlin.collections.MutableMap
-import kotlin.collections.mutableMapOf
-import kotlin.collections.set
 
 /**
  * Destination used in the ([org.tty.dailyset.DailySetApp])
@@ -34,21 +30,19 @@ object MainDestination {
     const val REGISTER = "register"
 }
 
-/**
- * the navigation graph for page navigating.
- */
-@OptIn(ExperimentalAnimationApi::class)
-@ExperimentalFoundationApi
+//private var arguments = HashMap<String, Any>()
+
+
+@OptIn(ExperimentalAnimationApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun NavGraph() {
     val navController = rememberAnimatedNavController()
-    val arguments = remember { mutableMapOf<String, Any>() }
-    val actions = remember(navController) { MainActions(navController, arguments) }
-    val nav = Nav(navController, actions, arguments)
+    val actions = remember(navController) { MainActions(navController) }
+    val nav = Nav(navController, actions)
     val sharedComponents = sharedComponents()
 
-    LaunchedEffect(key1 = "", block = {
-        sharedComponents.useNav { nav }
+    LaunchedEffect(key1 = navController, block = {
+        sharedComponents.useNav(nav)
 //        sharedComponents.dataSourceCollection.runtimeDataSource.init()
     })
 
@@ -56,16 +50,16 @@ fun NavGraph() {
         AnimatedNavHost(
             navController = navController,
             startDestination = MainDestination.INDEX,
-            enterTransition = { _, _ ->
+            enterTransition = { ->
                 slideInHorizontally(initialOffsetX = { 1000 }, animationSpec = tween(700))
             },
-            exitTransition = { _, _ ->
+            exitTransition = { ->
                 slideOutHorizontally(targetOffsetX = { -1000 }, animationSpec = tween(700))
             },
-            popEnterTransition = { _, _ ->
+            popEnterTransition = { ->
                 slideInHorizontally(initialOffsetX = { -1000 }, animationSpec = tween(700))
             },
-            popExitTransition = { _,_ ->
+            popExitTransition = { ->
                 slideOutHorizontally(targetOffsetX = { 1000 }, animationSpec = tween(700))
             }
         ) {
@@ -93,9 +87,22 @@ fun NavGraph() {
             composable(MainDestination.INDEX) {
                 IndexPage()
             }
-            composable(MainDestination.LOGIN) {
-                val input = arguments[MainDestination.LOGIN] as LoginInput
-                LoginPage(input)
+            composable(
+                route = MainDestination.LOGIN + "?from={from}&username={username}",
+                arguments = listOf(
+                    navArgument("from") {
+                        this.type = NavType.StringType
+                        this.defaultValue = ""
+                    },
+                    navArgument("username") {
+                        this.type = NavType.StringType
+                        this.defaultValue = ""
+                    })
+            ) {
+                val from = it.arguments?.getString("from") ?: ""
+                val username = it.arguments?.getString("username") ?: ""
+                val loginInput = LoginInput(from, username)
+                LoginPage(loginInput)
             }
             composable(MainDestination.REGISTER) {
                 RegisterPage()
@@ -110,35 +117,43 @@ fun NavGraph() {
 /**
  * Models the navigation actions in the app.
  */
-class MainActions(private val navController: NavHostController, private val arguments: MutableMap<String, Any>) {
+class MainActions(private val navController: NavHostController) {
     fun upPress() {
         navController.navigateUp()
     }
+
     fun toTimeTable() {
         navController.navigateExceptEqual(MainDestination.TIME_TABLE_ROUTE)
     }
+
     fun toTimeTablePreview() {
         navController.navigateExceptEqual(MainDestination.TIME_TABLE_PREVIEW_ROUTE)
     }
+
     fun toDebug() {
         navController.navigateExceptEqual(MainDestination.TEST_ROUTE)
     }
+
     fun toNormalDailySet() {
         navController.navigateExceptEqual(MainDestination.DAILY_SET_NORMAL)
     }
+
     fun toClazzDailySet() {
         navController.navigateExceptEqual(MainDestination.DAILY_SET_CLAZZ)
     }
+
     fun toTaskDailySet() {
         navController.navigateExceptEqual(MainDestination.DAILY_SET_TASK)
     }
+
     fun toLogin(input: LoginInput) {
-        arguments[MainDestination.LOGIN] = input
-        navController.navigateExceptEqual(MainDestination.LOGIN)
+        navController.navigateExceptEqual(MainDestination.LOGIN + "?from=${input.from}&username=${input.username}")
     }
+
     fun toMain() {
         navController.navigateExceptEqual(MainDestination.MAIN_ROUTE)
     }
+
     fun toRegister() {
         navController.navigateExceptEqual(MainDestination.REGISTER)
     }
@@ -147,14 +162,13 @@ class MainActions(private val navController: NavHostController, private val argu
 
 data class Nav<T>(
     val navController: NavHostController,
-    val action: T,
-    val arguments: MutableMap<String, Any>
+    val action: T
 )
 
 /**
  * support nav Action.
  */
-internal val LocalNav = staticCompositionLocalOf<Nav<MainActions>> {
+internal val LocalNav = compositionLocalOf<Nav<MainActions>> {
     error("nav not provided")
 }
 

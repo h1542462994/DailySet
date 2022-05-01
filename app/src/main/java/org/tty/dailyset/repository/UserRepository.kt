@@ -1,10 +1,12 @@
 package org.tty.dailyset.repository
 
+import androidx.navigation.NavAction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.tty.dailyset.MainActions
 import org.tty.dailyset.MainDestination
 import org.tty.dailyset.bean.ResponseCodes
 import org.tty.dailyset.bean.ResponseCodes.success
@@ -14,11 +16,9 @@ import org.tty.dailyset.bean.enums.PlatformCode
 import org.tty.dailyset.bean.enums.PlatformState
 import org.tty.dailyset.bean.enums.PreferenceName
 import org.tty.dailyset.bean.req.UserLoginReq
+import org.tty.dailyset.bean.req.UserRegisterReq
 import org.tty.dailyset.common.local.logger
-import org.tty.dailyset.component.common.SuspendInit
-import org.tty.dailyset.component.common.SharedComponents
-import org.tty.dailyset.component.common.showToast
-import org.tty.dailyset.component.common.showToastOfNetworkError
+import org.tty.dailyset.component.common.*
 import org.tty.dailyset.component.login.LoginInput
 
 /**
@@ -36,7 +36,7 @@ class UserRepository(private val sharedComponents: SharedComponents): SuspendIni
         delay(500)
         if (sharedComponents.repositoryCollection.preferenceRepository.read(PreferenceName.FIRST_LOAD_USER) { it.toBooleanStrict() }) {
             withContext(Dispatchers.Main) {
-                sharedComponents.nav.action.toLogin(LoginInput(MainDestination.INDEX))
+                sharedComponents.nav.action.toLogin(LoginInput(MainDestination.INDEX, ""))
                 //sharedComponents.nav.action.toMain()
             }
         } else {
@@ -46,10 +46,10 @@ class UserRepository(private val sharedComponents: SharedComponents): SuspendIni
         }
     }
 
-    suspend fun login(uid: String, password: String) {
+    suspend fun login(uid: String, password: String, navAction: MainActions) {
         try {
             val userService = sharedComponents.dataSourceCollection.netSourceCollection.userService
-            val deviceName: String = android.os.Build.DEVICE
+            val deviceName: String = getDeviceName()
             var deviceCode: String? = sharedComponents.stateStore.deviceCode.value
             if (deviceCode == "") deviceCode = null
             val platformCode = PlatformCode.PORTABLE.code
@@ -74,16 +74,42 @@ class UserRepository(private val sharedComponents: SharedComponents): SuspendIni
                 ))
                 withContext(Dispatchers.Main) {
                     // 跳转到主页
-                    sharedComponents.nav.action.toMain()
+                    navAction.toMain()
+
+                    // TODO: 启动后续的自动同步逻辑...
                 }
             } else {
                 showToast("(${userLoginResp.code}) ${userLoginResp.message}")
             }
 
         } catch (e: Exception) {
-            logger.e("UserRepository", "${e.javaClass} :: ${e.message}")
+            logger.e("UserRepository", "${e.javaClass.simpleName} :: ${e.message}")
+            // TODO: 本地化处理
             showToastOfNetworkError("登录失败", e)
         }
+    }
 
+    suspend fun register(nickname: String, email: String, password: String, navAction: MainActions) {
+        try {
+            val userRegisterReq = UserRegisterReq(nickname, email, password)
+            val userService = sharedComponents.dataSourceCollection.netSourceCollection.userService
+            val response = userService.register(userRegisterReq)
+
+            // 注册成功的逻辑
+            if (response.code == ResponseCodes.success) {
+                checkNotNull(response.data)  { "userRegisterResp.data is null" }
+                withContext(Dispatchers.Main) {
+                    navAction.toLogin(LoginInput(MainDestination.REGISTER, response.data.uid.toString()))
+                }
+            } else {
+                showToast("(${response.code}) ${response.message}")
+            }
+
+
+        } catch (e: Exception) {
+            logger.e("UserRepository", "${e.javaClass.simpleName} :: ${e.message}")
+            // TODO: 本地化处理
+            showToastOfNetworkError("注册失败", e)
+        }
     }
 }

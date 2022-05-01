@@ -10,8 +10,9 @@ package org.tty.dailyset.bean.req
 import org.tty.dailyset.bean.util.anyIntEmpty
 import org.tty.dailyset.bean.util.anyTextEmpty
 import org.tty.dailyset.bean.enums.PlatformCode
+import kotlinx.serialization.Serializable
 
-@kotlinx.serialization.Serializable
+@Serializable
 class UserLoginReq(
     val uid: Int? = null,
     val password: String? = null,

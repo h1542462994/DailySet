@@ -3,19 +3,18 @@ package org.tty.dailyset.component.login
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.SaverScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import kotlinx.coroutines.SupervisorJob
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import org.tty.dailyset.MainActions
 import org.tty.dailyset.annotation.UseComponent
-import org.tty.dailyset.bean.enums.PlatformCode
-import org.tty.dailyset.bean.req.UserLoginReq
 import org.tty.dailyset.bean.util.validPasswordTextField
 import org.tty.dailyset.bean.util.validUserTextField
-import org.tty.dailyset.component.common.SharedComponents
-import org.tty.dailyset.component.common.observeOnApplicationScope
-import org.tty.dailyset.component.common.sharedComponents
+import org.tty.dailyset.common.local.logger
+import org.tty.dailyset.component.common.*
 
 /**
  * WARNING: must remember the created viewModel, otherwise it will be created every recomposition.
@@ -24,31 +23,33 @@ import org.tty.dailyset.component.common.sharedComponents
 @UseComponent
 fun rememberLoginVM(): LoginVM {
     val sharedComponents = sharedComponents()
-    return rememberSaveable("", saver = LoginVMSaver()) { LoginVMImpl(sharedComponents) }
+    return sharedComponents.ltsVMSaver.getVM("loginVM") {
+        LoginVMImpl(sharedComponents)
+    }
 }
 
 
 class LoginVMImpl(private val sharedComponents: SharedComponents) : LoginVM {
 
     override val loginButtonEnabled = MutableStateFlow(false)
-    override val userTipValue = MutableStateFlow("")
+    override val usernameTipValue = MutableStateFlow("")
     override val passwordTipValue = MutableStateFlow("")
     override val isOnLogin = MutableStateFlow(false)
-    override val userText: MutableStateFlow<String> = MutableStateFlow("")
+    override val usernameText: MutableStateFlow<String> = MutableStateFlow("")
     override val passwordText: MutableStateFlow<String> = MutableStateFlow("")
+    override val users = sharedComponents.stateStore.users.asActivityColdStateFlow(listOf())
 
-    override fun loginWithPassword() {
+    override fun loginWithPassword(navAction: MainActions) {
+        logger.d("LoginVMImpl","called loginWithPassword.")
+
+
         sharedComponents.activityScope.launch {
-            val uid = userText.value
+            val uid = usernameText.value
             val password = passwordText.value
             setOnLogin()
-            sharedComponents.repositoryCollection.userRepository.login(uid, password)
-            setOffLogin()
+            sharedComponents.repositoryCollection.userRepository.login(uid, password, navAction)
+            setOnLoginFinished()
         }
-    }
-
-    override fun toRegister() {
-        sharedComponents.nav.action.toRegister()
     }
 
     private fun setOnLogin() {
@@ -56,40 +57,39 @@ class LoginVMImpl(private val sharedComponents: SharedComponents) : LoginVM {
         isOnLogin.value = true
     }
 
-    private fun setOffLogin() {
+    private fun setOnLoginFinished() {
         isOnLogin.value = false
     }
 
     private fun valid(user: String, password: String) {
         val userValid = validUserTextField(user)
-        userTipValue.value = userValid ?: ""
+        usernameTipValue.value = userValid ?: ""
         val passwordValid = validPasswordTextField(password)
         passwordTipValue.value = passwordValid ?: ""
         loginButtonEnabled.value = userValid == null && passwordValid == null
     }
 
     init {
-        userText.observeOnApplicationScope {
+        usernameText.observeOnApplicationScope {
             valid(it, passwordText.value)
         }
         passwordText.observeOnApplicationScope {
-            valid(userText.value, it)
+            valid(usernameText.value, it)
         }
     }
 
     companion object {
         const val TAG = "LoginVMImpl"
     }
-
 }
 
-class LoginVMSaver: Saver<LoginVM, HashMap<String, Any>> {
+class LoginVMSaver : Saver<LoginVM, HashMap<String, Any>> {
     override fun restore(value: HashMap<String, Any>): LoginVM {
         val loginVM = LoginVMImpl(sharedComponents())
         loginVM.loginButtonEnabled.value = value["loginButtonEnabled"] as Boolean
-        loginVM.userText.value = value["userText"] as String
+        loginVM.usernameText.value = value["userText"] as String
         loginVM.passwordText.value = value["passwordText"] as String
-        loginVM.userTipValue.value = value["userTipValue"] as String
+        loginVM.usernameTipValue.value = value["userTipValue"] as String
         loginVM.passwordTipValue.value = value["passwordTipValue"] as String
         return loginVM
     }
@@ -97,9 +97,9 @@ class LoginVMSaver: Saver<LoginVM, HashMap<String, Any>> {
     override fun SaverScope.save(value: LoginVM): HashMap<String, Any> {
         return hashMapOf(
             "loginButtonEnabled" to value.loginButtonEnabled.value,
-            "userText" to value.userText.value,
+            "userText" to value.usernameText.value,
             "passwordText" to value.passwordText.value,
-            "userTipValue" to value.userTipValue.value,
+            "userTipValue" to value.usernameTipValue.value,
             "passwordTipValue" to value.passwordTipValue.value
         )
     }

@@ -5,18 +5,30 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import org.tty.dailyset.R
 
-/**
- * a facade to visit the drawable resources.
- */
+
 object ImageResource {
     @Composable
     fun user(): Painter {
         return painterResource(id = R.drawable.ic_user_24)
     }
+    @Composable
+    fun nickname(): Painter {
+        return painterResource(id = R.drawable.ic_nickname_24)
+    }
 
     @Composable
     fun password(): Painter {
         return painterResource(id = R.drawable.ic_password_24)
+    }
+
+    @Composable
+    fun email(): Painter {
+        return painterResource(id = R.drawable.ic_email_24)
+    }
+
+    @Composable
+    fun more(): Painter {
+        return painterResource(id = R.drawable.ic_more_24)
     }
 
     @Composable

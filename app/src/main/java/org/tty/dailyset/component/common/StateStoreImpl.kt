@@ -14,7 +14,7 @@ import java.time.LocalDateTime
 
 class StateStoreImpl(private val sharedComponents: SharedComponents): StateStore {
 
-    override val seedVersion: Flow<Int> = loadPreference(PreferenceName.SEED_VERSION, mapper = { it.toInt() })
+    override val seedVersion: Flow<Int> get() = loadPreference(PreferenceName.SEED_VERSION, mapper = { it.toInt() })
     override val currentUserUid: StateFlow<String> = loadPreferenceAsStateFlow(PreferenceName.CURRENT_USER_UID)
     override val firstLoadUser: Flow<Boolean> = loadPreference(PreferenceName.FIRST_LOAD_USER, mapper = { it.toBooleanStrict() })
 
@@ -41,7 +41,8 @@ class StateStoreImpl(private val sharedComponents: SharedComponents): StateStore
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun <T> loadPreferenceAsStateFlow(preferenceName: PreferenceName, mapper: (it: String) -> T = { it as T }): StateFlow<T> {
-        return loadPreference(preferenceName, mapper).asActivityColdStateFlow(mapper(preferenceName.defaultValue))
+        return loadPreference(preferenceName, mapper).asActivityHotStateFlow(mapper(preferenceName.defaultValue))
     }
 }

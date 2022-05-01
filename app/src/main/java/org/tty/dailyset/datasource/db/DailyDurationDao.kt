@@ -10,9 +10,9 @@ import org.tty.dailyset.bean.entity.DailyDurationType
 @TypeConverters(DailyDurationTypeConverter::class)
 interface DailyDurationDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun update(dailyDuration: DailyDuration)
+    suspend fun update(dailyDuration: DailyDuration)
     @Delete
-    fun delete(dailyDuration: DailyDuration)
+    suspend fun delete(dailyDuration: DailyDuration)
 
     @Query("select * from daily_duration")
     fun allDurations(): Flow<List<DailyDuration>>

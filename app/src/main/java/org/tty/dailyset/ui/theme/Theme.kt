@@ -110,7 +110,7 @@ fun DailySetPalette(
  * use [MaterialTheme] and [LocalPalette]
  */
 @Composable
-fun DailySetTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable() () -> Unit) {
+fun DailySetTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     val colors = if (darkTheme) {
         DarkColorPalette
     } else {
@@ -131,7 +131,9 @@ fun DailySetTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composab
         typography = Typography,
         shapes = Shapes,
     ) {
-        val rememberPalette = remember { palette.copy() }
+        val rememberPalette = remember { palette.copy() }.apply {
+            updatePaletteFrom(palette)
+        }
         val rememberTypography = remember { typography.copy() }
         CompositionLocalProvider(
             LocalPalette provides rememberPalette,

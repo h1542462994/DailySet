@@ -6,6 +6,7 @@
     <string name="profile">我的</string>
     <string name="user">用户</string>
     <string name="login">登录</string>
+    <string name="register">注册</string>
     <string name="user_settings">用户设置</string>
     <string name="time_table_add">添加时间表</string>
     <string name="time_table_rename">重命名时间表</string>
@@ -41,10 +42,15 @@
     <!--region 登录界面-->
     <string name="login_user_field">用户名</string>
     <string name="login_user_field_tip">请输入用户名</string>
-    <string name="login_user_password">密码</string>
-    <string name="login_user_password_tip">请输入密码</string>
+    <string name="login_password_field">密码</string>
+    <string name="login_password_field_tip">请输入密码</string>
     <string name="login_register_action_tip">立即注册</string>
     <string name="login_forget_password_action_tip">忘记密码？</string>
     <string name="login_on_login">正在登录</string>
+    <string name="login_nickname_field">昵称</string>
+    <string name="login_nickname_field_tip">请输入昵称</string>
+    <string name="login_email_field">邮箱</string>
+    <string name="login_email_field_tip">请输入邮箱</string>
+    <string name="login_on_register">正在注册</string>
     <!--endregion -->
 </resources>

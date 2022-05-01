@@ -9,6 +9,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.tty.dailyset.MainActions
 import org.tty.dailyset.Nav
+import org.tty.dailyset.common.local.logger
 import org.tty.dailyset.database.DailySetRoomDatabase
 import org.tty.dailyset.datasource.DataSourceCollection
 import org.tty.dailyset.datasource.DbSourceCollection
@@ -26,9 +27,10 @@ class DailySetApplication : Application(), SharedComponents {
 
     override fun onCreate() {
         super.onCreate()
-        mutableSharedComponents.useApplicationScope { CoroutineScope(SupervisorJob()) }
-        mutableSharedComponents.useDatabase { DailySetRoomDatabase.getDatabase(this, mutableSharedComponents.applicationScope) }
-        mutableSharedComponents.useDbSourceCollection { object: DbSourceCollection {
+        logger.d("DailySetApplication", "called DailySetApplication.onCreate()")
+        mutableSharedComponents.useApplicationScope(CoroutineScope(SupervisorJob()))
+        mutableSharedComponents.useDatabase(DailySetRoomDatabase.getDatabase(this, mutableSharedComponents.applicationScope))
+        mutableSharedComponents.useDbSourceCollection(object: DbSourceCollection {
             override val userDao: UserDao get() = mutableSharedComponents.database.userDao()
             override val preferenceDao: PreferenceDao get() = mutableSharedComponents.database.preferenceDao()
             override val dailySetDao: DailySetDao get() = mutableSharedComponents.database.dailySetDao()
@@ -37,7 +39,7 @@ class DailySetApplication : Application(), SharedComponents {
             override val dailyCellDao: DailyCellDao get() = mutableSharedComponents.database.dailyCellDao()
             override val dailyDurationDao: DailyDurationDao get() = mutableSharedComponents.database.dailyDurationDao()
             override val dailySetBindingDao: DailySetBindingDao get() = mutableSharedComponents.database.dailySetBindingDao()
-        } }
+        })
         mutableSharedComponents.useUserRepository {
             UserRepository(mutableSharedComponents)
         }
@@ -59,6 +61,7 @@ class DailySetApplication : Application(), SharedComponents {
         mutableSharedComponents.useNetSourceCollection {
             NetSourceCollectionImpl(mutableSharedComponents)
         }
+        mutableSharedComponents.useLtsVMSaver(LtsVMSaver())
     }
 
     override val applicationScope: CoroutineScope
@@ -81,29 +84,31 @@ class DailySetApplication : Application(), SharedComponents {
         get() = mutableSharedComponents.window
     override val activityContext: Context
         get() = mutableSharedComponents.activityContext
+    override val ltsVMSaver: LtsVMSaver
+        get() = mutableSharedComponents.ltsVMSaver
 
-    override fun useLifecycle(action: () -> Lifecycle) {
-        mutableSharedComponents.useLifecycle(action)
+    override fun useLifecycle(lifecycle: Lifecycle) {
+        mutableSharedComponents.useLifecycle(lifecycle)
 //        mutableSharedComponents.dataSourceCollection.runtimeDataSource.init()
         initializeStart("lifecycle")
     }
 
-    override fun useNav(nav: () -> Nav<MainActions>) {
+    override fun useNav(nav: Nav<MainActions>) {
         mutableSharedComponents.useNav(nav)
         initializeStart("nav")
     }
 
-    override fun useWindow(window: () -> Window) {
+    override fun useWindow(window:  Window) {
         mutableSharedComponents.useWindow(window)
         initializeStart("window")
     }
 
-    override fun useActivityContext(context: () -> Context) {
+    override fun useActivityContext(context: Context) {
         mutableSharedComponents.useActivityContext(context)
         initializeStart("activityContext")
     }
 
-    override fun useActivityScope(scope: () -> CoroutineScope) {
+    override fun useActivityScope(scope: CoroutineScope) {
         mutableSharedComponents.useActivityScope(scope)
         initializeStart("activityScope")
     }

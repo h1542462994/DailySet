@@ -33,6 +33,9 @@ data class DailySet(
 
     val serialIndex: Int = 0,
 
+
+    val userUid: String = "",
+
     /**
      * the ownerUid
      */
@@ -55,6 +58,7 @@ data class DailySet(
                 icon = null,
                 uid = User.system,
                 serialIndex = 0,
+                userUid = User.local,
                 ownerUid = User.system,
                 name = "",
                 updateAt = epochLocalDateTime()

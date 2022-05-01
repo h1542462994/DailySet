@@ -39,6 +39,31 @@ fun validPasswordTextField(value: String): String? {
     }
 }
 
+fun validNicknameTextField(value: String): String? {
+    if (value.isEmpty()) {
+        return ""
+    } else {
+        if (value.length < 2 || value.length > 64) {
+            return " (长度必须在2-64之间) "
+        }
+
+        return null
+    }
+}
+
+fun validEmailTextField(value: String): String? {
+    if (value.isEmpty()) {
+        return ""
+    } else {
+        if (!value.contains("@")) {
+            return " (邮箱格式不正确) "
+        } else if (value.length < 6 || value.length > 128) {
+            return " (长度必须在6-128之间) "
+        }
+        return null
+    }
+}
+
 fun anyTextEmpty(vararg texts: String?): Boolean {
     return texts.any { it.isNullOrEmpty() }
 }

@@ -216,7 +216,7 @@ fun ClazzDailySetCenter(
     } else {
 
         // cache strategy: the change of the initial page will not due to the recreation of the pagerState.
-        val pagerState = rememberPagerState(pageCount = pagerInfo.size, initialPage = pagerInfo.pageIndex)
+        val pagerState = rememberPagerState(initialPage = pagerInfo.pageIndex)
 
         // if the pageIndex is changed, you should launched the effect to animate scroll to page.
         LaunchedEffect(key1 = pagerInfo) {
@@ -235,7 +235,7 @@ fun ClazzDailySetCenter(
         val unit = toPx(dp = 25.dp)
 
         with(DataScope) {
-            HorizontalPager(state = pagerState) { page: Int ->
+            HorizontalPager(pagerInfo.size, state = pagerState) { page: Int ->
                 val currentState by clazzDailySetStateOfIndex(index = page)
                 val dailyTableCalc = DailyTableCalc(
                     dailyTRC = currentState.dailyTableState2.dailyTRC,

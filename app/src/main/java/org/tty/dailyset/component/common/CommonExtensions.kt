@@ -1,8 +1,11 @@
 package org.tty.dailyset.component.common
 
+import android.content.Context
+import android.provider.Settings
 import android.widget.Toast
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -11,7 +14,9 @@ import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import org.tty.dailyset.LocalNav
 import org.tty.dailyset.MainActions
+import org.tty.dailyset.Nav
 import org.tty.dailyset.annotation.UseComponent
 import org.tty.dailyset.provider.LocalSharedComponents
 import org.tty.dailyset.provider.LocalSharedComponents0
@@ -29,9 +34,9 @@ fun sharedComponents(): SharedComponents {
     return LocalSharedComponents.current
 }
 
-@UseComponent
-fun nav(): MainActions {
-    return sharedComponents().nav.action
+@Composable
+fun nav(): Nav<MainActions> {
+    return LocalNav.current
 }
 
 @Composable
@@ -109,12 +114,12 @@ fun showToastOfNetworkError(title: String, error: Exception) {
 @UseComponent
 fun <T> Flow<T>.asActivityColdStateFlow(initialValue: T): StateFlow<T> {
     val sharedComponents = LocalSharedComponents.current
-    return this.stateIn(sharedComponents.activityScope, SharingStarted.WhileSubscribed(), initialValue)
+    return this.stateIn(sharedComponents.applicationScope, SharingStarted.WhileSubscribed(), initialValue)
 }
 
 fun <T> Flow<T>.asActivityHotStateFlow(initialValue: T): StateFlow<T> {
     val sharedComponents = LocalSharedComponents.current
-    return this.stateIn(sharedComponents.activityScope, SharingStarted.Eagerly, initialValue)
+    return this.stateIn(sharedComponents.applicationScope, SharingStarted.Eagerly, initialValue)
 }
 
 /**
@@ -172,7 +177,7 @@ fun <T> MutableStateFlow<T>.asMutableState(): MutableState<T> {
     })
 
     // collect the initial value, the value will not be changed in recomposition.
-    val valueState = remember(key1 = this.value) { mutableStateOf(value) }
+    val valueState = rememberSaveable { mutableStateOf(value) }
     val setValueDelegate = { it: T ->
         valueState.value = it
         this@asMutableState.value = it
@@ -239,5 +244,10 @@ inline fun <T> Flow<T>.observeOnApplicationScopeOnlyFirst(crossinline action: su
             action(it)
         }
     }
+}
+
+fun getDeviceName(): String {
+    val context = sharedComponents() as Context
+    return Settings.Global.getString(context.contentResolver, Settings.Global.DEVICE_NAME)
 }
 

@@ -8,7 +8,9 @@
 package org.tty.dailyset.bean.req
 
 import org.tty.dailyset.bean.util.anyTextEmpty
+import kotlinx.serialization.Serializable
 
+@Serializable
 class UserRegisterReq(
     val nickname: String? = null,
     val password: String? = null,

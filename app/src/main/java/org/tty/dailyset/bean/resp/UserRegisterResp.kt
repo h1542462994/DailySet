@@ -5,6 +5,9 @@
 
 package org.tty.dailyset.bean.resp
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 class UserRegisterResp(
     val uid: Int,
     val nickname: String,

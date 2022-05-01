@@ -1,6 +1,7 @@
 package org.tty.dailyset.bean.entity
 
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import org.tty.dailyset.common.datetime.epochLocalDateTime
@@ -70,6 +71,9 @@ data class DailyDuration(
      */
     val updateAt: LocalDateTime = epochLocalDateTime()
 ) {
+    @Ignore
+    constructor(): this(DailyDurationType.Normal)
+
     companion object {
         fun empty(): DailyDuration {
             return DailyDuration(updateAt = epochLocalDateTime())

@@ -37,7 +37,7 @@ class DailySetVMImpl(private val sharedComponents: SharedComponents) : DailySetV
         override val type: MutableStateFlow<DailySetType> = MutableStateFlow(DailySetType.Normal)
         override val icon: MutableStateFlow<DailySetIcon?> = MutableStateFlow(null)
         override val name: MutableStateFlow<String> = MutableStateFlow("")
-        override val currentUserUid: StateFlow<String> = sharedComponents.stateStore.currentUserUid.asActivityColdStateFlow(User.local)
+        override val currentUserUid: StateFlow<String> = sharedComponents.stateStore.currentUserUid
 
         override fun createDailySet(dailySetName: String, type: DailySetType, icon: DailySetIcon?) {
             val scope = sharedComponents.applicationScope

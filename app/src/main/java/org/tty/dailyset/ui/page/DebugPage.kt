@@ -51,8 +51,8 @@ fun TestPage() {
     Column {
         TopBar(
             title = stringResource(id = R.string.debug),
-            true,
-            onBackPressed = nav::upPress
+            useBack = true,
+            onBackPressed = { nav.action.upPress() }
         )
         LazyColumn(
             modifier = Modifier

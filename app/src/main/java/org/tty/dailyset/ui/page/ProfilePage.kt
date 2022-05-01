@@ -3,6 +3,8 @@ package org.tty.dailyset.ui.page
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Icon
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -16,7 +18,9 @@ import org.tty.dailyset.bean.entity.User
 import org.tty.dailyset.component.profile.rememberProfileVM
 import org.tty.dailyset.ui.component.ProfileMenuGroup
 import org.tty.dailyset.ui.component.ProfileMenuItem
+import org.tty.dailyset.ui.component.UserProfileSmall
 import org.tty.dailyset.ui.image.ImageResource
+import org.tty.dailyset.ui.theme.DailySetTheme
 
 /**
  * ProfilePage, including user,settings
@@ -30,7 +34,7 @@ fun ProfilePage() {
 
     Column(
         modifier = Modifier.verticalScroll(scrollState, enabled = true)
-    ){
+    ) {
         ProfileMenuGroupUser(user = user)
         ProfileMenuGroupUserSettings()
         ProfileMenuGroupGlobalSettings()
@@ -47,7 +51,15 @@ fun ProfileMenuGroupUser(user: User?) {
         "${user.nickName} ${user.userUid}"
     }
     ProfileMenuGroup(title = stringResource(id = R.string.user)) {
-        ProfileMenuItem(icon = ImageResource.user(), useTint = true, title = display, content = "本地账户", next = true)
+        ProfileMenuItem(icon = {
+            Icon(painter = ImageResource.user(), contentDescription = "", tint = DailySetTheme.color.primary)
+        }, next = true, onClick = {}, title = {
+            user?.let {
+                UserProfileSmall(user = it)
+            }
+        }, content = {
+            Text(text = "???")
+        })
     }
 }
 
@@ -57,7 +69,14 @@ fun ProfileMenuGroupUserSettings() {
     val nav = LocalNav.current
 
     ProfileMenuGroup(title = stringResource(id = R.string.user_settings)) {
-        ProfileMenuItem(icon = ImageResource.table(), useTint = true, title = stringResource(id = R.string.time_table), content = "系统默认", next = true, onClick = nav.action::toTimeTable)
+        ProfileMenuItem(
+            icon = ImageResource.table(),
+            useTint = true,
+            title = stringResource(id = R.string.time_table),
+            content = "系统默认",
+            next = true,
+            onClick = nav.action::toTimeTable
+        )
     }
 }
 
@@ -66,7 +85,14 @@ fun ProfileMenuGroupGlobalSettings() {
     val nav = LocalNav.current
 
     ProfileMenuGroup(title = stringResource(R.string.global_settings)) {
-        ProfileMenuItem(icon = ImageResource.scan(), useTint = true, title = stringResource(R.string.debug), content = "", next = true, onClick = nav.action::toDebug)
+        ProfileMenuItem(
+            icon = ImageResource.scan(),
+            useTint = true,
+            title = stringResource(R.string.debug),
+            content = "",
+            next = true,
+            onClick = nav.action::toDebug
+        )
     }
 }
 

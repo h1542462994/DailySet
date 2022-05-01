@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
@@ -15,12 +14,9 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.tty.dailyset.R
-import org.tty.dailyset.ui.image.ImageResource
 import org.tty.dailyset.ui.theme.LocalPalette
 
 /**
@@ -149,14 +145,14 @@ fun ProfileMenuItem(
 
 @Composable
 fun ProfileMenuItem(
-    icon: ImageVector,
+    iconPainter: Painter,
     next: Boolean = false,
     onClick: (() -> Unit)? = null,
     title: String,
     content: @Composable () -> Unit = {}
 ) {
     ProfileMenuItem(
-        icon = { Icon(imageVector = icon, contentDescription = null, modifier = Modifier.fillMaxSize(), tint = LocalPalette.current.primary) },
+        icon = { Icon(painter = iconPainter, contentDescription = null, modifier = Modifier.fillMaxSize(), tint = LocalPalette.current.primary) },
         title = { Text(text = title, color = LocalPalette.current.primary, fontSize = 16.sp, fontWeight = FontWeight.Medium) },
         content = { content() },
         next = next,
@@ -167,14 +163,14 @@ fun ProfileMenuItem(
 
 @Composable
 fun ProfileMenuItem(
-    icon: ImageVector,
+    iconPainter: Painter,
     next: Boolean = false,
     onClick: (() -> Unit)? = null,
     title: String,
     content: String
 ) {
     ProfileMenuItem(
-        icon = { Icon(imageVector = icon, contentDescription = null, modifier = Modifier.fillMaxSize(), tint = LocalPalette.current.primary) },
+        icon = { Icon(painter = iconPainter, contentDescription = null, modifier = Modifier.fillMaxSize(), tint = LocalPalette.current.primary) },
         next = next,
         onClick = onClick,
         title = { Text(text = title, color = LocalPalette.current.primary, fontSize = 16.sp, fontWeight = FontWeight.Medium) },

@@ -69,7 +69,7 @@ abstract class DailySetRoomDatabase: RoomDatabase() {
 
         private const val TAG = "DailySetRoomDatabase"
 
-        const val currentVersion = 8
+        const val currentVersion = 9
 
         fun getDatabase(context: Context, scope: CoroutineScope): DailySetRoomDatabase {
             return INSTANCE ?: synchronized(this) {
@@ -78,7 +78,7 @@ abstract class DailySetRoomDatabase: RoomDatabase() {
                     DailySetRoomDatabase::class.java,
                     "dailyset_database.db"
                 )
-                    .fallbackToDestructiveMigration() // warning: open destructive migration
+                    .fallbackToDestructiveMigration() // TODO: implementation with auto migration.
                     .addCallback(DailySetDatabaseCallBack(scope))
                     .build()
                 INSTANCE = instance

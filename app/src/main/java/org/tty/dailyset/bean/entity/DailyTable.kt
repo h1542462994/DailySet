@@ -14,6 +14,7 @@ data class DailyTable(
     var uid: String,
     var name: String,
     var global: Boolean,
+    val userUid: String,
     var referenceUid: String,
     var updateAt: LocalDateTime
 ) {
@@ -25,6 +26,7 @@ data class DailyTable(
                 uid = default,
                 name = "系统默认",
                 global = true,
+                userUid = User.local,
                 referenceUid = User.system,
                 updateAt = epochLocalDateTime()
             )
