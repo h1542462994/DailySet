@@ -1,0 +1,11 @@
+{
+    "proto_builders": [
+        {
+            "filter": {
+                "exclude_path": ["google/*"]
+            },
+            "unwrap_builders": false,
+            "use_dsl_markers": true
+        }
+    ]
+}

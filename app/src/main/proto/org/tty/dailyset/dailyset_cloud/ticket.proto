@@ -1,0 +1,26 @@
+syntax = "proto3";
+import "org/tty/dailyset/dailyset_cloud/common.proto";
+
+
+package org.tty.dailyset.dailyset_cloud;
+
+
+option java_multiple_files = true;
+option java_package = "org.tty.dailyset.dailyset_cloud.grpc";
+option java_outer_classname = "TicketProto";
+
+service TicketService {
+  // bind ticket
+  rpc bind(TicketRequest) returns (TicketResponse);
+}
+
+message TicketRequest {
+  Token token = 1;
+  string uid = 2;
+  string password = 3;
+}
+
+message TicketResponse {
+  int32 code = 1;
+  string message = 2;
+}

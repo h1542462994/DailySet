@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package org.tty.dailyset.dailyset_cloud;
+
+option java_multiple_files = true;
+option java_package = "org.tty.dailyset.dailyset_cloud.grpc";
+option java_outer_classname = "CommonProto";
+
+message Token {
+  string value = 1;
+}
