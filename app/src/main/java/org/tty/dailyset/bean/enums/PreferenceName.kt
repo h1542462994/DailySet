@@ -32,7 +32,7 @@ enum class PreferenceName(
     /**
      * 表示当前的host
      */
-    CURRENT_HOST("current_host", "192.168.31.1"),
+    CURRENT_HOST("current_host", "192.168.31.10"),
 
     CURRENT_HTTP_SERVER_ADDRESS("current_http_address", "http://192.168.31.10:8086/"),
     /**

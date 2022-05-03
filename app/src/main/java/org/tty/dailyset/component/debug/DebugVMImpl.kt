@@ -39,10 +39,16 @@ class DebugVMImpl(private val sharedComponents: SharedComponents): DebugVM {
         listOf())
     override val currentHttpServerAddress: StateFlow<String> = sharedComponents.stateStore.currentHttpServerAddress.asActivityColdStateFlow("")
     override val deviceCode: StateFlow<String> = sharedComponents.stateStore.deviceCode
-
+    override val currentHost: StateFlow<String> = sharedComponents.stateStore.currentHost.asActivityColdStateFlow("")
     override fun setFirstLoadUser(value: Boolean) {
         sharedComponents.applicationScope.launch {
             sharedComponents.repositoryCollection.preferenceRepository.save(PreferenceName.FIRST_LOAD_USER, value)
+        }
+    }
+
+    override fun testHello() {
+        sharedComponents.applicationScope.launch {
+            sharedComponents.repositoryCollection.userRepository.testHello()
         }
     }
 }

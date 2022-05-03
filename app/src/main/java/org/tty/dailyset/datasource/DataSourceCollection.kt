@@ -6,4 +6,5 @@ interface DataSourceCollection {
     val dbSourceCollection: DbSourceCollection
     val netSourceCollection: NetSourceCollection
     val runtimeDataSource: RuntimeDataSource
+    val grpcSourceCollection: GrpcSourceCollection
 }

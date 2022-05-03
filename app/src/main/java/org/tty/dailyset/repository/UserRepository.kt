@@ -1,20 +1,20 @@
 package org.tty.dailyset.repository
 
-import androidx.navigation.NavAction
+import androidx.lifecycle.asLiveData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.withContext
 import org.tty.dailyset.MainActions
 import org.tty.dailyset.MainDestination
 import org.tty.dailyset.bean.ResponseCodes
-import org.tty.dailyset.bean.ResponseCodes.success
 import org.tty.dailyset.datasource.db.UserDao
 import org.tty.dailyset.bean.entity.User
 import org.tty.dailyset.bean.enums.PlatformCode
 import org.tty.dailyset.bean.enums.PlatformState
 import org.tty.dailyset.bean.enums.PreferenceName
+import org.tty.dailyset.bean.req.UserAutoLoginReq
 import org.tty.dailyset.bean.req.UserLoginReq
 import org.tty.dailyset.bean.req.UserRegisterReq
 import org.tty.dailyset.common.local.logger
@@ -43,7 +43,15 @@ class UserRepository(private val sharedComponents: SharedComponents): SuspendIni
             withContext(Dispatchers.Main) {
                 sharedComponents.nav.action.toMain()
             }
+            collectData()
         }
+    }
+
+    /**
+     * 首次启动时，需要从服务端获取用户信息。
+     */
+    private suspend fun collectData() {
+        autoLogin()
     }
 
     suspend fun login(uid: String, password: String, navAction: MainActions) {
@@ -79,7 +87,46 @@ class UserRepository(private val sharedComponents: SharedComponents): SuspendIni
                     // TODO: 启动后续的自动同步逻辑...
                 }
             } else {
-                showToast("(${userLoginResp.code}) ${userLoginResp.message}")
+                showToastAsync("(${userLoginResp.code}) ${userLoginResp.message}")
+            }
+
+        } catch (e: Exception) {
+            logger.e("UserRepository", "${e.javaClass.simpleName} :: ${e.message}")
+            // TODO: 本地化处理
+            showToastOfNetworkError("登录失败", e)
+        }
+    }
+
+    private suspend fun autoLogin() {
+        try {
+            val userService = sharedComponents.dataSourceCollection.netSourceCollection.userService
+            val currentToken = getCurrentToken() ?: return
+
+            logger.d("UserRepository", "currentToken: $currentToken")
+
+            val userAutoLoginReq = UserAutoLoginReq(token = currentToken)
+            val userAutoLoginResp = userService.autoLogin(userAutoLoginReq)
+
+            if (userAutoLoginResp.code == ResponseCodes.success) {
+                // 登录成功的逻辑
+                checkNotNull(userAutoLoginResp.data) { "userLoginResp.data is null" }
+
+                // 更新数据
+                sharedComponents.repositoryCollection.preferenceRepository.save(PreferenceName.FIRST_LOAD_USER, false)
+                sharedComponents.repositoryCollection.preferenceRepository.save(PreferenceName.DEVICE_CODE, userAutoLoginResp.data.deviceCode)
+                sharedComponents.repositoryCollection.preferenceRepository.save(PreferenceName.CURRENT_USER_UID, userAutoLoginResp.data.uid.toString())
+                sharedComponents.dataSourceCollection.dbSourceCollection.userDao.update(User(
+                    userUid = userAutoLoginResp.data.uid.toString(),
+                    name = userAutoLoginResp.data.uid.toString(),
+                    nickName = userAutoLoginResp.data.nickname,
+                    token = userAutoLoginResp.data.token,
+                    localUser = false,
+                    state = PlatformState.ALIVE.state
+                ))
+
+                showToastAsync("自动登录成功")
+            } else {
+                showToastAsync("(${userAutoLoginResp.code}) ${userAutoLoginResp.message}")
             }
 
         } catch (e: Exception) {
@@ -102,7 +149,7 @@ class UserRepository(private val sharedComponents: SharedComponents): SuspendIni
                     navAction.toLogin(LoginInput(MainDestination.REGISTER, response.data.uid.toString()))
                 }
             } else {
-                showToast("(${response.code}) ${response.message}")
+                showToastAsync("(${response.code}) ${response.message}")
             }
 
 
@@ -112,4 +159,30 @@ class UserRepository(private val sharedComponents: SharedComponents): SuspendIni
             showToastOfNetworkError("注册失败", e)
         }
     }
+
+    suspend fun testHello() {
+        try {
+            sharedComponents.repositoryCollection.preferenceRepository.save(PreferenceName.CURRENT_HOST, "192.168.31.10")
+
+            val helloCoroutineStub = sharedComponents.dataSourceCollection.grpcSourceCollection.helloService()
+            val response = helloCoroutineStub.sayHello {
+                name = "你好啊!"
+            }
+            showToastAsync(response.message)
+        } catch (e: Exception) {
+            logger.e("UserRepository", "${e.javaClass.simpleName} :: ${e.message}")
+            showToastOfNetworkError("欢迎失败", e)
+        }
+
+    }
+
+    private suspend fun getCurrentToken(): String? {
+        val currentUserUid: String = sharedComponents.repositoryCollection.preferenceRepository.read(PreferenceName.CURRENT_USER_UID)
+        if (currentUserUid.startsWith("#")) {
+            return null
+        }
+        val token = sharedComponents.dataSourceCollection.dbSourceCollection.userDao.get(currentUserUid)
+        return token?.token
+    }
+
 }

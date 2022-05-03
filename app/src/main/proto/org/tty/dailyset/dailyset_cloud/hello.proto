@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package org.tty.dailyset.dailyset_cloud;
+
+option java_multiple_files = true;
+option java_package = "org.tty.dailyset.dailyset_cloud.grpc";
+option java_outer_classname = "HelloProto";
+
+
+// The greeting service definition.
+service Hello {
+  rpc SayHello(HelloRequest) returns (HelloReply) {}
+}
+
+// The request message containing the user's name.
+message HelloRequest {
+  string name = 1;
+}
+
+// The response message containing the greetings
+message HelloReply {
+  string message = 1;
+
+}

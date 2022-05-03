@@ -15,6 +15,7 @@ import org.tty.dailyset.LocalNav
 import org.tty.dailyset.R
 import org.tty.dailyset.annotation.UseViewModel
 import org.tty.dailyset.bean.entity.User
+import org.tty.dailyset.component.common.showToast
 import org.tty.dailyset.component.profile.rememberProfileVM
 import org.tty.dailyset.ui.component.ProfileMenuGroup
 import org.tty.dailyset.ui.component.ProfileMenuItem
@@ -76,6 +77,15 @@ fun ProfileMenuGroupUserSettings() {
             content = "系统默认",
             next = true,
             onClick = nav.action::toTimeTable
+        )
+
+        ProfileMenuItem(
+            icon = ImageResource.link(),
+            useTint = true,
+            title = "自动课表",
+            content = "未绑定",
+            next = true,
+            onClick = { showToast("未开发完成") }
         )
     }
 }

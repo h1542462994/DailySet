@@ -15,11 +15,11 @@ class DailySetDatabaseSeeder(private val database: DailySetRoomDatabase) {
     suspend fun seed(oldVersion: Int) {
         if (oldVersion < 1) {
             // insert the preference except the seed_version
-            PreferenceName.values().forEach { pref ->
-                if (pref != PreferenceName.SEED_VERSION) {
-                    database.preferenceDao().insert(Preference(pref.key, true, pref.defaultValue))
-                }
-            }
+//            PreferenceName.values().forEach { pref ->
+//                if (pref != PreferenceName.SEED_VERSION) {
+//                    database.preferenceDao().insert(Preference(pref.key, true, pref.defaultValue))
+//                }
+//            }
         }
         if (oldVersion < 2) {
             database.userDao().insert(User.default())

@@ -10,10 +10,8 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.Dp
-import kotlinx.coroutines.awaitCancellation
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import org.tty.dailyset.LocalNav
 import org.tty.dailyset.MainActions
 import org.tty.dailyset.Nav
@@ -99,13 +97,22 @@ fun showToast(text: String) {
     Toast.makeText(sharedComponents.activityContext, text, Toast.LENGTH_SHORT).show()
 }
 
-fun showToastOfNetworkError(title: String, error: Exception) {
-    val message: String = if (error is SocketException || error is InterruptedIOException) {
-        "${title}, 无法连接到目标服务器"
-    } else {
-        "${title}, 未知异常: ${error.message}"
+@UseComponent
+suspend fun showToastAsync(text: String) {
+    withContext(Dispatchers.Main) {
+        showToast(text)
     }
-    showToast(message)
+}
+
+suspend fun showToastOfNetworkError(title: String, error: Exception) {
+    withContext(Dispatchers.Main) {
+        val message: String = if (error is SocketException || error is InterruptedIOException) {
+            "${title}, 无法连接到目标服务器"
+        } else {
+            "${title}, 未知异常: ${error.message}"
+        }
+        showToastAsync(message)
+    }
 }
 
 /**

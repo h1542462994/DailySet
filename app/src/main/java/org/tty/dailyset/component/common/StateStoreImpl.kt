@@ -33,6 +33,7 @@ class StateStoreImpl(private val sharedComponents: SharedComponents): StateStore
     override val currentDailySetUid: MutableStateFlow<String> = sharedComponents.dataSourceCollection.runtimeDataSource.currentDailySetUid
     override val currentHttpServerAddress: Flow<String> = loadPreference(PreferenceName.CURRENT_HTTP_SERVER_ADDRESS)
     override val deviceCode: StateFlow<String> = loadPreferenceAsStateFlow(PreferenceName.DEVICE_CODE)
+    override val currentHost: Flow<String> = loadPreference(PreferenceName.CURRENT_HOST)
 
     @Suppress("UNCHECKED_CAST")
     private fun <T> loadPreference(preferenceName: PreferenceName, mapper: (it: String) -> T = { it as T }): Flow<T> {

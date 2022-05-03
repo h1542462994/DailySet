@@ -1,6 +1,7 @@
 package org.tty.dailyset.datasource.net
 
 import org.tty.dailyset.bean.Responses
+import org.tty.dailyset.bean.req.UserAutoLoginReq
 import org.tty.dailyset.bean.req.UserLoginReq
 import org.tty.dailyset.bean.req.UserRegisterReq
 import org.tty.dailyset.bean.resp.UserLoginResp
@@ -15,6 +16,9 @@ interface UserService {
 
     @POST("/user/login")
     suspend fun login(@Body userLoginReq: UserLoginReq): Responses<UserLoginResp>
+
+    @POST("/user/autoLogin")
+    suspend fun autoLogin(@Body userAutoLoginReq: UserAutoLoginReq): Responses<UserStateResp>
 
     @POST("/user/state")
     suspend fun state(): Responses<UserStateResp>

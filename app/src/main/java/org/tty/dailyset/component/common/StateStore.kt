@@ -58,4 +58,5 @@ interface StateStore {
      * **deviceCode** 设备码，默认为空，只要该设备登录成功过一次，就会赋予一个唯一的设备码
      */
     val deviceCode: StateFlow<String>
+    val currentHost: Flow<String>
 }

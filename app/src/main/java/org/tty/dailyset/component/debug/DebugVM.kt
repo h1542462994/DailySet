@@ -16,7 +16,9 @@ interface DebugVM: BaseVM {
     val users: StateFlow<List<User>>
     val currentHttpServerAddress: StateFlow<String>
     val deviceCode: StateFlow<String>
+    val currentHost: StateFlow<String>
 
     fun setFirstLoadUser(value: Boolean)
+    fun testHello()
 }
 

@@ -13,7 +13,9 @@ import org.tty.dailyset.common.local.logger
 import org.tty.dailyset.database.DailySetRoomDatabase
 import org.tty.dailyset.datasource.DataSourceCollection
 import org.tty.dailyset.datasource.DbSourceCollection
+import org.tty.dailyset.datasource.GrpcSourceCollection
 import org.tty.dailyset.datasource.db.*
+import org.tty.dailyset.datasource.grpc.GrpcSourceCollectionImpl
 import org.tty.dailyset.datasource.net.NetSourceCollectionImpl
 import org.tty.dailyset.datasource.runtime.RuntimeDataSourceImpl
 import org.tty.dailyset.provider.LocalSharedComponents
@@ -65,6 +67,9 @@ class DailySetApplication : Application(), SharedComponents {
         )
         mutableSharedComponents.useNetSourceCollection(
             NetSourceCollectionImpl(mutableSharedComponents)
+        )
+        useGrpcSourceCollection(
+            GrpcSourceCollectionImpl(mutableSharedComponents)
         )
         mutableSharedComponents.useLtsVMSaver(LtsVMSaver())
     }
@@ -118,12 +123,18 @@ class DailySetApplication : Application(), SharedComponents {
         initializeStart("activityScope")
     }
 
+    private fun useGrpcSourceCollection(grpcSourceCollection: GrpcSourceCollection) {
+        mutableSharedComponents.useGrpcSourceCollection(grpcSourceCollection)
+        initializeStart("grpcSourceCollection")
+    }
+
     private val componentAvailable = mutableMapOf(
         "lifecycle" to false,
         "nav" to false,
         "window" to false,
         "activityContext" to false,
-        "activityScope" to false
+        "activityScope" to false,
+        "grpcSourceCollection" to false
     )
     private var initialized = false
 
@@ -138,6 +149,7 @@ class DailySetApplication : Application(), SharedComponents {
 
                     mutableSharedComponents.repositoryCollection.userRepository.init()
                     mutableSharedComponents.dataSourceCollection.netSourceCollection.init()
+                    mutableSharedComponents.dataSourceCollection.grpcSourceCollection.init()
                 }
             }
         }

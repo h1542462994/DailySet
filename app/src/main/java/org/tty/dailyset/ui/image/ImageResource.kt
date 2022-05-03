@@ -47,6 +47,11 @@ object ImageResource {
     }
 
     @Composable
+    fun link(): Painter {
+        return painterResource(id = R.drawable.ic_link_24)
+    }
+
+    @Composable
     fun dailySet(): Painter {
         return painterResource(id = R.drawable.ic_dailyset_400)
     }

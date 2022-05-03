@@ -22,7 +22,7 @@
     <string name="class_table">课表</string>
     <string name="important">重要</string>
     <string name="dailyset_list_add">添加列表</string>
-    <string name="global_settings">全局设置</string>
+    <string name="global_settings">其他</string>
     <string name="time_duration">时间段</string>
     <string name="dailyset_list_name">列表名称</string>
     <string name="dailyset_type_normal">普通</string>

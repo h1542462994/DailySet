@@ -71,6 +71,12 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion compose_version
     }
+
+    packagingOptions {
+
+        exclude 'META-INF/INDEX.LIST'
+        exclude 'META-INF/io.netty.versions.properties'
+    }
 }
 
 
@@ -120,12 +126,21 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.3")
 
     // --- implementation grpc related
+    implementation("io.grpc:grpc-okhttp:${grpcVersion}")
     implementation("io.grpc:grpc-stub:${grpcVersion}")
     implementation("io.grpc:grpc-protobuf-lite:${grpcVersion}")
     implementation("javax.annotation:javax.annotation-api:1.3.2")
 
-//    implementation("com.github.marcoferrer.krotoplus:kroto-plus-coroutines:${krotoPlusVersion}")
-//    implementation("com.github.marcoferrer.krotoplus:kroto-plus-message:${krotoPlusVersion}")
+    implementation("com.github.marcoferrer.krotoplus:kroto-plus-coroutines:${krotoPlusVersion}") {
+        exclude group: "io.grpc"
+        exclude group: "com.google.protobuf"
+    }
+    implementation("com.github.marcoferrer.krotoplus:kroto-plus-message:${krotoPlusVersion}") {
+        exclude group: "io.grpc"
+        exclude group: "com.google.protobuf"
+    }
+
+    implementation("org.bouncycastle:bcprov-jdk15on:1.70")
 
 
     testImplementation "junit:junit:$junit_version"
@@ -144,17 +159,17 @@ protobuf {
         javalite {
             artifact = "com.google.protobuf:protoc-gen-java-lite:${protobufVersion}"
         }
-//        coroutines {
-//            artifact = "com.github.marcoferrer.krotoplus:protoc-gen-grpc-coroutines:${krotoPlusVersion}:jvm8@jar"
-//        }
-//        kroto {
-//            artifact = "com.github.marcoferrer.krotoplus:protoc-gen-kroto-plus:$krotoPlusVersion:jvm8@jar"
-//        }
+        coroutines {
+            artifact = "com.github.marcoferrer.krotoplus:protoc-gen-grpc-coroutines:${krotoPlusVersion}"
+        }
+        kroto {
+            artifact = "com.github.marcoferrer.krotoplus:protoc-gen-kroto-plus:$krotoPlusVersion"
+        }
     }
     generateProtoTasks {
-        def krotoConfig = file("krotoPlusConfig.config")
+//        def krotoConfig = file("krotoPlusConfig.json")
         all().each { task ->
-            task.inputs.files krotoConfig
+//            task.inputs.files krotoConfig
             task.builtins {
                 java { option 'lite' }
             }
@@ -162,11 +177,12 @@ protobuf {
                 grpc {
                     option 'lite'
                 }
-//                coroutines {}
-//                kroto {
-//                    outputSubDir = "java"
-//                    option "ConfigPath = ${krotoConfig}"
-//                }
+                coroutines {}
+                kroto {
+                    outputSubDir = "java"
+                    // warning: must use path string with it. FIXME: use relative path instead. @cht 2022/5/3
+                    option "ConfigPath = src/main/res/krotoPlusConfig.json"
+                }
             }
         }
 

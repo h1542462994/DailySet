@@ -47,6 +47,7 @@ fun TestPage() {
     val users by debugVM.users.collectAsState()
     val currentHttpServerAddress by debugVM.currentHttpServerAddress.collectAsState()
     val deviceCode by debugVM.deviceCode.collectAsState()
+    val currentHost by debugVM.currentHost.collectAsState()
 
     Column {
         TopBar(
@@ -114,11 +115,26 @@ fun TestPage() {
                 DebugLine(title = "设备码", subTitle = "deviceCode", value = deviceCode)
             }
             item {
-                Button(onClick = {
-                    debugVM.setFirstLoadUser(true)
-                }) {
-                    Text(text = "退出登录")
+                DebugLine(title = "当前服务器地址(grpc)", subTitle = "currentGrpcServerAddress", value = currentHost)
+            }
+            item {
+                Row(modifier = Modifier.padding(8.dp)) {
+                    Button(onClick = {
+                        debugVM.setFirstLoadUser(true)
+                    }) {
+                        Text(text = "退出登录")
+                    }
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Button(onClick = {
+                        debugVM.testHello()
+                    }) {
+                        Text(text = "测试hello")
+                    }
                 }
+
+
             }
 
         }

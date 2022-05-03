@@ -9,6 +9,7 @@ import org.tty.dailyset.Nav
 import org.tty.dailyset.database.DailySetRoomDatabase
 import org.tty.dailyset.datasource.DataSourceCollection
 import org.tty.dailyset.datasource.DbSourceCollection
+import org.tty.dailyset.datasource.GrpcSourceCollection
 import org.tty.dailyset.datasource.NetSourceCollection
 import org.tty.dailyset.datasource.runtime.RuntimeDataSource
 import org.tty.dailyset.repository.*
@@ -42,10 +43,12 @@ class MutableSharedComponents : SharedComponents {
         internal lateinit var dbSourceCollectionInternal: DbSourceCollection
         internal lateinit var netSourceCollectionInternal: NetSourceCollection
         internal lateinit var runtimeDataSourceInternal: RuntimeDataSource
+        internal lateinit var grpcSourceCollectionInternal: GrpcSourceCollection
 
         override val dbSourceCollection: DbSourceCollection get() =  dbSourceCollectionInternal
         override val netSourceCollection: NetSourceCollection get() =  netSourceCollectionInternal
         override val runtimeDataSource: RuntimeDataSource get() = runtimeDataSourceInternal
+        override val grpcSourceCollection: GrpcSourceCollection get() = grpcSourceCollectionInternal
     }
 
     class MutableRepositoryCollection: RepositoryCollection {
@@ -94,6 +97,10 @@ class MutableSharedComponents : SharedComponents {
 
     fun useRuntimeDataSource(runtimeDataSource: RuntimeDataSource) {
         this.dataSourceCollectionInternal.runtimeDataSourceInternal = runtimeDataSource
+    }
+
+    fun useGrpcSourceCollection(grpcSourceCollection: GrpcSourceCollection) {
+        this.dataSourceCollectionInternal.grpcSourceCollectionInternal = grpcSourceCollection
     }
 
     override fun useLifecycle(lifecycle: Lifecycle) {

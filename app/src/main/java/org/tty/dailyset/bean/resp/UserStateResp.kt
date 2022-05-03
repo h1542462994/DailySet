@@ -6,8 +6,9 @@
 package org.tty.dailyset.bean.resp
 
 import kotlinx.serialization.Contextual
-import java.time.LocalDateTime
 import kotlinx.serialization.Serializable
+import org.tty.dailyset.bean.serializer.LocalDateTimeSerializer
+import java.time.LocalDateTime
 
 @Serializable
 class UserStateResp(
@@ -19,6 +20,7 @@ class UserStateResp(
     val deviceName: String,
     val platformCode: Int,
     val state: Int,
-    @Contextual
-    val lastActive: LocalDateTime
+    @Serializable(with = LocalDateTimeSerializer::class)
+    val lastActive: LocalDateTime,
+    val token: String
 )
