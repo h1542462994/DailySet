@@ -28,6 +28,7 @@ object MainDestination {
     const val INDEX = "index"
     const val LOGIN = "login"
     const val REGISTER = "register"
+    const val TICKET_BIND = "ticket_bind"
 }
 
 //private var arguments = HashMap<String, Any>()
@@ -107,6 +108,9 @@ fun NavGraph() {
             composable(MainDestination.REGISTER) {
                 RegisterPage()
             }
+            composable(MainDestination.TICKET_BIND) {
+                TicketBindPage()
+            }
         }
 
     }
@@ -156,6 +160,10 @@ class MainActions(private val navController: NavHostController) {
 
     fun toRegister() {
         navController.navigateExceptEqual(MainDestination.REGISTER)
+    }
+
+    fun toTicketBind() {
+        navController.navigateExceptEqual(MainDestination.TICKET_BIND)
     }
 
 }

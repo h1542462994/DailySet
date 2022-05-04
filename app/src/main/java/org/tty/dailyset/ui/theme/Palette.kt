@@ -23,6 +23,10 @@ class Palette(
     sub: Color = Gray40,
     subColor: Color = Blue400,
     textColorInValid: Color = Gray20,
+    statusGray: Color = Gray20,
+    statusGreen: Color = LightGreen,
+    statusOrange: Color = LightOrange,
+    statusRed: Color = LightRed
 ) {
     /**
      * background Level 1 Color.
@@ -113,6 +117,18 @@ class Palette(
     var textColorInValid by mutableStateOf(textColorInValid, structuralEqualityPolicy())
         internal set
 
+    var statusGray by mutableStateOf(statusGray, structuralEqualityPolicy())
+        internal set
+
+    var statusGreen by mutableStateOf(statusGreen, structuralEqualityPolicy())
+        internal set
+
+    var statusOrange by mutableStateOf(statusOrange, structuralEqualityPolicy())
+        internal set
+
+    var statusRed by mutableStateOf(statusRed, structuralEqualityPolicy())
+        internal set
+
     fun copy(
         background1: Color = this.background1,
         background2: Color = this.background2,
@@ -127,7 +143,11 @@ class Palette(
         lineColor: Color = this.lineColor,
         sub: Color = this.sub,
         subColor: Color = this.subColor,
-        textColorInValid: Color = this.textColorInValid
+        textColorInValid: Color = this.textColorInValid,
+        statusGray: Color = this.statusGray,
+        statusGreen: Color = this.statusGreen,
+        statusOrange: Color = this.statusOrange,
+        statusRed: Color = this.statusRed
     ) : Palette = Palette(
         background1,
         background2,
@@ -142,7 +162,11 @@ class Palette(
         lineColor,
         sub,
         subColor,
-        textColorInValid
+        textColorInValid,
+        statusGray,
+        statusGreen,
+        statusOrange,
+        statusRed
     )
 }
 

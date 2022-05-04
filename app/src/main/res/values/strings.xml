@@ -8,6 +8,7 @@
     <string name="login">登录</string>
     <string name="register">注册</string>
     <string name="user_settings">用户设置</string>
+
     <string name="time_table_add">添加时间表</string>
     <string name="time_table_rename">重命名时间表</string>
     <string name="time_table_delete">删除时间表</string>
@@ -53,4 +54,13 @@
     <string name="login_email_field_tip">请输入邮箱</string>
     <string name="login_on_register">正在注册</string>
     <!--endregion -->
+
+    <string name="ticket_bind_title">自动课表绑定</string>
+    <string name="ticket_student_uid_field">学号</string>
+    <string name="ticket_student_uid_field_tip">请输入学号</string>
+    <string name="ticket_student_password_field">密码</string>
+    <string name="ticket_student_password_field_tip">请输入密码</string>
+    <string name="ticket_bind">绑定</string>
+    <string name="ticket_bind_on_bind">正在绑定</string>
+
 </resources>

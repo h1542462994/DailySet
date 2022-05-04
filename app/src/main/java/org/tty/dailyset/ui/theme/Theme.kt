@@ -50,7 +50,11 @@ private val LightPalette = Palette(
     lineColor = Gray10,
     sub = Gray40,
     subColor = Blue400,
-    textColorInValid = Gray20
+    textColorInValid = Gray60,
+    statusGray = Gray40,
+    statusGreen = LightGreen,
+    statusOrange = LightOrange,
+    statusRed = LightRed,
 )
 
 private val DarkPalette = Palette(
@@ -67,8 +71,11 @@ private val DarkPalette = Palette(
     lineColor = Gray80,
     subColor = Blue400,
     sub = Gray20,
-
-    textColorInValid = Gray20
+    textColorInValid = Gray20,
+    statusGray = Gray60,
+    statusGreen = DarkGreen,
+    statusOrange = DarkOrange,
+    statusRed = DarkRed,
 )
 
 private val MTypography = DailyTypography(

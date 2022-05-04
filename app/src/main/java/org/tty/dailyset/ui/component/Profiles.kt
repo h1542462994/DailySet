@@ -1,5 +1,6 @@
 package org.tty.dailyset.ui.component
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -12,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
@@ -33,7 +35,7 @@ fun ProfileMenuGroup(
                 .fillMaxWidth()
                 .background(LocalPalette.current.background1)
                 .padding(horizontal = 16.dp, vertical = 8.dp),
-        ){
+        ) {
             title()
         }
         body()
@@ -46,9 +48,16 @@ fun ProfileMenuGroup(
 @Composable
 fun ProfileMenuGroup(
     title: String,
-    body: @Composable () -> Unit) {
+    body: @Composable () -> Unit
+) {
     ProfileMenuGroup(
-        title = { Text(text = title, color = LocalPalette.current.primaryColor, fontWeight = FontWeight.Bold) },
+        title = {
+            Text(
+                text = title,
+                color = LocalPalette.current.primaryColor,
+                fontWeight = FontWeight.Bold
+            )
+        },
         body
     )
 }
@@ -65,7 +74,11 @@ fun ProfileMenuGroup(
     ProfileMenuGroup(
         title = {
             Row {
-                Text(text = title, color = LocalPalette.current.primaryColor, fontWeight = FontWeight.Bold)
+                Text(
+                    text = title,
+                    color = LocalPalette.current.primaryColor,
+                    fontWeight = FontWeight.Bold
+                )
                 Spacer(modifier = Modifier.weight(1f))
                 extension()
             }
@@ -88,7 +101,7 @@ fun ProfileMenuItem(
     var modifier1 = Modifier
         .height(56.dp)
         .fillMaxWidth()
-    if (onClick != null){
+    if (onClick != null) {
         modifier1 = modifier1.clickable { onClick() }
     }
 
@@ -115,7 +128,7 @@ fun ProfileMenuItem(
             modifier2.padding(start = 24.dp)
         }
         BoxWithConstraints(
-           modifier = modifier2
+            modifier = modifier2
         ) {
             title()
         }
@@ -135,9 +148,13 @@ fun ProfileMenuItem(
                 .padding(horizontal = 8.dp)
                 .fillMaxHeight()
                 .wrapContentHeight(align = Alignment.CenterVertically)
-        ){
+        ) {
             if (next) {
-                Icon(imageVector = Icons.Filled.KeyboardArrowRight, contentDescription = null, tint = LocalPalette.current.sub)
+                Icon(
+                    imageVector = Icons.Filled.KeyboardArrowRight,
+                    contentDescription = null,
+                    tint = LocalPalette.current.sub
+                )
             }
         }
     }
@@ -152,8 +169,22 @@ fun ProfileMenuItem(
     content: @Composable () -> Unit = {}
 ) {
     ProfileMenuItem(
-        icon = { Icon(painter = iconPainter, contentDescription = null, modifier = Modifier.fillMaxSize(), tint = LocalPalette.current.primary) },
-        title = { Text(text = title, color = LocalPalette.current.primary, fontSize = 16.sp, fontWeight = FontWeight.Medium) },
+        icon = {
+            Icon(
+                painter = iconPainter,
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                tint = LocalPalette.current.primary
+            )
+        },
+        title = {
+            Text(
+                text = title,
+                color = LocalPalette.current.primary,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium
+            )
+        },
         content = { content() },
         next = next,
         onClick = onClick
@@ -170,10 +201,24 @@ fun ProfileMenuItem(
     content: String
 ) {
     ProfileMenuItem(
-        icon = { Icon(painter = iconPainter, contentDescription = null, modifier = Modifier.fillMaxSize(), tint = LocalPalette.current.primary) },
+        icon = {
+            Icon(
+                painter = iconPainter,
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                tint = LocalPalette.current.primary
+            )
+        },
         next = next,
         onClick = onClick,
-        title = { Text(text = title, color = LocalPalette.current.primary, fontSize = 16.sp, fontWeight = FontWeight.Medium) },
+        title = {
+            Text(
+                text = title,
+                color = LocalPalette.current.primary,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium
+            )
+        },
         content = { Text(text = content, color = LocalPalette.current.sub, fontSize = 16.sp) },
     )
 }
@@ -188,17 +233,68 @@ fun ProfileMenuItem(
     onClick: (() -> Unit)? = null
 ) {
     ProfileMenuItem(
-        icon = { Icon(painter = icon, contentDescription = null,
-            tint = if (useTint) {
-                LocalPalette.current.primary
-            } else {
-                Color.Unspecified
-            }
-        ) },
+        icon = {
+            Icon(
+                painter = icon, contentDescription = null,
+                tint = if (useTint) {
+                    LocalPalette.current.primary
+                } else {
+                    Color.Unspecified
+                }
+            )
+        },
         next = next,
         onClick = onClick,
-        title = { Text(text = title, color = LocalPalette.current.primary, fontSize = 16.sp, fontWeight = FontWeight.Medium) },
+        title = {
+            Text(
+                text = title,
+                color = LocalPalette.current.primary,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium
+            )
+        },
         content = { Text(text = content, color = LocalPalette.current.sub, fontSize = 16.sp) },
+    )
+}
+
+/**
+ * 带小圆点的badgeIcon
+ */
+@Composable
+fun ProfileMenuItem(
+    icon: Painter,
+    useTint: Boolean = false,
+    next: Boolean = false,
+    title: String,
+    content: String,
+    pointColor: Color,
+    onClick: (() -> Unit)? = null
+) {
+    ProfileMenuItem(
+        icon = {
+            Icon(
+                painter = icon, contentDescription = null,
+                tint = if (useTint) {
+                    LocalPalette.current.primary
+                } else {
+                    Color.Unspecified
+                }
+            )
+        },
+        next = next,
+        onClick = onClick,
+        title = {
+            Text(
+                text = title,
+                color = LocalPalette.current.primary,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium
+            )
+
+        },
+        content = {
+            TextWithDot(text = content, color = pointColor)
+        },
     )
 }
 
@@ -212,7 +308,14 @@ fun ProfileMenuItem(
     ProfileMenuItem(
         next = next,
         onClick = onClick,
-        title = { Text(text = title, color = LocalPalette.current.primary, fontSize = 16.sp, fontWeight = FontWeight.Medium) },
+        title = {
+            Text(
+                text = title,
+                color = LocalPalette.current.primary,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium
+            )
+        },
         content = { content() },
     )
 }
@@ -227,7 +330,14 @@ fun ProfileMenuItem(
     ProfileMenuItem(
         next = next,
         onClick = onClick,
-        title = { Text(text = title, color = LocalPalette.current.primary, fontSize = 16.sp, fontWeight = FontWeight.Medium) },
+        title = {
+            Text(
+                text = title,
+                color = LocalPalette.current.primary,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium
+            )
+        },
         content = { Text(text = content, color = LocalPalette.current.sub, fontSize = 16.sp) },
     )
 }
@@ -243,7 +353,14 @@ fun ProfileMenuItem(
     ProfileMenuItem(
         next = next,
         onClick = onClick,
-        title = { Text(text = title, color = LocalPalette.current.primary, fontSize = 16.sp, fontWeight = FontWeight.Medium) },
+        title = {
+            Text(
+                text = title,
+                color = LocalPalette.current.primary,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium
+            )
+        },
         content = { Text(text = content, color = textColor, fontSize = 16.sp) },
     )
 }
@@ -280,7 +397,9 @@ fun IconText(imageVector: ImageVector, text: String) {
     ) {
         Icon(
             modifier = Modifier.scale(0.8f),
-            imageVector = imageVector, contentDescription = null, tint = LocalPalette.current.primary
+            imageVector = imageVector,
+            contentDescription = null,
+            tint = LocalPalette.current.primary
         )
         Text(
             modifier = Modifier.align(alignment = Alignment.CenterVertically),
@@ -336,5 +455,29 @@ fun IconText(
             fontSize = 18.sp,
             fontWeight = FontWeight.Medium
         )
+    }
+}
+
+@Composable
+fun TextWithDot(
+    text: String,
+    color: Color
+) {
+    Row {
+        Text(
+            text = text,
+            color = LocalPalette.current.sub,
+            modifier = Modifier.align(Alignment.CenterVertically),
+            fontSize = 16.sp
+        )
+        Canvas(modifier = Modifier
+            .size(20.dp)
+            .align(Alignment.CenterVertically), onDraw = {
+            drawCircle(
+                color = color,
+                radius = 10.0f,
+                style = Fill
+            )
+        })
     }
 }

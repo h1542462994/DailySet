@@ -21,6 +21,18 @@ fun validUserTextField(value: String): String? {
     }
 }
 
+fun validStudentUidTextField(value: String): String? {
+    if (value.isEmpty()) {
+        return ""
+    } else {
+        if (value.length < 6 || value.length > 32) {
+            return " (学号长度必须为6-32位) "
+        }
+
+        return null
+    }
+}
+
 /**
  * 判断密码是否合法
  * @return null 合法

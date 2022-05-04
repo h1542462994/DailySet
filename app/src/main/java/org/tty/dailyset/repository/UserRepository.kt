@@ -101,10 +101,9 @@ class UserRepository(private val sharedComponents: SharedComponents): SuspendIni
     }
 
     private suspend fun autoLogin() {
+        val userService = sharedComponents.dataSourceCollection.netSourceCollection.userService
+        val currentUser = getCurrentUser() ?: return
         try {
-            val userService = sharedComponents.dataSourceCollection.netSourceCollection.userService
-            val currentUser = getCurrentUser() ?: return
-
             logger.d("UserRepository", "currentToken: $currentUser")
 
             val userAutoLoginReq = UserAutoLoginReq(token = currentUser.token)
@@ -130,10 +129,20 @@ class UserRepository(private val sharedComponents: SharedComponents): SuspendIni
                 showToastAsync("自动登录成功")
             } else {
                 showToastAsync("(${userAutoLoginResp.code}) ${userAutoLoginResp.message}")
+                sharedComponents.dataSourceCollection.dbSourceCollection.userDao.update(
+                    currentUser.copy(
+                        state = PlatformState.LEAVE.state
+                    )
+                )
             }
 
         } catch (e: Exception) {
             logger.e("UserRepository", "autoLogin, ${e.javaClass.simpleName} :: ${e.message}")
+            sharedComponents.dataSourceCollection.dbSourceCollection.userDao.update(
+                currentUser.copy(
+                    state = PlatformState.LEAVE.state
+                )
+            )
             // TODO: 本地化处理
             showToastOfNetworkError("自动登录失败", e)
         }
@@ -216,8 +225,33 @@ class UserRepository(private val sharedComponents: SharedComponents): SuspendIni
             logger.e("UserRepository", "getCurrentBindTicketInfo, ${e.javaClass.simpleName} :: ${e.message}")
             showToastOfNetworkError("获取绑定信息失败", e)
         }
+    }
 
+    suspend fun bindTicket(studentUid: String, password: String, navAction: MainActions) {
+        val user = getCurrentUser() ?: return
+        val ticketService = sharedComponents.dataSourceCollection.grpcSourceCollection.ticketService()
+        try {
+            val response = ticketService.bind {
+                this.token = Token.newBuilder().setValue(user.token).build()
+                this.uid = studentUid
+                this.password = password
+            }
+            if (response.code == ResponseCodes.success) {
+                showToastAsync(response.message)
+                postBindTicket(navAction)
+            } else {
+                showToastAsync("(${response.code}) ${response.message}")
+            }
+        } catch (e: Exception) {
+            logger.e("UserRepository", "bindTicket, ${e.javaClass.simpleName} :: ${e.message}")
+            showToastOfNetworkError("绑定失败", e)
+        }
+    }
 
+    private suspend fun postBindTicket(navAction: MainActions) {
+        // 退出绑定界面。
+        navAction.upPress()
+        getCurrentBindTicketInfo()
     }
 
     private suspend fun getCurrentUser(): User? {
