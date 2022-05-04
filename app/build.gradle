@@ -167,9 +167,9 @@ protobuf {
         }
     }
     generateProtoTasks {
-//        def krotoConfig = file("krotoPlusConfig.json")
+        def krotoConfig = file("krotoPlusConfig.json")
         all().each { task ->
-//            task.inputs.files krotoConfig
+            task.inputs.files krotoConfig
             task.builtins {
                 java { option 'lite' }
             }

@@ -40,4 +40,15 @@ object ResponseCodes {
      * deviceCodeError: 104
      */
     const val deviceCodeError: Int = 104
+
+    /**
+     * ticketExist
+     */
+    const val ticketExist = 10010
+
+    /**
+     * ticketNotExist
+     */
+    const val ticketNotExist = 10011
+
 }

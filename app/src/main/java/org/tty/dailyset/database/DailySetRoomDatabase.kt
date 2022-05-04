@@ -13,10 +13,22 @@ import org.tty.dailyset.bean.entity.*
 import org.tty.dailyset.bean.enums.PreferenceName
 
 
-@Database(entities =
-    [Preference::class, User::class, DailyTable::class, DailyRow::class, DailyCell::class, DailySet::class, DailyDuration::class, DailyNode::class, DailySetBinding::class],
-    version = DailySetRoomDatabase.currentVersion, exportSchema = false)
-abstract class DailySetRoomDatabase: RoomDatabase() {
+@Database(
+    entities = [
+        Preference::class,
+        User::class,
+        DailyTable::class,
+        DailyRow::class,
+        DailyCell::class,
+        DailySet::class,
+        DailyDuration::class,
+        DailyNode::class,
+        DailySetBinding::class,
+        UserTicketInfo::class],
+    version = DailySetRoomDatabase.currentVersion,
+    exportSchema = false
+)
+abstract class DailySetRoomDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
     abstract fun preferenceDao(): PreferenceDao
     abstract fun dailyTableDao(): DailyTableDao
@@ -25,10 +37,11 @@ abstract class DailySetRoomDatabase: RoomDatabase() {
     abstract fun dailySetDao(): DailySetDao
     abstract fun dailyDurationDao(): DailyDurationDao
     abstract fun dailySetBindingDao(): DailySetBindingDao
+    abstract fun userTicketInfoDao(): UserTicketInfoDao
 
     private class DailySetDatabaseCallBack(
         private val scope: CoroutineScope
-    ): RoomDatabase.Callback() {
+    ) : RoomDatabase.Callback() {
         override fun onOpen(db: SupportSQLiteDatabase) {
             super.onOpen(db)
             INSTANCE?.let { database ->
@@ -50,14 +63,16 @@ abstract class DailySetRoomDatabase: RoomDatabase() {
             val seeder = DailySetDatabaseSeeder(database)
             // FIXED BUG: couldn't collect the data when onOpen(db)
             val oldVersionPreference = database.preferenceDao().get(PreferenceName.SEED_VERSION.key)
-            val oldVersion = Preference.defaultOrValue(oldVersionPreference, PreferenceName.SEED_VERSION).toInt()
+            val oldVersion =
+                Preference.defaultOrValue(oldVersionPreference, PreferenceName.SEED_VERSION).toInt()
 //            Log.d(TAG, "oldVersion: $oldVersionPreference")
             val newVersion = seeder.currentVersion()
             if (newVersion > oldVersion) {
                 seeder.seed(oldVersion)
             }
 //            Log.d(TAG, "newVersion: $newVersion")
-            database.preferenceDao().insert(Preference(PreferenceName.SEED_VERSION.key, false, newVersion.toString()))
+            database.preferenceDao()
+                .insert(Preference(PreferenceName.SEED_VERSION.key, false, newVersion.toString()))
 //            oldVersionPreference = database.preferenceDao().get(PreferenceName.SEED_VERSION.key)
             Log.d(TAG, "database seed migrate from $oldVersion -> $newVersion")
         }
@@ -69,7 +84,7 @@ abstract class DailySetRoomDatabase: RoomDatabase() {
 
         private const val TAG = "DailySetRoomDatabase"
 
-        const val currentVersion = 10
+        const val currentVersion = 11
 
         fun getDatabase(context: Context, scope: CoroutineScope): DailySetRoomDatabase {
             return INSTANCE ?: synchronized(this) {
@@ -77,10 +92,8 @@ abstract class DailySetRoomDatabase: RoomDatabase() {
                     context.applicationContext,
                     DailySetRoomDatabase::class.java,
                     "dailyset_database.db"
-                )
-                    .fallbackToDestructiveMigration() // TODO: implementation with auto migration.
-                    .addCallback(DailySetDatabaseCallBack(scope))
-                    .build()
+                ).fallbackToDestructiveMigration() // TODO: implementation with auto migration.
+                    .addCallback(DailySetDatabaseCallBack(scope)).build()
                 INSTANCE = instance
                 instance
             }

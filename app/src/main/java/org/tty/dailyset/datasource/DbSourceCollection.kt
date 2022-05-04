@@ -11,4 +11,5 @@ interface DbSourceCollection {
     val dailyCellDao: DailyCellDao
     val dailyDurationDao: DailyDurationDao
     val dailySetBindingDao: DailySetBindingDao
+    val userTicketInfoDao: UserTicketInfoDao
 }

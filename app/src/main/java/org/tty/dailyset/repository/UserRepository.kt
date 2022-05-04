@@ -1,25 +1,27 @@
 package org.tty.dailyset.repository
 
-import androidx.lifecycle.asLiveData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.withContext
 import org.tty.dailyset.MainActions
 import org.tty.dailyset.MainDestination
 import org.tty.dailyset.bean.ResponseCodes
-import org.tty.dailyset.datasource.db.UserDao
 import org.tty.dailyset.bean.entity.User
+import org.tty.dailyset.bean.entity.UserTicketInfo
 import org.tty.dailyset.bean.enums.PlatformCode
 import org.tty.dailyset.bean.enums.PlatformState
 import org.tty.dailyset.bean.enums.PreferenceName
+import org.tty.dailyset.bean.enums.UnicTickStatus
 import org.tty.dailyset.bean.req.UserAutoLoginReq
 import org.tty.dailyset.bean.req.UserLoginReq
 import org.tty.dailyset.bean.req.UserRegisterReq
 import org.tty.dailyset.common.local.logger
 import org.tty.dailyset.component.common.*
 import org.tty.dailyset.component.login.LoginInput
+import org.tty.dailyset.converter.toUnicTicketStatus
+import org.tty.dailyset.dailyset_cloud.grpc.Token
+import org.tty.dailyset.datasource.db.UserDao
 
 /**
  * repository for [User]
@@ -52,6 +54,7 @@ class UserRepository(private val sharedComponents: SharedComponents): SuspendIni
      */
     private suspend fun collectData() {
         autoLogin()
+        getCurrentBindTicketInfo()
     }
 
     suspend fun login(uid: String, password: String, navAction: MainActions) {
@@ -100,11 +103,11 @@ class UserRepository(private val sharedComponents: SharedComponents): SuspendIni
     private suspend fun autoLogin() {
         try {
             val userService = sharedComponents.dataSourceCollection.netSourceCollection.userService
-            val currentToken = getCurrentToken() ?: return
+            val currentUser = getCurrentUser() ?: return
 
-            logger.d("UserRepository", "currentToken: $currentToken")
+            logger.d("UserRepository", "currentToken: $currentUser")
 
-            val userAutoLoginReq = UserAutoLoginReq(token = currentToken)
+            val userAutoLoginReq = UserAutoLoginReq(token = currentUser.token)
             val userAutoLoginResp = userService.autoLogin(userAutoLoginReq)
 
             if (userAutoLoginResp.code == ResponseCodes.success) {
@@ -130,9 +133,9 @@ class UserRepository(private val sharedComponents: SharedComponents): SuspendIni
             }
 
         } catch (e: Exception) {
-            logger.e("UserRepository", "${e.javaClass.simpleName} :: ${e.message}")
+            logger.e("UserRepository", "autoLogin, ${e.javaClass.simpleName} :: ${e.message}")
             // TODO: 本地化处理
-            showToastOfNetworkError("登录失败", e)
+            showToastOfNetworkError("自动登录失败", e)
         }
     }
 
@@ -176,13 +179,53 @@ class UserRepository(private val sharedComponents: SharedComponents): SuspendIni
 
     }
 
-    private suspend fun getCurrentToken(): String? {
+    private suspend fun getCurrentBindTicketInfo() {
+        val user = getCurrentUser() ?: return
+        val userTicketInfoDao = sharedComponents.dataSourceCollection.dbSourceCollection.userTicketInfoDao
+        val ticketService = sharedComponents.dataSourceCollection.grpcSourceCollection.ticketService()
+        try {
+            val emptyUserTicketInfo = UserTicketInfo(
+                user.userUid,
+                status = UnicTickStatus.NotBind,
+                studentUid = "",
+                departmentName = "",
+                clazzName = "",
+                name = "",
+                grade = 0
+            )
+
+            val response = ticketService.currentBindInfo {
+                this.token = Token.newBuilder().setValue(user.token).build()
+            }
+            if (response.code == ResponseCodes.ticketNotExist) {
+                // 没有ticket的绑定信息
+                userTicketInfoDao.update(emptyUserTicketInfo)
+            } else {
+                val ticketInfo = emptyUserTicketInfo.copy(
+                    status = response.bindInfo.status.toUnicTicketStatus(),
+                    studentUid = response.bindInfo.uid,
+                    departmentName = response.bindInfo.departmentName,
+                    clazzName = response.bindInfo.className,
+                    name = response.bindInfo.name,
+                    grade = response.bindInfo.grade
+                )
+                userTicketInfoDao.update(ticketInfo)
+            }
+            showToastAsync("获取绑定信息成功")
+        } catch (e: Exception) {
+            logger.e("UserRepository", "getCurrentBindTicketInfo, ${e.javaClass.simpleName} :: ${e.message}")
+            showToastOfNetworkError("获取绑定信息失败", e)
+        }
+
+
+    }
+
+    private suspend fun getCurrentUser(): User? {
         val currentUserUid: String = sharedComponents.repositoryCollection.preferenceRepository.read(PreferenceName.CURRENT_USER_UID)
         if (currentUserUid.startsWith("#")) {
             return null
         }
-        val token = sharedComponents.dataSourceCollection.dbSourceCollection.userDao.get(currentUserUid)
-        return token?.token
+        return sharedComponents.dataSourceCollection.dbSourceCollection.userDao.get(currentUserUid)
     }
 
 }

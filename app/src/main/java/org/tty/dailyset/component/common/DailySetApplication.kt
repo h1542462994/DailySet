@@ -45,6 +45,7 @@ class DailySetApplication : Application(), SharedComponents {
             override val dailyCellDao: DailyCellDao get() = mutableSharedComponents.database.dailyCellDao()
             override val dailyDurationDao: DailyDurationDao get() = mutableSharedComponents.database.dailyDurationDao()
             override val dailySetBindingDao: DailySetBindingDao get() = mutableSharedComponents.database.dailySetBindingDao()
+            override val userTicketInfoDao: UserTicketInfoDao get() = mutableSharedComponents.database.userTicketInfoDao()
         })
         // repository
         mutableSharedComponents.useUserRepository(
@@ -146,10 +147,10 @@ class DailySetApplication : Application(), SharedComponents {
                 initialized = true
 
                 applicationScope.launch {
-
-                    mutableSharedComponents.repositoryCollection.userRepository.init()
                     mutableSharedComponents.dataSourceCollection.netSourceCollection.init()
                     mutableSharedComponents.dataSourceCollection.grpcSourceCollection.init()
+
+                    mutableSharedComponents.repositoryCollection.userRepository.init()
                 }
             }
         }

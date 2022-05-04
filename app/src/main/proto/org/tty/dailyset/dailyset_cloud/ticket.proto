@@ -1,5 +1,4 @@
 syntax = "proto3";
-
 import "org/tty/dailyset/dailyset_cloud/common.proto";
 
 
@@ -11,17 +10,44 @@ option java_package = "org.tty.dailyset.dailyset_cloud.grpc";
 option java_outer_classname = "TicketProto";
 
 service TicketService {
-  // bind ticket
-  rpc bind(TicketRequest) returns (TicketResponse);
+  // bind ticket.
+  rpc bind(TicketBindRequest) returns (TicketBindResponse);
+  // query the current bind info.
+  rpc currentBindInfo(CurrentBindInfoRequest) returns (CurrentBindInfoResponse);
 }
 
-message TicketRequest {
+message TicketBindRequest {
   Token token = 1;
   string uid = 2;
   string password = 3;
 }
 
-message TicketResponse {
+message TicketBindResponse {
   int32 code = 1;
   string message = 2;
+}
+
+message CurrentBindInfoRequest {
+  Token token = 1;
+}
+
+message CurrentBindInfoResponse {
+  int32 code = 1;
+  string message = 2;
+  TicketBindInfo bindInfo = 3;
+}
+
+message TicketBindInfo {
+  enum TicketStatus {
+    Initialized = 0;
+    Checked = 1;
+    Failure = 2;
+    PasswordFailure = 3;
+  }
+  TicketStatus status = 1;
+  string uid = 2;
+  string departmentName = 3;
+  string className = 4;
+  string name = 5;
+  int32 grade = 6;
 }

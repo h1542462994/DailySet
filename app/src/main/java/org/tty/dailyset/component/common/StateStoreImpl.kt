@@ -5,6 +5,7 @@ import org.tty.dailyset.bean.entity.DailySet
 import org.tty.dailyset.bean.entity.DailyTable
 import org.tty.dailyset.bean.enums.PreferenceName
 import org.tty.dailyset.bean.entity.User
+import org.tty.dailyset.bean.entity.UserTicketInfo
 import org.tty.dailyset.common.observable.flow2
 import org.tty.dailyset.ui.page.MainPageTabs
 import org.tty.dioc.util.optional
@@ -28,6 +29,13 @@ class StateStoreImpl(private val sharedComponents: SharedComponents): StateStore
     override val currentUser = flow2(currentUserUid, users) { uid, users ->
         users.find { it.userUid == uid } ?: User.default()
     }
+    @Suppress("OPT_IN_USAGE")
+    override val userTicketInfo: Flow<UserTicketInfo> = currentUserUid.flatMapLatest { userUid ->
+        sharedComponents.dataSourceCollection.dbSourceCollection.userTicketInfoDao.load(userUid).map {
+            it ?: UserTicketInfo.empty()
+        }
+    }
+
     override val dailyTables: Flow<List<DailyTable>> = sharedComponents.dataSourceCollection.dbSourceCollection.dailyTableDao.all()
     override val dailySets: Flow<List<DailySet>> = sharedComponents.dataSourceCollection.dbSourceCollection.dailySetDao.allSets()
     override val currentDailySetUid: MutableStateFlow<String> = sharedComponents.dataSourceCollection.runtimeDataSource.currentDailySetUid

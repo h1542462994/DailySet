@@ -15,6 +15,7 @@ import org.tty.dailyset.LocalNav
 import org.tty.dailyset.R
 import org.tty.dailyset.annotation.UseViewModel
 import org.tty.dailyset.bean.entity.User
+import org.tty.dailyset.bean.entity.UserTicketInfo
 import org.tty.dailyset.component.common.showToast
 import org.tty.dailyset.component.profile.rememberProfileVM
 import org.tty.dailyset.ui.component.ProfileMenuGroup
@@ -32,12 +33,13 @@ fun ProfilePage() {
     val scrollState = rememberScrollState()
     val profileVM = rememberProfileVM()
     val user by profileVM.currentUser.collectAsState()
+    val userTicketInfo by profileVM.userTicketInfo.collectAsState()
 
     Column(
         modifier = Modifier.verticalScroll(scrollState, enabled = true)
     ) {
         ProfileMenuGroupUser(user = user)
-        ProfileMenuGroupUserSettings()
+        ProfileMenuGroupUserSettings(userTicketInfo)
         ProfileMenuGroupGlobalSettings()
     }
 }
@@ -66,7 +68,7 @@ fun ProfileMenuGroupUser(user: User?) {
 
 
 @Composable
-fun ProfileMenuGroupUserSettings() {
+fun ProfileMenuGroupUserSettings(userTicketInfo: UserTicketInfo) {
     val nav = LocalNav.current
 
     ProfileMenuGroup(title = stringResource(id = R.string.user_settings)) {
@@ -83,7 +85,7 @@ fun ProfileMenuGroupUserSettings() {
             icon = ImageResource.link(),
             useTint = true,
             title = "自动课表",
-            content = "未绑定",
+            content = userTicketInfo.status.toString(),
             next = true,
             onClick = { showToast("未开发完成") }
         )
