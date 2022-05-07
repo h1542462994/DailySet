@@ -12,6 +12,7 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import org.tty.dailyset.provider.mainViewModel as vm
 
+@Deprecated("instead with component VM.")
 interface DailySetScope: PreferenceScope, UserScope, DailyTableScope {
     /**
      * the data entry for all dailySet.

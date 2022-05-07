@@ -1,5 +1,6 @@
 package org.tty.dailyset.ui.page
 
+/*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -33,6 +34,7 @@ import org.tty.dailyset.ui.component.CenterBar
 import org.tty.dailyset.ui.theme.LocalPalette
 import org.tty.dailyset.ui.utils.*
 import java.time.LocalDate
+
 
 
 /**
@@ -279,3 +281,4 @@ fun DailyTablePreviewTitle(currentDailyTable: DailyTable) {
 
     }
 }
+*/

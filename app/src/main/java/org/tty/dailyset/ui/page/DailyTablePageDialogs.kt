@@ -1,5 +1,6 @@
 package org.tty.dailyset.ui.page
 
+/*
 import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -19,6 +20,7 @@ import org.tty.dailyset.ui.component.*
 import org.tty.dailyset.ui.theme.LocalPalette
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
+
 
 /**
  * DailyTable .extensionArea.option.dialog<Delete>
@@ -366,3 +368,4 @@ fun DailyTableModifyCellDialogCover(
         }
     }
 }
+*/

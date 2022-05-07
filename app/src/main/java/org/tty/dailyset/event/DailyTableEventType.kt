@@ -1,5 +1,6 @@
 package org.tty.dailyset.event
 
+@Deprecated("not used yet.", level = DeprecationLevel.WARNING)
 enum class DailyTableEventType: EventType {
     /**
      * 创建

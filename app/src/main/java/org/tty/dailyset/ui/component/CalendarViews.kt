@@ -52,7 +52,7 @@ fun DatePicker(onDateSelected: (LocalDate) -> Unit, onDismissRequest: () -> Unit
                 Spacer(modifier = Modifier.size(24.dp))
 
                 Text(
-                    text = selDate.value.format(DateTimeFormatter.ofPattern("MMM d, YYYY")),
+                    text = selDate.value.format(DateTimeFormatter.ofPattern("MMM d, yyyy")),
                     style = MaterialTheme.typography.h4,
                     color = MaterialTheme.colors.onPrimary
                 )

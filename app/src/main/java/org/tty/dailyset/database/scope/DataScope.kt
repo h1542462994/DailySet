@@ -8,6 +8,7 @@ import org.tty.dailyset.event.DailyTableEventType
 import org.tty.dailyset.event.EventArgs
 import org.tty.dailyset.event.EventType
 
+@Deprecated("instead with component VM.")
 /**
  * root of data operations,
  * see also [DailyTableScope], [UserScope]

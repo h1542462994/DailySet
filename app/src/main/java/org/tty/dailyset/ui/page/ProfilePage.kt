@@ -77,7 +77,7 @@ fun ProfileMenuGroupUserSettings(userTicketInfo: UserTicketInfo) {
             title = stringResource(id = R.string.time_table),
             content = "系统默认",
             next = true,
-            onClick = nav.action::toTimeTable
+            onClick = { showToast("该功能暂未实现") }
         )
 
         val ticketStatusShow = TicketStatusShow(userTicketInfo)

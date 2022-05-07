@@ -223,6 +223,7 @@ class UserRepository(private val sharedComponents: SharedComponents): SuspendIni
             showToastAsync("获取绑定信息成功")
         } catch (e: Exception) {
             logger.e("UserRepository", "getCurrentBindTicketInfo, ${e.javaClass.simpleName} :: ${e.message}")
+            e.printStackTrace()
             showToastOfNetworkError("获取绑定信息失败", e)
         }
     }

@@ -1,5 +1,6 @@
 package org.tty.dailyset.ui.page
 
+/*
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -32,6 +33,7 @@ import org.tty.dailyset.ui.component.NanoDialog
 import org.tty.dailyset.ui.component.NanoDialogButton
 import org.tty.dailyset.ui.image.ImageResource
 import org.tty.dailyset.ui.theme.LocalPalette
+
 
 @ExperimentalFoundationApi
 @Composable
@@ -172,3 +174,4 @@ fun DailySetCreateDialogCover(
 
     }
 }
+*/

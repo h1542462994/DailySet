@@ -6,6 +6,7 @@ import org.tty.dailyset.event.EventType
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
+@Deprecated("instead with component VM.")
 /**
  * callback version for [EventProcessorAsync]
  */

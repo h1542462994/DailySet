@@ -1,5 +1,6 @@
 package org.tty.dailyset.ui.page
 
+/*
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
@@ -25,6 +26,7 @@ import java.time.DayOfWeek
 /**
  * the dailog for create clazz duration and import this to current dailySet ::clazzType.
  */
+
 @Composable
 fun ClazzDailySetClazzDurationCreateDialogCover(
     clazzDailyDurationCreateState: ClazzDailyDurationCreateState,
@@ -38,9 +40,11 @@ fun ClazzDailySetClazzDurationCreateDialogCover(
     var name by clazzDailyDurationCreateState.name
     var startDate by clazzDailyDurationCreateState.startDate
     var endDate by clazzDailyDurationCreateState.endDate
-    /**
+    */
+/**
      * 开始和结束相隔的天数
-     */
+     *//*
+
     val gap = minus(endDate, startDate)
     var weekCount by clazzDailyDurationCreateState.weekCount
     var periodCode by clazzDailyDurationCreateState.periodCode
@@ -171,4 +175,4 @@ fun ClazzDailySetClazzDurationCreateDialogCover(
 
 
 
-}
+}*/

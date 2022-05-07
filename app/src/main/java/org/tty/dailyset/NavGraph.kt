@@ -19,12 +19,13 @@ import org.tty.dailyset.ui.page.*
  */
 object MainDestination {
     const val MAIN_ROUTE = "main"
-    const val TIME_TABLE_ROUTE = "time_table"
-    const val TIME_TABLE_PREVIEW_ROUTE = "time_table_preview"
+    // TODO: 因为架构的原因暂时移除了这些页面
+//    const val TIME_TABLE_ROUTE = "time_table"
+//    const val TIME_TABLE_PREVIEW_ROUTE = "time_table_preview"
     const val TEST_ROUTE = "test"
-    const val DAILY_SET_NORMAL = "daily_set_normal"
-    const val DAILY_SET_CLAZZ = "daily_set_clazz"
-    const val DAILY_SET_TASK = "daily_set_task"
+//    const val DAILY_SET_NORMAL = "daily_set_normal"
+//    const val DAILY_SET_CLAZZ = "daily_set_clazz"
+//    const val DAILY_SET_TASK = "daily_set_task"
     const val INDEX = "index"
     const val LOGIN = "login"
     const val REGISTER = "register"
@@ -67,24 +68,24 @@ fun NavGraph() {
             composable(MainDestination.MAIN_ROUTE) {
                 MainPage()
             }
-            composable(MainDestination.TIME_TABLE_ROUTE) {
-                DailyTablePage()
-            }
-            composable(MainDestination.TIME_TABLE_PREVIEW_ROUTE) {
-                DailyTablePreviewPage()
-            }
+//            composable(MainDestination.TIME_TABLE_ROUTE) {
+//                DailyTablePage()
+//            }
+//            composable(MainDestination.TIME_TABLE_PREVIEW_ROUTE) {
+//                DailyTablePreviewPage()
+//            }
             composable(MainDestination.TEST_ROUTE) {
                 TestPage()
             }
-            composable(MainDestination.DAILY_SET_NORMAL) {
-                NormalDailySetPage()
-            }
-            composable(MainDestination.DAILY_SET_CLAZZ) {
-                ClazzDailySetPage()
-            }
-            composable(MainDestination.DAILY_SET_TASK) {
-                TaskDailySetPage()
-            }
+//            composable(MainDestination.DAILY_SET_NORMAL) {
+//                NormalDailySetPage()
+//            }
+//            composable(MainDestination.DAILY_SET_CLAZZ) {
+//                ClazzDailySetPage()
+//            }
+//            composable(MainDestination.DAILY_SET_TASK) {
+//                TaskDailySetPage()
+//            }
             composable(MainDestination.INDEX) {
                 IndexPage()
             }
@@ -126,29 +127,29 @@ class MainActions(private val navController: NavHostController) {
         navController.navigateUp()
     }
 
-    fun toTimeTable() {
-        navController.navigateExceptEqual(MainDestination.TIME_TABLE_ROUTE)
-    }
-
-    fun toTimeTablePreview() {
-        navController.navigateExceptEqual(MainDestination.TIME_TABLE_PREVIEW_ROUTE)
-    }
+//    fun toTimeTable() {
+//        navController.navigateExceptEqual(MainDestination.TIME_TABLE_ROUTE)
+//    }
+//
+//    fun toTimeTablePreview() {
+//        navController.navigateExceptEqual(MainDestination.TIME_TABLE_PREVIEW_ROUTE)
+//    }
 
     fun toDebug() {
         navController.navigateExceptEqual(MainDestination.TEST_ROUTE)
     }
 
-    fun toNormalDailySet() {
-        navController.navigateExceptEqual(MainDestination.DAILY_SET_NORMAL)
-    }
-
-    fun toClazzDailySet() {
-        navController.navigateExceptEqual(MainDestination.DAILY_SET_CLAZZ)
-    }
-
-    fun toTaskDailySet() {
-        navController.navigateExceptEqual(MainDestination.DAILY_SET_TASK)
-    }
+//    fun toNormalDailySet() {
+//        navController.navigateExceptEqual(MainDestination.DAILY_SET_NORMAL)
+//    }
+//
+//    fun toClazzDailySet() {
+//        navController.navigateExceptEqual(MainDestination.DAILY_SET_CLAZZ)
+//    }
+//
+//    fun toTaskDailySet() {
+//        navController.navigateExceptEqual(MainDestination.DAILY_SET_TASK)
+//    }
 
     fun toLogin(input: LoginInput) {
         navController.navigateExceptEqual(MainDestination.LOGIN + "?from=${input.from}&username=${input.username}")

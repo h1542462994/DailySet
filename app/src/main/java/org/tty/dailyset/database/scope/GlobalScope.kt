@@ -13,6 +13,7 @@ import java.time.LocalDate
 import org.tty.dailyset.provider.mainViewModel as vm
 
 @Immutable
+@Deprecated("instead with component VM.")
 interface GlobalScope  {
     @Composable
     fun mainViewModel(): MainViewModel {

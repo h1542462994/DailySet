@@ -1,5 +1,6 @@
 package org.tty.dailyset.ui.page
 
+/*
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -48,6 +49,7 @@ import java.util.*
  * clazz dailySet page.
  */
 
+
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun ClazzDailySetPage() {
@@ -64,9 +66,11 @@ fun ClazzDailySetPage() {
         val clazzDailySetState by clazzDailySetStateOfIndex(index = pagerInfo.pageIndex)
 
 
-        /**
+        */
+/**
          * not include dailyDurations current.
-         */
+         *//*
+
         val notIncludedDailyDurations by currentNotIncludedDurations(type = DailyDurationType.Clazz)
 
         LaunchedEffect(key1 = notIncludedDailyDurations, block = {
@@ -142,9 +146,11 @@ fun ClazzDailySetPage() {
 
 }
 
+*/
 /**
  * clazz dailySetPage .appBar
- */
+ *//*
+
 @Composable
 fun ClazzDailySetAppBar(dailySet: DailySet, dailyDuration: DailyDuration?, onBack: () -> Unit) {
 
@@ -376,4 +382,4 @@ fun ClazzDailySetBottomShiftRightAddIcon(
             tint = Color.Unspecified
         )
     }
-}
+}*/

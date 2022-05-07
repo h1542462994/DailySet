@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import org.tty.dailyset.bean.lifetime.WeekDayState
 import java.time.LocalTime
 
+@Deprecated("instead with component VM.")
 /**
  * dailyTable related operations, used in ui interactive.
  */

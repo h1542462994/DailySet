@@ -3,6 +3,7 @@ package org.tty.dailyset.database.processor
 import org.tty.dailyset.event.*
 import java.lang.IllegalArgumentException
 
+@Deprecated("instead with component VM.")
 /**
  * DailySet related operation used in dailySetDao
  * @see [org.tty.dailyset.bean.dao.DailySetDao]

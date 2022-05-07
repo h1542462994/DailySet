@@ -8,6 +8,7 @@ import org.tty.dailyset.bean.entity.User
 import org.tty.dailyset.bean.lifetime.UserState
 import org.tty.dailyset.provider.mainViewModel as vm
 
+@Deprecated("instead with component VM.")
 @Immutable
 interface UserScope: PreferenceScope {
     @Composable

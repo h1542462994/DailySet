@@ -6,6 +6,7 @@ import androidx.compose.runtime.State
 import org.tty.dailyset.common.observable.state
 import org.tty.dailyset.provider.mainViewModel as vm
 
+@Deprecated("instead with component VM.")
 @Immutable
 interface PreferenceScope: GlobalScope {
     @Composable

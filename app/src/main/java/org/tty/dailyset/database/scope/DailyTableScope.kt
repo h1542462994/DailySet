@@ -17,6 +17,7 @@ import org.tty.dailyset.provider.mainViewModel as vm
  * a state related operation for [DailyTable], defines much functions return [State].
  */
 @Immutable
+@Deprecated("instead with component VM.")
 interface DailyTableScope : PreferenceScope, UserScope {
     /**
      * state of [org.tty.dailyset.viewmodel.MainViewModel.dailyTableSummaries]

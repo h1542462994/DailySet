@@ -4,6 +4,7 @@ import androidx.room.Ignore
 import org.tty.dailyset.event.*
 import java.lang.IllegalArgumentException
 
+@Deprecated("instead with component VM.")
 /**
  * DailyTable related operation used in dailyTableDao
  * @see [org.tty.dailyset.bean.dao.DailyTableDao]

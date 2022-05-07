@@ -19,6 +19,7 @@ import org.tty.dailyset.bean.entity.DailySetType
 import org.tty.dailyset.bean.entity.toImageResource
 import org.tty.dailyset.common.datetime.epochLocalDateTime
 import org.tty.dailyset.component.common.asMutableState
+import org.tty.dailyset.component.common.showToast
 import org.tty.dailyset.component.dailyset.DailySetCreateDialogVM
 import org.tty.dailyset.component.dailyset.rememberDailySetVM
 import org.tty.dailyset.ui.component.ProfileMenuItem
@@ -40,7 +41,7 @@ fun DailySetPage() {
         DailySetAddPart(dailySetCreateDialogVM = dailySetVM.dailySetCreateDialogVM)
         DailySetAutoPart()
         DailySetUserPart(dailySets) {
-            // change the current dailySet uid to selected
+/*            // change the current dailySet uid to selected
             dailySetVM.setCurrentDailySetUid(it.uid)
             // changed the target page
             when(it.type) {
@@ -53,12 +54,14 @@ fun DailySetPage() {
                 DailySetType.TaskSpecific -> {
                     nav.toTaskDailySet()
                 }
-            }
+            }*/
+            showToast("暂不支持该功能.")
         }
     }
 
+    /*
     DailySetCreateDialogCover(dailySetVM.dailySetCreateDialogVM)
-
+    */
 }
 
 /**

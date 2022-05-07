@@ -1,5 +1,6 @@
 package org.tty.dailyset.ui.page
 
+/*
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -38,6 +39,7 @@ import org.tty.dailyset.ui.image.ImageResource
 import org.tty.dailyset.ui.theme.LocalPalette
 import java.time.LocalTime
 import java.util.*
+
 
 /**
  * Manage DailyTable Settings
@@ -669,3 +671,5 @@ fun DailyTableTitlePreview() {
         )
     )
 }
+
+*/
