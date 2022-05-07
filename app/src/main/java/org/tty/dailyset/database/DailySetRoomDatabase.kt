@@ -29,7 +29,8 @@ import org.tty.dailyset.bean.enums.PreferenceName
         DailySetBasicMeta::class,
         DailySetUsageMeta::class,
         DailySetSchoolInfoMeta::class,
-        DailySetStudentInfoMeta::class
+        DailySetStudentInfoMeta::class,
+        DailySetVisible::class
     ],
     version = DailySetRoomDatabase.currentVersion,
     exportSchema = false
@@ -43,6 +44,7 @@ abstract class DailySetRoomDatabase : RoomDatabase() {
     abstract fun dailySetDao(): DailySetDao
     abstract fun dailyDurationDao(): DailySetDurationDao
     abstract fun userTicketInfoDao(): UserTicketInfoDao
+    abstract fun dailySetVisibleDao(): DailySetVisibleDao
 
     private class DailySetDatabaseCallBack(
         private val scope: CoroutineScope
@@ -89,7 +91,7 @@ abstract class DailySetRoomDatabase : RoomDatabase() {
 
         private const val TAG = "DailySetRoomDatabase"
 
-        const val currentVersion = 13
+        const val currentVersion = 14
 
         fun getDatabase(context: Context, scope: CoroutineScope): DailySetRoomDatabase {
             return INSTANCE ?: synchronized(this) {

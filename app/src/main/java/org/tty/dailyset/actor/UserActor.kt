@@ -50,8 +50,15 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
      */
     private suspend fun collectData() {
         autoLogin()
-        getCurrentBindTicketInfo()
+        afterLogin()
     }
+
+    private suspend fun afterLogin() {
+        updateCurrentBindInfo()
+        sharedComponents.actorCollection.dailySetActor.updateData()
+    }
+
+
 
     suspend fun login(uid: String, password: String, navAction: MainActions) {
         try {
@@ -83,6 +90,7 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
                     // 跳转到主页
                     navAction.toMain()
 
+                    collectData()
                     // TODO: 启动后续的自动同步逻辑...
                 }
             } else {
@@ -184,7 +192,7 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
 
     }
 
-    private suspend fun getCurrentBindTicketInfo() {
+    private suspend fun updateCurrentBindInfo() {
         val user = getCurrentUser() ?: return
         val userTicketInfoDao = sharedComponents.database.userTicketInfoDao()
         val ticketService = sharedComponents.dataSourceCollection.grpcSourceCollection.ticketService()
@@ -248,7 +256,7 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
     private suspend fun postBindTicket(navAction: MainActions) {
         // 退出绑定界面。
         navAction.upPress()
-        getCurrentBindTicketInfo()
+        updateCurrentBindInfo()
     }
 
     private suspend fun getCurrentUser(): User? {

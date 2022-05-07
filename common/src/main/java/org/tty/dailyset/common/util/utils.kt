@@ -1,4 +1,4 @@
-package org.tty.dailyset.common
+package org.tty.dailyset.common.util
 
 import java.util.*
 

@@ -37,6 +37,7 @@ class RetrofitFactory {
             .addInterceptor(
                 HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)
             )
+            .addInterceptor(TokenInterceptor)
             .build()
     }
 

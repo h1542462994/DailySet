@@ -138,7 +138,7 @@ private data class TicketStatusShow(
         // TODO: 文本资源
         UnicTickStatus.NotBind -> "未绑定"
         UnicTickStatus.Initialized -> "初始化中"
-        UnicTickStatus.Checked -> "正常(${userTicketInfo.studentUid})"
+        UnicTickStatus.Checked -> "正常"
         UnicTickStatus.UnknownFailure -> "未知错误"
         UnicTickStatus.PasswordFailure -> "密码错误"
     }
