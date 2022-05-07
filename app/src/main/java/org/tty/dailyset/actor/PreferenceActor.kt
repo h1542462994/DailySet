@@ -13,7 +13,7 @@ import org.tty.dioc.util.optional
  * it will use db service, see also [org.tty.dailyset.database.DailySetRoomDatabase]
  */
 class PreferenceActor(private val sharedComponents: SharedComponents) {
-    private val preferenceDao get() = sharedComponents.dataSourceCollection.dbSourceCollection.preferenceDao
+    private val preferenceDao get() = sharedComponents.database.preferenceDao()
 
 
     suspend fun save(preferenceName: PreferenceName, value: Any) {

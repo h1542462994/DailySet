@@ -1,68 +1,23 @@
 package org.tty.dailyset.bean.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
-import org.tty.dailyset.common.datetime.epochLocalDateTime
-import org.tty.dailyset.converter.DailySetIconConverter
-import org.tty.dailyset.converter.DailySetTypeConverter
-import org.tty.dailyset.converter.StringLocalDateTimeConverter
-import java.time.LocalDateTime
+import kotlinx.serialization.Serializable
 
 /**
  * represents a dailySet
  */
-@Entity(tableName = "daily_set")
-@TypeConverters(DailySetTypeConverter::class, DailySetIconConverter::class, StringLocalDateTimeConverter::class)
+@Serializable
+@Entity(tableName = "dailyset")
 data class DailySet(
-    /**
-     * the dailySet type.
-     */
-    val type: DailySetType = DailySetType.Normal,
-
-    /**
-     * the dailySet icon
-     */
-    val icon: DailySetIcon?,
-
-    /**
-     * the unique uid.
-     */
     @PrimaryKey
-    val uid: String = "",
-
-    val serialIndex: Int = 0,
-
-
-    val userUid: String = "",
-
-    /**
-     * the ownerUid
-     */
-    val ownerUid: String = "",
-
-    /**
-     * the display name.
-     */
-    val name: String = "",
-
-    /**
-     * the update timestamp
-     */
-    val updateAt: LocalDateTime
-) {
-    companion object {
-        fun empty(): DailySet {
-            return DailySet(
-                type = DailySetType.Normal,
-                icon = null,
-                uid = User.system,
-                serialIndex = 0,
-                userUid = User.local,
-                ownerUid = User.system,
-                name = "",
-                updateAt = epochLocalDateTime()
-            )
-        }
-    }
-}
+    val uid: String,
+    val type: Int,
+    @ColumnInfo(name = "source_version")
+    val sourceVersion: Int,
+    @ColumnInfo(name = "matte_version")
+    val matteVersion: Int,
+    @ColumnInfo(name = "meta_version")
+    val metaVersion:Int
+)

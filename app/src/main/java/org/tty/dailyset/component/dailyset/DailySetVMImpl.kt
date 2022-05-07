@@ -6,8 +6,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.tty.dailyset.annotation.UseComponent
 import org.tty.dailyset.bean.entity.DailySet
-import org.tty.dailyset.bean.entity.DailySetIcon
-import org.tty.dailyset.bean.entity.DailySetType
+import org.tty.dailyset.bean.enums.DailySetIcon
+import org.tty.dailyset.bean.enums.DailySetType
 import org.tty.dailyset.component.common.SharedComponents
 import org.tty.dailyset.component.common.asActivityColdStateFlow
 import org.tty.dailyset.component.common.sharedComponents0

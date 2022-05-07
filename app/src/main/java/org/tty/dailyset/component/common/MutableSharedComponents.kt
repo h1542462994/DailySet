@@ -2,17 +2,18 @@ package org.tty.dailyset.component.common
 
 import android.content.Context
 import android.view.Window
-import androidx.lifecycle.Lifecycle
 import kotlinx.coroutines.CoroutineScope
 import org.tty.dailyset.MainActions
 import org.tty.dailyset.Nav
+import org.tty.dailyset.actor.ActorCollection
+import org.tty.dailyset.actor.DailySetActor
+import org.tty.dailyset.actor.PreferenceActor
+import org.tty.dailyset.actor.UserActor
 import org.tty.dailyset.database.DailySetRoomDatabase
 import org.tty.dailyset.datasource.DataSourceCollection
-import org.tty.dailyset.datasource.DbSourceCollection
 import org.tty.dailyset.datasource.GrpcSourceCollection
 import org.tty.dailyset.datasource.NetSourceCollection
 import org.tty.dailyset.datasource.runtime.RuntimeDataSource
-import org.tty.dailyset.actor.*
 
 class MutableSharedComponents : SharedComponents {
 
@@ -21,7 +22,6 @@ class MutableSharedComponents : SharedComponents {
     private lateinit var databaseInternal:  DailySetRoomDatabase
     private val repositoryCollectionInternal = MutableActorCollection()
     private lateinit var stateStoreInternal: StateStore
-    private lateinit var lifecycleInternal: Lifecycle
     private lateinit var navInternal: Nav<MainActions>
     private lateinit var windowInternal: Window
     private lateinit var activityContextInternal:  Context
@@ -33,19 +33,16 @@ class MutableSharedComponents : SharedComponents {
     override val actorCollection: ActorCollection by lazy { repositoryCollectionInternal }
     override val stateStore: StateStore get() = stateStoreInternal
     override val applicationScope: CoroutineScope get() = applicationScopeInternal
-//    override val lifecycle: Lifecycle get() = lifecycleInternal
     override val nav: Nav<MainActions> get() = navInternal
     override val window: Window get() = windowInternal
     override val activityContext: Context get() = activityContextInternal
     override val activityScope: CoroutineScope get() = activityScopeInternal
     override val ltsVMSaver: LtsVMSaver get() = ltsVMSaverInternal
     class MutableDataSourceCollection: DataSourceCollection {
-        internal lateinit var dbSourceCollectionInternal: DbSourceCollection
         internal lateinit var netSourceCollectionInternal: NetSourceCollection
         internal lateinit var runtimeDataSourceInternal: RuntimeDataSource
         internal lateinit var grpcSourceCollectionInternal: GrpcSourceCollection
 
-        override val dbSourceCollection: DbSourceCollection get() =  dbSourceCollectionInternal
         override val netSourceCollection: NetSourceCollection get() =  netSourceCollectionInternal
         override val runtimeDataSource: RuntimeDataSource get() = runtimeDataSourceInternal
         override val grpcSourceCollection: GrpcSourceCollection get() = grpcSourceCollectionInternal
@@ -55,12 +52,10 @@ class MutableSharedComponents : SharedComponents {
         internal lateinit var userActorInternal:  UserActor
         internal lateinit var preferenceActorInternal:  PreferenceActor
         internal lateinit var dailySetActorInternal:  DailySetActor
-//        internal lateinit var dailySetRepositoryInternal: DailyRepository
 
         override val userActor: UserActor get() = userActorInternal
         override val preferenceActor: PreferenceActor get() = preferenceActorInternal
         override val dailySetActor: DailySetActor get() = dailySetActorInternal
-//        override val dailySetRepository: DailyRepository get() = dailySetRepositoryInternal
     }
 
     fun useApplicationScope(applicationScope: CoroutineScope) {
@@ -69,10 +64,6 @@ class MutableSharedComponents : SharedComponents {
 
     fun useDatabase(database: DailySetRoomDatabase) {
         this.databaseInternal = database
-    }
-
-    fun useDbSourceCollection(dbSourceCollection: DbSourceCollection) {
-        this.dataSourceCollectionInternal.dbSourceCollectionInternal = dbSourceCollection
     }
 
     fun useNetSourceCollection(netSourceCollection:  NetSourceCollection) {
@@ -91,10 +82,6 @@ class MutableSharedComponents : SharedComponents {
         this.repositoryCollectionInternal.dailySetActorInternal = dailySetActor
     }
 
-//    fun useDailyRepository(dailyRepository:  DailyRepository) {
-//        this.repositoryCollectionInternal.dailySetRepositoryInternal = dailyRepository
-//    }
-
     fun useRuntimeDataSource(runtimeDataSource: RuntimeDataSource) {
         this.dataSourceCollectionInternal.runtimeDataSourceInternal = runtimeDataSource
     }
@@ -102,10 +89,6 @@ class MutableSharedComponents : SharedComponents {
     fun useGrpcSourceCollection(grpcSourceCollection: GrpcSourceCollection) {
         this.dataSourceCollectionInternal.grpcSourceCollectionInternal = grpcSourceCollection
     }
-
-//    override fun useLifecycle(lifecycle: Lifecycle) {
-//        this.lifecycleInternal = lifecycle
-//    }
 
     fun useStateStore(stateStore: StateStore) {
         this.stateStoreInternal = stateStore

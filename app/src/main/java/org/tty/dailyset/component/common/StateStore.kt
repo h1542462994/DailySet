@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.tty.dailyset.bean.entity.DailySet
-import org.tty.dailyset.bean.entity.DailyTable
+import org.tty.dailyset.bean.entity.DailySetTable
 import org.tty.dailyset.bean.entity.User
 import org.tty.dailyset.bean.entity.UserTicketInfo
 import org.tty.dailyset.datasource.db.PreferenceDao
@@ -49,7 +49,7 @@ interface StateStore {
     val users: Flow<List<User>>
     val currentUser: Flow<User>
     val userTicketInfo: Flow<UserTicketInfo>
-    val dailyTables: Flow<List<DailyTable>>
+    val dailySetTables: Flow<List<DailySetTable>>
     val dailySets: Flow<List<DailySet>>
     val currentDailySetUid: MutableStateFlow<String>
     val firstLoadUser: Flow<Boolean>

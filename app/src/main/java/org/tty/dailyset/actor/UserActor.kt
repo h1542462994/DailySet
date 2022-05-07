@@ -19,7 +19,7 @@ import org.tty.dailyset.bean.req.UserRegisterReq
 import org.tty.dailyset.common.local.logger
 import org.tty.dailyset.component.common.*
 import org.tty.dailyset.component.login.LoginInput
-import org.tty.dailyset.converter.toUnicTicketStatus
+import org.tty.dailyset.bean.converters.toUnicTicketStatus
 import org.tty.dailyset.dailyset_cloud.grpc.Token
 
 /**
@@ -71,7 +71,7 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
                 sharedComponents.actorCollection.preferenceActor.save(PreferenceName.FIRST_LOAD_USER, false)
                 sharedComponents.actorCollection.preferenceActor.save(PreferenceName.DEVICE_CODE, userLoginResp.data.deviceCode)
                 sharedComponents.actorCollection.preferenceActor.save(PreferenceName.CURRENT_USER_UID, userLoginResp.data.uid.toString())
-                sharedComponents.dataSourceCollection.dbSourceCollection.userDao.update(User(
+                sharedComponents.database.userDao().update(User(
                     userUid = userLoginResp.data.uid.toString(),
                     name = userLoginResp.data.uid.toString(),
                     nickName = userLoginResp.data.nickname,
@@ -113,7 +113,7 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
                 sharedComponents.actorCollection.preferenceActor.save(PreferenceName.FIRST_LOAD_USER, false)
                 sharedComponents.actorCollection.preferenceActor.save(PreferenceName.DEVICE_CODE, userAutoLoginResp.data.deviceCode)
                 sharedComponents.actorCollection.preferenceActor.save(PreferenceName.CURRENT_USER_UID, userAutoLoginResp.data.uid.toString())
-                sharedComponents.dataSourceCollection.dbSourceCollection.userDao.update(User(
+                sharedComponents.database.userDao().update(User(
                     userUid = userAutoLoginResp.data.uid.toString(),
                     name = userAutoLoginResp.data.uid.toString(),
                     nickName = userAutoLoginResp.data.nickname,
@@ -125,7 +125,7 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
                 showToastAsync("自动登录成功")
             } else {
                 showToastAsync("(${userAutoLoginResp.code}) ${userAutoLoginResp.message}")
-                sharedComponents.dataSourceCollection.dbSourceCollection.userDao.update(
+                sharedComponents.database.userDao().update(
                     currentUser.copy(
                         state = PlatformState.LEAVE.state
                     )
@@ -134,7 +134,7 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
 
         } catch (e: Exception) {
             logger.e("UserRepository", "autoLogin, ${e.javaClass.simpleName} :: ${e.message}")
-            sharedComponents.dataSourceCollection.dbSourceCollection.userDao.update(
+            sharedComponents.database.userDao().update(
                 currentUser.copy(
                     state = PlatformState.LEAVE.state
                 )
@@ -186,7 +186,7 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
 
     private suspend fun getCurrentBindTicketInfo() {
         val user = getCurrentUser() ?: return
-        val userTicketInfoDao = sharedComponents.dataSourceCollection.dbSourceCollection.userTicketInfoDao
+        val userTicketInfoDao = sharedComponents.database.userTicketInfoDao()
         val ticketService = sharedComponents.dataSourceCollection.grpcSourceCollection.ticketService()
         try {
             val emptyUserTicketInfo = UserTicketInfo(
@@ -256,7 +256,7 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
         if (currentUserUid.startsWith("#")) {
             return null
         }
-        return sharedComponents.dataSourceCollection.dbSourceCollection.userDao.get(currentUserUid)
+        return sharedComponents.database.userDao().get(currentUserUid)
     }
 
 }

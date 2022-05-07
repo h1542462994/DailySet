@@ -15,28 +15,33 @@ import org.tty.dailyset.bean.enums.PreferenceName
 
 @Database(
     entities = [
-        Preference::class,
         User::class,
-        DailyTable::class,
-        DailyRow::class,
-        DailyCell::class,
+        UserTicketInfo::class,
+        Preference::class,
         DailySet::class,
-        DailyDuration::class,
-        DailyNode::class,
-        DailySetBinding::class,
-        UserTicketInfo::class],
+        DailySetMetaLinks::class,
+        DailySetSourceLinks::class,
+        DailySetTable::class,
+        DailySetRow::class,
+        DailySetCell::class,
+        DailySetCourse::class,
+        DailySetDuration::class,
+        DailySetBasicMeta::class,
+        DailySetUsageMeta::class,
+        DailySetSchoolInfoMeta::class,
+        DailySetStudentInfoMeta::class
+    ],
     version = DailySetRoomDatabase.currentVersion,
     exportSchema = false
 )
 abstract class DailySetRoomDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
     abstract fun preferenceDao(): PreferenceDao
-    abstract fun dailyTableDao(): DailyTableDao
-    abstract fun dailyRowDao(): DailyRowDao
-    abstract fun dailyCellDao(): DailyCellDao
+    abstract fun dailyTableDao(): DailySetTableDao
+    abstract fun dailyRowDao(): DailySetRowDao
+    abstract fun dailyCellDao(): DailySetCellDao
     abstract fun dailySetDao(): DailySetDao
-    abstract fun dailyDurationDao(): DailyDurationDao
-    abstract fun dailySetBindingDao(): DailySetBindingDao
+    abstract fun dailyDurationDao(): DailySetDurationDao
     abstract fun userTicketInfoDao(): UserTicketInfoDao
 
     private class DailySetDatabaseCallBack(
@@ -84,7 +89,7 @@ abstract class DailySetRoomDatabase : RoomDatabase() {
 
         private const val TAG = "DailySetRoomDatabase"
 
-        const val currentVersion = 11
+        const val currentVersion = 13
 
         fun getDatabase(context: Context, scope: CoroutineScope): DailySetRoomDatabase {
             return INSTANCE ?: synchronized(this) {

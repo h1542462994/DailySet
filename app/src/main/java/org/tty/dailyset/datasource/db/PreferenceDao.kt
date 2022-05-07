@@ -10,13 +10,13 @@ import org.tty.dailyset.bean.entity.Preference
  */
 @Dao
 interface PreferenceDao {
-    @Query("SELECT * FROM preference WHERE preferenceKey = :name LIMIT 1")
+    @Query("SELECT * FROM preference WHERE preference_key = :name LIMIT 1")
     suspend fun get(name: String): Preference?
 
-    @Query("SELECT * FROM preference WHERE preferenceKey = :name LIMIT 1")
+    @Query("SELECT * FROM preference WHERE preference_key = :name LIMIT 1")
     fun load(name: String): Flow<Preference?>
 
-    @Query("SELECT * FROM preference WHERE preferenceKey = :name LIMIT 1")
+    @Query("SELECT * FROM preference WHERE preference_key = :name LIMIT 1")
     @Deprecated("will produce NullPointerException")
     fun assertLoad(name: String): Flow<Preference>
 

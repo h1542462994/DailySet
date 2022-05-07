@@ -2,7 +2,7 @@ package org.tty.dailyset.component.common
 
 import kotlinx.coroutines.flow.*
 import org.tty.dailyset.bean.entity.DailySet
-import org.tty.dailyset.bean.entity.DailyTable
+import org.tty.dailyset.bean.entity.DailySetTable
 import org.tty.dailyset.bean.enums.PreferenceName
 import org.tty.dailyset.bean.entity.User
 import org.tty.dailyset.bean.entity.UserTicketInfo
@@ -25,19 +25,19 @@ class StateStoreImpl(private val sharedComponents: SharedComponents): StateStore
     override val startDayOfWeek: Flow<DayOfWeek> = loadPreference(PreferenceName.START_DAY_OF_WEEK, mapper = { DayOfWeek.of(it.toInt()) })
     override val mainTab: MutableStateFlow<MainPageTabs> = sharedComponents.dataSourceCollection.runtimeDataSource.mainTab
 
-    override val users: Flow<List<User>> = sharedComponents.dataSourceCollection.dbSourceCollection.userDao.all()
+    override val users: Flow<List<User>> = sharedComponents.database.userDao().all()
     override val currentUser = flow2(currentUserUid, users) { uid, users ->
         users.find { it.userUid == uid } ?: User.default()
     }
     @Suppress("OPT_IN_USAGE")
     override val userTicketInfo: Flow<UserTicketInfo> = currentUserUid.flatMapLatest { userUid ->
-        sharedComponents.dataSourceCollection.dbSourceCollection.userTicketInfoDao.load(userUid).map {
+        sharedComponents.database.userTicketInfoDao().load(userUid).map {
             it ?: UserTicketInfo.empty()
         }
     }
 
-    override val dailyTables: Flow<List<DailyTable>> = sharedComponents.dataSourceCollection.dbSourceCollection.dailyTableDao.all()
-    override val dailySets: Flow<List<DailySet>> = sharedComponents.dataSourceCollection.dbSourceCollection.dailySetDao.allSets()
+    override val dailySetTables: Flow<List<DailySetTable>> = sharedComponents.database.dailyTableDao().all()
+    override val dailySets: Flow<List<DailySet>> = sharedComponents.database.dailySetDao().all()
     override val currentDailySetUid: MutableStateFlow<String> = sharedComponents.dataSourceCollection.runtimeDataSource.currentDailySetUid
     override val currentHttpServerAddress: Flow<String> = loadPreference(PreferenceName.CURRENT_HTTP_SERVER_ADDRESS)
     override val deviceCode: StateFlow<String> = loadPreferenceAsStateFlow(PreferenceName.DEVICE_CODE)
@@ -45,7 +45,7 @@ class StateStoreImpl(private val sharedComponents: SharedComponents): StateStore
 
     @Suppress("UNCHECKED_CAST")
     private fun <T> loadPreference(preferenceName: PreferenceName, mapper: (it: String) -> T = { it as T }): Flow<T> {
-        return sharedComponents.dataSourceCollection.dbSourceCollection.preferenceDao.load(preferenceName.key).map {
+        return sharedComponents.database.preferenceDao().load(preferenceName.key).map {
             it.optional { mapper(value) } ?: mapper(preferenceName.defaultValue)
         }
     }

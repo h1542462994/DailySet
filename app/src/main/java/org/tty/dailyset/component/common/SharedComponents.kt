@@ -10,8 +10,6 @@ import org.tty.dailyset.datasource.DataSourceCollection
 import org.tty.dailyset.actor.ActorCollection
 
 interface SharedComponents {
-//    @Deprecated("use activityScope instead.")
-//    val lifecycle: Lifecycle
     val activityScope: CoroutineScope
     val applicationScope: CoroutineScope
     val database: DailySetRoomDatabase
@@ -23,8 +21,6 @@ interface SharedComponents {
     val activityContext: Context
     val ltsVMSaver: LtsVMSaver
     fun useNav(nav: Nav<MainActions>)
-//    @Deprecated("use activityScope instead.")
-//    fun useLifecycle(lifecycle: Lifecycle)
     fun useWindow(window: Window)
     fun useActivityContext(context: Context)
     fun useActivityScope(scope: CoroutineScope)

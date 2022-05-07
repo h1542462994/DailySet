@@ -14,10 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import org.tty.dailyset.R
 import org.tty.dailyset.annotation.UseViewModel
 import org.tty.dailyset.bean.entity.DailySet
-import org.tty.dailyset.bean.entity.DailySetIcon
-import org.tty.dailyset.bean.entity.DailySetType
-import org.tty.dailyset.bean.entity.toImageResource
-import org.tty.dailyset.common.datetime.epochLocalDateTime
+import org.tty.dailyset.bean.enums.DailySetType
 import org.tty.dailyset.component.common.asMutableState
 import org.tty.dailyset.component.common.showToast
 import org.tty.dailyset.component.dailyset.DailySetCreateDialogVM
@@ -115,17 +112,17 @@ fun DailySetUserPart(dailySets: List<DailySet>, onClick: (DailySet) -> Unit) {
     }
 
     Column {
-        val normalList = groupedDailySets[DailySetType.Normal]
+        val normalList = groupedDailySets[DailySetType.Normal.value]
         if (normalList != null) {
             TitleSpace(title = stringResource(id = R.string.dailyset_type_normal))
             list(normalList)
         }
-        val clazzList = groupedDailySets[DailySetType.Clazz]
+        val clazzList = groupedDailySets[DailySetType.Clazz.value]
         if (clazzList != null) {
             TitleSpace(title = stringResource(id = R.string.dailyset_type_clazz))
             list(clazzList)
         }
-        val taskList = groupedDailySets[DailySetType.TaskSpecific]
+        val taskList = groupedDailySets[DailySetType.Task.value]
         if (taskList != null) {
             TitleSpace(title = stringResource(id = R.string.dailyset_type_task))
             list(taskList)
@@ -138,14 +135,12 @@ fun DailySetUserPart(dailySets: List<DailySet>, onClick: (DailySet) -> Unit) {
  */
 @Composable
 fun DailySetElement(dailySet: DailySet, onClick: (DailySet) -> Unit) {
-    val icon = dailySet.icon.toImageResource()
-    val useTint = dailySet.icon == null
 
     ProfileMenuItem(
-        icon = icon,
-        useTint = useTint,
+        icon = ImageResource.set_wind(),
+        useTint = true,
         next = true,
-        title = dailySet.name,
+        title = "?",
         content = "",
         onClick = {
             onClick(dailySet)
@@ -158,17 +153,4 @@ fun DailySetElement(dailySet: DailySet, onClick: (DailySet) -> Unit) {
 @Composable
 fun DailySetAutoPartPreview() {
     DailySetAutoPart()
-}
-
-@Preview
-@Composable
-fun DailySetUserPartPreview() {
-    val dailySets = listOf(
-        DailySet(type = DailySetType.Normal, icon = DailySetIcon.Book, updateAt = epochLocalDateTime()),
-        DailySet(type = DailySetType.Clazz, icon = DailySetIcon.Book, updateAt = epochLocalDateTime()),
-        DailySet(type = DailySetType.TaskSpecific, icon = DailySetIcon.Book, updateAt = epochLocalDateTime())
-    )
-    DailySetUserPart(dailySets) {
-
-    }
 }

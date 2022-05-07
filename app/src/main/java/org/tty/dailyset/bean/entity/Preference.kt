@@ -1,5 +1,6 @@
 package org.tty.dailyset.bean.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import org.tty.dailyset.bean.enums.PreferenceName
@@ -10,7 +11,9 @@ import org.tty.dailyset.bean.enums.PreferenceName
 @Entity(tableName = "preference")
 data class Preference(
     @PrimaryKey
+    @ColumnInfo(name = "preference_key")
     var preferenceKey: String,
+    @ColumnInfo(name = "use_default")
     var useDefault: Boolean,
     var value: String
 ) {
@@ -45,8 +48,4 @@ data class Preference(
     override fun toString(): String {
         return "($preferenceKey, $useDefault, $value)"
     }
-}
-
-val Preference?.value: String? get() {
-    return this?.value
 }

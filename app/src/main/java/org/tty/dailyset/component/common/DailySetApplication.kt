@@ -8,17 +8,18 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.tty.dailyset.MainActions
 import org.tty.dailyset.Nav
+import org.tty.dailyset.actor.ActorCollection
+import org.tty.dailyset.actor.DailySetActor
+import org.tty.dailyset.actor.PreferenceActor
+import org.tty.dailyset.actor.UserActor
 import org.tty.dailyset.common.local.logger
 import org.tty.dailyset.database.DailySetRoomDatabase
 import org.tty.dailyset.datasource.DataSourceCollection
-import org.tty.dailyset.datasource.DbSourceCollection
 import org.tty.dailyset.datasource.GrpcSourceCollection
-import org.tty.dailyset.datasource.db.*
 import org.tty.dailyset.datasource.grpc.GrpcSourceCollectionImpl
 import org.tty.dailyset.datasource.net.NetSourceCollectionImpl
 import org.tty.dailyset.datasource.runtime.RuntimeDataSourceImpl
 import org.tty.dailyset.provider.LocalSharedComponents
-import org.tty.dailyset.actor.*
 
 /**
  * Provide services for application
@@ -35,17 +36,6 @@ class DailySetApplication : Application(), SharedComponents {
         logger.d("DailySetApplication", "called DailySetApplication.onCreate()")
         mutableSharedComponents.useApplicationScope(CoroutineScope(SupervisorJob()))
         mutableSharedComponents.useDatabase(DailySetRoomDatabase.getDatabase(this, mutableSharedComponents.applicationScope))
-        mutableSharedComponents.useDbSourceCollection(object: DbSourceCollection {
-            override val userDao: UserDao get() = mutableSharedComponents.database.userDao()
-            override val preferenceDao: PreferenceDao get() = mutableSharedComponents.database.preferenceDao()
-            override val dailySetDao: DailySetDao get() = mutableSharedComponents.database.dailySetDao()
-            override val dailyTableDao: DailyTableDao get() = mutableSharedComponents.database.dailyTableDao()
-            override val dailyRowDao: DailyRowDao get() = mutableSharedComponents.database.dailyRowDao()
-            override val dailyCellDao: DailyCellDao get() = mutableSharedComponents.database.dailyCellDao()
-            override val dailyDurationDao: DailyDurationDao get() = mutableSharedComponents.database.dailyDurationDao()
-            override val dailySetBindingDao: DailySetBindingDao get() = mutableSharedComponents.database.dailySetBindingDao()
-            override val userTicketInfoDao: UserTicketInfoDao get() = mutableSharedComponents.database.userTicketInfoDao()
-        })
         // repository
         mutableSharedComponents.useUserRepository(
             UserActor(mutableSharedComponents)
@@ -56,9 +46,6 @@ class DailySetApplication : Application(), SharedComponents {
         mutableSharedComponents.useDailyTableRepository(
             DailySetActor(mutableSharedComponents)
         )
-//        mutableSharedComponents.useDailyRepository(
-//            DailyRepository(mutableSharedComponents)
-//        )
         mutableSharedComponents.useRuntimeDataSource(
             RuntimeDataSourceImpl(mutableSharedComponents)
         )
@@ -84,8 +71,6 @@ class DailySetApplication : Application(), SharedComponents {
         get() = mutableSharedComponents.actorCollection
     override val stateStore: StateStore
         get() = mutableSharedComponents.stateStore
-//    override val lifecycle: Lifecycle
-//        get() = mutableSharedComponents.lifecycle
     override val activityScope: CoroutineScope
         get() = mutableSharedComponents.activityScope
     override val nav: Nav<MainActions>
@@ -96,12 +81,6 @@ class DailySetApplication : Application(), SharedComponents {
         get() = mutableSharedComponents.activityContext
     override val ltsVMSaver: LtsVMSaver
         get() = mutableSharedComponents.ltsVMSaver
-
-//    override fun useLifecycle(lifecycle: Lifecycle) {
-//        mutableSharedComponents.useLifecycle(lifecycle)
-////        mutableSharedComponents.dataSourceCollection.runtimeDataSource.init()
-//        initializeStart("lifecycle")
-//    }
 
     override fun useNav(nav: Nav<MainActions>) {
         mutableSharedComponents.useNav(nav)
@@ -129,7 +108,6 @@ class DailySetApplication : Application(), SharedComponents {
     }
 
     private val componentAvailable = mutableMapOf(
-//        "lifecycle" to false,
         "nav" to false,
         "window" to false,
         "activityContext" to false,

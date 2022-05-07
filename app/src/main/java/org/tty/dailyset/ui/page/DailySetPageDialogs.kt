@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import org.tty.dailyset.R
 import org.tty.dailyset.annotation.UseViewModel
 import org.tty.dailyset.bean.entity.DailySetIcon
-import org.tty.dailyset.bean.entity.DailySetType
+import org.tty.dailyset.bean.enums.DailySetType
 import org.tty.dailyset.bean.entity.toImageResource
 import org.tty.dailyset.component.common.asMutableState
 import org.tty.dailyset.component.dailyset.DailySetCreateDialogVM

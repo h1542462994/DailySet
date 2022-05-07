@@ -2,8 +2,8 @@ package org.tty.dailyset.component.dailyset
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import org.tty.dailyset.bean.entity.DailySetIcon
-import org.tty.dailyset.bean.entity.DailySetType
+import org.tty.dailyset.bean.enums.DailySetIcon
+import org.tty.dailyset.bean.enums.DailySetType
 import org.tty.dailyset.component.common.DialogVM
 
 interface DailySetCreateDialogVM: DialogVM {
