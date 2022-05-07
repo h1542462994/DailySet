@@ -3,9 +3,7 @@ package org.tty.dailyset.component.common
 import android.app.Application
 import android.content.Context
 import android.view.Window
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.tty.dailyset.MainActions
 import org.tty.dailyset.Nav
 import org.tty.dailyset.actor.ActorCollection
@@ -124,10 +122,12 @@ class DailySetApplication : Application(), SharedComponents {
                 initialized = true
 
                 applicationScope.launch {
-                    mutableSharedComponents.dataSourceCollection.netSourceCollection.init()
-                    mutableSharedComponents.dataSourceCollection.grpcSourceCollection.init()
+                    withContext(Dispatchers.IO) {
+                        mutableSharedComponents.dataSourceCollection.netSourceCollection.init()
+                        mutableSharedComponents.dataSourceCollection.grpcSourceCollection.init()
 
-                    mutableSharedComponents.actorCollection.userActor.init()
+                        mutableSharedComponents.actorCollection.userActor.init()
+                    }
                 }
             }
         }

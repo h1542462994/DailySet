@@ -38,13 +38,21 @@ import org.tty.dailyset.bean.enums.PreferenceName
 abstract class DailySetRoomDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
     abstract fun preferenceDao(): PreferenceDao
-    abstract fun dailyTableDao(): DailySetTableDao
-    abstract fun dailyRowDao(): DailySetRowDao
-    abstract fun dailyCellDao(): DailySetCellDao
-    abstract fun dailySetDao(): DailySetDao
-    abstract fun dailyDurationDao(): DailySetDurationDao
     abstract fun userTicketInfoDao(): UserTicketInfoDao
+    abstract fun dailySetDao(): DailySetDao
+    abstract fun dailySetSourceLinksDao(): DailySetSourceLinksDao
+    abstract fun dailySetMetaLinksDao(): DailySetMetaLinksDao
+    abstract fun dailySetTableDao(): DailySetTableDao
+    abstract fun dailySetRowDao(): DailySetRowDao
+    abstract fun dailySetCellDao(): DailySetCellDao
+    abstract fun dailySetDurationDao(): DailySetDurationDao
+    abstract fun dailySetCourseDao(): DailySetCourseDao
+    abstract fun dailySetBasicMetaDao(): DailySetBasicMetaDao
+    abstract fun dailySetUsageMetaDao(): DailySetUsageMetaDao
+    abstract fun dailySetSchoolInfoMetaDao(): DailySetSchoolInfoMetaDao
+    abstract fun dailySetStudentInfoMetaDao(): DailySetStudentInfoMetaDao
     abstract fun dailySetVisibleDao(): DailySetVisibleDao
+
 
     private class DailySetDatabaseCallBack(
         private val scope: CoroutineScope
@@ -91,7 +99,7 @@ abstract class DailySetRoomDatabase : RoomDatabase() {
 
         private const val TAG = "DailySetRoomDatabase"
 
-        const val currentVersion = 14
+        const val currentVersion = 15
 
         fun getDatabase(context: Context, scope: CoroutineScope): DailySetRoomDatabase {
             return INSTANCE ?: synchronized(this) {

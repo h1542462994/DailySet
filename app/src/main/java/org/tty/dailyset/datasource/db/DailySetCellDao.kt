@@ -10,6 +10,10 @@ import org.tty.dailyset.bean.entity.DailySetCell
 interface DailySetCellDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun update(dailySetCell: DailySetCell)
+
     @Delete
     suspend fun delete(dailySetCell: DailySetCell)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateBatch(dailySetCells: List<DailySetCell>)
 }

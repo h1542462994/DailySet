@@ -31,5 +31,6 @@ data class DailySetCourse(
     @ColumnInfo(name = "section_start")
     val sectionStart: Int,
     @ColumnInfo(name = "section_end")
-    val sectionEnd: Int
+    val sectionEnd: Int,
+    val digest: String
 )

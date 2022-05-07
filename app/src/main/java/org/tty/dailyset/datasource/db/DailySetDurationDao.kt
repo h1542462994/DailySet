@@ -18,5 +18,8 @@ interface DailySetDurationDao {
     fun typedDurations(type: Int): Flow<List<DailySetDuration>>
 
     @Query("select count(*) from dailyset_duration where type = :type")
-    fun countOfType(type: Int): Int
+    suspend fun countOfType(type: Int): Int
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateBatch(dailySetDurations: List<DailySetDuration>)
 }

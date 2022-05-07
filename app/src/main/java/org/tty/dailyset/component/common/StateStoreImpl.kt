@@ -36,7 +36,7 @@ class StateStoreImpl(private val sharedComponents: SharedComponents): StateStore
         }
     }
 
-    override val dailySetTables: Flow<List<DailySetTable>> = sharedComponents.database.dailyTableDao().all()
+    override val dailySetTables: Flow<List<DailySetTable>> = sharedComponents.database.dailySetTableDao().all()
     override val dailySets: Flow<List<DailySet>> = sharedComponents.database.dailySetDao().all()
     override val currentDailySetUid: MutableStateFlow<String> = sharedComponents.dataSourceCollection.runtimeDataSource.currentDailySetUid
     override val currentHttpServerAddress: Flow<String> = loadPreference(PreferenceName.CURRENT_HTTP_SERVER_ADDRESS)

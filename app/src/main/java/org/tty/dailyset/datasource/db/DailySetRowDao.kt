@@ -13,4 +13,7 @@ interface DailySetRowDao {
 
     @Delete
     suspend fun delete(dailySetRow: DailySetRow)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateBatch(dailySetRows: List<DailySetRow>)
 }

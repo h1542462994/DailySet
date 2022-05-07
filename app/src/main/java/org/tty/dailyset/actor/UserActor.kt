@@ -90,7 +90,7 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
                     // 跳转到主页
                     navAction.toMain()
 
-                    collectData()
+                    afterLogin()
                     // TODO: 启动后续的自动同步逻辑...
                 }
             } else {

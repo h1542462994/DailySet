@@ -7,22 +7,13 @@
 
 package org.tty.dailyset.bean.req
 
-import org.tty.dailyset.bean.util.anyIntEmpty
-import org.tty.dailyset.bean.util.anyTextEmpty
-import org.tty.dailyset.bean.enums.PlatformCode
 import kotlinx.serialization.Serializable
 
 @Serializable
 class UserLoginReq(
-    val uid: Int? = null,
-    val password: String? = null,
-    val deviceCode: String? = null,
-    val deviceName: String? = null,
-    val platformCode: Int? = null
-) {
-    fun verify(): Boolean {
-        return !anyIntEmpty(uid, platformCode) && !anyTextEmpty(password, deviceName)
-                && PlatformCode.values().any { it.code == platformCode }
-    }
-
-}
+    val uid: Int,
+    val password: String,
+    val deviceCode: String?,
+    val deviceName: String,
+    val platformCode: Int
+)
