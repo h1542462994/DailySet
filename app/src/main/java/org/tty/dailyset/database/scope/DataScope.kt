@@ -1,5 +1,6 @@
 package org.tty.dailyset.database.scope
 
+/*
 import org.tty.dailyset.component.common.SharedComponents
 import org.tty.dailyset.database.processor.EventProcessorAsync
 import org.tty.dailyset.database.processor.EventProcessorCallBack
@@ -9,11 +10,13 @@ import org.tty.dailyset.event.EventArgs
 import org.tty.dailyset.event.EventType
 
 @Deprecated("instead with component VM.")
+*/
 /**
  * root of data operations,
  * see also [DailyTableScope], [UserScope]
  * usage: with(DataScope) { ... }
- */
+ *//*
+
 object DataScope: DailyTableScope, UserScope, DailySetScope, EventProcessorCallBack<SharedComponents> {
 
     override fun eventProcessorAsync(
@@ -34,3 +37,4 @@ object DataScope: DailyTableScope, UserScope, DailySetScope, EventProcessorCallB
         }
     }
 }
+*/

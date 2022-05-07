@@ -1,7 +1,6 @@
 package org.tty.dailyset.datasource.net
 
 import org.tty.dailyset.bean.enums.PreferenceName
-import org.tty.dailyset.common.local.logger
 import org.tty.dailyset.component.common.SharedComponents
 import org.tty.dailyset.component.common.observeOnApplicationScope
 import org.tty.dailyset.datasource.NetSourceCollection
@@ -19,14 +18,14 @@ class NetSourceCollectionImpl(private val sharedComponents: SharedComponents): N
         sharedComponents.stateStore.currentHttpServerAddress.observeOnApplicationScope {
             createWithAddress(it)
         }
-        val address: String = sharedComponents.repositoryCollection.preferenceRepository.read(PreferenceName.CURRENT_HTTP_SERVER_ADDRESS)
+        val address: String = sharedComponents.actorCollection.preferenceActor.read(PreferenceName.CURRENT_HTTP_SERVER_ADDRESS)
         createWithAddress(address)
     }
 
     private suspend fun createWithAddress(address: String) {
         if (address != this.address) {
             this.address = address
-            val result: String = sharedComponents.repositoryCollection.preferenceRepository.read(PreferenceName.CURRENT_HTTP_SERVER_ADDRESS)
+            val result: String = sharedComponents.actorCollection.preferenceActor.read(PreferenceName.CURRENT_HTTP_SERVER_ADDRESS)
             val retrofit = retrofitFactory.normalRetrofit(result)
             userService0 = retrofit.create(UserService::class.java)
         }

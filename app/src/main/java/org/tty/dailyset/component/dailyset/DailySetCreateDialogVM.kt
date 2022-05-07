@@ -13,5 +13,5 @@ interface DailySetCreateDialogVM: DialogVM {
     val name: MutableStateFlow<String>
     val currentUserUid: StateFlow<String>
 
-    fun createDailySet(dailySetName: String, type: DailySetType, icon: DailySetIcon?)
+//    fun createDailySet(dailySetName: String, type: DailySetType, icon: DailySetIcon?)
 }

@@ -1,5 +1,6 @@
 package org.tty.dailyset.database.scope
 
+/*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
@@ -21,4 +22,5 @@ interface UserScope: PreferenceScope {
         return state(vm.userState)
     }
 }
+*/
 

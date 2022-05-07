@@ -31,7 +31,7 @@ class TicketBindVMImpl(private val sharedComponents: SharedComponents): TicketBi
         sharedComponents.activityScope.launch {
             val studentUid = studentUidText.value
             val password = passwordText.value
-            sharedComponents.repositoryCollection.userRepository.bindTicket(studentUid, password, navAction)
+            sharedComponents.actorCollection.userActor.bindTicket(studentUid, password, navAction)
         }
     }
 

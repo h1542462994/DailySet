@@ -4,12 +4,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 import org.tty.dailyset.annotation.UseComponent
 import org.tty.dailyset.bean.entity.DailySet
 import org.tty.dailyset.bean.entity.DailySetIcon
 import org.tty.dailyset.bean.entity.DailySetType
-import org.tty.dailyset.bean.entity.User
 import org.tty.dailyset.component.common.SharedComponents
 import org.tty.dailyset.component.common.asActivityColdStateFlow
 import org.tty.dailyset.component.common.sharedComponents0
@@ -39,13 +37,13 @@ class DailySetVMImpl(private val sharedComponents: SharedComponents) : DailySetV
         override val name: MutableStateFlow<String> = MutableStateFlow("")
         override val currentUserUid: StateFlow<String> = sharedComponents.stateStore.currentUserUid
 
-        override fun createDailySet(dailySetName: String, type: DailySetType, icon: DailySetIcon?) {
-            val scope = sharedComponents.applicationScope
-            scope.launch {
-                sharedComponents.repositoryCollection.dailySetRepository.createDailySet(dailySetName, type, icon)
-                dialogOpen.emit(false)
-            }
-        }
+//        override fun createDailySet(dailySetName: String, type: DailySetType, icon: DailySetIcon?) {
+//            val scope = sharedComponents.applicationScope
+//            scope.launch {
+//                sharedComponents.actorCollection.dailySetRepository.createDailySet(dailySetName, type, icon)
+//                dialogOpen.emit(false)
+//            }
+//        }
     }
 
 

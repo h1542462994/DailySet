@@ -3,10 +3,6 @@ package org.tty.dailyset.component.login
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.SaverScope
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import org.tty.dailyset.MainActions
@@ -47,7 +43,7 @@ class LoginVMImpl(private val sharedComponents: SharedComponents) : LoginVM {
             val uid = usernameText.value
             val password = passwordText.value
             setOnLogin()
-            sharedComponents.repositoryCollection.userRepository.login(uid, password, navAction)
+            sharedComponents.actorCollection.userActor.login(uid, password, navAction)
             setOnLoginFinished()
         }
     }

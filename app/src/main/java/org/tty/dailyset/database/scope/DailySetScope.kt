@@ -1,5 +1,6 @@
 package org.tty.dailyset.database.scope
 
+/*
 import androidx.compose.runtime.*
 import org.tty.dailyset.common.datetime.toWeekStart
 import org.tty.dailyset.common.observable.state
@@ -14,17 +15,21 @@ import org.tty.dailyset.provider.mainViewModel as vm
 
 @Deprecated("instead with component VM.")
 interface DailySetScope: PreferenceScope, UserScope, DailyTableScope {
-    /**
+    */
+/**
      * the data entry for all dailySet.
-     */
+     *//*
+
     @Composable
     fun dailySets(): State<List<DailySet>> {
         return state(vm.dailySets)
     }
 
-    /**
+    */
+/**
      * the data entry for current dailySet and durations.
-     */
+     *//*
+
     @Composable
     fun currentDailySetDurations(): State<DailySetDurations> {
         return state(vm.dailySetDurations)
@@ -51,9 +56,11 @@ interface DailySetScope: PreferenceScope, UserScope, DailyTableScope {
         return state(vm.clazzDailySetStateOfIndex(index))
     }
 
-    /**
+    */
+/**
      * the data entry for not included durations.
-     */
+     *//*
+
     @Composable
     fun currentNotIncludedDurations(type: DailyDurationType): State<List<DailyDuration>> {
         val dailySetDurations by currentDailySetDurations()
@@ -71,17 +78,21 @@ interface DailySetScope: PreferenceScope, UserScope, DailyTableScope {
         }
     }
 
-    /**
+    */
+/**
      * the data entry for normal dailyDurations
-     */
+     *//*
+
     @Composable
     fun normalDailyDurations(): State<List<DailyDuration>> {
         return state(vm.normalDailyDurations)
     }
 
-    /**
+    */
+/**
      * the data entry for clazz dailyDurations
-     */
+     *//*
+
     @Composable
     fun clazzDailyDurations(): State<List<DailyDuration>> {
         return state(vm.clazzDailyDurations)
@@ -92,9 +103,11 @@ interface DailySetScope: PreferenceScope, UserScope, DailyTableScope {
         return state(vm.clazzWeekDay)
     }
 
-    /**
+    */
+/**
      * create a state represents dailySetCreate dialog.
-     */
+     *//*
+
     @Composable
     fun dailySetCreateState(
         initDialogOpen: Boolean = false,
@@ -118,9 +131,11 @@ interface DailySetScope: PreferenceScope, UserScope, DailyTableScope {
         )
     }
 
-    /**
+    */
+/**
      * create a state represents clazzDailyDurationCreate dialog
-     */
+     *//*
+
     @Composable
     fun clazzDailyDurationCreateState(
         initDialogOpen: Boolean = false
@@ -162,4 +177,4 @@ interface DailySetScope: PreferenceScope, UserScope, DailyTableScope {
     companion object {
         const val TAG = "DailySetScope"
     }
-}
+}*/

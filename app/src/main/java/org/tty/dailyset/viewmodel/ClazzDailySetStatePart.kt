@@ -1,5 +1,6 @@
 package org.tty.dailyset.viewmodel
 
+/*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import org.tty.dailyset.common.observable.flow3
@@ -27,7 +28,8 @@ class ClazzDailySetStatePart(
             return item
         }
 
-        /**
+        */
+/**
          * index -------------------
          *                          |
          * clazzDailySetCursors ----+----> clazzDailySetBinding -----> clazzDailyTRC
@@ -39,7 +41,8 @@ class ClazzDailySetStatePart(
          *                                      ^                                             |
          *                                      |---------------------------------------------
          *
-         */
+         *//*
+
 
         val clazzDailySetBindingFlow = clazzDailySetCursorsFlow
             .transform<ClazzDailySetCursors, DailySetBinding?> tran@ { cursors ->
@@ -73,4 +76,4 @@ class ClazzDailySetStatePart(
         cache[index] = clazzDailySetStateFlow
         return clazzDailySetStateFlow
     }
-}
+}*/

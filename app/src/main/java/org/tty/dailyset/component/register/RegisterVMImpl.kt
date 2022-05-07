@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.SaverScope
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.navigation.NavAction
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import org.tty.dailyset.MainActions
@@ -53,7 +52,7 @@ class RegisterVMImpl(private val sharedComponents: SharedComponents) : RegisterV
             val password = passwordText.value
             val email = emailText.value
             setOnRegister()
-            sharedComponents.repositoryCollection.userRepository.register(nickname, password, email, navAction)
+            sharedComponents.actorCollection.userActor.register(nickname, password, email, navAction)
             setOnRegisterFinish()
         }
     }

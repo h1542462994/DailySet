@@ -2,21 +2,18 @@ package org.tty.dailyset.datasource.db
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
-import org.tty.dailyset.database.processor.DailySetProcessor2Async
-import org.tty.dailyset.event.DailySetBindingDurationEventArgs
-import org.tty.dailyset.event.DailySetCreateDurationAndBindingEventArgs
-import org.tty.dailyset.event.DailySetCreateEventArgs
+import org.tty.dailyset.bean.entity.DailySet
+import org.tty.dailyset.bean.entity.DailySetDurations
+import org.tty.dailyset.bean.entity.DailySetType
 import org.tty.dailyset.converter.DailyDurationTypeConverter
 import org.tty.dailyset.converter.DailySetTypeConverter
-import org.tty.dailyset.bean.entity.*
-import java.time.LocalDateTime
 
 /**
  * the dailySet dao object.
  */
 @Dao
 @TypeConverters(DailySetTypeConverter::class, DailyDurationTypeConverter::class)
-interface DailySetDao: DailySetProcessor2Async, DailyDurationDao, DailySetBindingDao {
+interface DailySetDao: DailyDurationDao, DailySetBindingDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun update(dailySet: DailySet)
     @Delete
@@ -37,62 +34,4 @@ interface DailySetDao: DailySetProcessor2Async, DailyDurationDao, DailySetBindin
     @Query("select * from daily_set where uid = :dailySetUid")
     @Transaction
     fun loadDetail(dailySetUid: String): Flow<DailySetDurations?>
-
-    @Transaction
-    override suspend fun create(dailySetCreateEventArgs: DailySetCreateEventArgs) {
-        val (dailySetName, uid, ownerUid, type, icon) = dailySetCreateEventArgs
-
-        val serialIndex = countOfType(type)
-        val dailySet = DailySet(
-            type = type,
-            icon = icon,
-            uid = uid,
-            serialIndex = serialIndex,
-            ownerUid = ownerUid,
-            name = dailySetName,
-            updateAt = LocalDateTime.now()
-        )
-        update(dailySet)
-    }
-
-    @Transaction
-    override suspend fun createDuration(dailySetCreateDurationAndBindingEventArgs: DailySetCreateDurationAndBindingEventArgs) {
-        val (dailyDurationUid, dailySetUid, name, ownerUid, startDate, endDate, periodCode, bindingDailyTableUid) = dailySetCreateDurationAndBindingEventArgs
-
-
-        val serialIndex = countOfType(DailyDurationType.Clazz)
-        val dailyDuration = DailyDuration(
-            type = DailyDurationType.Clazz,
-            uid = dailyDurationUid,
-            ownerUid = ownerUid,
-            startDate = startDate,
-            endDate = endDate,
-            name = name,
-            tag = DailyDurationTag.Normal,
-            serialIndex = serialIndex,
-            bindingPeriodCode = periodCode.code,
-            updateAt = LocalDateTime.now()
-        )
-        update(dailyDuration)
-
-        bindingDuration(
-            DailySetBindingDurationEventArgs(
-                dailySetUid = dailySetUid,
-                dailyDurationUid = dailyDurationUid,
-                bindingDailyTableUid = bindingDailyTableUid
-            )
-        )
-    }
-
-    override suspend fun bindingDuration(dailySetBindingDurationEventArgs: DailySetBindingDurationEventArgs) {
-        val (dailySetUid, dailyDurationUid, bindingDailyTableUid) = dailySetBindingDurationEventArgs
-        val dailySetBinding = DailySetBinding(
-            dailySetUid = dailySetUid,
-            dailyDurationUid = dailyDurationUid,
-            bindingDailyTableUid = bindingDailyTableUid,
-            updateAt = LocalDateTime.now()
-        )
-        update(dailySetBinding)
-
-    }
 }

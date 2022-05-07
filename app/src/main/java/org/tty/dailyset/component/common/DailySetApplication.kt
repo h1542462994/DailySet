@@ -3,7 +3,6 @@ package org.tty.dailyset.component.common
 import android.app.Application
 import android.content.Context
 import android.view.Window
-import androidx.lifecycle.Lifecycle
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
@@ -19,7 +18,7 @@ import org.tty.dailyset.datasource.grpc.GrpcSourceCollectionImpl
 import org.tty.dailyset.datasource.net.NetSourceCollectionImpl
 import org.tty.dailyset.datasource.runtime.RuntimeDataSourceImpl
 import org.tty.dailyset.provider.LocalSharedComponents
-import org.tty.dailyset.repository.*
+import org.tty.dailyset.actor.*
 
 /**
  * Provide services for application
@@ -49,17 +48,17 @@ class DailySetApplication : Application(), SharedComponents {
         })
         // repository
         mutableSharedComponents.useUserRepository(
-            UserRepository(mutableSharedComponents)
+            UserActor(mutableSharedComponents)
         )
         mutableSharedComponents.usePreferenceRepository(
-            PreferenceRepository(mutableSharedComponents)
+            PreferenceActor(mutableSharedComponents)
         )
         mutableSharedComponents.useDailyTableRepository(
-            DailyTableRepository(mutableSharedComponents)
+            DailySetActor(mutableSharedComponents)
         )
-        mutableSharedComponents.useDailyRepository(
-            DailyRepository(mutableSharedComponents)
-        )
+//        mutableSharedComponents.useDailyRepository(
+//            DailyRepository(mutableSharedComponents)
+//        )
         mutableSharedComponents.useRuntimeDataSource(
             RuntimeDataSourceImpl(mutableSharedComponents)
         )
@@ -81,12 +80,12 @@ class DailySetApplication : Application(), SharedComponents {
         get() = mutableSharedComponents.database
     override val dataSourceCollection: DataSourceCollection
         get() = mutableSharedComponents.dataSourceCollection
-    override val repositoryCollection: RepositoryCollection
-        get() = mutableSharedComponents.repositoryCollection
+    override val actorCollection: ActorCollection
+        get() = mutableSharedComponents.actorCollection
     override val stateStore: StateStore
         get() = mutableSharedComponents.stateStore
-    override val lifecycle: Lifecycle
-        get() = mutableSharedComponents.lifecycle
+//    override val lifecycle: Lifecycle
+//        get() = mutableSharedComponents.lifecycle
     override val activityScope: CoroutineScope
         get() = mutableSharedComponents.activityScope
     override val nav: Nav<MainActions>
@@ -98,11 +97,11 @@ class DailySetApplication : Application(), SharedComponents {
     override val ltsVMSaver: LtsVMSaver
         get() = mutableSharedComponents.ltsVMSaver
 
-    override fun useLifecycle(lifecycle: Lifecycle) {
-        mutableSharedComponents.useLifecycle(lifecycle)
-//        mutableSharedComponents.dataSourceCollection.runtimeDataSource.init()
-        initializeStart("lifecycle")
-    }
+//    override fun useLifecycle(lifecycle: Lifecycle) {
+//        mutableSharedComponents.useLifecycle(lifecycle)
+////        mutableSharedComponents.dataSourceCollection.runtimeDataSource.init()
+//        initializeStart("lifecycle")
+//    }
 
     override fun useNav(nav: Nav<MainActions>) {
         mutableSharedComponents.useNav(nav)
@@ -130,7 +129,7 @@ class DailySetApplication : Application(), SharedComponents {
     }
 
     private val componentAvailable = mutableMapOf(
-        "lifecycle" to false,
+//        "lifecycle" to false,
         "nav" to false,
         "window" to false,
         "activityContext" to false,
@@ -150,7 +149,7 @@ class DailySetApplication : Application(), SharedComponents {
                     mutableSharedComponents.dataSourceCollection.netSourceCollection.init()
                     mutableSharedComponents.dataSourceCollection.grpcSourceCollection.init()
 
-                    mutableSharedComponents.repositoryCollection.userRepository.init()
+                    mutableSharedComponents.actorCollection.userActor.init()
                 }
             }
         }

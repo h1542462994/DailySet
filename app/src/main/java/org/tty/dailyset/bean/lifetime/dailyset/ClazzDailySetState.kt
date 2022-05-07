@@ -1,5 +1,6 @@
 package org.tty.dailyset.bean.lifetime.dailyset
 
+/*
 import androidx.compose.runtime.Composable
 import org.tty.dailyset.common.datetime.DateSpan
 import org.tty.dailyset.common.datetime.toWeekStart
@@ -15,9 +16,11 @@ import java.time.DayOfWeek
 
 class ClazzDailySetState(
     private val cursors: ClazzDailySetCursors,
-    /**
+    */
+/**
      * the current index of the [ClazzDailySetCursors]
-     */
+     *//*
+
     val index: Int,
     val dailyTableState2: DailyTableState2,
     private val startDayOfWeek: DayOfWeek,
@@ -30,28 +33,36 @@ class ClazzDailySetState(
             it.startDate
         }
 
-    /**
+    */
+/**
      * whether has previous page
-     */
+     *//*
+
     val hasPrevCursor: Boolean = index > 0
 
-    /**
+    */
+/**
      * whether has next page
-     */
+     *//*
+
     val hasNextCursor: Boolean = index < cursors.size - 1
 
-    /**
+    */
+/**
      * the current dailyDuration
-     */
+     *//*
+
     val currentDailyDuration: DailyDuration? get() {
         return dailySetDurations.durations.find {
             cursors[index].dailyDuration == it
         }
     }
 
-    /**
+    */
+/**
      * the current cursor
-     */
+     *//*
+
     val cursor: ClazzDailySetCursor get() {
         return if (index in cursors.indices) {
             cursors[index]
@@ -88,18 +99,22 @@ class ClazzDailySetState(
         }
     }
 
-    /**
+    */
+/**
      * change the current cursor to previous
-     */
+     *//*
+
     fun toPrevCursor() {
         mainViewModel.optional {
             if (hasPrevCursor) clazzCursorIndexLiveData.postValue(index - 1)
         }
     }
 
-    /**
+    */
+/**
      * change the current cursor to next
-     */
+     *//*
+
     fun toNextCursor() {
         mainViewModel.optional {
             if (hasNextCursor) clazzCursorIndexLiveData.postValue(index + 1)
@@ -123,12 +138,14 @@ class ClazzDailySetState(
             )
         }
 
-        /**
+        */
+/**
          * change the current cursor to indexed page.
-         */
+         *//*
+
         fun toIndexedPage(index: Int) {
             mainViewModel.clazzCursorIndexLiveData.postValue(index)
         }
     }
 
-}
+}*/

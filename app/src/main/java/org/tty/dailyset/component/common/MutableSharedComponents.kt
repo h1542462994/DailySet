@@ -12,14 +12,14 @@ import org.tty.dailyset.datasource.DbSourceCollection
 import org.tty.dailyset.datasource.GrpcSourceCollection
 import org.tty.dailyset.datasource.NetSourceCollection
 import org.tty.dailyset.datasource.runtime.RuntimeDataSource
-import org.tty.dailyset.repository.*
+import org.tty.dailyset.actor.*
 
 class MutableSharedComponents : SharedComponents {
 
     private lateinit var applicationScopeInternal: CoroutineScope
     private val dataSourceCollectionInternal = MutableDataSourceCollection()
     private lateinit var databaseInternal:  DailySetRoomDatabase
-    private val repositoryCollectionInternal = MutableRepositoryCollection()
+    private val repositoryCollectionInternal = MutableActorCollection()
     private lateinit var stateStoreInternal: StateStore
     private lateinit var lifecycleInternal: Lifecycle
     private lateinit var navInternal: Nav<MainActions>
@@ -30,10 +30,10 @@ class MutableSharedComponents : SharedComponents {
 
     override val dataSourceCollection: DataSourceCollection get() = dataSourceCollectionInternal
     override val database: DailySetRoomDatabase get() = databaseInternal
-    override val repositoryCollection: RepositoryCollection by lazy { repositoryCollectionInternal }
+    override val actorCollection: ActorCollection by lazy { repositoryCollectionInternal }
     override val stateStore: StateStore get() = stateStoreInternal
     override val applicationScope: CoroutineScope get() = applicationScopeInternal
-    override val lifecycle: Lifecycle get() = lifecycleInternal
+//    override val lifecycle: Lifecycle get() = lifecycleInternal
     override val nav: Nav<MainActions> get() = navInternal
     override val window: Window get() = windowInternal
     override val activityContext: Context get() = activityContextInternal
@@ -51,16 +51,16 @@ class MutableSharedComponents : SharedComponents {
         override val grpcSourceCollection: GrpcSourceCollection get() = grpcSourceCollectionInternal
     }
 
-    class MutableRepositoryCollection: RepositoryCollection {
-        internal lateinit var userRepositoryInternal:  UserRepository
-        internal lateinit var preferenceRepositoryInternal:  PreferenceRepository
-        internal lateinit var dailyTableRepositoryInternal:  DailyTableRepository
-        internal lateinit var dailySetRepositoryInternal: DailyRepository
+    class MutableActorCollection: ActorCollection {
+        internal lateinit var userActorInternal:  UserActor
+        internal lateinit var preferenceActorInternal:  PreferenceActor
+        internal lateinit var dailySetActorInternal:  DailySetActor
+//        internal lateinit var dailySetRepositoryInternal: DailyRepository
 
-        override val userRepository: UserRepository get() = userRepositoryInternal
-        override val preferenceRepository: PreferenceRepository get() = preferenceRepositoryInternal
-        override val dailyTableRepository: DailyTableRepository get() = dailyTableRepositoryInternal
-        override val dailySetRepository: DailyRepository get() = dailySetRepositoryInternal
+        override val userActor: UserActor get() = userActorInternal
+        override val preferenceActor: PreferenceActor get() = preferenceActorInternal
+        override val dailySetActor: DailySetActor get() = dailySetActorInternal
+//        override val dailySetRepository: DailyRepository get() = dailySetRepositoryInternal
     }
 
     fun useApplicationScope(applicationScope: CoroutineScope) {
@@ -79,21 +79,21 @@ class MutableSharedComponents : SharedComponents {
         this.dataSourceCollectionInternal.netSourceCollectionInternal = netSourceCollection
     }
 
-    fun useUserRepository(userRepository: UserRepository) {
-        this.repositoryCollectionInternal.userRepositoryInternal = userRepository
+    fun useUserRepository(userActor: UserActor) {
+        this.repositoryCollectionInternal.userActorInternal = userActor
     }
 
-    fun usePreferenceRepository(preferenceRepository: PreferenceRepository) {
-        this.repositoryCollectionInternal.preferenceRepositoryInternal = preferenceRepository
+    fun usePreferenceRepository(preferenceActor: PreferenceActor) {
+        this.repositoryCollectionInternal.preferenceActorInternal = preferenceActor
     }
 
-    fun useDailyTableRepository(dailyTableRepository: DailyTableRepository) {
-        this.repositoryCollectionInternal.dailyTableRepositoryInternal = dailyTableRepository
+    fun useDailyTableRepository(dailySetActor: DailySetActor) {
+        this.repositoryCollectionInternal.dailySetActorInternal = dailySetActor
     }
 
-    fun useDailyRepository(dailyRepository:  DailyRepository) {
-        this.repositoryCollectionInternal.dailySetRepositoryInternal = dailyRepository
-    }
+//    fun useDailyRepository(dailyRepository:  DailyRepository) {
+//        this.repositoryCollectionInternal.dailySetRepositoryInternal = dailyRepository
+//    }
 
     fun useRuntimeDataSource(runtimeDataSource: RuntimeDataSource) {
         this.dataSourceCollectionInternal.runtimeDataSourceInternal = runtimeDataSource
@@ -103,9 +103,9 @@ class MutableSharedComponents : SharedComponents {
         this.dataSourceCollectionInternal.grpcSourceCollectionInternal = grpcSourceCollection
     }
 
-    override fun useLifecycle(lifecycle: Lifecycle) {
-        this.lifecycleInternal = lifecycle
-    }
+//    override fun useLifecycle(lifecycle: Lifecycle) {
+//        this.lifecycleInternal = lifecycle
+//    }
 
     fun useStateStore(stateStore: StateStore) {
         this.stateStoreInternal = stateStore

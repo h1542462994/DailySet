@@ -1,5 +1,6 @@
 package org.tty.dailyset.component.common
 
+/*
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asFlow
@@ -47,9 +48,11 @@ class MainViewModel(val sharedComponents: SharedComponents) : ViewModel() {
     val dailyTableRepository: DailyTableRepository by lazy {  sharedComponents.repositoryCollection.dailyTableRepository }
     val dailySetRepository: DailyRepository by lazy {  sharedComponents.repositoryCollection.dailySetRepository }
 
-    /**
+    */
+/**
      * init the viewModel
-     */
+     *//*
+
     fun init() {
     }
 
@@ -57,17 +60,21 @@ class MainViewModel(val sharedComponents: SharedComponents) : ViewModel() {
 
     //region mainPart 主要部分的LiveData
 
-    /**
+    */
+/**
      * 时钟源
-     */
+     *//*
+
     @Deprecated("use StateStore instead.")
     private val nowFlow = flow<LocalDateTime> {
         emit(LocalDateTime.now())
     }
 
-    /**
+    */
+/**
      * 今天的日期
-     */
+     *//*
+
     @Deprecated("use StateStore instead.")
     private val nowDateFlow = nowFlow.map { it.toLocalDate() }.distinctUntilChanged().onEach {
         // side effect.
@@ -75,39 +82,51 @@ class MainViewModel(val sharedComponents: SharedComponents) : ViewModel() {
         clazzWeekDayLiveData.postValue(it.dayOfWeek)
     }
 
-    /**
+    */
+/**
      * mutable | 一周的开始星期，限制为[DayOfWeek.MONDAY],[DayOfWeek.SATURDAY] (不常见),[DayOfWeek.SUNDAY]之一。
-     */
+     *//*
+
     @Deprecated("use StateStore instead.")
     private val startWeekDayLiveData = liveData(DayOfWeek.MONDAY)
 
-    /**
+    */
+/**
      * mutable | 主界面的Tab页
-     */
+     *//*
+
     @Deprecated("use StateStore instead.")
     private val mainTabLiveData = liveData(MainPageTabs.DAILY_SET)
 
-    /**
+    */
+/**
      * 数据库seed数据的版本号
-     */
+     *//*
+
     @Deprecated("use StateStore instead.")
     private val seedVersionLiveData = liveData(preferenceRepository.seedVersion)
 
-    /**
+    */
+/**
      * userUid
-     */
+     *//*
+
     @Deprecated("use StateStore instead.")
     private val userUidLiveData = liveData(preferenceRepository.currentUserUid)
 
-    /**
+    */
+/**
      * users
-     */
+     *//*
+
     @Deprecated("use StateStore instead.")
     private val usersLiveData = liveData(userRepository.users)
 
-    /**
+    */
+/**
      * userState
-     */
+     *//*
+
     @Deprecated("use StateStore instead.")
     private val userStateLiveData =
         liveData2Map(usersLiveData, userUidLiveData, "userState") { users, currentUserUid ->
@@ -118,9 +137,11 @@ class MainViewModel(val sharedComponents: SharedComponents) : ViewModel() {
     //endregion
 
 
-    /**
+    */
+/**
      * mutable | dailyTableUid
-     */
+     *//*
+
     private val dailyTableUidLiveData = liveData(DailyTable.default)
     @Deprecated("use StateStore instead.")
     private val dailyTableSummariesLiveData =
@@ -157,15 +178,19 @@ class MainViewModel(val sharedComponents: SharedComponents) : ViewModel() {
     //
     //endregion ---------------------------------------------------------------------------------------
 
-    /**
+    */
+/**
      * mutable, runtimeOnly the cache for clazzDailySetCursorCache
-     */
+     *//*
+
     private val clazzDailySetCursorCache = HashMap<String, Int>()
 
     private val dailySetUidLiveData = liveData("")
-    /**
+    */
+/**
      * mutable | clazzWeekDay
-     */
+     *//*
+
     private val clazzWeekDayLiveData = liveData(DayOfWeek.MONDAY)
     private val dailySetDurationsLiveData = liveDataChain(dailySetUidLiveData, "dailySetDurations") { value, collector: LiveCollector<DailySetDurations?> ->
         logger.d(Tags.liveDataExtension, "dailySetUid changed to $value")
@@ -177,9 +202,11 @@ class MainViewModel(val sharedComponents: SharedComponents) : ViewModel() {
     }.ignoreNull()
 
 
-    /**
+    */
+/**
      * {mutable, runtimeOnly} the current cursor, if null, the cursor will be re generated.
-     */
+     *//*
+
     val clazzCursorIndexLiveData = liveData<Int?>(null)
 
     // --- onlyClazzDailySet
@@ -280,88 +307,120 @@ class MainViewModel(val sharedComponents: SharedComponents) : ViewModel() {
     //endregion
 
     //region liveData Exports liveData的导出项
-    /**
+    */
+/**
      * 现在的日期
-     */
+     *//*
+
     @Deprecated("use StateStore instead.")
     val nowDate = liveData(nowDateFlow).initial(LocalDate.ofEpochDay(0))
 
     @Deprecated("use StateStore instead.")
     val startWeekDay = startWeekDayLiveData.initial(DayOfWeek.MONDAY)
 
-    /**
+    */
+/**
      * {Mutable} MainPage中tab页的设置
-     */
+     *//*
+
     val mainTab = mainTabLiveData.initial(MainPageTabs.DAILY_SET)
 
-    /**
+    */
+/**
      * 数据库的版本号
-     */
+     *//*
+
     val seedVersion = seedVersionLiveData.initial(PreferenceName.SEED_VERSION.defaultValue.toInt())
 
-    /**
+    */
+/**
      * 当前用户的Uid
-     */
+     *//*
+
     val userUid = userUidLiveData.initial(PreferenceName.CURRENT_USER_UID.defaultValue)
 
-    /**
+    */
+/**
      * 数据库中记录的用户
-     */
+     *//*
+
     val users = usersLiveData.initial(listOf())
 
-    /**
+    */
+/**
      * 当前用户状态
-     */
+     *//*
+
     val userState = userStateLiveData.initial(UserState(User.default(), User.local))
 
-    /**
+    */
+/**
      * 所有DailyTable
-     */
+     *//*
+
     val dailyTableSummaries = dailyTableSummariesLiveData.initial(listOf())
 
-    /**
+    */
+/**
      * {mutable} 当前DailyTable的Uid
-     */
+     *//*
+
     val dailyTableUid = dailyTableUidLiveData.initial(DailyTable.default)
 
-    /**
+    */
+/**
      * 当前DailyTable的状态集
-     */
+     *//*
+
     val dailyTableState2 = dailyTableState2LiveData.initial(DailyTableState2.default())
 
-    /**
+    */
+/**
      * 所有DailySet
-     */
+     *//*
+
     val dailySets = dailySetsLiveData.initial(listOf())
 
-    /**
+    */
+/**
      * 所有normal DailyDuration
-     */
+     *//*
+
     val normalDailyDurations = normalDailyDurationsLiveData.initial(listOf())
 
-    /**
+    */
+/**
      * 所有clazz DailyDuration
-     */
+     *//*
+
     val clazzDailyDurations = clazzDailyDurationsLiveData.initial(listOf())
 
-    /**
+    */
+/**
      * {mutable} 当前dailySetUid
-     */
+     *//*
+
     val dailySetUid = dailySetUidLiveData.initial("")
 
-    /**
+    */
+/**
      * 当前DailySetDurations
-     */
+     *//*
+
     val dailySetDurations = dailySetDurationsLiveData.initial(DailySetDurations.empty())
 
-    /**
+    */
+/**
      * 当前clazzDailySetState
-     */
+     *//*
+
     val clazzDailySetState = clazzDailySetStateLiveData.initial(ClazzDailySetState.empty())
 
-    /**
+    */
+/**
      * 当前的clazzWeekDay
-     */
+     *//*
+
     val clazzWeekDay = clazzWeekDayLiveData.initial(DayOfWeek.MONDAY)
 
     val clazzDailySetPagerInfo = clazzDailySetPagerInfoLiveData.initial(PagerInfo.empty())
@@ -378,4 +437,4 @@ class MainViewModel(val sharedComponents: SharedComponents) : ViewModel() {
     }
 
 
-}
+}*/

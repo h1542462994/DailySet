@@ -1,5 +1,6 @@
 package org.tty.dailyset.database.scope
 
+/*
 import androidx.compose.runtime.*
 import org.tty.dailyset.common.datetime.DateSpan
 import org.tty.dailyset.common.local.Tags
@@ -13,17 +14,21 @@ import org.tty.dailyset.bean.lifetime.dailytable.*
 import java.time.LocalTime
 import org.tty.dailyset.provider.mainViewModel as vm
 
+*/
 /**
  * a state related operation for [DailyTable], defines much functions return [State].
- */
+ *//*
+
 @Immutable
 @Deprecated("instead with component VM.")
 interface DailyTableScope : PreferenceScope, UserScope {
-    /**
+    */
+/**
      * state of [org.tty.dailyset.viewmodel.MainViewModel.dailyTableSummaries]
      * (db related).
      * if not initialized, return [listOf].
-     */
+     *//*
+
     @Composable
     fun dailyTableSummaries(): State<List<DailyTable>> {
         return state(vm.dailyTableSummaries)
@@ -193,3 +198,4 @@ interface DailyTableScope : PreferenceScope, UserScope {
 }
 
 
+*/

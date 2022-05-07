@@ -1,11 +1,11 @@
-package org.tty.dailyset.repository
+package org.tty.dailyset.actor
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import org.tty.dailyset.MainActions
 import org.tty.dailyset.MainDestination
+import org.tty.dailyset.annotation.Injectable
 import org.tty.dailyset.bean.ResponseCodes
 import org.tty.dailyset.bean.entity.User
 import org.tty.dailyset.bean.entity.UserTicketInfo
@@ -21,22 +21,18 @@ import org.tty.dailyset.component.common.*
 import org.tty.dailyset.component.login.LoginInput
 import org.tty.dailyset.converter.toUnicTicketStatus
 import org.tty.dailyset.dailyset_cloud.grpc.Token
-import org.tty.dailyset.datasource.db.UserDao
 
 /**
  * repository for [User]
  * it is used in [org.tty.dailyset.DailySetApplication],
  * it will use db service, see also [org.tty.dailyset.database.DailySetRoomDatabase]
  */
-class UserRepository(private val sharedComponents: SharedComponents): SuspendInit {
-    private val userDao: UserDao get() = sharedComponents.dataSourceCollection.dbSourceCollection.userDao
-
-    val users: Flow<List<User>> = userDao.all()
-    fun load(uid: String): Flow<User?> = userDao.load(uid)
+@Injectable
+class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
 
     override suspend fun init() {
         delay(500)
-        if (sharedComponents.repositoryCollection.preferenceRepository.read(PreferenceName.FIRST_LOAD_USER) { it.toBooleanStrict() }) {
+        if (sharedComponents.actorCollection.preferenceActor.read(PreferenceName.FIRST_LOAD_USER) { it.toBooleanStrict() }) {
             withContext(Dispatchers.Main) {
                 sharedComponents.nav.action.toLogin(LoginInput(MainDestination.INDEX, ""))
                 //sharedComponents.nav.action.toMain()
@@ -72,9 +68,9 @@ class UserRepository(private val sharedComponents: SharedComponents): SuspendIni
                 checkNotNull(userLoginResp.data) { "userLoginResp.data is null" }
 
                 // 更新数据
-                sharedComponents.repositoryCollection.preferenceRepository.save(PreferenceName.FIRST_LOAD_USER, false)
-                sharedComponents.repositoryCollection.preferenceRepository.save(PreferenceName.DEVICE_CODE, userLoginResp.data.deviceCode)
-                sharedComponents.repositoryCollection.preferenceRepository.save(PreferenceName.CURRENT_USER_UID, userLoginResp.data.uid.toString())
+                sharedComponents.actorCollection.preferenceActor.save(PreferenceName.FIRST_LOAD_USER, false)
+                sharedComponents.actorCollection.preferenceActor.save(PreferenceName.DEVICE_CODE, userLoginResp.data.deviceCode)
+                sharedComponents.actorCollection.preferenceActor.save(PreferenceName.CURRENT_USER_UID, userLoginResp.data.uid.toString())
                 sharedComponents.dataSourceCollection.dbSourceCollection.userDao.update(User(
                     userUid = userLoginResp.data.uid.toString(),
                     name = userLoginResp.data.uid.toString(),
@@ -114,9 +110,9 @@ class UserRepository(private val sharedComponents: SharedComponents): SuspendIni
                 checkNotNull(userAutoLoginResp.data) { "userLoginResp.data is null" }
 
                 // 更新数据
-                sharedComponents.repositoryCollection.preferenceRepository.save(PreferenceName.FIRST_LOAD_USER, false)
-                sharedComponents.repositoryCollection.preferenceRepository.save(PreferenceName.DEVICE_CODE, userAutoLoginResp.data.deviceCode)
-                sharedComponents.repositoryCollection.preferenceRepository.save(PreferenceName.CURRENT_USER_UID, userAutoLoginResp.data.uid.toString())
+                sharedComponents.actorCollection.preferenceActor.save(PreferenceName.FIRST_LOAD_USER, false)
+                sharedComponents.actorCollection.preferenceActor.save(PreferenceName.DEVICE_CODE, userAutoLoginResp.data.deviceCode)
+                sharedComponents.actorCollection.preferenceActor.save(PreferenceName.CURRENT_USER_UID, userAutoLoginResp.data.uid.toString())
                 sharedComponents.dataSourceCollection.dbSourceCollection.userDao.update(User(
                     userUid = userAutoLoginResp.data.uid.toString(),
                     name = userAutoLoginResp.data.uid.toString(),
@@ -174,7 +170,7 @@ class UserRepository(private val sharedComponents: SharedComponents): SuspendIni
 
     suspend fun testHello() {
         try {
-            sharedComponents.repositoryCollection.preferenceRepository.save(PreferenceName.CURRENT_HOST, "192.168.31.10")
+            sharedComponents.actorCollection.preferenceActor.save(PreferenceName.CURRENT_HOST, "192.168.31.10")
 
             val helloCoroutineStub = sharedComponents.dataSourceCollection.grpcSourceCollection.helloService()
             val response = helloCoroutineStub.sayHello {
@@ -256,7 +252,7 @@ class UserRepository(private val sharedComponents: SharedComponents): SuspendIni
     }
 
     private suspend fun getCurrentUser(): User? {
-        val currentUserUid: String = sharedComponents.repositoryCollection.preferenceRepository.read(PreferenceName.CURRENT_USER_UID)
+        val currentUserUid: String = sharedComponents.actorCollection.preferenceActor.read(PreferenceName.CURRENT_USER_UID)
         if (currentUserUid.startsWith("#")) {
             return null
         }

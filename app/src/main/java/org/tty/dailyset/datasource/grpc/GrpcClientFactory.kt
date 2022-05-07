@@ -38,7 +38,7 @@ class GrpcClientFactory(private val sharedComponents: SharedComponents) {
 
     suspend fun getChannel(): ManagedChannel {
         val address: String =
-            sharedComponents.repositoryCollection.preferenceRepository.read(PreferenceName.CURRENT_HOST)
+            sharedComponents.actorCollection.preferenceActor.read(PreferenceName.CURRENT_HOST)
 
         if (channel == null) {
             channel = OkHttpChannelBuilder.forAddress(address, 8087)

@@ -1,5 +1,6 @@
 package org.tty.dailyset.database.scope
 
+/*
 import androidx.compose.runtime.*
 import org.tty.dailyset.component.common.DailySetApplication
 import org.tty.dailyset.common.observable.state
@@ -68,4 +69,5 @@ interface GlobalScope  {
 
     //companion object: GlobalScope
 }
+*/
 

@@ -1,8 +1,6 @@
 package org.tty.dailyset.component.debug
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.tty.dailyset.annotation.UseComponent
@@ -42,13 +40,13 @@ class DebugVMImpl(private val sharedComponents: SharedComponents): DebugVM {
     override val currentHost: StateFlow<String> = sharedComponents.stateStore.currentHost.asActivityColdStateFlow("")
     override fun setFirstLoadUser(value: Boolean) {
         sharedComponents.applicationScope.launch {
-            sharedComponents.repositoryCollection.preferenceRepository.save(PreferenceName.FIRST_LOAD_USER, value)
+            sharedComponents.actorCollection.preferenceActor.save(PreferenceName.FIRST_LOAD_USER, value)
         }
     }
 
     override fun testHello() {
         sharedComponents.applicationScope.launch {
-            sharedComponents.repositoryCollection.userRepository.testHello()
+            sharedComponents.actorCollection.userActor.testHello()
         }
     }
 }

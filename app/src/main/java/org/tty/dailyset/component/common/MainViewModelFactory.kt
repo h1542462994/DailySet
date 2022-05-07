@@ -1,5 +1,6 @@
 package org.tty.dailyset.component.common
 
+/*
 import androidx.lifecycle.*
 import org.tty.dailyset.component.login.LoginVMImpl
 
@@ -15,4 +16,4 @@ class MainViewModelFactory(private val sharedComponents: SharedComponents): View
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
-}
+}*/
