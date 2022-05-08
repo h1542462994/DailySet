@@ -8,7 +8,9 @@ import org.tty.dailyset.bean.entity.DailySetDuration
 import org.tty.dailyset.bean.entity.DefaultEntities
 import org.tty.dailyset.bean.enums.DailySetClazzAutoViewType
 import org.tty.dailyset.bean.lifetime.DailySetClazzAutoPageInfo
+import org.tty.dailyset.bean.lifetime.DailySetClazzAutoPageInfo.Companion.calculateCurrentIndex
 import org.tty.dailyset.bean.lifetime.DailySetSummary
+import org.tty.dailyset.bean.lifetime.DailySetTRC
 import org.tty.dailyset.common.local.logger
 import org.tty.dailyset.common.observable.flowMulti
 import org.tty.dailyset.component.common.SharedComponents
@@ -28,6 +30,25 @@ class DailySetClazzAutoVMImpl(val sharedComponents: SharedComponents, val dailyS
     override val dailySetClazzAutoViewType: MutableStateFlow<DailySetClazzAutoViewType> = MutableStateFlow(DailySetClazzAutoViewType.Week)
     override val dailySetClazzAutoPageInfos: StateFlow<List<DailySetClazzAutoPageInfo>> = produceDailySetClazzAutoPagerInfosFlow().asActivityColdStateFlow(listOf())
     override val dailySetCurrentPageIndex = MutableStateFlow(-1)
+    override val dailySetTRC: StateFlow<DailySetTRC> = produceDailySetTRCFlow().asActivityColdStateFlow(DefaultEntities.emptyDailySetTRC())
+
+    override fun toPrev() {
+        if (dailySetClazzAutoPageInfos.value.isNotEmpty() && dailySetCurrentPageIndex.value > 0) {
+            dailySetCurrentPageIndex.value = dailySetCurrentPageIndex.value - 1
+        }
+    }
+
+    override fun toNext() {
+        if (dailySetClazzAutoPageInfos.value.isNotEmpty() && dailySetCurrentPageIndex.value < dailySetClazzAutoPageInfos.value.size - 1) {
+            dailySetCurrentPageIndex.value = dailySetCurrentPageIndex.value + 1
+        }
+    }
+
+    override fun toIndex(index: Int) {
+        if (dailySetClazzAutoPageInfos.value.isNotEmpty() && index >= 0 && index <= dailySetClazzAutoPageInfos.value.size - 1) {
+            dailySetCurrentPageIndex.value = index
+        }
+    }
 
     private fun produceDailySetSummaryFlow(): Flow<DailySetSummary> {
         val comp1 = sharedComponents.database.dailySetDao().anyFlow()
@@ -57,12 +78,28 @@ class DailySetClazzAutoVMImpl(val sharedComponents: SharedComponents, val dailyS
 
     private fun produceDailySetClazzAutoPagerInfosFlow(): Flow<List<DailySetClazzAutoPageInfo>> {
         return produceDailySetDurationFlow().map {
-            val durations = DailySetClazzAutoPageInfo.fromDurations(it)
-            durations.forEach { info ->
-                logger.d("debug", info.toString())
+            val pagerInfos = DailySetClazzAutoPageInfo.fromDurations(it)
+//            pagerInfos.forEach { info ->
+//                logger.d("debug", info.toString())
+//            }
+            if (dailySetCurrentPageIndex.value == -1) {
+                dailySetCurrentPageIndex.value = pagerInfos.calculateCurrentIndex()
             }
+            pagerInfos
+        }
+    }
 
-            durations
+    private fun produceDailySetTRCFlow(): Flow<DailySetTRC> {
+        val comp1 = sharedComponents.database.dailySetDao().anyFlow()
+        val comp2 = sharedComponents.database.dailySetSourceLinksDao().anyFlow()
+        val comp3 = sharedComponents.database.dailySetTableDao().anyFlow()
+        val comp4 = sharedComponents.database.dailySetRowDao().anyFlow()
+        val comp5 = sharedComponents.database.dailySetCellDao().anyFlow()
+
+        return flowMulti(comp1, comp2, comp3, comp4, comp5) {
+            withContext(Dispatchers.IO) {
+                sharedComponents.actorCollection.dailySetActor.getDailySetTRC(dailySetUid = dailySetUid) ?: DefaultEntities.emptyDailySetTRC()
+            }
         }
     }
 }

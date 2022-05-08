@@ -23,3 +23,12 @@ fun urlEncode(str: String): String {
 fun urlDecode(str: String): String {
     return URLDecoder.decode(str, "UTF-8")
 }
+
+fun stringToIntArray(value: String): IntArray {
+    val subStr = value.substring(1, value.length - 1)
+    return subStr.split(",").map { it.trim().toInt() }.toIntArray()
+}
+
+fun String.toIntArray(): IntArray {
+    return stringToIntArray(this)
+}

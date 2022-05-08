@@ -2,12 +2,10 @@ package org.tty.dailyset.bean.lifetime
 
 import org.tty.dailyset.bean.entity.DailySetDuration
 import org.tty.dailyset.bean.enums.DailySetPeriodCode
-import org.tty.dailyset.common.datetime.DateSpan
-import org.tty.dailyset.common.datetime.plusWeeks
-import org.tty.dailyset.common.datetime.toWeekEnd
-import org.tty.dailyset.common.datetime.toWeekStart
+import org.tty.dailyset.common.datetime.*
 import org.tty.dailyset.toLongDateString
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 data class DailySetClazzAutoPageInfo(
     val year: Int,
@@ -36,7 +34,29 @@ data class DailySetClazzAutoPageInfo(
                 }
             }
         }
+
+        fun List<DailySetClazzAutoPageInfo>.calculateCurrentIndex(): Int {
+            if (this.isEmpty()) {
+                return -1
+            }
+
+            val now = LocalDate.now()
+            if (now.isBefore(this.first().startDate)) {
+                return 0
+            }
+            if (now.isAfter(this.last().endDate)) {
+                return this.size - 1
+            }
+            for (item in this.indices) {
+                if (this[item].startDate > now) {
+                    return item - 1
+                }
+            }
+            return this.size - 1
+        }
     }
+
+
 
     override fun toString(): String {
         return "${year}-${periodCode.code} (${serialIndex}) (${startDate.toLongDateString()} -> ${endDate.toLongDateString()})"

@@ -2,6 +2,7 @@ package org.tty.dailyset.bean.entity
 
 import org.tty.dailyset.bean.enums.DailySetType
 import org.tty.dailyset.bean.lifetime.DailySetSummary
+import org.tty.dailyset.bean.lifetime.DailySetTRC
 
 object DefaultEntities {
     fun emptyDailySet(): DailySet {
@@ -20,6 +21,20 @@ object DefaultEntities {
             type = DailySetType.Normal,
             name = "",
             icon = null
+        )
+    }
+
+    fun emptyDailySetTable(): DailySetTable {
+        return DailySetTable(
+            sourceUid = "",
+            name = ""
+        )
+    }
+
+    fun emptyDailySetTRC(): DailySetTRC {
+        return DailySetTRC(
+            dailySetTable = emptyDailySetTable(),
+            dailySetRCs = emptyList()
         )
     }
 }

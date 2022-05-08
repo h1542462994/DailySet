@@ -9,7 +9,9 @@ import org.tty.dailyset.bean.DailySetUpdateItemCollection
 import org.tty.dailyset.bean.ResponseCodes
 import org.tty.dailyset.bean.entity.*
 import org.tty.dailyset.bean.enums.*
+import org.tty.dailyset.bean.lifetime.DailySetRC
 import org.tty.dailyset.bean.lifetime.DailySetSummary
+import org.tty.dailyset.bean.lifetime.DailySetTRC
 import org.tty.dailyset.bean.req.DailySetUpdateReq
 import org.tty.dailyset.common.local.logger
 import org.tty.dailyset.common.util.Diff
@@ -608,11 +610,62 @@ class DailySetActor(private val sharedComponents: SharedComponents) {
             val dailySetDurationUids = sharedComponents.database.dailySetSourceLinksDao().allBySetUidAndSourceType(referTo, DailySetSourceType.Duration.value)
                 .filter { it.removeVersion <= 0 }
                 .map { it.sourceUid }
-            durations.addAll(
-                sharedComponents.database.dailySetDurationDao().allDurationsBySourceUids(dailySetDurationUids)
-            )
+            if (dailySetDurationUids.isNotEmpty()) {
+                durations.addAll(
+                    sharedComponents.database.dailySetDurationDao().allDurationsBySourceUids(dailySetDurationUids)
+                )
+            }
+
         }
 
         return durations
+    }
+
+    suspend fun getDailySetTRC(dailySetUid: String): DailySetTRC? {
+        val dailySet = sharedComponents.database.dailySetDao().get(dailySetUid) ?: return null
+        val uid = dailySet.uid
+        val autoUidRegex = "^#school.zjut.course.[\\dA-Za-z_-]+$".toRegex()
+        val referTo = "#school.zjut.global"
+
+        val dailySetTables = mutableListOf<DailySetTable>()
+        val dailySetRows = mutableListOf<DailySetRow>()
+        val dailySetCells = mutableListOf<DailySetCell>()
+
+        if (autoUidRegex.matches(uid)) {
+            val dailySetTableUids = sharedComponents.database.dailySetSourceLinksDao().allBySetUidAndSourceType(referTo, DailySetSourceType.Table.value)
+                .filter { it.removeVersion <= 0 }
+                .map { it.sourceUid }
+            if (dailySetTableUids.isNotEmpty()) {
+                dailySetTables.addAll(sharedComponents.database.dailySetTableDao().allBySourceUids(dailySetTableUids))
+            }
+            val dailySetRowUids = sharedComponents.database.dailySetSourceLinksDao().allBySetUidAndSourceType(referTo, DailySetSourceType.Row.value)
+                .filter { it.removeVersion <= 0 }
+                .map { it.sourceUid }
+            if (dailySetRowUids.isNotEmpty()) {
+                dailySetRows.addAll(sharedComponents.database.dailySetRowDao().allBySourceUids(dailySetRowUids))
+            }
+            val dailySetCellUids = sharedComponents.database.dailySetSourceLinksDao().allBySetUidAndSourceType(referTo, DailySetSourceType.Cell.value)
+                .filter { it.removeVersion <= 0 }
+                .map { it.sourceUid }
+            if (dailySetCellUids.isNotEmpty()) {
+                dailySetCells.addAll(sharedComponents.database.dailySetCellDao().allBySourceUids(dailySetCellUids))
+            }
+        }
+
+        return join3Source(dailySetTables, dailySetRows, dailySetCells)
+    }
+
+    private fun join3Source(dailySetTables: List<DailySetTable>, dailySetRows: List<DailySetRow>, dailySetCells: List<DailySetCell>): DailySetTRC? {
+        if (dailySetTables.isEmpty()) return null
+        val dailySetTable = dailySetTables[0]
+        return DailySetTRC(
+            dailySetTable = dailySetTable,
+            dailySetRCs = dailySetRows.filter { it.tableUid == dailySetTable.sourceUid }.map { row ->
+                DailySetRC(
+                    dailySetRow = row,
+                    dailySetCells = dailySetCells.filter { it.rowUid == row.sourceUid }
+                )
+            }
+        )
     }
 }

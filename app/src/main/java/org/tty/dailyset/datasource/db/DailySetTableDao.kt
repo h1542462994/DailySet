@@ -24,4 +24,10 @@ interface DailySetTableDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun updateBatch(dailySetTables: List<DailySetTable>)
+
+    @Query("select * from dailyset_table")
+    fun anyFlow(): Flow<DailySetTable?>
+
+    @Query("select * from dailyset_table where source_uid in (:sourceUids)")
+    suspend fun allBySourceUids(sourceUids: List<String>): List<DailySetTable>
 }
