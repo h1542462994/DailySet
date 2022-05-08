@@ -7,5 +7,11 @@ enum class DailySetType(val value: Int) {
     Task(3),
     Global(4),
     Generated(5),
-    User(6)
+    User(6);
+
+    companion object {
+        fun of(value: Int): DailySetType {
+            return DailySetType.values().single { it.value == value }
+        }
+    }
 }

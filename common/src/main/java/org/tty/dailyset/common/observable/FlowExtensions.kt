@@ -25,3 +25,23 @@ fun <T1, T2, T3, R> flow3(flow1: Flow<T1>, flow2: Flow<T2>, flow3: Flow<T3>, tra
         transform(pair.first, pair.second, value3)
     }
 }
+
+@Suppress("LiftReturnOrAssignment")
+fun <R> flowMulti(vararg flows: Flow<*>, transform: suspend (values: Array<*>) -> R): Flow<R> {
+    var f: Flow<List<*>>? = null
+
+    for (flow in flows) {
+        if (f == null) {
+            f = flow.map { listOf(it) }
+        } else {
+            f = f.combine(flow) { v1, v2 ->
+                val mutableList = mutableListOf(*v1.toTypedArray())
+                mutableList.add(v2)
+                mutableList
+            }
+        }
+    }
+
+    requireNotNull(f)
+    return f.map { transform(it.toTypedArray()) }
+}

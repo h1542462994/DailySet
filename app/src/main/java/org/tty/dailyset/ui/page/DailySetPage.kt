@@ -14,7 +14,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import org.tty.dailyset.R
 import org.tty.dailyset.annotation.UseViewModel
 import org.tty.dailyset.bean.entity.DailySet
-import org.tty.dailyset.bean.enums.DailySetType
+import org.tty.dailyset.bean.enums.toImageResource
+import org.tty.dailyset.bean.lifetime.DailySetSummary
 import org.tty.dailyset.component.common.asMutableState
 import org.tty.dailyset.component.common.showToast
 import org.tty.dailyset.component.dailyset.DailySetCreateDialogVM
@@ -29,7 +30,7 @@ import org.tty.dailyset.ui.image.ImageResource
 fun DailySetPage() {
     val scrollState = rememberScrollState()
     val dailySetVM = rememberDailySetVM()
-    val dailySets by dailySetVM.dailySets.collectAsState()
+    val dailySetSummaries by dailySetVM.dailySetSummaries.collectAsState()
     val nav = rememberDailySetVM().nav
 
     Column (
@@ -37,7 +38,7 @@ fun DailySetPage() {
     ) {
         DailySetAddPart(dailySetCreateDialogVM = dailySetVM.dailySetCreateDialogVM)
         DailySetAutoPart()
-        DailySetUserPart(dailySets) {
+        DailySetUserPart(dailySetSummaries) {
 /*            // change the current dailySet uid to selected
             dailySetVM.setCurrentDailySetUid(it.uid)
             // changed the target page
@@ -99,33 +100,11 @@ fun DailySetAutoPart() {
  * .user
  */
 @Composable
-fun DailySetUserPart(dailySets: List<DailySet>, onClick: (DailySet) -> Unit) {
-    val groupedDailySets = dailySets.groupBy { it.type }
-
-    @Composable
-    fun list(dailySets: List<DailySet>) {
-        Column {
-            dailySets.forEach {
-                DailySetElement(dailySet = it, onClick = onClick)
-            }
-        }
-    }
-
+fun DailySetUserPart(dailySetSummaries: List<DailySetSummary>, onClick: (DailySetSummary) -> Unit) {
     Column {
-        val normalList = groupedDailySets[DailySetType.Normal.value]
-        if (normalList != null) {
-            TitleSpace(title = stringResource(id = R.string.dailyset_type_normal))
-            list(normalList)
-        }
-        val clazzList = groupedDailySets[DailySetType.Clazz.value]
-        if (clazzList != null) {
-            TitleSpace(title = stringResource(id = R.string.dailyset_type_clazz))
-            list(clazzList)
-        }
-        val taskList = groupedDailySets[DailySetType.Task.value]
-        if (taskList != null) {
-            TitleSpace(title = stringResource(id = R.string.dailyset_type_task))
-            list(taskList)
+        TitleSpace()
+        dailySetSummaries.forEach {
+            DailySetElement(dailySetSummary = it, onClick = onClick)
         }
     }
 }
@@ -134,16 +113,15 @@ fun DailySetUserPart(dailySets: List<DailySet>, onClick: (DailySet) -> Unit) {
  * dailySet element of user part.
  */
 @Composable
-fun DailySetElement(dailySet: DailySet, onClick: (DailySet) -> Unit) {
+fun DailySetElement(dailySetSummary: DailySetSummary, onClick: (DailySetSummary) -> Unit) {
 
     ProfileMenuItem(
-        icon = ImageResource.set_wind(),
-        useTint = true,
+        icon = dailySetSummary.icon.toImageResource(),
         next = true,
-        title = "?",
+        title = dailySetSummary.name,
         content = "",
         onClick = {
-            onClick(dailySet)
+            onClick(dailySetSummary)
         }
     )
 }

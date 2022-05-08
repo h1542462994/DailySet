@@ -1,11 +1,8 @@
 package org.tty.dailyset.component.common
 
 import kotlinx.coroutines.flow.*
-import org.tty.dailyset.bean.entity.DailySet
-import org.tty.dailyset.bean.entity.DailySetTable
+import org.tty.dailyset.bean.entity.*
 import org.tty.dailyset.bean.enums.PreferenceName
-import org.tty.dailyset.bean.entity.User
-import org.tty.dailyset.bean.entity.UserTicketInfo
 import org.tty.dailyset.common.observable.flow2
 import org.tty.dailyset.ui.page.MainPageTabs
 import org.tty.dioc.util.optional
@@ -13,6 +10,7 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 
+@Suppress("OPT_IN_USAGE")
 class StateStoreImpl(private val sharedComponents: SharedComponents): StateStore {
 
     override val seedVersion: Flow<Int> get() = loadPreference(PreferenceName.SEED_VERSION, mapper = { it.toInt() })
@@ -29,7 +27,7 @@ class StateStoreImpl(private val sharedComponents: SharedComponents): StateStore
     override val currentUser = flow2(currentUserUid, users) { uid, users ->
         users.find { it.userUid == uid } ?: User.default()
     }
-    @Suppress("OPT_IN_USAGE")
+
     override val userTicketInfo: Flow<UserTicketInfo> = currentUserUid.flatMapLatest { userUid ->
         sharedComponents.database.userTicketInfoDao().load(userUid).map {
             it ?: UserTicketInfo.empty()
@@ -37,11 +35,14 @@ class StateStoreImpl(private val sharedComponents: SharedComponents): StateStore
     }
 
     override val dailySetTables: Flow<List<DailySetTable>> = sharedComponents.database.dailySetTableDao().all()
-    override val dailySets: Flow<List<DailySet>> = sharedComponents.database.dailySetDao().all()
+    override val dailySets: Flow<List<DailySet>> = sharedComponents.database.dailySetDao().allFlow()
     override val currentDailySetUid: MutableStateFlow<String> = sharedComponents.dataSourceCollection.runtimeDataSource.currentDailySetUid
     override val currentHttpServerAddress: Flow<String> = loadPreference(PreferenceName.CURRENT_HTTP_SERVER_ADDRESS)
     override val deviceCode: StateFlow<String> = loadPreferenceAsStateFlow(PreferenceName.DEVICE_CODE)
     override val currentHost: Flow<String> = loadPreference(PreferenceName.CURRENT_HOST)
+    override val dailySetVisibles: Flow<List<DailySetVisible>> = currentUserUid.flatMapLatest {
+        sharedComponents.database.dailySetVisibleDao().allByUserUidFlow(it)
+    }
 
     @Suppress("UNCHECKED_CAST")
     private fun <T> loadPreference(preferenceName: PreferenceName, mapper: (it: String) -> T = { it as T }): Flow<T> {

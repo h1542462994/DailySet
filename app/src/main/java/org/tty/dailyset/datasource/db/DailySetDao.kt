@@ -5,7 +5,6 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import org.tty.dailyset.bean.entity.DailySet
 
@@ -20,11 +19,17 @@ interface DailySetDao {
     suspend fun delete(dailySet: DailySet)
 
     @Query("select * from dailyset")
-    fun all(): Flow<List<DailySet>>
+    fun allFlow(): Flow<List<DailySet>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun updateBatch(dailySets: List<DailySet>)
 
     @Query("select * from dailyset where uid = :uid limit 1")
     suspend fun get(uid: String): DailySet?
+
+    @Query("select * from dailyset")
+    suspend fun all(): List<DailySet>
+
+    @Query("select * from dailyset limit 1")
+    fun anyFlow(): Flow<DailySet?>
 }

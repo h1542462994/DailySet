@@ -22,8 +22,15 @@ enum class DailySetIcon(val key: String) {
     Tutorial("tutorial"),
     Vacation("vacation"),
     Water("water"),
-    Wind("wind")
+    Wind("wind");
 
+    companion object {
+        fun of(key: String): DailySetIcon? {
+            return DailySetIcon.values().firstOrNull {
+                it.key == key
+            }
+        }
+    }
 
 }
 

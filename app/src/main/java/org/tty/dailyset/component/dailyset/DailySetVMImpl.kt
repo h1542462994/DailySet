@@ -2,12 +2,15 @@ package org.tty.dailyset.component.dailyset
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import androidx.room.CoroutinesRoom
+import kotlinx.coroutines.flow.*
 import org.tty.dailyset.annotation.UseComponent
 import org.tty.dailyset.bean.entity.DailySet
 import org.tty.dailyset.bean.enums.DailySetIcon
 import org.tty.dailyset.bean.enums.DailySetType
+import org.tty.dailyset.bean.lifetime.DailySetSummary
+import org.tty.dailyset.common.observable.flow2
+import org.tty.dailyset.common.observable.flowMulti
 import org.tty.dailyset.component.common.SharedComponents
 import org.tty.dailyset.component.common.asActivityColdStateFlow
 import org.tty.dailyset.component.common.sharedComponents0
@@ -22,8 +25,8 @@ fun rememberDailySetVM(): DailySetVM {
 }
 
 class DailySetVMImpl(private val sharedComponents: SharedComponents) : DailySetVM {
-    override val dailySets: StateFlow<List<DailySet>> =
-        sharedComponents.stateStore.dailySets.asActivityColdStateFlow(listOf())
+    override val dailySetSummaries: StateFlow<List<DailySetSummary>> = produceDailySetSummariesFlow().asActivityColdStateFlow(
+        listOf())
 
     override fun setCurrentDailySetUid(dailySetUid: String) {
         sharedComponents.stateStore.currentDailySetUid.tryEmit(dailySetUid)
@@ -46,5 +49,18 @@ class DailySetVMImpl(private val sharedComponents: SharedComponents) : DailySetV
 //        }
     }
 
+    private fun produceDailySetSummariesFlow(): Flow<List<DailySetSummary>> {
+        // watch the following flow to create the source of the flow.
+        // 这样写是为了让最终的流能够监听下面4个流的push.
+        val comp1 = sharedComponents.database.dailySetDao().anyFlow()
+        val comp2 = sharedComponents.database.dailySetVisibleDao().anyFlow()
+        val comp3 = sharedComponents.database.dailySetMetaLinksDao().anyFlow()
+        val comp4 = sharedComponents.database.dailySetBasicMetaDao().anyFlow()
+
+        // 由于对于这个复杂的对象应用流转换非常复杂，因此采用了当设计的数据表更改时，重新请求数据的方案。
+        return flowMulti(comp1, comp2, comp3, comp4) {
+             sharedComponents.actorCollection.dailySetActor.getDailySetSummaries()
+        }
+    }
 
 }

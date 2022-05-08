@@ -8,14 +8,13 @@ import org.tty.dailyset.bean.DailySetUpdateItem
 import org.tty.dailyset.bean.DailySetUpdateItemCollection
 import org.tty.dailyset.bean.ResponseCodes
 import org.tty.dailyset.bean.entity.*
-import org.tty.dailyset.bean.enums.DailySetDataType
-import org.tty.dailyset.bean.enums.DailySetMetaType
-import org.tty.dailyset.bean.enums.DailySetSourceType
-import org.tty.dailyset.bean.enums.PreferenceName
+import org.tty.dailyset.bean.enums.*
+import org.tty.dailyset.bean.lifetime.DailySetSummary
 import org.tty.dailyset.bean.req.DailySetUpdateReq
 import org.tty.dailyset.common.local.logger
 import org.tty.dailyset.common.util.Diff
 import org.tty.dailyset.component.common.SharedComponents
+import org.tty.dioc.util.optional
 import java.util.*
 
 /**
@@ -526,8 +525,6 @@ class DailySetActor(private val sharedComponents: SharedComponents) {
         sharedComponents.database.dailySetStudentInfoMetaDao()
             .updateBatch(updateItemCollection.updates.map { it.data })
     }
-
-
     //endregion
 
     private inline fun <reified T : Any> castTo(rawUpdateItemCollection: DailySetUpdateItemCollection<JsonElement>): DailySetUpdateItemCollection<T> {
@@ -544,5 +541,51 @@ class DailySetActor(private val sharedComponents: SharedComponents) {
                 )
             }
         )
+    }
+
+    suspend fun getDailySetSummaries(): List<DailySetSummary> {
+        val shownDailySetTypes = listOf(
+            DailySetType.Normal.value,
+            DailySetType.Clazz.value,
+            DailySetType.ClazzAuto.value,
+            DailySetType.Task.value
+        )
+
+        val userUid: String = sharedComponents.actorCollection.preferenceActor.read(PreferenceName.CURRENT_USER_UID)
+        val dailySets = sharedComponents.database.dailySetDao().all()
+        val dailySetVisibleUid = sharedComponents.database.dailySetVisibleDao().allByUserUid(userUid)
+            .filter { it.visible }
+            .map { it.dailySetUid }
+        val visibleDailySets = dailySets.filter { dailySet -> dailySet.uid in dailySetVisibleUid }
+        val shownDailySets = visibleDailySets.filter { it.type in shownDailySetTypes }
+
+        val results = shownDailySets.map {
+            val uid = it.uid
+            val uidG = it.uid + ".g"
+            var dailySetBasicMeta: DailySetBasicMeta? = null
+            var link: DailySetMetaLinks? = null
+            // query the basic_meta from uid
+            link = sharedComponents.database.dailySetMetaLinksDao().anyBySetUidAndMetaType(uid, DailySetMetaType.BasicMeta.value)
+            if (link != null) {
+                dailySetBasicMeta = sharedComponents.database.dailySetBasicMetaDao().anyByMetaUid(link.metaUid)
+            }
+            // query the basic_meta
+            if (dailySetBasicMeta == null) {
+                link = sharedComponents.database.dailySetMetaLinksDao().anyBySetUidAndMetaType(uidG, DailySetMetaType.BasicMeta.value)
+            }
+            if (link != null) {
+                dailySetBasicMeta = sharedComponents.database.dailySetBasicMetaDao().anyByMetaUid(link.metaUid)
+            }
+            // query ok
+            return@map DailySetSummary(
+                uid = it.uid,
+                type = DailySetType.of(it.type),
+                name = dailySetBasicMeta.optional { name } ?: "<未命名>",
+                icon = DailySetIcon.of(dailySetBasicMeta.optional { icon } ?: "")
+            )
+
+        }
+
+        return results
     }
 }
