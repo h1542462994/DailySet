@@ -22,4 +22,10 @@ interface DailySetDurationDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun updateBatch(dailySetDurations: List<DailySetDuration>)
+
+    @Query("select * from dailyset_duration where source_uid in (:sourceUids)")
+    suspend fun allDurationsBySourceUids(sourceUids: List<String>): List<DailySetDuration>
+
+    @Query("select * from dailyset_duration limit 1")
+    fun anyFlow(): Flow<DailySetDuration?>
 }

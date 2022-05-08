@@ -45,18 +45,24 @@ enum class DailySetPeriodCode(val code: Int) {
     /**
      * 暑假 summer vacation
      */
-    SummerVacation(14)
+    SummerVacation(14);
+
+    companion object {
+        fun of(code: Int): DailySetPeriodCode {
+            return values().single { it.code == code }
+        }
+    }
+
+    fun toDisplayString(): String {
+        return when (this) {
+            UnSpecified -> "未确定"
+            FirstTerm -> "上学期"
+            FirstTermEnd -> "上学期考试周"
+            WinterVacation -> "寒假"
+            SecondTerm -> "下学期"
+            SecondTermEnd -> "下学期考试周"
+            ShortTerm -> "短学期"
+            SummerVacation -> "暑假"
+        }
+    }
 }
-//
-//fun PeriodCode.toDisplay(): String{
-//    return when (this) {
-//        PeriodCode.UnSpecified -> "未确定"
-//        PeriodCode.FirstTerm -> "上学期"
-//        PeriodCode.FirstTermEnd -> "上学期考试周"
-//        PeriodCode.WinterVacation -> "寒假"
-//        PeriodCode.SecondTerm -> "下学期"
-//        PeriodCode.SecondTermEnd -> "下学期考试周"
-//        PeriodCode.ShortTerm -> "短学期"
-//        PeriodCode.SummerVacation -> "暑假"
-//    }
-//}

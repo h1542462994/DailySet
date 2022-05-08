@@ -3,6 +3,7 @@ package org.tty.dailyset.datasource.runtime
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.tty.dailyset.bean.entity.DailySet
 import org.tty.dailyset.ui.page.MainPageTabs
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -13,7 +14,5 @@ interface RuntimeDataSource {
     val nowDate: Flow<LocalDate>
     val nowDayOfWeek: Flow<DayOfWeek>
     val mainTab: MutableStateFlow<MainPageTabs>
-//    val rootRoute: MutableSharedFlow<String>
     val currentDailySetUid: MutableStateFlow<String>
-    fun init()
 }

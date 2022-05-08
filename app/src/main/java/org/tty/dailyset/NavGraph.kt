@@ -6,10 +6,15 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.*
+import androidx.core.text.htmlEncode
 import androidx.navigation.*
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import okio.ByteString.Companion.encode
+import org.tty.dailyset.common.local.logger
+import org.tty.dailyset.common.util.stringToBase64
+import org.tty.dailyset.common.util.urlEncode
 import org.tty.dailyset.component.common.sharedComponents
 import org.tty.dailyset.component.login.LoginInput
 import org.tty.dailyset.ui.page.*
@@ -19,17 +24,20 @@ import org.tty.dailyset.ui.page.*
  */
 object MainDestination {
     const val MAIN_ROUTE = "main"
+
     // TODO: 因为架构的原因暂时移除了这些页面
 //    const val TIME_TABLE_ROUTE = "time_table"
 //    const val TIME_TABLE_PREVIEW_ROUTE = "time_table_preview"
     const val TEST_ROUTE = "test"
-//    const val DAILY_SET_NORMAL = "daily_set_normal"
+
+    //    const val DAILY_SET_NORMAL = "daily_set_normal"
 //    const val DAILY_SET_CLAZZ = "daily_set_clazz"
 //    const val DAILY_SET_TASK = "daily_set_task"
     const val INDEX = "index"
     const val LOGIN = "login"
     const val REGISTER = "register"
     const val TICKET_BIND = "ticket_bind"
+    const val DAILYSET_CLAZZAUTO = "dailyset/clazzauto"
 }
 
 //private var arguments = HashMap<String, Any>()
@@ -112,6 +120,18 @@ fun NavGraph() {
             composable(MainDestination.TICKET_BIND) {
                 TicketBindPage()
             }
+            composable(
+                route = MainDestination.DAILYSET_CLAZZAUTO + "?uid={uid}",
+                arguments = listOf(
+                    navArgument("uid") {
+                        this.type = NavType.StringType
+                        this.defaultValue = ""
+                    }
+                )
+            ) {
+                val dailySetUid = it.arguments?.getString("uid") ?: ""
+                DailySetClazzAutoPage(dailySetUid = dailySetUid)
+            }
         }
 
     }
@@ -152,7 +172,7 @@ class MainActions(private val navController: NavHostController) {
 //    }
 
     fun toLogin(input: LoginInput) {
-        navController.navigateExceptEqual(MainDestination.LOGIN + "?from=${input.from}&username=${input.username}")
+        navController.navigateExceptEqual(MainDestination.LOGIN + "?from=${urlEncode(input.from)}&username=${urlEncode(input.username)}")
     }
 
     fun toMain() {
@@ -165,6 +185,10 @@ class MainActions(private val navController: NavHostController) {
 
     fun toTicketBind() {
         navController.navigateExceptEqual(MainDestination.TICKET_BIND)
+    }
+
+    fun toDailySetClazzAuto(dailySetUid: String) {
+        navController.navigateExceptEqual(MainDestination.DAILYSET_CLAZZAUTO + "?uid=${urlEncode(dailySetUid)}")
     }
 
 }

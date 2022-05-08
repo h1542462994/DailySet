@@ -26,59 +26,6 @@ class RuntimeDataSourceImpl(private val sharedComponents: SharedComponents) : Ru
 
     override val mainTab = MutableStateFlow(MainPageTabs.SUMMARY)
 
-//    override val rootRoute = MutableStateFlow(MainDestination.INDEX)
+    override val currentDailySetUid: MutableStateFlow<String> = MutableStateFlow("")
 
-    override val currentDailySetUid = MutableStateFlow("")
-
-    /**
-     * 初始化
-     */
-    override fun init() {
-
-//        if (scheduleJob == null) {
-//            scheduleJob = sharedComponents.applicationScope.launch {
-//                job()
-//            }
-//            logger.d(TAG, "schedule start")
-//        }
-//
-//        sharedComponents.lifecycle.addObserver(object : LifecycleEventObserver {
-//            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-//                if (event == Lifecycle.Event.ON_START) {
-//                    if (scheduleJob == null) {
-//                        scheduleJob = sharedComponents.applicationScope.launch {
-//                            job()
-//                        }
-//                    }
-//                    logger.d(TAG, "schedule start")
-//                } else if (event == Lifecycle.Event.ON_PAUSE) {
-//                    scheduleJob?.cancel()
-//                    scheduleJob = null
-//                    logger.d(TAG, "schedule stop")
-//                }
-//            }
-//        })
-
-//        sharedComponents.stateStore.firstLoadUser.observeOnApplicationScope {  }
-//        sharedComponents.stateStore.currentHttpServerAddress.observeOnApplicationScope { }
-//        sharedComponents.stateStore.deviceCode.observeOnApplicationScope {  }
-
-//        sharedComponents.repositoryCollection.userRepository.init()
-    }
-
-    /**
-     * 每100ms发射的时钟源
-     */
-//    private suspend inline fun job() {
-//        while (true) {
-//            val now = LocalDateTime.now()
-//            this@RuntimeDataSourceImpl.now.emit(now)
-//            //logger.d(TAG, "now is ${now.toShortString()}")
-//            delay(100)
-//        }
-//    }
-
-    companion object {
-        const val TAG = "RuntimeDataSourceImpl"
-    }
 }

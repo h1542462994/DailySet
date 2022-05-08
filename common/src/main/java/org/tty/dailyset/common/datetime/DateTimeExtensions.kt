@@ -108,3 +108,7 @@ fun DayOfWeek.toDisplayString(): String {
 fun intToDayOfWeek(dayOfWeek: Int): DayOfWeek {
     return DayOfWeek.of(dayOfWeek)
 }
+
+fun LocalDate.plusWeeks(weekCount: Int): LocalDate {
+    return this.plusWeeks(weekCount.toLong())
+}

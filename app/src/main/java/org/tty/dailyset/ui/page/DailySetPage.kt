@@ -14,8 +14,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import org.tty.dailyset.R
 import org.tty.dailyset.annotation.UseViewModel
 import org.tty.dailyset.bean.entity.DailySet
+import org.tty.dailyset.bean.enums.DailySetType
 import org.tty.dailyset.bean.enums.toImageResource
 import org.tty.dailyset.bean.lifetime.DailySetSummary
+import org.tty.dailyset.common.local.logger
 import org.tty.dailyset.component.common.asMutableState
 import org.tty.dailyset.component.common.showToast
 import org.tty.dailyset.component.dailyset.DailySetCreateDialogVM
@@ -39,21 +41,10 @@ fun DailySetPage() {
         DailySetAddPart(dailySetCreateDialogVM = dailySetVM.dailySetCreateDialogVM)
         DailySetAutoPart()
         DailySetUserPart(dailySetSummaries) {
-/*            // change the current dailySet uid to selected
-            dailySetVM.setCurrentDailySetUid(it.uid)
-            // changed the target page
             when(it.type) {
-                DailySetType.Normal -> {
-                    nav.toNormalDailySet()
-                }
-                DailySetType.Clazz -> {
-                    nav.toClazzDailySet()
-                }
-                DailySetType.TaskSpecific -> {
-                    nav.toTaskDailySet()
-                }
-            }*/
-            showToast("暂不支持该功能.")
+                DailySetType.ClazzAuto -> nav.toDailySetClazzAuto(dailySetUid = it.uid)
+                else -> showToast("暂不支持该类型.")
+            }
         }
     }
 

@@ -37,7 +37,7 @@ data class DateSpan(
     fun expandToFullWeek(): DateSpan {
         return DateSpan(
             startDate = startDate.toWeekStart(startDayOfWeek),
-            endDateInclusive = endDateInclusive.toWeekEnd(),
+            endDateInclusive = endDateInclusive.toWeekEnd(startDayOfWeek),
             startDayOfWeek = startDayOfWeek
         )
     }

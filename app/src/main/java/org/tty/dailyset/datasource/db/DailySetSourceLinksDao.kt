@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 import org.tty.dailyset.bean.entity.DailySetSourceLinks
 
 @Dao
@@ -17,4 +18,7 @@ interface DailySetSourceLinksDao {
 
     @Delete
     suspend fun removeBatch(dailySetSourceLinks: List<DailySetSourceLinks>)
+
+    @Query("select * from dailyset_source_links limit 1")
+    fun anyFlow(): Flow<DailySetSourceLinks?>
 }
