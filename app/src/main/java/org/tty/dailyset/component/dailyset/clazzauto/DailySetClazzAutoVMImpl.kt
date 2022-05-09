@@ -4,14 +4,18 @@ import androidx.compose.runtime.Composable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
+import org.tty.dailyset.bean.entity.DailySetCourse
 import org.tty.dailyset.bean.entity.DailySetDuration
 import org.tty.dailyset.bean.entity.DefaultEntities
 import org.tty.dailyset.bean.enums.DailySetClazzAutoViewType
+import org.tty.dailyset.bean.enums.DailySetPeriodCode
 import org.tty.dailyset.bean.lifetime.DailySetClazzAutoPageInfo
 import org.tty.dailyset.bean.lifetime.DailySetClazzAutoPageInfo.Companion.calculateCurrentIndex
 import org.tty.dailyset.bean.lifetime.DailySetSummary
 import org.tty.dailyset.bean.lifetime.DailySetTRC
+import org.tty.dailyset.bean.lifetime.YearPeriod
 import org.tty.dailyset.common.local.logger
+import org.tty.dailyset.common.observable.flow2
 import org.tty.dailyset.common.observable.flowMulti
 import org.tty.dailyset.component.common.SharedComponents
 import org.tty.dailyset.component.common.asActivityColdStateFlow
@@ -25,12 +29,19 @@ fun rememberClazzAutoDailySetVM(dailySetUid: String): DailySetClazzAutoVM {
     }
 }
 
-class DailySetClazzAutoVMImpl(val sharedComponents: SharedComponents, val dailySetUid: String): DailySetClazzAutoVM {
-    override val dailySetSummary: StateFlow<DailySetSummary> = produceDailySetSummaryFlow().asActivityColdStateFlow(DefaultEntities.emptyDailySetSummary())
-    override val dailySetClazzAutoViewType: MutableStateFlow<DailySetClazzAutoViewType> = MutableStateFlow(DailySetClazzAutoViewType.Week)
-    override val dailySetClazzAutoPageInfos: StateFlow<List<DailySetClazzAutoPageInfo>> = produceDailySetClazzAutoPagerInfosFlow().asActivityColdStateFlow(listOf())
+class DailySetClazzAutoVMImpl(val sharedComponents: SharedComponents, val dailySetUid: String) :
+    DailySetClazzAutoVM {
+    override val dailySetSummary: StateFlow<DailySetSummary> =
+        produceDailySetSummaryFlow().asActivityColdStateFlow(DefaultEntities.emptyDailySetSummary())
+    override val dailySetClazzAutoViewType: MutableStateFlow<DailySetClazzAutoViewType> =
+        MutableStateFlow(DailySetClazzAutoViewType.Week)
+    override val dailySetClazzAutoPageInfos: StateFlow<List<DailySetClazzAutoPageInfo>> =
+        produceDailySetClazzAutoPagerInfosFlow().asActivityColdStateFlow(listOf())
     override val dailySetCurrentPageIndex = MutableStateFlow(-1)
-    override val dailySetTRC: StateFlow<DailySetTRC> = produceDailySetTRCFlow().asActivityColdStateFlow(DefaultEntities.emptyDailySetTRC())
+    override val dailySetTRC: StateFlow<DailySetTRC> =
+        produceDailySetTRCFlow().asActivityColdStateFlow(DefaultEntities.emptyDailySetTRC())
+    override val dailySetCourses: StateFlow<List<DailySetCourse>> =
+        produceDailySetCoursesFlow().asActivityColdStateFlow(emptyList())
 
     override fun toPrev() {
         if (dailySetClazzAutoPageInfos.value.isNotEmpty() && dailySetCurrentPageIndex.value > 0) {
@@ -51,6 +62,7 @@ class DailySetClazzAutoVMImpl(val sharedComponents: SharedComponents, val dailyS
     }
 
     private fun produceDailySetSummaryFlow(): Flow<DailySetSummary> {
+        // TODO: 这里利用了Android Room流的原理来完成的功能，写法有点奇怪。
         val comp1 = sharedComponents.database.dailySetDao().anyFlow()
         val comp2 = sharedComponents.database.dailySetVisibleDao().anyFlow()
         val comp3 = sharedComponents.database.dailySetMetaLinksDao().anyFlow()
@@ -59,7 +71,9 @@ class DailySetClazzAutoVMImpl(val sharedComponents: SharedComponents, val dailyS
         return flowMulti(comp1, comp2, comp3, comp4) {
             return@flowMulti withContext(Dispatchers.IO) {
                 logger.d("DailySetClazzAutoVMImpl", "??")
-                return@withContext sharedComponents.actorCollection.dailySetActor.getDailySetSummary(dailySetUid = dailySetUid)!!
+                return@withContext sharedComponents.actorCollection.dailySetActor.getDailySetSummary(
+                    dailySetUid = dailySetUid
+                )!!
             }
         }
     }
@@ -98,7 +112,47 @@ class DailySetClazzAutoVMImpl(val sharedComponents: SharedComponents, val dailyS
 
         return flowMulti(comp1, comp2, comp3, comp4, comp5) {
             withContext(Dispatchers.IO) {
-                sharedComponents.actorCollection.dailySetActor.getDailySetTRC(dailySetUid = dailySetUid) ?: DefaultEntities.emptyDailySetTRC()
+                sharedComponents.actorCollection.dailySetActor.getDailySetTRC(dailySetUid = dailySetUid)
+                    ?: DefaultEntities.emptyDailySetTRC()
+            }
+        }
+    }
+
+    private fun produceDailySetCoursesFlow(): Flow<List<DailySetCourse>> {
+        val comp1 = sharedComponents.database.dailySetDao().anyFlow()
+        val comp2 = sharedComponents.database.dailySetSourceLinksDao().anyFlow()
+        val comp3 = sharedComponents.database.dailySetCourseDao().anyFlow()
+        val comp4 = dailySetClazzAutoPageInfos.combine(dailySetCurrentPageIndex) { pageInfos, pageIndex ->
+            if (pageInfos.isEmpty() || pageIndex < 0 || pageIndex >= pageInfos.size) {
+                null
+            } else {
+                val pageInfo = pageInfos[pageIndex]
+                YearPeriod(pageInfo.year, pageInfo.periodCode)
+            }
+        }.distinctUntilChanged()
+        return flowMulti(
+            comp1,
+            comp2,
+            comp3,
+            comp4
+        ) {
+            val yearPeriod = it[3] as YearPeriod?
+//            logger.d("debug", yearPeriod.toString())
+
+//            val pageInfos = dailySetClazzAutoPageInfos.value
+//            val pageIndex = dailySetCurrentPageIndex.value
+            if (yearPeriod == null) {
+                emptyList()
+            } else {
+                val courses = sharedComponents.actorCollection.dailySetActor.getDailySetCourses(
+                    dailySetUid = dailySetUid,
+                    year = yearPeriod.year,
+                    periodCode = yearPeriod.periodCode
+                )
+//                for (course in courses) {
+//                    logger.d("debug", course.toString())
+//                }
+                courses
             }
         }
     }

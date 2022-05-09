@@ -17,9 +17,11 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import org.tty.dailyset.LocalNav
 import org.tty.dailyset.annotation.UseViewModel
+import org.tty.dailyset.bean.entity.DailySetCourse
 import org.tty.dailyset.bean.entity.DefaultEntities
 import org.tty.dailyset.bean.enums.DailySetClazzAutoViewType
 import org.tty.dailyset.bean.lifetime.DailySetClazzAutoPageInfo
+import org.tty.dailyset.bean.lifetime.DailySetCourseCoverage
 import org.tty.dailyset.bean.lifetime.DailySetTRC
 import org.tty.dailyset.bean.lifetime.DailyTableCalc
 import org.tty.dailyset.common.datetime.DateSpan
@@ -33,6 +35,7 @@ import org.tty.dailyset.ui.component.IconText
 import org.tty.dailyset.ui.component.TopBar
 import org.tty.dailyset.ui.image.ImageResource
 import org.tty.dailyset.ui.theme.DailySetTheme
+import kotlin.math.absoluteValue
 
 @Composable
 @UseViewModel("/dailyset/clazzauto/:uid")
@@ -45,6 +48,8 @@ fun DailySetClazzAutoPage(dailySetUid: String) {
     val dailySetCurrentPageIndex by dailySetClazzAutoVM.dailySetCurrentPageIndex.collectAsState()
     val dailySetClazzAutoPageInfos by dailySetClazzAutoVM.dailySetClazzAutoPageInfos.collectAsState()
     val dailySetTRC by dailySetClazzAutoVM.dailySetTRC.collectAsState()
+    val dailySetCourses by dailySetClazzAutoVM.dailySetCourses.collectAsState()
+
     val nav = LocalNav.current
 
     var followName = ""
@@ -71,6 +76,7 @@ fun DailySetClazzAutoPage(dailySetUid: String) {
                 dailySetCurrentPageIndex = dailySetCurrentPageIndex,
                 dailySetClazzAutoPageInfos = dailySetClazzAutoPageInfos,
                 dailySetTRC = dailySetTRC,
+                dailySetCourses = dailySetCourses,
                 dailySetClazzAutoVM = dailySetClazzAutoVM
             )
         }
@@ -158,6 +164,7 @@ fun DailySetClazzAutoCenter(
     dailySetCurrentPageIndex: Int,
     dailySetClazzAutoPageInfos: List<DailySetClazzAutoPageInfo>,
     dailySetTRC: DailySetTRC,
+    dailySetCourses: List<DailySetCourse>,
     dailySetClazzAutoVM: DailySetClazzAutoVM
 ) {
     if (dailySetClazzAutoPageInfos.isNotEmpty()) {
@@ -168,6 +175,7 @@ fun DailySetClazzAutoCenter(
 
         HorizontalPager(dailySetClazzAutoPageInfos.size, state = pagerState) { page: Int ->
             val currentPageInfo = dailySetClazzAutoPageInfos[page]
+            val dailySetCourseCoverage = DailySetCourseCoverage(dailySetCourses, currentPageInfo.serialIndex + 1)
 
             if (dailySetTRC != DefaultEntities.emptyDailySetTRC()) {
                 val dailyTableCalc = DailyTableCalc(
@@ -179,7 +187,7 @@ fun DailySetClazzAutoCenter(
                 Column {
                     val dateSpan = DateSpan(currentPageInfo.startDate, currentPageInfo.endDate)
                     DailyTablePreviewHeader(dailyTableCalc = dailyTableCalc, dataSpan = dateSpan)
-                    DailyTablePreviewBody(dailyTableCalc = dailyTableCalc)
+                    DailyTablePreviewBody(dailyTableCalc = dailyTableCalc, dailySetCourseCoverage = dailySetCourseCoverage)
                 }
             } else {
                 Text(text = "empty")

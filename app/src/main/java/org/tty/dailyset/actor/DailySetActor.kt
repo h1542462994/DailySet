@@ -177,6 +177,7 @@ class DailySetActor(private val sharedComponents: SharedComponents) {
     }
 
     //region update all resources
+    // TODO: 这部分的重复代码实在是太多了，而且也没有很好的方法统一，因此之后再想想看怎么复用。
     private suspend fun withDailySetTableUpdateItem(
         dailySet: DailySet,
         updateItemCollection: DailySetUpdateItemCollection<DailySetTable>
@@ -553,11 +554,13 @@ class DailySetActor(private val sharedComponents: SharedComponents) {
             DailySetType.Task.value
         )
 
-        val userUid: String = sharedComponents.actorCollection.preferenceActor.read(PreferenceName.CURRENT_USER_UID)
+        val userUid: String =
+            sharedComponents.actorCollection.preferenceActor.read(PreferenceName.CURRENT_USER_UID)
         val dailySets = sharedComponents.database.dailySetDao().all()
-        val dailySetVisibleUid = sharedComponents.database.dailySetVisibleDao().allByUserUid(userUid)
-            .filter { it.visible }
-            .map { it.dailySetUid }
+        val dailySetVisibleUid =
+            sharedComponents.database.dailySetVisibleDao().allByUserUid(userUid)
+                .filter { it.visible }
+                .map { it.dailySetUid }
         val visibleDailySets = dailySets.filter { dailySet -> dailySet.uid in dailySetVisibleUid }
         val shownDailySets = visibleDailySets.filter { it.type in shownDailySetTypes }
 
@@ -574,16 +577,20 @@ class DailySetActor(private val sharedComponents: SharedComponents) {
         var dailySetBasicMeta: DailySetBasicMeta? = null
         var link: DailySetMetaLinks? = null
         // query the basic_meta from uid
-        link = sharedComponents.database.dailySetMetaLinksDao().anyBySetUidAndMetaType(uid, DailySetMetaType.BasicMeta.value)
+        link = sharedComponents.database.dailySetMetaLinksDao()
+            .anyBySetUidAndMetaType(uid, DailySetMetaType.BasicMeta.value)
         if (link != null) {
-            dailySetBasicMeta = sharedComponents.database.dailySetBasicMetaDao().anyByMetaUid(link.metaUid)
+            dailySetBasicMeta =
+                sharedComponents.database.dailySetBasicMetaDao().anyByMetaUid(link.metaUid)
         }
         // query the basic_meta
         if (dailySetBasicMeta == null) {
-            link = sharedComponents.database.dailySetMetaLinksDao().anyBySetUidAndMetaType(uidG, DailySetMetaType.BasicMeta.value)
+            link = sharedComponents.database.dailySetMetaLinksDao()
+                .anyBySetUidAndMetaType(uidG, DailySetMetaType.BasicMeta.value)
         }
         if (link != null) {
-            dailySetBasicMeta = sharedComponents.database.dailySetBasicMetaDao().anyByMetaUid(link.metaUid)
+            dailySetBasicMeta =
+                sharedComponents.database.dailySetBasicMetaDao().anyByMetaUid(link.metaUid)
         }
         // query ok
         return DailySetSummary(
@@ -600,19 +607,22 @@ class DailySetActor(private val sharedComponents: SharedComponents) {
     }
 
     suspend fun getDailySetDurations(dailySetUid: String): List<DailySetDuration> {
-        val dailySet = sharedComponents.database.dailySetDao().get(dailySetUid) ?: return emptyList()
+        val dailySet =
+            sharedComponents.database.dailySetDao().get(dailySetUid) ?: return emptyList()
         val uid = dailySet.uid
         val autoUidRegex = "^#school.zjut.course.[\\dA-Za-z_-]+$".toRegex()
         val referTo = "#school.zjut.unic"
 
         val durations = mutableListOf<DailySetDuration>()
         if (autoUidRegex.matches(uid)) {
-            val dailySetDurationUids = sharedComponents.database.dailySetSourceLinksDao().allBySetUidAndSourceType(referTo, DailySetSourceType.Duration.value)
+            val dailySetDurationUids = sharedComponents.database.dailySetSourceLinksDao()
+                .allBySetUidAndSourceType(referTo, DailySetSourceType.Duration.value)
                 .filter { it.removeVersion <= 0 }
                 .map { it.sourceUid }
             if (dailySetDurationUids.isNotEmpty()) {
                 durations.addAll(
-                    sharedComponents.database.dailySetDurationDao().allDurationsBySourceUids(dailySetDurationUids)
+                    sharedComponents.database.dailySetDurationDao()
+                        .allDurationsBySourceUids(dailySetDurationUids)
                 )
             }
 
@@ -632,40 +642,83 @@ class DailySetActor(private val sharedComponents: SharedComponents) {
         val dailySetCells = mutableListOf<DailySetCell>()
 
         if (autoUidRegex.matches(uid)) {
-            val dailySetTableUids = sharedComponents.database.dailySetSourceLinksDao().allBySetUidAndSourceType(referTo, DailySetSourceType.Table.value)
+            val dailySetTableUids = sharedComponents.database.dailySetSourceLinksDao()
+                .allBySetUidAndSourceType(referTo, DailySetSourceType.Table.value)
                 .filter { it.removeVersion <= 0 }
                 .map { it.sourceUid }
             if (dailySetTableUids.isNotEmpty()) {
-                dailySetTables.addAll(sharedComponents.database.dailySetTableDao().allBySourceUids(dailySetTableUids))
+                dailySetTables.addAll(
+                    sharedComponents.database.dailySetTableDao().allBySourceUids(dailySetTableUids)
+                )
             }
-            val dailySetRowUids = sharedComponents.database.dailySetSourceLinksDao().allBySetUidAndSourceType(referTo, DailySetSourceType.Row.value)
+            val dailySetRowUids = sharedComponents.database.dailySetSourceLinksDao()
+                .allBySetUidAndSourceType(referTo, DailySetSourceType.Row.value)
                 .filter { it.removeVersion <= 0 }
                 .map { it.sourceUid }
             if (dailySetRowUids.isNotEmpty()) {
-                dailySetRows.addAll(sharedComponents.database.dailySetRowDao().allBySourceUids(dailySetRowUids))
+                dailySetRows.addAll(
+                    sharedComponents.database.dailySetRowDao().allBySourceUids(dailySetRowUids)
+                )
             }
-            val dailySetCellUids = sharedComponents.database.dailySetSourceLinksDao().allBySetUidAndSourceType(referTo, DailySetSourceType.Cell.value)
+            val dailySetCellUids = sharedComponents.database.dailySetSourceLinksDao()
+                .allBySetUidAndSourceType(referTo, DailySetSourceType.Cell.value)
                 .filter { it.removeVersion <= 0 }
                 .map { it.sourceUid }
             if (dailySetCellUids.isNotEmpty()) {
-                dailySetCells.addAll(sharedComponents.database.dailySetCellDao().allBySourceUids(dailySetCellUids))
+                dailySetCells.addAll(
+                    sharedComponents.database.dailySetCellDao().allBySourceUids(dailySetCellUids)
+                )
             }
         }
 
         return join3Source(dailySetTables, dailySetRows, dailySetCells)
     }
 
-    private fun join3Source(dailySetTables: List<DailySetTable>, dailySetRows: List<DailySetRow>, dailySetCells: List<DailySetCell>): DailySetTRC? {
+    private fun join3Source(
+        dailySetTables: List<DailySetTable>,
+        dailySetRows: List<DailySetRow>,
+        dailySetCells: List<DailySetCell>
+    ): DailySetTRC? {
         if (dailySetTables.isEmpty()) return null
         val dailySetTable = dailySetTables[0]
         return DailySetTRC(
             dailySetTable = dailySetTable,
-            dailySetRCs = dailySetRows.filter { it.tableUid == dailySetTable.sourceUid }.map { row ->
-                DailySetRC(
-                    dailySetRow = row,
-                    dailySetCells = dailySetCells.filter { it.rowUid == row.sourceUid }
-                )
-            }
+            dailySetRCs = dailySetRows.filter { it.tableUid == dailySetTable.sourceUid }
+                .map { row ->
+                    DailySetRC(
+                        dailySetRow = row,
+                        dailySetCells = dailySetCells.filter { it.rowUid == row.sourceUid }
+                    )
+                }
         )
     }
+
+    /**
+     * 获取某个时间段的课程表信息
+     */
+    suspend fun getDailySetCourses(
+        dailySetUid: String,
+        year: Int,
+        periodCode: DailySetPeriodCode
+    ): List<DailySetCourse> {
+        val dailySet =
+            sharedComponents.database.dailySetDao().get(dailySetUid) ?: return emptyList()
+        val dailySetCourseUids =
+            sharedComponents.database.dailySetSourceLinksDao()
+                .allBySetUidAndSourceType(dailySet.uid, DailySetSourceType.Course.value)
+                .filter { it.removeVersion <= 0 }
+                .map { it.sourceUid }
+        var dailySetCourses = emptyList<DailySetCourse>()
+        if (dailySetCourseUids.isNotEmpty()) {
+            dailySetCourses = sharedComponents.database.dailySetCourseDao().findAllBySourceUidsAndYearPeriodCode(
+                dailySetCourseUids,
+                year,
+                periodCode = periodCode.code
+            )
+        }
+
+        return dailySetCourses
+    }
+
+
 }

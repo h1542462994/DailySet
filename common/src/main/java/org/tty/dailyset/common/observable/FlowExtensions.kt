@@ -27,8 +27,8 @@ fun <T1, T2, T3, R> flow3(flow1: Flow<T1>, flow2: Flow<T2>, flow3: Flow<T3>, tra
 }
 
 @Suppress("LiftReturnOrAssignment")
-fun <R> flowMulti(vararg flows: Flow<*>, transform: suspend (values: Array<*>) -> R): Flow<R> {
-    var f: Flow<List<*>>? = null
+fun <R> flowMulti(vararg flows: Flow<Any?>, transform: suspend (values: Array<Any?>) -> R): Flow<R> {
+    var f: Flow<List<Any?>>? = null
 
     for (flow in flows) {
         if (f == null) {

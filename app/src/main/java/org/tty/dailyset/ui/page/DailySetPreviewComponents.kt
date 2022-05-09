@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import org.tty.dailyset.R
 import org.tty.dailyset.bean.entity.DailySetCell
 import org.tty.dailyset.bean.entity.DailySetTable
+import org.tty.dailyset.bean.lifetime.DailySetCourseCoverage
 import org.tty.dailyset.bean.lifetime.DailySetRC
 import org.tty.dailyset.bean.lifetime.DailyTableCalc
 import org.tty.dailyset.common.datetime.DateSpan
@@ -114,7 +115,7 @@ fun DailyTablePreviewHeader(dailyTableCalc: DailyTableCalc, dataSpan: DateSpan) 
  * DailyTablePreviewPage .body
  */
 @Composable
-fun DailyTablePreviewBody(dailyTableCalc: DailyTableCalc) {
+fun DailyTablePreviewBody(dailyTableCalc: DailyTableCalc, dailySetCourseCoverage: DailySetCourseCoverage) {
     val palette = LocalPalette.current
     val canvasHeight = dailyTableCalc.canvasHeightBody
     val canvasWidthDp = measuredWidthDp()
@@ -150,6 +151,17 @@ fun DailyTablePreviewBody(dailyTableCalc: DailyTableCalc) {
                             start = start,
                             end = end, strokeWidth = 2.0f)
                     }
+
+                    for (courseCell in dailySetCourseCoverage.coverageData) {
+                        val (topLeftCourse, sizeCourse) = dailyTableCalc.offsetAndSizeBlockCourseCell(courseCell.dayOfWeek, courseCell.section)
+                        drawRect(
+                            color = palette.primaryColor,
+                            topLeft = topLeftCourse,
+                            size = sizeCourse
+                        )
+                    }
+
+
                 }
                 //val palette = LocalPalette.current
 
