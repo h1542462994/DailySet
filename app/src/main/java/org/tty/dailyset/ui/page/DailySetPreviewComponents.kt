@@ -14,7 +14,9 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import org.tty.dailyset.R
 import org.tty.dailyset.bean.entity.DailySetCell
@@ -27,7 +29,6 @@ import org.tty.dailyset.common.datetime.DateSpan
 import org.tty.dailyset.common.datetime.indexTo
 import org.tty.dailyset.common.datetime.toShortString
 import org.tty.dailyset.common.util.toIntArray
-import org.tty.dailyset.component.common.measuredWidthDp
 import org.tty.dailyset.component.common.toDp
 import org.tty.dailyset.toShortDateString
 import org.tty.dailyset.toWeekDayString
@@ -128,6 +129,7 @@ fun DailyTablePreviewBody(dailyTableCalc: DailyTableCalc, dailySetCourseCoverage
     }
     //val nowIndex= dailyTablePreviewState.weekDayNow - 1
     val courseBackgrounds = DailySetTheme.courseColors.backgrounds
+    val courseForegrounds = DailySetTheme.courseColors.foregrounds
 
     LazyColumn {
         item {
@@ -213,7 +215,40 @@ fun DailyTablePreviewBody(dailyTableCalc: DailyTableCalc, dailySetCourseCoverage
 
                 @Composable
                 fun createCourseText(dailySetCourseCell: DailySetCourseCell) {
-                    
+                    val (offset, size) = dailyTableCalc.offsetAndSizeBlockCourseCell(dailySetCourseCell.dayOfWeek, dailySetCourseCell.section)
+                    val course = dailySetCourseCell.courses[0]
+                    val color = dailyTableCalc.calcColorOfCourse(course, courseForegrounds)
+
+                    Column(
+                        modifier = Modifier
+                            .size(toDp(px = size.width), toDp(px = size.height))
+                            .absoluteOffset(toDp(px = offset.x), toDp(px = offset.y))
+                            .wrapContentSize(align = Alignment.Center)
+                    ) {
+                        Text(
+                            modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
+                            text = course.name,
+                            fontSize = if (course.name.length < 10) { 14.sp } else { 12.sp },
+                            color = color,
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
+                            text = course.location,
+                            fontSize = 12.sp,
+                            textAlign = TextAlign.Center,
+                            color = color
+                        )
+                        Text(
+                            modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
+                            text = course.teacher,
+                            fontSize = 12.sp,
+                            textAlign = TextAlign.Center,
+                            color = color
+                        )
+                    }
                 }
 
                 val currentDailyRC = dailyTableCalc.dailySetTRC.dailySetRCs.find { it.dailySetRow.weekdays.toIntArray().contains(currentWeekDay.value) }
@@ -227,6 +262,9 @@ fun DailyTablePreviewBody(dailyTableCalc: DailyTableCalc, dailySetCourseCoverage
                     }
                 }
 
+                dailySetCourseCoverage.coverageData.forEach {
+                    createCourseText(dailySetCourseCell = it)
+                }
             }
         }
     }

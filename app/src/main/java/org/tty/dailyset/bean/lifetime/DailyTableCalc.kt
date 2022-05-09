@@ -31,7 +31,7 @@ class DailyTableCalc(val dailySetTRC: DailySetTRC, val measuredWidth: Float, val
     /**
      * the first column width of the table
      */
-    val menuWidth = unit * 1.8f
+    val menuWidth = unit * 1.6f
 
     /**
      * the gap width
@@ -46,7 +46,7 @@ class DailyTableCalc(val dailySetTRC: DailySetTRC, val measuredWidth: Float, val
     /**
      * the cell height
      */
-    val cellHeight = unit * 2.5f
+    val cellHeight = unit * 2.4f
 
     /**
      * the space height between am, pm and evening.
