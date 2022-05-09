@@ -127,6 +127,7 @@ fun DailyTablePreviewBody(dailyTableCalc: DailyTableCalc, dailySetCourseCoverage
         currentWeekDay.indexTo(startWeekDay)
     }
     //val nowIndex= dailyTablePreviewState.weekDayNow - 1
+    val courseBackgrounds = DailySetTheme.courseColors.backgrounds
 
     LazyColumn {
         item {
@@ -154,8 +155,12 @@ fun DailyTablePreviewBody(dailyTableCalc: DailyTableCalc, dailySetCourseCoverage
 
                     for (courseCell in dailySetCourseCoverage.coverageData) {
                         val (topLeftCourse, sizeCourse) = dailyTableCalc.offsetAndSizeBlockCourseCell(courseCell.dayOfWeek, courseCell.section)
+                        val backgroundColor = dailyTableCalc.calcColorOfCourse(
+                            dailySetCourse = courseCell.courses[0],
+                            colors = courseBackgrounds
+                        )
                         drawRect(
-                            color = palette.primaryColor,
+                            color = backgroundColor,
                             topLeft = topLeftCourse,
                             size = sizeCourse
                         )

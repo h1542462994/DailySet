@@ -170,7 +170,7 @@ class Palette(
     )
 }
 
-internal val LocalPalette = compositionLocalOf<Palette> {
+internal val LocalPalette = compositionLocalOf {
     Palette()
 }
 
@@ -191,3 +191,16 @@ internal fun Palette.updatePaletteFrom(other: Palette) {
     textColorInValid = other.textColorInValid
 }
 
+class CoursePalette(
+    backgrounds: List<Color> = BackgroundCourses,
+    foregrounds: List<Color> = ForegroundCourses
+) {
+    var backgrounds by mutableStateOf(backgrounds)
+        internal set
+    var foregrounds by mutableStateOf(foregrounds)
+        internal set
+}
+
+internal val LocalCoursePalette = compositionLocalOf {
+    CoursePalette()
+}

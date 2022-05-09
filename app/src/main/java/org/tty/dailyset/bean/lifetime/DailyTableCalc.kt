@@ -5,11 +5,15 @@
 
 package org.tty.dailyset.bean.lifetime
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import org.tty.dailyset.bean.entity.DailySetCell
+import org.tty.dailyset.bean.entity.DailySetCourse
 import org.tty.dailyset.common.datetime.indexTo
 import org.tty.dailyset.common.util.toIntArray
+import org.tty.dailyset.ui.theme.DailySetTheme
 import java.time.DayOfWeek
 
 /**
@@ -126,6 +130,11 @@ class DailyTableCalc(val dailySetTRC: DailySetTRC, val measuredWidth: Float, val
 
 
         return Pair(Offset(x1, y1), Size(x2 - x1, y2 - y1))
+    }
+
+    fun calcColorOfCourse(dailySetCourse: DailySetCourse, colors: List<Color>): Color {
+        val index = dailySetCourse.name.hashCode().mod(colors.size)
+        return colors[index]
     }
 
     private fun calcRealIndexOfSectionIndex(dayOfWeek: DayOfWeek, sectionIndex: Int): Int {

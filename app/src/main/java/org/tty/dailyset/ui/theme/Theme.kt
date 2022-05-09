@@ -2,7 +2,6 @@ package org.tty.dailyset.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Typography
 import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
@@ -101,6 +100,11 @@ object DailySetTheme {
         @Composable
         @ReadOnlyComposable
         get() = LocalTypography.current
+
+    val courseColors
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalCoursePalette.current
 }
 
 @Composable
@@ -130,6 +134,18 @@ fun DailySetTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composab
         LightPalette
     }
 
+    val coursePalette = if (darkTheme) {
+        CoursePalette(
+            backgrounds = ForegroundCourses,
+            foregrounds = BackgroundCourses
+        )
+    } else {
+        CoursePalette(
+            backgrounds = BackgroundCourses,
+            foregrounds = ForegroundCourses
+        )
+    }
+
     val typography = MTypography
 
     // use materialTheme
@@ -142,9 +158,11 @@ fun DailySetTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composab
             updatePaletteFrom(palette)
         }
         val rememberTypography = remember { typography.copy() }
+        val rememberCoursePalette = remember { coursePalette }
         CompositionLocalProvider(
             LocalPalette provides rememberPalette,
-            LocalTypography provides rememberTypography
+            LocalTypography provides rememberTypography,
+            LocalCoursePalette provides rememberCoursePalette
         ) {
             content()
         }
