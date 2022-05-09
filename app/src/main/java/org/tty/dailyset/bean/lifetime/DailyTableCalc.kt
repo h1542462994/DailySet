@@ -34,6 +34,11 @@ class DailyTableCalc(val dailySetTRC: DailySetTRC, val measuredWidth: Float, val
     val menuWidth = unit * 1.8f
 
     /**
+     * the gap width
+     */
+    val gapWidth = unit * 0.1f
+
+    /**
      * the cell width
      */
     val cellWidth = (measuredWidth - menuWidth) / cellColumnCount
@@ -128,8 +133,7 @@ class DailyTableCalc(val dailySetTRC: DailySetTRC, val measuredWidth: Float, val
         val x2 = offsetXVLine(xIndex) + cellWidth
         val y2 = offsetYHLine(calcRealIndexOfSectionIndex(dayOfWeek, section.last - 1)) + cellHeight
 
-
-        return Pair(Offset(x1, y1), Size(x2 - x1, y2 - y1))
+        return Pair(Offset(x1 + gapWidth, y1 + gapWidth), Size(x2 - x1 - 2 * gapWidth, y2 - y1 - 2 * gapWidth))
     }
 
     fun calcColorOfCourse(dailySetCourse: DailySetCourse, colors: List<Color>): Color {

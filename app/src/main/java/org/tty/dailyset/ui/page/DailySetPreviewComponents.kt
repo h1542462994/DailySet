@@ -10,6 +10,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -18,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import org.tty.dailyset.R
 import org.tty.dailyset.bean.entity.DailySetCell
 import org.tty.dailyset.bean.entity.DailySetTable
+import org.tty.dailyset.bean.lifetime.DailySetCourseCell
 import org.tty.dailyset.bean.lifetime.DailySetCourseCoverage
 import org.tty.dailyset.bean.lifetime.DailySetRC
 import org.tty.dailyset.bean.lifetime.DailyTableCalc
@@ -42,8 +44,7 @@ fun DailyTablePreviewHeader(dailyTableCalc: DailyTableCalc, dataSpan: DateSpan) 
     BoxWithConstraints {
         val palette = LocalPalette.current
         val canvasHeight = dailyTableCalc.canvasHeightHeader
-        val canvasWidthDp = measuredWidthDp()
-        assert(canvasWidthDp == toDp(dailyTableCalc.measuredWidth))
+        val canvasWidthDp = toDp(dailyTableCalc.measuredWidth)
         val canvasHeightDp = toDp(canvasHeight)
         val nowDate = LocalDate.now()
         val nowWeekDay = nowDate.dayOfWeek
@@ -118,8 +119,7 @@ fun DailyTablePreviewHeader(dailyTableCalc: DailyTableCalc, dataSpan: DateSpan) 
 fun DailyTablePreviewBody(dailyTableCalc: DailyTableCalc, dailySetCourseCoverage: DailySetCourseCoverage) {
     val palette = LocalPalette.current
     val canvasHeight = dailyTableCalc.canvasHeightBody
-    val canvasWidthDp = measuredWidthDp()
-    assert(canvasWidthDp == toDp(dailyTableCalc.measuredWidth))
+    val canvasWidthDp = toDp(dailyTableCalc.measuredWidth)
     val canvasHeightDp = toDp(canvasHeight)
     val currentWeekDay = DayOfWeek.MONDAY
     val startWeekDay = DayOfWeek.MONDAY
@@ -159,10 +159,11 @@ fun DailyTablePreviewBody(dailyTableCalc: DailyTableCalc, dailySetCourseCoverage
                             dailySetCourse = courseCell.courses[0],
                             colors = courseBackgrounds
                         )
-                        drawRect(
+                        drawRoundRect(
                             color = backgroundColor,
                             topLeft = topLeftCourse,
-                            size = sizeCourse
+                            size = sizeCourse,
+                            cornerRadius = CornerRadius(8.0f, 8.0f)
                         )
                     }
 
@@ -208,6 +209,11 @@ fun DailyTablePreviewBody(dailyTableCalc: DailyTableCalc, dailySetCourseCoverage
                         )
                     }
 
+                }
+
+                @Composable
+                fun createCourseText(dailySetCourseCell: DailySetCourseCell) {
+                    
                 }
 
                 val currentDailyRC = dailyTableCalc.dailySetTRC.dailySetRCs.find { it.dailySetRow.weekdays.toIntArray().contains(currentWeekDay.value) }

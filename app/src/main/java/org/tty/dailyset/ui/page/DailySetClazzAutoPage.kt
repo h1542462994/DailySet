@@ -25,9 +25,7 @@ import org.tty.dailyset.bean.lifetime.DailySetCourseCoverage
 import org.tty.dailyset.bean.lifetime.DailySetTRC
 import org.tty.dailyset.bean.lifetime.DailyTableCalc
 import org.tty.dailyset.common.datetime.DateSpan
-import org.tty.dailyset.component.common.asMutableState
-import org.tty.dailyset.component.common.measuredWidth
-import org.tty.dailyset.component.common.toPx
+import org.tty.dailyset.component.common.*
 import org.tty.dailyset.component.dailyset.clazzauto.DailySetClazzAutoVM
 import org.tty.dailyset.component.dailyset.clazzauto.rememberClazzAutoDailySetVM
 import org.tty.dailyset.ui.component.IconClick
@@ -70,7 +68,9 @@ fun DailySetClazzAutoPage(dailySetUid: String) {
             onBackPressed = { nav.action.upPress() }
         )
         Column(
-            modifier = Modifier.weight(1.0f)
+            modifier = Modifier
+                .weight(1.0f)
+                .fillMaxWidth()
         ) {
             DailySetClazzAutoCenter(
                 dailySetCurrentPageIndex = dailySetCurrentPageIndex,
@@ -170,7 +170,7 @@ fun DailySetClazzAutoCenter(
     if (dailySetClazzAutoPageInfos.isNotEmpty()) {
         val pagerState = rememberPagerState(initialPage = dailySetCurrentPageIndex)
 
-        val measuredWidth = measuredWidth()
+        val measuredWidth = measuredWindowWidth()
         val unit = toPx(dp = 25.dp)
 
         HorizontalPager(dailySetClazzAutoPageInfos.size, state = pagerState) { page: Int ->

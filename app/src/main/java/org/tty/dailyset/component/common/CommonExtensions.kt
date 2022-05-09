@@ -1,8 +1,10 @@
 package org.tty.dailyset.component.common
 
 import android.content.Context
+import android.os.Build
 import android.provider.Settings
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -18,6 +20,7 @@ import org.tty.dailyset.Nav
 import org.tty.dailyset.annotation.UseComponent
 import org.tty.dailyset.provider.LocalSharedComponents
 import org.tty.dailyset.provider.LocalSharedComponents0
+import org.tty.dailyset.provider.LocalWindow
 import org.tty.dailyset.ui.theme.LocalPalette
 import java.io.InterruptedIOException
 import java.net.SocketException
@@ -46,6 +49,15 @@ fun measuredWidthDp(): Dp {
 fun measuredWidth(): Float {
     return LocalView.current.measuredWidth.toFloat()
     //return LocalView.current.measuredWidth.toFloat()
+}
+
+@Composable
+fun measuredWindowWidth(): Float {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        LocalWindow.current.windowManager.currentWindowMetrics.bounds.width().toFloat()
+    } else {
+        measuredWidth()
+    }
 }
 
 @Composable
