@@ -1,6 +1,7 @@
 package org.tty.dailyset.component.dailyset.clazzauto
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
@@ -9,11 +10,8 @@ import org.tty.dailyset.bean.entity.DailySetDuration
 import org.tty.dailyset.bean.entity.DefaultEntities
 import org.tty.dailyset.bean.enums.DailySetClazzAutoViewType
 import org.tty.dailyset.bean.enums.DailySetPeriodCode
-import org.tty.dailyset.bean.lifetime.DailySetClazzAutoPageInfo
+import org.tty.dailyset.bean.lifetime.*
 import org.tty.dailyset.bean.lifetime.DailySetClazzAutoPageInfo.Companion.calculateCurrentIndex
-import org.tty.dailyset.bean.lifetime.DailySetSummary
-import org.tty.dailyset.bean.lifetime.DailySetTRC
-import org.tty.dailyset.bean.lifetime.YearPeriod
 import org.tty.dailyset.common.local.logger
 import org.tty.dailyset.common.observable.flow2
 import org.tty.dailyset.common.observable.flowMulti
@@ -42,6 +40,7 @@ class DailySetClazzAutoVMImpl(val sharedComponents: SharedComponents, val dailyS
         produceDailySetTRCFlow().asActivityColdStateFlow(DefaultEntities.emptyDailySetTRC())
     override val dailySetCourses: StateFlow<List<DailySetCourse>> =
         produceDailySetCoursesFlow().asActivityColdStateFlow(emptyList())
+    override val dailySetShiftDialogState: DialogState = DialogState(mutableStateOf(false))
 
     override fun toPrev() {
         if (dailySetClazzAutoPageInfos.value.isNotEmpty() && dailySetCurrentPageIndex.value > 0) {
@@ -59,6 +58,10 @@ class DailySetClazzAutoVMImpl(val sharedComponents: SharedComponents, val dailyS
         if (dailySetClazzAutoPageInfos.value.isNotEmpty() && index >= 0 && index <= dailySetClazzAutoPageInfos.value.size - 1) {
             dailySetCurrentPageIndex.value = index
         }
+    }
+
+    override fun toNow() {
+        dailySetCurrentPageIndex.value = dailySetClazzAutoPageInfos.value.calculateCurrentIndex()
     }
 
     private fun produceDailySetSummaryFlow(): Flow<DailySetSummary> {

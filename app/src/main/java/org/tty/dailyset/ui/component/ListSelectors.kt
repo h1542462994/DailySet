@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import org.tty.dailyset.component.common.toPx
 import org.tty.dailyset.rangeX
+import org.tty.dailyset.ui.theme.DailySetTheme
 
 import java.time.LocalTime
 import kotlin.math.roundToInt
@@ -107,7 +108,7 @@ fun ListSelector(
     LaunchedEffect(key1 = stateKey, block = {
         if (itemIndex != realIndex) {
             Log.d(tag, "data changed, so update the lazyListState")
-            lazyListState.scrollToItem(
+            lazyListState.animateScrollToItem(
                 0, (cellHeightPx * rememberIndex).toInt()
             )
         }
@@ -167,7 +168,7 @@ fun ListSelector(
                         .width(width)
                         .wrapContentWidth(Alignment.CenterHorizontally)
                         .align(Alignment.CenterVertically),
-                    color = if (rememberIndex == index) MaterialTheme.colors.primary else Color.Unspecified,
+                    color = if (rememberIndex == index) DailySetTheme.color.primaryColor else DailySetTheme.color.primary,
                     fontWeight = if (rememberIndex == index) FontWeight.Bold else null,
                     fontSize = if (rememberIndex == index) 20.sp else 16.sp
                 )

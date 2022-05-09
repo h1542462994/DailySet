@@ -61,7 +61,12 @@ fun DailyTablePreviewHeader(dailyTableCalc: DailyTableCalc, dataSpan: DateSpan) 
             val (topLeft, size) = dailyTableCalc.offsetAndSizeBlockHeader(currentIndex)
             drawRect(color = palette.backgroundColor, topLeft = topLeft, size = size)
             // draw bottom line.
-            drawLine(color = palette.lineColor, start = Offset(x = 0f, y = canvasHeight), end = Offset(x = dailyTableCalc.measuredWidth, y = canvasHeight), strokeWidth = 2.0f)
+            drawLine(
+                color = palette.lineColor,
+                start = Offset(x = 0f, y = canvasHeight),
+                end = Offset(x = dailyTableCalc.measuredWidth, y = canvasHeight),
+                strokeWidth = 2.0f
+            )
         }
 
         /**
@@ -70,8 +75,10 @@ fun DailyTablePreviewHeader(dailyTableCalc: DailyTableCalc, dataSpan: DateSpan) 
         @Composable
         fun createTextWeekDay(start: LocalDate, index: Int, value: String, style: Int = 0) {
             val dateString = start.plusDays(index.toLong()).toShortDateString()
-            val color = if (style == 0) LocalPalette.current.sub else LocalPalette.current.primaryColor
-            val color2 = if (style == 0) LocalPalette.current.primary else LocalPalette.current.primaryColor
+            val color =
+                if (style == 0) LocalPalette.current.sub else LocalPalette.current.primaryColor
+            val color2 =
+                if (style == 0) LocalPalette.current.primary else LocalPalette.current.primaryColor
             val fontWeight = if (style == 0) FontWeight.Normal else FontWeight.Bold
 
             return Column(
@@ -104,11 +111,37 @@ fun DailyTablePreviewHeader(dailyTableCalc: DailyTableCalc, dataSpan: DateSpan) 
 
         }
 
+        @Composable
+        fun createYearText(start: LocalDate) {
+            Column(
+                modifier = Modifier
+                    .size(
+                        toDp(px = dailyTableCalc.menuWidth),
+                        toDp(px = dailyTableCalc.canvasHeightHeader)
+                    )
+                    .wrapContentSize(align = Alignment.Center)
+            ) {
+                Text(
+                    text = start.year.toString(),
+                    color = DailySetTheme.color.primary,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+
         //val start = LocalDate.now().toWeekStart()
 
-        (0 until dailyTableCalc.cellColumnCount).forEach{ index ->
-            createTextWeekDay(start = dataSpan.startDate, index = index, value = index.toWeekDayString(), style = 0)
+        (0 until dailyTableCalc.cellColumnCount).forEach { index ->
+            createTextWeekDay(
+                start = dataSpan.startDate,
+                index = index,
+                value = index.toWeekDayString(),
+                style = 0
+            )
         }
+
+        createYearText(start = dataSpan.startDate)
     }
 }
 
@@ -117,7 +150,10 @@ fun DailyTablePreviewHeader(dailyTableCalc: DailyTableCalc, dataSpan: DateSpan) 
  * DailyTablePreviewPage .body
  */
 @Composable
-fun DailyTablePreviewBody(dailyTableCalc: DailyTableCalc, dailySetCourseCoverage: DailySetCourseCoverage) {
+fun DailyTablePreviewBody(
+    dailyTableCalc: DailyTableCalc,
+    dailySetCourseCoverage: DailySetCourseCoverage
+) {
     val palette = LocalPalette.current
     val canvasHeight = dailyTableCalc.canvasHeightBody
     val canvasWidthDp = toDp(dailyTableCalc.measuredWidth)
@@ -143,20 +179,27 @@ fun DailyTablePreviewBody(dailyTableCalc: DailyTableCalc, dailySetCourseCoverage
                     // draw horizontal lines
                     (1 until dailyTableCalc.drawCountHLine).forEach { index ->
                         val (start, end) = dailyTableCalc.offsetsHLine(index)
-                        drawLine(color = palette.lineColor,
+                        drawLine(
+                            color = palette.lineColor,
                             start = start,
-                            end = end, strokeWidth = 2.0f)
+                            end = end, strokeWidth = 2.0f
+                        )
                     }
                     // draw vertical lines
-                    (0 until dailyTableCalc.cellColumnCount).forEach{ index ->
+                    (0 until dailyTableCalc.cellColumnCount).forEach { index ->
                         val (start, end) = dailyTableCalc.offsetsVLine(index)
-                        drawLine(color = palette.lineColor,
+                        drawLine(
+                            color = palette.lineColor,
                             start = start,
-                            end = end, strokeWidth = 2.0f)
+                            end = end, strokeWidth = 2.0f
+                        )
                     }
 
                     for (courseCell in dailySetCourseCoverage.coverageData) {
-                        val (topLeftCourse, sizeCourse) = dailyTableCalc.offsetAndSizeBlockCourseCell(courseCell.dayOfWeek, courseCell.section)
+                        val (topLeftCourse, sizeCourse) = dailyTableCalc.offsetAndSizeBlockCourseCell(
+                            courseCell.dayOfWeek,
+                            courseCell.section
+                        )
                         val backgroundColor = dailyTableCalc.calcColorOfCourse(
                             dailySetCourse = courseCell.courses[0],
                             colors = courseBackgrounds
@@ -178,7 +221,8 @@ fun DailyTablePreviewBody(dailyTableCalc: DailyTableCalc, dailySetCourseCoverage
                  */
                 @Composable
                 fun createTextTimeDuration(dailySetRC: DailySetRC, dailySetCell: DailySetCell) {
-                    val currentIndexOfDailyCell = dailyTableCalc.calcCurrentIndexOfDailyCell(dailySetRC, dailySetCell)
+                    val currentIndexOfDailyCell =
+                        dailyTableCalc.calcCurrentIndexOfDailyCell(dailySetRC, dailySetCell)
                     val (topLeft, size) = dailyTableCalc.offsetsAndSizeBlockMenu(dailySetCell)
                     Column(
                         modifier = Modifier
@@ -215,7 +259,10 @@ fun DailyTablePreviewBody(dailyTableCalc: DailyTableCalc, dailySetCourseCoverage
 
                 @Composable
                 fun createCourseText(dailySetCourseCell: DailySetCourseCell) {
-                    val (offset, size) = dailyTableCalc.offsetAndSizeBlockCourseCell(dailySetCourseCell.dayOfWeek, dailySetCourseCell.section)
+                    val (offset, size) = dailyTableCalc.offsetAndSizeBlockCourseCell(
+                        dailySetCourseCell.dayOfWeek,
+                        dailySetCourseCell.section
+                    )
                     val course = dailySetCourseCell.courses[0]
                     val color = dailyTableCalc.calcColorOfCourse(course, courseForegrounds)
 
@@ -228,7 +275,11 @@ fun DailyTablePreviewBody(dailyTableCalc: DailyTableCalc, dailySetCourseCoverage
                         Text(
                             modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
                             text = course.name,
-                            fontSize = if (course.name.length < 10) { 14.sp } else { 12.sp },
+                            fontSize = if (course.name.length < 10) {
+                                14.sp
+                            } else {
+                                12.sp
+                            },
                             color = color,
                             textAlign = TextAlign.Center,
                             fontWeight = FontWeight.Bold
@@ -251,13 +302,18 @@ fun DailyTablePreviewBody(dailyTableCalc: DailyTableCalc, dailySetCourseCoverage
                     }
                 }
 
-                val currentDailyRC = dailyTableCalc.dailySetTRC.dailySetRCs.find { it.dailySetRow.weekdays.toIntArray().contains(currentWeekDay.value) }
+                val currentDailyRC = dailyTableCalc.dailySetTRC.dailySetRCs.find {
+                    it.dailySetRow.weekdays.toIntArray().contains(currentWeekDay.value)
+                }
 
                 @Suppress
                 when {
                     currentDailyRC != null -> {
                         currentDailyRC.dailySetCells.forEach { dailyCell ->
-                            createTextTimeDuration(dailySetRC = currentDailyRC, dailySetCell = dailyCell)
+                            createTextTimeDuration(
+                                dailySetRC = currentDailyRC,
+                                dailySetCell = dailyCell
+                            )
                         }
                     }
                 }
@@ -285,11 +341,13 @@ fun DailyTablePreviewTitle(currentDailyTable: DailySetTable) {
                 .align(alignment = Alignment.CenterHorizontally)
                 .wrapContentSize(align = Alignment.Center),
             text = stringResource(id = R.string.time_table_preview),
-            fontSize = 18.sp)
+            fontSize = 18.sp
+        )
 
         Text(
             modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
-            text = currentDailyTable.name, color = DailySetTheme.color.sub)
+            text = currentDailyTable.name, color = DailySetTheme.color.sub
+        )
 
     }
 }

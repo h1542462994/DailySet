@@ -459,6 +459,35 @@ fun IconText(
 }
 
 @Composable
+fun IconText(
+    text: String,
+    onClick: (() -> Unit)? = null
+) {
+    val modifier = if (onClick == null) {
+        Modifier.wrapContentHeight(align = Alignment.CenterVertically)
+    } else {
+        Modifier
+            .clickable { onClick() }
+            .padding(horizontal = 8.dp, vertical = 8.dp)
+            .fillMaxHeight()
+            .wrapContentHeight(align = Alignment.CenterVertically)
+    }
+
+    Row(
+        modifier = modifier
+    ) {
+        Text(
+            text = text,
+            modifier = Modifier
+                .align(alignment = Alignment.CenterVertically),
+            color = LocalPalette.current.primary,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Medium
+        )
+    }
+}
+
+@Composable
 fun TextWithDot(
     text: String,
     color: Color
