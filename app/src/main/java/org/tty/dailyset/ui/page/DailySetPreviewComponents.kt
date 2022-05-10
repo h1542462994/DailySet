@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -216,6 +217,26 @@ fun DailyTablePreviewBody(
                             size = sizeCourse,
                             cornerRadius = CornerRadius(8.0f, 8.0f)
                         )
+
+
+                        // if the course has coverage data, will show a foreground color point on topRight
+                        if (courseCell.courses.size > 1) {
+                            val foregroundColor = dailyTableCalc.calcColorOfCourse(
+                                dailySetCourse = courseCell.courses[0],
+                                colors = courseForegrounds
+                            )
+                            val topRight = Offset(
+                                x = topLeftCourse.x + sizeCourse.width - 16.0f,
+                                y = topLeftCourse.y + 16.0f
+                            )
+
+                            drawCircle(
+                                color = foregroundColor,
+                                radius = 6.0f,
+                                center = topRight
+                            )
+
+                        }
                     }
 
 
