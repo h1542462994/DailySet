@@ -9,11 +9,10 @@ import org.tty.dailyset.bean.entity.DailySetCourse
 import org.tty.dailyset.bean.entity.DailySetDuration
 import org.tty.dailyset.bean.entity.DefaultEntities
 import org.tty.dailyset.bean.enums.DailySetClazzAutoViewType
-import org.tty.dailyset.bean.enums.DailySetPeriodCode
 import org.tty.dailyset.bean.lifetime.*
 import org.tty.dailyset.bean.lifetime.DailySetClazzAutoPageInfo.Companion.calculateCurrentIndex
+import org.tty.dailyset.bean.lifetime.DailySetClazzAutoPageInfo.Companion.toPageInfoPeriods
 import org.tty.dailyset.common.local.logger
-import org.tty.dailyset.common.observable.flow2
 import org.tty.dailyset.common.observable.flowMulti
 import org.tty.dailyset.component.common.SharedComponents
 import org.tty.dailyset.component.common.asActivityColdStateFlow
@@ -42,26 +41,88 @@ class DailySetClazzAutoVMImpl(val sharedComponents: SharedComponents, val dailyS
         produceDailySetCoursesFlow().asActivityColdStateFlow(emptyList())
     override val dailySetShiftDialogState: DialogState = DialogState(mutableStateOf(false))
 
+
+
     override fun toPrev() {
-        if (dailySetClazzAutoPageInfos.value.isNotEmpty() && dailySetCurrentPageIndex.value > 0) {
-            dailySetCurrentPageIndex.value = dailySetCurrentPageIndex.value - 1
+        if (dailySetClazzAutoViewType.value == DailySetClazzAutoViewType.Week) {
+            // if the viewType is week, just decrease 1 page.
+            if (dailySetClazzAutoPageInfos.value.isNotEmpty() && dailySetCurrentPageIndex.value > 0) {
+                dailySetCurrentPageIndex.value = dailySetCurrentPageIndex.value - 1
+            }
+        } else {
+            // if the viewType is term, will calculate the suitable page index.
+            if (validPage()) {
+                val dailySetClazzAutoPageInfoPeriods = dailySetClazzAutoPageInfos.value.toPageInfoPeriods()
+                val currentPageInfo = currentPageInfo()
+                val currentPageIndexPeriod = dailySetClazzAutoPageInfoPeriods.indexOfFirst {
+                    it.year == currentPageInfo.year && it.periodCode == currentPageInfo.periodCode
+                }
+                if (currentPageIndexPeriod > 0) {
+                    val prevPageInfoPeriod = dailySetClazzAutoPageInfoPeriods[currentPageIndexPeriod - 1]
+                    val newSerialIndex = currentPageInfo.serialIndex.coerceIn(0 until prevPageInfoPeriod.count)
+                    dailySetCurrentPageIndex.value = prevPageInfoPeriod.startIndex + newSerialIndex
+                }
+            }
         }
+
     }
 
+
     override fun toNext() {
-        if (dailySetClazzAutoPageInfos.value.isNotEmpty() && dailySetCurrentPageIndex.value < dailySetClazzAutoPageInfos.value.size - 1) {
-            dailySetCurrentPageIndex.value = dailySetCurrentPageIndex.value + 1
+        if (dailySetClazzAutoViewType.value == DailySetClazzAutoViewType.Week) {
+            if (dailySetClazzAutoPageInfos.value.isNotEmpty() && dailySetCurrentPageIndex.value < dailySetClazzAutoPageInfos.value.size - 1) {
+                // if the viewType is week, just increase 1 page.
+                dailySetCurrentPageIndex.value = dailySetCurrentPageIndex.value + 1
+            }
+        } else {
+            // if the viewType is term, will calculate the suitable page index.
+            if (validPage()) {
+                val dailySetClazzAutoPageInfoPeriods = dailySetClazzAutoPageInfos.value.toPageInfoPeriods()
+                val currentPageInfo = currentPageInfo()
+                val currentPageIndexPeriod = dailySetClazzAutoPageInfoPeriods.indexOfFirst {
+                    it.year == currentPageInfo.year && it.periodCode == currentPageInfo.periodCode
+                }
+                if (currentPageIndexPeriod < dailySetClazzAutoPageInfoPeriods.size - 1) {
+                    val nextPageInfoPeriod = dailySetClazzAutoPageInfoPeriods[currentPageIndexPeriod + 1]
+                    val newSerialIndex = currentPageInfo.serialIndex.coerceIn(0 until nextPageInfoPeriod.count)
+                    dailySetCurrentPageIndex.value = nextPageInfoPeriod.startIndex + newSerialIndex
+                }
+            }
         }
     }
 
     override fun toIndex(index: Int) {
-        if (dailySetClazzAutoPageInfos.value.isNotEmpty() && index >= 0 && index <= dailySetClazzAutoPageInfos.value.size - 1) {
-            dailySetCurrentPageIndex.value = index
+        if (dailySetClazzAutoViewType.value == DailySetClazzAutoViewType.Week) {
+            // if the viewType is week, just to indexedPage
+            if (dailySetClazzAutoPageInfos.value.isNotEmpty() && index >= 0 && index <= dailySetClazzAutoPageInfos.value.size - 1) {
+                dailySetCurrentPageIndex.value = index
+            }
+        } else {
+            // if the viewType is term, will calculate the suitable page index.
+            if (validPage()) {
+                val dailySetClazzAutoPageInfoPeriods = dailySetClazzAutoPageInfos.value.toPageInfoPeriods()
+                val currentPageInfo = currentPageInfo()
+                if (index in dailySetClazzAutoPageInfoPeriods.indices) {
+                    val targetPageInfoPeriod = dailySetClazzAutoPageInfoPeriods[index]
+                    val newSerialIndex = currentPageInfo.serialIndex.coerceIn(0 until targetPageInfoPeriod.count)
+                    dailySetCurrentPageIndex.value = targetPageInfoPeriod.startIndex + newSerialIndex
+                }
+            }
         }
+
+
     }
 
     override fun toNow() {
         dailySetCurrentPageIndex.value = dailySetClazzAutoPageInfos.value.calculateCurrentIndex()
+    }
+
+    private fun validPage(): Boolean {
+        return dailySetClazzAutoPageInfos.value.isNotEmpty() && dailySetCurrentPageIndex.value in dailySetClazzAutoPageInfos.value.indices
+    }
+
+    private fun currentPageInfo(): DailySetClazzAutoPageInfo {
+        return dailySetClazzAutoPageInfos.value[dailySetCurrentPageIndex.value]
     }
 
     private fun produceDailySetSummaryFlow(): Flow<DailySetSummary> {
@@ -121,6 +182,7 @@ class DailySetClazzAutoVMImpl(val sharedComponents: SharedComponents, val dailyS
         }
     }
 
+    // FIXME: 当pager处于学期（period）边界时，可能会出现显示与预期不一致的问题。
     private fun produceDailySetCoursesFlow(): Flow<List<DailySetCourse>> {
         val comp1 = sharedComponents.database.dailySetDao().anyFlow()
         val comp2 = sharedComponents.database.dailySetSourceLinksDao().anyFlow()

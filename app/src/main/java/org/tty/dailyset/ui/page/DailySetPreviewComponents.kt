@@ -16,7 +16,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import org.tty.dailyset.R
 import org.tty.dailyset.bean.entity.DailySetCell
@@ -41,7 +40,7 @@ import java.time.LocalDate
  * DailyTablePreviewPage .header
  */
 @Composable
-fun DailyTablePreviewHeader(dailyTableCalc: DailyTableCalc, dataSpan: DateSpan) {
+fun DailyTablePreviewHeader(dailyTableCalc: DailyTableCalc, dateSpan: DateSpan?) {
     BoxWithConstraints {
         val palette = LocalPalette.current
         val canvasHeight = dailyTableCalc.canvasHeightHeader
@@ -73,8 +72,8 @@ fun DailyTablePreviewHeader(dailyTableCalc: DailyTableCalc, dataSpan: DateSpan) 
          * inline function, to createText of weekDay.
          */
         @Composable
-        fun createTextWeekDay(start: LocalDate, index: Int, value: String, style: Int = 0) {
-            val dateString = start.plusDays(index.toLong()).toShortDateString()
+        fun createTextWeekDay(start: LocalDate?, index: Int, value: String, style: Int = 0) {
+
             val color =
                 if (style == 0) LocalPalette.current.sub else LocalPalette.current.primaryColor
             val color2 =
@@ -100,13 +99,17 @@ fun DailyTablePreviewHeader(dailyTableCalc: DailyTableCalc, dataSpan: DateSpan) 
                     color = color,
                     fontWeight = fontWeight
                 )
-                Text(
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                    text = dateString,
-                    fontSize = 12.sp,
-                    color = color2,
-                    fontWeight = fontWeight
-                )
+
+                if (start != null) {
+                    val dateString = start.plusDays(index.toLong()).toShortDateString()
+                    Text(
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                        text = dateString,
+                        fontSize = 12.sp,
+                        color = color2,
+                        fontWeight = fontWeight
+                    )
+                }
             }
 
         }
@@ -134,14 +137,17 @@ fun DailyTablePreviewHeader(dailyTableCalc: DailyTableCalc, dataSpan: DateSpan) 
 
         (0 until dailyTableCalc.cellColumnCount).forEach { index ->
             createTextWeekDay(
-                start = dataSpan.startDate,
+                start = dateSpan?.startDate,
                 index = index,
                 value = index.toWeekDayString(),
                 style = 0
             )
         }
 
-        createYearText(start = dataSpan.startDate)
+        if (dateSpan != null) {
+            createYearText(start = dateSpan.startDate)
+        }
+
     }
 }
 

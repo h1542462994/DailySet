@@ -2,10 +2,12 @@ package org.tty.dailyset.bean.lifetime
 
 import org.tty.dailyset.bean.entity.DailySetDuration
 import org.tty.dailyset.bean.enums.DailySetPeriodCode
-import org.tty.dailyset.common.datetime.*
+import org.tty.dailyset.common.datetime.DateSpan
+import org.tty.dailyset.common.datetime.plusWeeks
+import org.tty.dailyset.common.datetime.toWeekEnd
+import org.tty.dailyset.common.datetime.toWeekStart
 import org.tty.dailyset.toLongDateString
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 data class DailySetClazzAutoPageInfo(
     val year: Int,
@@ -31,6 +33,24 @@ data class DailySetClazzAutoPageInfo(
                             endDate = start.plusWeeks(week).toWeekEnd()
                         ))
                     }
+                }
+            }
+        }
+
+        fun List<DailySetClazzAutoPageInfo>.toPageInfoPeriods(): List<DailySetClazzAutoPageInfoPeriod> {
+            val group = this
+                .groupBy { YearPeriod(it.year, it.periodCode) }
+
+            return buildList {
+                var startIndex = 0
+                group.forEach { entry ->
+                    add(                    DailySetClazzAutoPageInfoPeriod(
+                        year = entry.key.year,
+                        periodCode = entry.key.periodCode,
+                        startIndex = startIndex,
+                        count = entry.value.size
+                    ))
+                    startIndex += entry.value.size
                 }
             }
         }

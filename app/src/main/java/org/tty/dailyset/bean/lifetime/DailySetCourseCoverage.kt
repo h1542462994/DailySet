@@ -7,7 +7,10 @@ import java.time.DayOfWeek
 
 data class DailySetCourseCoverage(
     val courses: List<DailySetCourse>,
-    val week: Int = -1
+    /**
+     * **week**, if the week is null, means course will not be filtered by week.
+     */
+    val week: Int? = null
 ) {
     // coverage of the course. to handle the coverage of the course
     val coverageData: MutableList<DailySetCourseCell> = mutableListOf()
@@ -19,7 +22,7 @@ data class DailySetCourseCoverage(
 
             for (course in entry.value) {
                 val courseWeeks = course.weeks.toIntArray()
-                if (week >= 0 && week !in courseWeeks) {
+                if (week != null && week !in courseWeeks) {
                     continue
                 }
 
@@ -28,8 +31,8 @@ data class DailySetCourseCoverage(
                 if (coverRange.isEmpty()) {
                     range.add(pair(course.sectionStart..course.sectionEnd, listOf(course)))
                 } else {
-                    // TODO: 完善相关的逻辑
-                    reshape(course, coverRange.flatMap { it.second })
+                    // FIXME: 修复这部分的逻辑错误，主要是课程覆盖相关的问题。
+                    range.add(reshape(course, coverRange.flatMap { it.second }))
                 }
             }
 
