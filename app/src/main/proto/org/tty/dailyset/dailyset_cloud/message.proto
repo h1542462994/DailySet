@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package org.tty.dailyset.dailyset_cloud;
+
+import "org/tty/dailyset/dailyset_cloud/common.proto";
+
+option java_multiple_files = true;
+option java_package = "org.tty.dailyset.dailyset_cloud.grpc";
+option java_outer_classname = "MessageProto";
+
+service MessageService {
+  rpc connect(MessageBindRequest) returns (stream MessageBundle);
+}
+
+// bind the message channel
+message MessageBindRequest {
+  Token token = 1;
+}
+
+message MessageBundle {
+  string topic = 1;
+  string referer = 2;
+  int32 code = 3;
+  string content = 4;
+}
+

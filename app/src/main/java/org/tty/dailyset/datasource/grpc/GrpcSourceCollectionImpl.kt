@@ -2,6 +2,7 @@ package org.tty.dailyset.datasource.grpc
 
 import org.tty.dailyset.component.common.SharedComponents
 import org.tty.dailyset.dailyset_cloud.grpc.HelloCoroutineGrpc
+import org.tty.dailyset.dailyset_cloud.grpc.MessageServiceCoroutineGrpc
 import org.tty.dailyset.dailyset_cloud.grpc.TicketServiceCoroutineGrpc
 import org.tty.dailyset.datasource.GrpcSourceCollection
 
@@ -9,9 +10,6 @@ class GrpcSourceCollectionImpl(private val sharedComponents: SharedComponents): 
 
     private var grpcClientFactory: GrpcClientFactory? = null
 
-    private var ticketService0: TicketServiceCoroutineGrpc.TicketServiceCoroutineStub? = null
-
-    private var helloService0: HelloCoroutineGrpc.HelloCoroutineStub? = null
 
     override suspend fun ticketService(): TicketServiceCoroutineGrpc.TicketServiceCoroutineStub {
         requireNotNull(grpcClientFactory) { "grpcClientFactory is null" }
@@ -29,6 +27,11 @@ class GrpcSourceCollectionImpl(private val sharedComponents: SharedComponents): 
 //        }
 //        return helloService0!!
         return HelloCoroutineGrpc.newStub(grpcClientFactory!!.getChannel())
+    }
+
+    override suspend fun messageService(): MessageServiceCoroutineGrpc.MessageServiceCoroutineStub {
+        requireNotNull(grpcClientFactory) { "grpcClientFactory is null" }
+        return MessageServiceCoroutineGrpc.MessageServiceCoroutineStub.newStub(grpcClientFactory!!.getChannel())
     }
 
     override suspend fun init() {

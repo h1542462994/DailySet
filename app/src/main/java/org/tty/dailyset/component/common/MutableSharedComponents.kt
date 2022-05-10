@@ -20,7 +20,7 @@ class MutableSharedComponents : SharedComponents {
     private lateinit var applicationScopeInternal: CoroutineScope
     private val dataSourceCollectionInternal = MutableDataSourceCollection()
     private lateinit var databaseInternal:  DailySetRoomDatabase
-    private val repositoryCollectionInternal = MutableActorCollection()
+    private lateinit var actorCollectionInternal: ActorCollection
     private lateinit var stateStoreInternal: StateStore
     private lateinit var navInternal: Nav<MainActions>
     private lateinit var windowInternal: Window
@@ -30,7 +30,7 @@ class MutableSharedComponents : SharedComponents {
 
     override val dataSourceCollection: DataSourceCollection get() = dataSourceCollectionInternal
     override val database: DailySetRoomDatabase get() = databaseInternal
-    override val actorCollection: ActorCollection by lazy { repositoryCollectionInternal }
+    override val actorCollection: ActorCollection get() = actorCollectionInternal
     override val stateStore: StateStore get() = stateStoreInternal
     override val applicationScope: CoroutineScope get() = applicationScopeInternal
     override val nav: Nav<MainActions> get() = navInternal
@@ -48,16 +48,6 @@ class MutableSharedComponents : SharedComponents {
         override val grpcSourceCollection: GrpcSourceCollection get() = grpcSourceCollectionInternal
     }
 
-    class MutableActorCollection: ActorCollection {
-        internal lateinit var userActorInternal:  UserActor
-        internal lateinit var preferenceActorInternal:  PreferenceActor
-        internal lateinit var dailySetActorInternal:  DailySetActor
-
-        override val userActor: UserActor get() = userActorInternal
-        override val preferenceActor: PreferenceActor get() = preferenceActorInternal
-        override val dailySetActor: DailySetActor get() = dailySetActorInternal
-    }
-
     fun useApplicationScope(applicationScope: CoroutineScope) {
         this.applicationScopeInternal = applicationScope
     }
@@ -70,16 +60,8 @@ class MutableSharedComponents : SharedComponents {
         this.dataSourceCollectionInternal.netSourceCollectionInternal = netSourceCollection
     }
 
-    fun useUserRepository(userActor: UserActor) {
-        this.repositoryCollectionInternal.userActorInternal = userActor
-    }
-
-    fun usePreferenceRepository(preferenceActor: PreferenceActor) {
-        this.repositoryCollectionInternal.preferenceActorInternal = preferenceActor
-    }
-
-    fun useDailyTableRepository(dailySetActor: DailySetActor) {
-        this.repositoryCollectionInternal.dailySetActorInternal = dailySetActor
+    fun useActorCollection(actorCollection: ActorCollection) {
+        this.actorCollectionInternal = actorCollection
     }
 
     fun useRuntimeDataSource(runtimeDataSource: RuntimeDataSource) {

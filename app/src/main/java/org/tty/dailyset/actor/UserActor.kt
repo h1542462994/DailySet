@@ -56,6 +56,7 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
     private suspend fun afterLogin() {
         updateCurrentBindInfo()
         sharedComponents.actorCollection.dailySetActor.updateData()
+        sharedComponents.actorCollection.messageActor.startConnect()
     }
 
 
@@ -210,25 +211,31 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
             val response = ticketService.currentBindInfo {
                 this.token = Token.newBuilder().setValue(user.token).build()
             }
-            if (response.code == ResponseCodes.ticketNotExist) {
-                // 没有ticket的绑定信息
-                userTicketInfoDao.update(emptyUserTicketInfo)
-            } else {
-                val ticketInfo = emptyUserTicketInfo.copy(
-                    status = response.bindInfo.status.toUnicTicketStatus(),
-                    studentUid = response.bindInfo.uid,
-                    departmentName = response.bindInfo.departmentName,
-                    clazzName = response.bindInfo.className,
-                    name = response.bindInfo.name,
-                    grade = response.bindInfo.grade
-                )
-                userTicketInfoDao.update(ticketInfo)
+            when (response.code) {
+                ResponseCodes.ticketNotExist -> {
+                    // 没有ticket的绑定信息
+                    userTicketInfoDao.update(emptyUserTicketInfo)
+                }
+                ResponseCodes.tokenError -> {
+                    //
+                }
+                else -> {
+                    val ticketInfo = emptyUserTicketInfo.copy(
+                        status = response.bindInfo.status.toUnicTicketStatus(),
+                        studentUid = response.bindInfo.uid,
+                        departmentName = response.bindInfo.departmentName,
+                        clazzName = response.bindInfo.className,
+                        name = response.bindInfo.name,
+                        grade = response.bindInfo.grade
+                    )
+                    userTicketInfoDao.update(ticketInfo)
+                }
             }
-            showToastAsync("获取绑定信息成功")
+//            showToastAsync("获取绑定信息成功")
         } catch (e: Exception) {
             logger.e("UserRepository", "getCurrentBindTicketInfo, ${e.javaClass.simpleName} :: ${e.message}")
             e.printStackTrace()
-            showToastOfNetworkError("获取绑定信息失败", e)
+//            showToastOfNetworkError("获取绑定信息失败", e)
         }
     }
 

@@ -6,10 +6,7 @@ import android.view.Window
 import kotlinx.coroutines.*
 import org.tty.dailyset.MainActions
 import org.tty.dailyset.Nav
-import org.tty.dailyset.actor.ActorCollection
-import org.tty.dailyset.actor.DailySetActor
-import org.tty.dailyset.actor.PreferenceActor
-import org.tty.dailyset.actor.UserActor
+import org.tty.dailyset.actor.*
 import org.tty.dailyset.common.local.logger
 import org.tty.dailyset.database.DailySetRoomDatabase
 import org.tty.dailyset.datasource.DataSourceCollection
@@ -33,16 +30,20 @@ class DailySetApplication : Application(), SharedComponents {
 
         logger.d("DailySetApplication", "called DailySetApplication.onCreate()")
         mutableSharedComponents.useApplicationScope(CoroutineScope(SupervisorJob()))
-        mutableSharedComponents.useDatabase(DailySetRoomDatabase.getDatabase(this, mutableSharedComponents.applicationScope))
+        mutableSharedComponents.useDatabase(
+            DailySetRoomDatabase.getDatabase(
+                this,
+                mutableSharedComponents.applicationScope
+            )
+        )
         // repository
-        mutableSharedComponents.useUserRepository(
-            UserActor(mutableSharedComponents)
-        )
-        mutableSharedComponents.usePreferenceRepository(
-            PreferenceActor(mutableSharedComponents)
-        )
-        mutableSharedComponents.useDailyTableRepository(
-            DailySetActor(mutableSharedComponents)
+        mutableSharedComponents.useActorCollection(
+            ActorCollection(
+                userActor = UserActor(sharedComponents = mutableSharedComponents),
+                preferenceActor = PreferenceActor(sharedComponents = mutableSharedComponents),
+                dailySetActor = DailySetActor(sharedComponents = mutableSharedComponents),
+                messageActor = MessageActor(sharedComponents = mutableSharedComponents)
+            )
         )
         mutableSharedComponents.useRuntimeDataSource(
             RuntimeDataSourceImpl(mutableSharedComponents)
@@ -85,7 +86,7 @@ class DailySetApplication : Application(), SharedComponents {
         initializeStart("nav")
     }
 
-    override fun useWindow(window:  Window) {
+    override fun useWindow(window: Window) {
         mutableSharedComponents.useWindow(window)
         initializeStart("window")
     }
