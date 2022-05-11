@@ -1,6 +1,13 @@
 package org.tty.dailyset.actor
 
 import androidx.room.withTransaction
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromJsonElement
@@ -16,6 +23,7 @@ import org.tty.dailyset.bean.req.DailySetUpdateReq
 import org.tty.dailyset.common.local.logger
 import org.tty.dailyset.common.util.Diff
 import org.tty.dailyset.component.common.SharedComponents
+import org.tty.dailyset.component.common.SuspendInit
 import org.tty.dioc.util.optional
 import java.util.*
 
@@ -26,8 +34,23 @@ import java.util.*
  */
 class DailySetActor(private val sharedComponents: SharedComponents) {
 
-    suspend fun updateData() {
-        doUpdateData()
+    private var job: Job? = null
+    private var sharedFlow = MutableSharedFlow<Int>(replay = 0, extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+
+    fun startUpdateData() {
+        if (job == null) {
+            job = sharedComponents.applicationScope.launch {
+                withContext(Dispatchers.IO) {
+                    sharedFlow.collect {
+                        doUpdateData()
+                    }
+                }
+            }
+        }
+    }
+
+    fun updateData() {
+        sharedFlow.tryEmit(1)
     }
 
     private suspend fun doUpdateData() {

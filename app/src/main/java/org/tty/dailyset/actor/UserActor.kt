@@ -54,9 +54,10 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
     }
 
     private suspend fun afterLogin() {
+        sharedComponents.actorCollection.dailySetActor.startUpdateData()
+        sharedComponents.actorCollection.messageActor.startConnect()
         updateCurrentBindInfo()
         sharedComponents.actorCollection.dailySetActor.updateData()
-        sharedComponents.actorCollection.messageActor.startConnect()
     }
 
 
@@ -193,7 +194,7 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
 
     }
 
-    private suspend fun updateCurrentBindInfo() {
+    suspend fun updateCurrentBindInfo() {
         val user = getCurrentUser() ?: return
         val userTicketInfoDao = sharedComponents.database.userTicketInfoDao()
         val ticketService = sharedComponents.dataSourceCollection.grpcSourceCollection.ticketService()

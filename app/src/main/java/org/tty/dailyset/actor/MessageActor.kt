@@ -1,6 +1,7 @@
 package org.tty.dailyset.actor
 
 import kotlinx.coroutines.*
+import org.tty.dailyset.bean.enums.MessageTopics
 import org.tty.dailyset.bean.enums.PreferenceName
 import org.tty.dailyset.common.local.logger
 import org.tty.dailyset.component.common.SharedComponents
@@ -13,7 +14,7 @@ class MessageActor(private val sharedComponents: SharedComponents) {
     /**
      * connect the message service.
      */
-    suspend fun startConnect() {
+    fun startConnect() {
         synchronized(this) {
             if (job == null) {
                 job = sharedComponents.applicationScope.launch {
@@ -48,6 +49,12 @@ class MessageActor(private val sharedComponents: SharedComponents) {
                 // the coroutine will be suspend until receive a new message
                 val bundle = receivedChannel.receive()
                 logger.d("MessageActor", "收到了服务器的消息: ${bundle.topic}, ${bundle.referer}, ${bundle.code}, ${bundle.content}")
+
+                if (bundle.topic == MessageTopics.dailySetUnicTicket) {
+                    sharedComponents.actorCollection.userActor.updateCurrentBindInfo()
+                } else if (bundle.topic == MessageTopics.dailySetUnicCourse) {
+                    sharedComponents.actorCollection.dailySetActor.updateData()
+                }
             }
         } catch (e: Exception) {
             logger.e("MessageActor", "连接消息服务失败: $e")

@@ -5,6 +5,21 @@ plugins {
 }
 
 android {
+
+    signingConfigs {
+        debug {
+            storeFile file(keystore_path)
+            storePassword keystore_password
+            keyAlias keystore_alias
+            keyPassword keystore_alias_password
+        }
+        release {
+            storeFile file(keystore_path)
+            storePassword keystore_password
+            keyAlias keystore_alias
+            keyPassword keystore_alias_password
+        }
+    }
     compileSdk rootProject.ext.compileSdkVersion
 
     defaultConfig {
@@ -19,6 +34,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
     compileOptions {

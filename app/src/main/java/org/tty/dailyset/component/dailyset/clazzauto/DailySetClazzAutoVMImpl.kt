@@ -12,7 +12,6 @@ import org.tty.dailyset.bean.enums.DailySetClazzAutoViewType
 import org.tty.dailyset.bean.lifetime.*
 import org.tty.dailyset.bean.lifetime.DailySetClazzAutoPageInfo.Companion.calculateCurrentIndex
 import org.tty.dailyset.bean.lifetime.DailySetClazzAutoPageInfo.Companion.toPageInfoPeriods
-import org.tty.dailyset.common.local.logger
 import org.tty.dailyset.common.observable.flowMulti
 import org.tty.dailyset.component.common.SharedComponents
 import org.tty.dailyset.component.common.asActivityColdStateFlow
@@ -134,7 +133,7 @@ class DailySetClazzAutoVMImpl(val sharedComponents: SharedComponents, val dailyS
 
         return flowMulti(comp1, comp2, comp3, comp4) {
             return@flowMulti withContext(Dispatchers.IO) {
-                logger.d("DailySetClazzAutoVMImpl", "??")
+//                logger.d("DailySetClazzAutoVMImpl", "??")
                 return@withContext sharedComponents.actorCollection.dailySetActor.getDailySetSummary(
                     dailySetUid = dailySetUid
                 )!!
