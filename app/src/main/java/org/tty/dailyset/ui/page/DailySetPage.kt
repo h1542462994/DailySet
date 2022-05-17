@@ -13,11 +13,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import org.tty.dailyset.R
 import org.tty.dailyset.annotation.UseViewModel
-import org.tty.dailyset.bean.entity.DailySet
 import org.tty.dailyset.bean.enums.DailySetType
 import org.tty.dailyset.bean.enums.toImageResource
 import org.tty.dailyset.bean.lifetime.DailySetSummary
-import org.tty.dailyset.common.local.logger
 import org.tty.dailyset.component.common.asMutableState
 import org.tty.dailyset.component.common.showToast
 import org.tty.dailyset.component.dailyset.DailySetCreateDialogVM
