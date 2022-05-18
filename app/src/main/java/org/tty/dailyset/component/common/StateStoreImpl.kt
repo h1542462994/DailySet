@@ -25,7 +25,7 @@ class StateStoreImpl(private val sharedComponents: SharedComponents): StateStore
 
     override val users: Flow<List<User>> = sharedComponents.database.userDao().all()
     override val currentUser = flow2(currentUserUid, users) { uid, users ->
-        users.find { it.userUid == uid } ?: User.default()
+        users.find { it.userUid == uid } ?: DefaultEntities.emptyUser()
     }
 
     override val userTicketInfo: Flow<UserTicketInfo> = currentUserUid.flatMapLatest { userUid ->

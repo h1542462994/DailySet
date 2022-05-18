@@ -22,15 +22,15 @@ import org.tty.dailyset.bean.lifetime.DailySetTRC
 import org.tty.dailyset.bean.req.DailySetUpdateReq
 import org.tty.dailyset.common.local.logger
 import org.tty.dailyset.common.util.Diff
+import org.tty.dailyset.component.common.BaseVM
 import org.tty.dailyset.component.common.SharedComponents
-import org.tty.dailyset.component.common.SuspendInit
+import org.tty.dailyset.datasource.DataSourceCollection
 import org.tty.dioc.util.optional
-import java.util.*
 
 /**
- * repository for [DailySetTable],[DailySetRow],[DailySetCell]
- * it is used in [org.tty.dailyset.DailySetApplication],
- * it will use db service, see also [org.tty.dailyset.database.DailySetRoomDatabase]
+ * actor for [DailySetTable],[DailySetRow],[DailySetCell], and .. entities start with **DailySet**.
+ * interaction between [BaseVM] and [DataSourceCollection]
+ * @see ActorCollection
  */
 class DailySetActor(private val sharedComponents: SharedComponents) {
 

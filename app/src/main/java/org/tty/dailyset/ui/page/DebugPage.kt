@@ -33,7 +33,7 @@ import org.tty.dailyset.ui.theme.DailySetTheme
  */
 @Composable
 @UseViewModel("/debug")
-fun TestPage() {
+fun DebugPage() {
     StatusBarToBackground()
     val scrollState = rememberScrollState()
     val debugVM = rememberDebugVM()

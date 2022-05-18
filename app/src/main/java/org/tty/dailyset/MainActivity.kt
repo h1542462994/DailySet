@@ -16,7 +16,6 @@ import org.tty.dailyset.ui.theme.LocalPalette
 class MainActivity : ComponentActivity() {
 
 
-    @Suppress("OPT_IN_IS_NOT_ENABLED")
     @OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         val sharedComponents = application as SharedComponents

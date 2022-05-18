@@ -4,24 +4,23 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import org.tty.dailyset.LocalNav
 import org.tty.dailyset.R
 import org.tty.dailyset.annotation.UseViewModel
+import org.tty.dailyset.bean.entity.DefaultEntities
 import org.tty.dailyset.bean.entity.User
 import org.tty.dailyset.bean.entity.UserTicketInfo
-import org.tty.dailyset.bean.enums.PlatformState
 import org.tty.dailyset.bean.enums.UnicTickStatus
+import org.tty.dailyset.bean.lifetime.TicketStatusShow
+import org.tty.dailyset.bean.lifetime.UserStatusShow
 import org.tty.dailyset.component.common.showToast
 import org.tty.dailyset.component.profile.rememberProfileVM
-import org.tty.dailyset.dailyset_cloud.grpc.TicketBindInfo
 import org.tty.dailyset.ui.component.ProfileMenuGroup
 import org.tty.dailyset.ui.component.ProfileMenuItem
 import org.tty.dailyset.ui.component.TextWithDot
@@ -51,13 +50,18 @@ fun ProfilePage() {
 
 @Composable
 fun ProfileMenuGroupUser(user: User) {
-    // TODO: 2021/3/21 添加联网功能
-
+    val nav = LocalNav.current
     val userStatusShow = UserStatusShow(user)
     ProfileMenuGroup(title = stringResource(id = R.string.user)) {
         ProfileMenuItem(icon = {
-            Icon(painter = ImageResource.user(), contentDescription = "", tint = DailySetTheme.color.primary)
-        }, next = true, onClick = {}, title = {
+            Icon(
+                painter = ImageResource.user(),
+                contentDescription = "",
+                tint = DailySetTheme.color.primary
+            )
+        }, next = true, onClick = {
+            nav.action.toUser()
+        }, title = {
             UserProfileSmall(user = user)
         }, content = {
             TextWithDot(text = userStatusShow.describeString, color = userStatusShow.pointColor)
@@ -122,53 +126,12 @@ fun ProfileMenuGroupGlobalSettings() {
     }
 }
 
-private data class TicketStatusShow(
-    val userTicketInfo: UserTicketInfo
-) {
-    val pointColor @Composable get() =  when (userTicketInfo.status) {
-        UnicTickStatus.NotBind -> DailySetTheme.color.statusGray
-        UnicTickStatus.Initialized -> DailySetTheme.color.statusGray
-        UnicTickStatus.Checked -> DailySetTheme.color.statusGreen
-        UnicTickStatus.UnknownFailure -> DailySetTheme.color.statusOrange
-        UnicTickStatus.PasswordFailure -> DailySetTheme.color.statusRed
-    }
-
-
-    val describeString @Composable get() = when (userTicketInfo.status) {
-        // TODO: 文本资源
-        UnicTickStatus.NotBind -> "未绑定"
-        UnicTickStatus.Initialized -> "初始化中"
-        UnicTickStatus.Checked -> "正常"
-        UnicTickStatus.UnknownFailure -> "未知错误"
-        UnicTickStatus.PasswordFailure -> "密码错误"
-    }
-}
-
-private data class UserStatusShow(
-    val user: User
-) {
-    val pointColor @Composable get() = when (user.state) {
-        PlatformState.ALIVE.state -> DailySetTheme.color.statusGreen
-        PlatformState.LEAVE.state -> DailySetTheme.color.statusGray
-        PlatformState.INVALID.state -> DailySetTheme.color.statusOrange
-        PlatformState.BAN.state -> DailySetTheme.color.statusRed
-        else -> DailySetTheme.color.statusRed
-    }
-
-    val describeString @Composable get() = when (user.state) {
-        PlatformState.ALIVE.state -> "在线"
-        PlatformState.LEAVE.state -> "离线"
-        PlatformState.INVALID.state -> "已失效"
-        PlatformState.BAN.state -> "已封禁"
-        else -> "未知错误"
-    }
-}
 
 
 @Preview
 @Composable
 fun ProfileMenuGroupUserPreview() {
-    ProfileMenuGroupUser(user = User.default())
+    ProfileMenuGroupUser(user = DefaultEntities.emptyUser())
 }
 
 @Preview

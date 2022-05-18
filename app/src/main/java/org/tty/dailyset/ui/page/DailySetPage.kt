@@ -104,8 +104,14 @@ fun DailySetUserPart(dailySetSummaries: List<DailySetSummary>, onClick: (DailySe
 @Composable
 fun DailySetElement(dailySetSummary: DailySetSummary, onClick: (DailySetSummary) -> Unit) {
 
+    /**
+     * if the icon is empty, useTint.
+     */
+    val useTint = dailySetSummary.icon == null
+
     ProfileMenuItem(
         icon = dailySetSummary.icon.toImageResource(),
+        useTint = useTint,
         next = true,
         title = dailySetSummary.name,
         content = "",

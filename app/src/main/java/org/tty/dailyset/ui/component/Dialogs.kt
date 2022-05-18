@@ -5,10 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -25,6 +22,7 @@ import androidx.compose.ui.window.DialogProperties
 import org.tty.dailyset.bean.lifetime.DialogState
 import org.tty.dailyset.component.common.DialogVM
 import org.tty.dailyset.component.common.asMutableState
+import org.tty.dailyset.ui.theme.DailySetTheme
 import org.tty.dailyset.ui.theme.LocalPalette
 import org.tty.dailyset.ui.theme.Shapes
 
@@ -123,15 +121,12 @@ fun NanoDialogButton(
 ) {
 
     val colors = if (error) {
-        ButtonDefaults.buttonColors(
-            backgroundColor = MaterialTheme.colors.error,
-            disabledBackgroundColor = LocalPalette.current.backgroundInvalid,
-            disabledContentColor = LocalPalette.current.primary
+        ButtonDefaults.outlinedButtonColors(
+            contentColor = DailySetTheme.color.error
         )
     } else {
-        ButtonDefaults.buttonColors(
-            disabledBackgroundColor = LocalPalette.current.backgroundInvalid,
-            disabledContentColor = LocalPalette.current.primary
+        ButtonDefaults.outlinedButtonColors(
+            contentColor = DailySetTheme.color.primaryColor
         )
     }
 
@@ -139,7 +134,7 @@ fun NanoDialogButton(
         modifier = Modifier.padding(vertical = 16.dp),
     ) {
         Spacer(modifier = Modifier.weight(1f))
-        Button(
+        OutlinedButton(
             colors = colors,
             enabled = enabled,
             onClick = onClick

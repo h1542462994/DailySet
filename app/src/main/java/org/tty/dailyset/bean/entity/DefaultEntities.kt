@@ -2,9 +2,11 @@ package org.tty.dailyset.bean.entity
 
 import org.tty.dailyset.bean.enums.DailySetPeriodCode
 import org.tty.dailyset.bean.enums.DailySetType
+import org.tty.dailyset.bean.enums.PlatformState
 import org.tty.dailyset.bean.lifetime.DailySetClazzAutoPageInfo
 import org.tty.dailyset.bean.lifetime.DailySetSummary
 import org.tty.dailyset.bean.lifetime.DailySetTRC
+import org.tty.dailyset.bean.lifetime.UserState
 import java.time.LocalDate
 
 object DefaultEntities {
@@ -48,6 +50,18 @@ object DefaultEntities {
             1,
             LocalDate.of(2018,9,1),
             LocalDate.of(2018,12,31)
+        )
+    }
+
+    fun emptyUser(): User {
+        return User(
+            userUid = "",
+            name = "",
+            nickName = "",
+            email = "",
+            token = "",
+            localUser = true,
+            state = PlatformState.INVALID.state
         )
     }
 }

@@ -212,4 +212,9 @@ object ImageResource {
     fun right(): Painter {
         return painterResource(id = R.drawable.ic_right_24)
     }
+
+    @Composable
+    fun done(): Painter {
+        return painterResource(id = R.drawable.ic_done_24)
+    }
 }

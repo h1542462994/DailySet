@@ -19,11 +19,9 @@ import org.tty.dailyset.LocalNav
 import org.tty.dailyset.MainDestination
 import org.tty.dailyset.R
 import org.tty.dailyset.annotation.UseViewModel
-import org.tty.dailyset.bean.entity.User
 import org.tty.dailyset.component.common.StatusBarToBackground
 import org.tty.dailyset.component.common.asMutableState
 import org.tty.dailyset.component.common.showToast
-import org.tty.dailyset.component.common.showToastAsync
 import org.tty.dailyset.component.login.LoginInput
 import org.tty.dailyset.component.login.rememberLoginVM
 import org.tty.dailyset.ui.component.*
@@ -45,9 +43,20 @@ fun LoginPage(input: LoginInput) {
     val isOnLogin by loginVM.isOnLogin.collectAsState()
     val users by loginVM.users.collectAsState()
     val usersInDropDownList = users.filter {
-        !it.localUser && it.userUid != User.system
+        !it.localUser
     }
     val nav = LocalNav.current
+    // if route is from index, it will not allowed to use back.
+    val useBack = input.from != MainDestination.INDEX_ROUTE
+    // if route is from user, it will not allowed to change user.
+    val inputEnabled = input.from != MainDestination.USER_ROUTE
+    // if the login is reLogin.
+    val isReLogin = input.from == MainDestination.USER_ROUTE
+    val title = if (isReLogin) {
+        stringResource(R.string.re_login)
+    } else {
+        stringResource(R.string.login)
+    }
 
     LaunchedEffect(key1 = input, block = {
         if (input.username.isNotEmpty()) {
@@ -55,8 +64,9 @@ fun LoginPage(input: LoginInput) {
         }
     })
 
+
     Column {
-        CenterBar(content = stringResource(id = R.string.login))
+        CenterBar(useBack = useBack, content = title)
         Spacer(modifier = Modifier.height(128.dp))
 
 
@@ -65,12 +75,13 @@ fun LoginPage(input: LoginInput) {
             inputLabel = stringResource(id = R.string.login_user_field),
             inputTip = userTipValue,
             inputPlaceHolder = stringResource(id = R.string.login_user_field_tip),
+            inputEnabled = inputEnabled,
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number,
                 imeAction = ImeAction.Done
             ),
             icon = ImageResource.user(),
-            moreVisible = usersInDropDownList.isNotEmpty()
+            moreVisible = usersInDropDownList.isNotEmpty() && inputEnabled
         ) { callback ->
             usersInDropDownList.forEach {
                 key(it.userUid) {
@@ -121,12 +132,12 @@ fun LoginPage(input: LoginInput) {
         Spacer(modifier = Modifier.height(16.dp))
 
         ButtonField(
-            text = stringResource(id = R.string.login),
+            text = title,
             onActionText = stringResource(id = R.string.login_on_login),
             isEnabled = loginButtonEnabled,
             isOnAction = isOnLogin,
             onClick = {
-                loginVM.loginWithPassword(nav.action)
+                loginVM.loginWithPassword(nav.action, isReLogin)
             }
         )
 
@@ -134,7 +145,7 @@ fun LoginPage(input: LoginInput) {
     }
 
     // if the input is from index, then intercept the back event.
-    if (input.from == MainDestination.INDEX) {
+    if (!useBack) {
         BackHandler {
 
         }

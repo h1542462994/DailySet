@@ -1,17 +1,16 @@
 package org.tty.dailyset.actor
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import org.tty.dailyset.annotation.Injectable
 import org.tty.dailyset.bean.entity.Preference
 import org.tty.dailyset.bean.enums.PreferenceName
 import org.tty.dailyset.component.common.SharedComponents
-import org.tty.dioc.util.optional
 
 /**
- * repository for [Preference],
- * it is used in [org.tty.dailyset.DailySetApplication],
- * it will use db service, see also [org.tty.dailyset.database.DailySetRoomDatabase]
+ * actor for [Preference],
+ * interaction between [org.tty.dailyset.component.common.BaseVM] and [org.tty.dailyset.datasource.DataSourceCollection]
+ * @see [ActorCollection]
  */
+@Injectable
 class PreferenceActor(private val sharedComponents: SharedComponents) {
     private val preferenceDao get() = sharedComponents.database.preferenceDao()
 

@@ -16,7 +16,7 @@ enum class PreferenceName(
     /**
      * 当前使用的账户
      */
-    CURRENT_USER_UID("current_user_uid", User.local),
+    CURRENT_USER_UID("current_user_uid", "#local"),
     /**
      * 当前使用的亮色主题，值为system表示跟随系统，dark表示深色模式，light表示亮色模式
      */
@@ -32,9 +32,9 @@ enum class PreferenceName(
     /**
      * 表示当前的host
      */
-    CURRENT_HOST("current_host", "192.168.31.10"),
+    CURRENT_HOST("current_host", "124.221.216.127"),
 
-    CURRENT_HTTP_SERVER_ADDRESS("current_http_address", "http://192.168.31.10:8086/"),
+    CURRENT_HTTP_SERVER_ADDRESS("current_http_address", "http://124.221.216.127:8086/"),
     /**
      * 一周的开始星期
      */

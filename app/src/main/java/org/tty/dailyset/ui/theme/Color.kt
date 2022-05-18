@@ -37,6 +37,8 @@ val LightOrange = Color(0xFFFFA500)
 val DarkOrange = Color(0xFFFFA500)
 val LightRed = Color(0xFFFF80AB)
 val DarkRed = Color(0xFF880E4F)
+val LightError = Color(0xFFB71C1C)
+val DarkError = Color(0xFFD50000)
 
 val BackgroundCourses = listOf(
     Color(0xFFFFE9E9),

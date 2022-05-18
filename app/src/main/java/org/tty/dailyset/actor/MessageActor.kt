@@ -7,7 +7,14 @@ import org.tty.dailyset.common.local.logger
 import org.tty.dailyset.component.common.SharedComponents
 import org.tty.dailyset.dailyset_cloud.grpc.MessageBindRequest
 import org.tty.dailyset.dailyset_cloud.grpc.Token
+import org.tty.dailyset.component.common.BaseVM
+import org.tty.dailyset.datasource.DataSourceCollection
 
+/**
+ * **actor** for **MessageBundle**,
+ * interaction between [BaseVM] and [DataSourceCollection]
+ * @see [ActorCollection]
+ */
 class MessageActor(private val sharedComponents: SharedComponents) {
     private var job: Job? = null
 
@@ -32,9 +39,21 @@ class MessageActor(private val sharedComponents: SharedComponents) {
                     }
                 }
                 job?.invokeOnCompletion { job = null }
+            } else {
+                job?.cancel()
+                job = null
+                startConnect()
             }
         }
     }
+
+    fun endConnect() {
+        synchronized(this) {
+            job?.cancel()
+            job = null
+        }
+    }
+
 
     private suspend fun doConnect() {
         val currentUserUid: String = sharedComponents.actorCollection.preferenceActor.read(PreferenceName.CURRENT_USER_UID)

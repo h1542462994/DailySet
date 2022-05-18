@@ -194,9 +194,10 @@ fun <T> MutableStateFlow<T>.asMutableState(): MutableState<T> {
     LaunchedEffect(key1 = "", block = {
         this@asMutableState.collect()
     })
+    val snapshotValue by this.collectAsState()
 
     // collect the initial value, the value will not be changed in recomposition.
-    val valueState = rememberSaveable { mutableStateOf(value) }
+    val valueState = remember(key1 = snapshotValue) { mutableStateOf(value) }
     val setValueDelegate = { it: T ->
         valueState.value = it
         this@asMutableState.value = it

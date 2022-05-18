@@ -5,7 +5,11 @@
     <string name="daily_set">集合</string>
     <string name="profile">我的</string>
     <string name="user">用户</string>
+    <string name="user_current">当前用户</string>
+    <string name="user_all">所有用户</string>
     <string name="login">登录</string>
+    <string name="re_login">重新登录</string>
+    <string name="logout">退出登录</string>
     <string name="register">注册</string>
     <string name="user_settings">用户设置</string>
 
@@ -41,16 +45,16 @@
     <string name="now_day_of_week_description">当前星期</string>
 
     <!--region 登录界面-->
-    <string name="login_user_field">用户名</string>
+    <string name="login_user_field">@string/user_name</string>
     <string name="login_user_field_tip">请输入用户名</string>
     <string name="login_password_field">密码</string>
     <string name="login_password_field_tip">请输入密码</string>
     <string name="login_register_action_tip">立即注册</string>
     <string name="login_forget_password_action_tip">忘记密码？</string>
     <string name="login_on_login">正在登录</string>
-    <string name="login_nickname_field">昵称</string>
+    <string name="login_nickname_field">@string/user_nickname</string>
     <string name="login_nickname_field_tip">请输入昵称</string>
-    <string name="login_email_field">邮箱</string>
+    <string name="login_email_field">@string/user_email</string>
     <string name="login_email_field_tip">请输入邮箱</string>
     <string name="login_on_register">正在注册</string>
     <!--endregion -->
@@ -62,5 +66,22 @@
     <string name="ticket_student_password_field_tip">请输入密码</string>
     <string name="ticket_bind">绑定</string>
     <string name="ticket_bind_on_bind">正在绑定</string>
+    <string name="ticket_status_not_bind">未绑定</string>
+    <string name="ticket_status_initializing">初始化中</string>
+    <string name="ticket_status_normal">正常</string>
+
+    <string name="user_name">用户名</string>
+    <string name="user_nickname">昵称</string>
+    <string name="user_email">邮箱</string>
+    <string name="user_state_alive">在线</string>
+    <string name="user_state_leave">离线</string>
+    <string name="user_state_invalid">请重新登录</string>
+    <string name="user_state_ban">已封禁</string>
+    <string name="user_shift_click">点击切换至该用户</string>
+    <string name="user_shift_confirm_1">确认切换至用户%s?</string>
+
+    <string name="unknown_error">未知错误</string>
+    <string name="password_error">密码错误</string>
+    <string name="confirm">确认</string>
 
 </resources>

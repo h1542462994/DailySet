@@ -21,23 +21,27 @@ import org.tty.dailyset.component.common.*
 import org.tty.dailyset.component.login.LoginInput
 import org.tty.dailyset.bean.converters.toUnicTicketStatus
 import org.tty.dailyset.dailyset_cloud.grpc.Token
+import org.tty.dailyset.datasource.DataSourceCollection
 
 /**
- * repository for [User]
- * it is used in [org.tty.dailyset.DailySetApplication],
- * it will use db service, see also [org.tty.dailyset.database.DailySetRoomDatabase]
+ * actor for [User] and [UserTicketInfo],
+ * the interaction between [BaseVM] and [DataSourceCollection].
+ * @see [ActorCollection].
  */
 @Injectable
 class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
 
+
     override suspend fun init() {
         delay(500)
         if (sharedComponents.actorCollection.preferenceActor.read(PreferenceName.FIRST_LOAD_USER) { it.toBooleanStrict() }) {
+            // if user is not login, then route to the login.
             withContext(Dispatchers.Main) {
-                sharedComponents.nav.action.toLogin(LoginInput(MainDestination.INDEX, ""))
+                sharedComponents.nav.action.toLogin(LoginInput(MainDestination.INDEX_ROUTE, ""))
                 //sharedComponents.nav.action.toMain()
             }
         } else {
+            // else, route to the main.
             withContext(Dispatchers.Main) {
                 sharedComponents.nav.action.toMain()
             }
@@ -46,13 +50,16 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
     }
 
     /**
-     * 首次启动时，需要从服务端获取用户信息。
+     * called on launching the app.
      */
     private suspend fun collectData() {
         autoLogin()
         afterLogin()
     }
 
+    /**
+     * called after login
+     */
     private suspend fun afterLogin() {
         sharedComponents.actorCollection.dailySetActor.startUpdateData()
         sharedComponents.actorCollection.messageActor.startConnect()
@@ -60,9 +67,10 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
         sharedComponents.actorCollection.dailySetActor.updateData()
     }
 
-
-
-    suspend fun login(uid: String, password: String, navAction: MainActions) {
+    /**
+     * login
+     */
+    suspend fun login(uid: String, password: String, navAction: MainActions, isReLogin: Boolean) {
         try {
             val userService = sharedComponents.dataSourceCollection.netSourceCollection.userService
             val deviceName: String = getDeviceName()
@@ -84,16 +92,22 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
                     userUid = userLoginResp.data.uid.toString(),
                     name = userLoginResp.data.uid.toString(),
                     nickName = userLoginResp.data.nickname,
+                    email = userLoginResp.data.email,
                     token = userLoginResp.data.token,
                     localUser = false,
                     state = PlatformState.ALIVE.state
                 ))
                 withContext(Dispatchers.Main) {
-                    // 跳转到主页
-                    navAction.toMain()
+
+                    if (!isReLogin) {
+                        // 跳转到主页
+                        navAction.toMain()
+                    } else {
+                        // 向上跳转
+                        navAction.upPress()
+                    }
 
                     afterLogin()
-                    // TODO: 启动后续的自动同步逻辑...
                 }
             } else {
                 showToastAsync("(${userLoginResp.code}) ${userLoginResp.message}")
@@ -106,6 +120,9 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
         }
     }
 
+    /**
+     * autoLogin
+     */
     private suspend fun autoLogin() {
         val userService = sharedComponents.dataSourceCollection.netSourceCollection.userService
         val currentUser = getCurrentUser() ?: return
@@ -127,6 +144,7 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
                     userUid = userAutoLoginResp.data.uid.toString(),
                     name = userAutoLoginResp.data.uid.toString(),
                     nickName = userAutoLoginResp.data.nickname,
+                    email = userAutoLoginResp.data.email,
                     token = userAutoLoginResp.data.token,
                     localUser = false,
                     state = PlatformState.ALIVE.state
@@ -137,7 +155,7 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
                 showToastAsync("(${userAutoLoginResp.code}) ${userAutoLoginResp.message}")
                 sharedComponents.database.userDao().update(
                     currentUser.copy(
-                        state = PlatformState.LEAVE.state
+                        state = PlatformState.INVALID.state
                     )
                 )
             }
@@ -154,6 +172,9 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
         }
     }
 
+    /**
+     * register
+     */
     suspend fun register(nickname: String, email: String, password: String, navAction: MainActions) {
         try {
             val userRegisterReq = UserRegisterReq(nickname, email, password)
@@ -164,7 +185,7 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
             if (response.code == ResponseCodes.success) {
                 checkNotNull(response.data)  { "userRegisterResp.data is null" }
                 withContext(Dispatchers.Main) {
-                    navAction.toLogin(LoginInput(MainDestination.REGISTER, response.data.uid.toString()))
+                    navAction.toLogin(LoginInput(MainDestination.REGISTER_ROUTE, response.data.uid.toString()))
                 }
             } else {
                 showToastAsync("(${response.code}) ${response.message}")
@@ -176,6 +197,20 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
             // TODO: 本地化处理
             showToastOfNetworkError("注册失败", e)
         }
+    }
+
+    /**
+     * shift user
+     */
+    suspend fun shiftUser(user: User) {
+        // change the current to the target
+        sharedComponents.actorCollection.preferenceActor.save(PreferenceName.CURRENT_USER_UID, user.userUid)
+        autoLogin()
+        sharedComponents.nav.action.upPress()
+    }
+
+    suspend fun reLogin(user: User) {
+
     }
 
     suspend fun testHello() {
@@ -267,6 +302,9 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
         updateCurrentBindInfo()
     }
 
+    /**
+     * get current user.
+     */
     private suspend fun getCurrentUser(): User? {
         val currentUserUid: String = sharedComponents.actorCollection.preferenceActor.read(PreferenceName.CURRENT_USER_UID)
         if (currentUserUid.startsWith("#")) {

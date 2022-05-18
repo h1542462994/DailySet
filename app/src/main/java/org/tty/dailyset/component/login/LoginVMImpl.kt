@@ -35,7 +35,7 @@ class LoginVMImpl(private val sharedComponents: SharedComponents) : LoginVM {
     override val passwordText: MutableStateFlow<String> = MutableStateFlow("")
     override val users = sharedComponents.stateStore.users.asActivityColdStateFlow(listOf())
 
-    override fun loginWithPassword(navAction: MainActions) {
+    override fun loginWithPassword(navAction: MainActions, isReLogin: Boolean) {
         logger.d("LoginVMImpl","called loginWithPassword.")
 
 
@@ -43,7 +43,7 @@ class LoginVMImpl(private val sharedComponents: SharedComponents) : LoginVM {
             val uid = usernameText.value
             val password = passwordText.value
             setOnLogin()
-            sharedComponents.actorCollection.userActor.login(uid, password, navAction)
+            sharedComponents.actorCollection.userActor.login(uid, password, navAction, isReLogin)
             setOnLoginFinished()
         }
     }

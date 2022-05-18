@@ -13,6 +13,6 @@ interface LoginVM {
     val usernameText: MutableStateFlow<String>
     val passwordText: MutableStateFlow<String>
     val users: StateFlow<List<User>>
-    fun loginWithPassword(navAction: MainActions)
+    fun loginWithPassword(navAction: MainActions, isReLogin: Boolean)
 
 }

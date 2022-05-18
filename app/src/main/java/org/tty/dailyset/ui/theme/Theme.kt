@@ -49,6 +49,7 @@ private val LightPalette = Palette(
     lineColor = Gray10,
     sub = Gray40,
     subColor = Blue400,
+    error = LightError,
     textColorInValid = Gray60,
     statusGray = Gray40,
     statusGreen = LightGreen,
@@ -70,6 +71,7 @@ private val DarkPalette = Palette(
     lineColor = Gray80,
     subColor = Blue400,
     sub = Gray20,
+    error = DarkError,
     textColorInValid = Gray20,
     statusGray = Gray60,
     statusGreen = DarkGreen,
@@ -85,8 +87,8 @@ private val MTypography = DailyTypography(
     ),
     buttonText = TextStyle(
         fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Bold,
-        fontSize = 18.sp
+        fontWeight = FontWeight.Medium,
+        fontSize = 16.sp
     )
 )
 

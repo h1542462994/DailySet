@@ -37,8 +37,8 @@ class DailyTypography(
     ),
     buttonText: TextStyle = TextStyle(
         fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Bold,
-        fontSize = 18.sp
+        fontWeight = FontWeight.Medium,
+        fontSize = 16.sp
     ),
     subTitleText: TextStyle = TextStyle(
         fontFamily = FontFamily.Default,

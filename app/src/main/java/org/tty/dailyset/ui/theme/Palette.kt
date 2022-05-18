@@ -22,6 +22,7 @@ class Palette(
     lineColor: Color = Gray95,
     sub: Color = Gray40,
     subColor: Color = Blue400,
+    error: Color = LightError,
     textColorInValid: Color = Gray20,
     statusGray: Color = Gray20,
     statusGreen: Color = LightGreen,
@@ -114,6 +115,9 @@ class Palette(
     var subColor by mutableStateOf(subColor, structuralEqualityPolicy())
         internal set
 
+    var error by mutableStateOf(error, structuralEqualityPolicy())
+        internal set
+
     var textColorInValid by mutableStateOf(textColorInValid, structuralEqualityPolicy())
         internal set
 
@@ -143,6 +147,7 @@ class Palette(
         lineColor: Color = this.lineColor,
         sub: Color = this.sub,
         subColor: Color = this.subColor,
+        error: Color = this.error,
         textColorInValid: Color = this.textColorInValid,
         statusGray: Color = this.statusGray,
         statusGreen: Color = this.statusGreen,
@@ -162,6 +167,7 @@ class Palette(
         lineColor,
         sub,
         subColor,
+        error,
         textColorInValid,
         statusGray,
         statusGreen,

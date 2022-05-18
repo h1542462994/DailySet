@@ -69,6 +69,7 @@ fun ColumnScope.InputFieldWithMore(
     inputTip: String,
     inputPlaceHolder: String,
     modifier: Modifier = Modifier,
+    inputEnabled: Boolean = true,
     keyboardOptions: KeyboardOptions = KeyboardOptions(
         imeAction = ImeAction.Done,
         keyboardType = KeyboardType.Text
@@ -91,6 +92,7 @@ fun ColumnScope.InputFieldWithMore(
                 .align(Alignment.CenterVertically)
                 .fillMaxWidth(fraction = 0.7f)
                 .then(modifier),
+            enabled = inputEnabled,
             label = { Text(inputLabel + inputTip) },
             isError = inputTip.isNotEmpty(),
             placeholder = { Text(inputPlaceHolder) },
