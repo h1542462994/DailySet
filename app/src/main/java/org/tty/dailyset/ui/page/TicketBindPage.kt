@@ -12,11 +12,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import org.tty.dailyset.LocalNav
+import org.tty.dailyset.MainDestination
 import org.tty.dailyset.R
 import org.tty.dailyset.annotation.UseViewModel
 import org.tty.dailyset.component.common.StatusBarToBackground
 import org.tty.dailyset.component.common.asMutableState
-import org.tty.dailyset.component.tickbind.rememberTicketBindVM
+import org.tty.dailyset.component.ticket.bind.TicketBindInput
+import org.tty.dailyset.component.ticket.bind.rememberTicketBindVM
 import org.tty.dailyset.ui.component.ButtonField
 import org.tty.dailyset.ui.component.CenterBar
 import org.tty.dailyset.ui.component.InputField
@@ -25,7 +27,7 @@ import org.tty.dailyset.ui.image.ImageResource
 
 @UseViewModel("/ticket/bind")
 @Composable
-fun TicketBindPage() {
+fun TicketBindPage(ticketBindInput: TicketBindInput) {
     StatusBarToBackground()
 
     val ticketBindVM = rememberTicketBindVM()
@@ -39,11 +41,22 @@ fun TicketBindPage() {
 
 
     val nav = LocalNav.current
+    val isRebind = ticketBindInput.from == MainDestination.TICKET_INFO_ROUTE
+    val title = if (isRebind) {
+        stringResource(id = R.string.ticket_bind_title_rebind)
+    } else {
+        stringResource(id = R.string.ticket_bind_title)
+    }
+    val buttonText = if (isRebind) {
+        stringResource(id = R.string.ticket_rebind)
+    } else {
+        stringResource(id = R.string.ticket_bind)
+    }
 
     Column {
         CenterBar(
             useBack = true,
-            content = stringResource(id = R.string.ticket_bind_title),
+            content = title,
             onBackPressed = {
                 nav.action.upPress()
             }
@@ -73,7 +86,7 @@ fun TicketBindPage() {
         Spacer(modifier = Modifier.height(8.dp))
 
         ButtonField(
-            text = stringResource(id = R.string.ticket_bind),
+            text = buttonText,
             onActionText = stringResource(id = R.string.ticket_bind_on_bind),
             isOnAction = isOnTicketBind,
             isEnabled = ticketBindButtonEnabled,

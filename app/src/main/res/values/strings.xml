@@ -60,6 +60,7 @@
     <!--endregion -->
 
     <string name="ticket_bind_title">自动课表绑定</string>
+    <string name="ticket_bind_title_rebind">自动课表重新绑定</string>
     <string name="ticket_student_uid_field">学号</string>
     <string name="ticket_student_uid_field_tip">请输入学号</string>
     <string name="ticket_student_password_field">密码</string>
@@ -69,6 +70,16 @@
     <string name="ticket_status_not_bind">未绑定</string>
     <string name="ticket_status_initializing">初始化中</string>
     <string name="ticket_status_normal">正常</string>
+
+    <string name="ticket_info_title">自动课表信息</string>
+    <string name="ticket_info_student_uid">学号</string>
+    <string name="ticket_info_department_name">学院</string>
+    <string name="ticket_info_clazz_name">班级</string>
+    <string name="ticket_info_student_name">姓名</string>
+    <string name="ticket_info_grade">届数</string>
+    <string name="ticket_force_fetch">强制刷新自动课表</string>
+    <string name="ticket_rebind">重新绑定</string>
+    <string name="ticket_unbind">解除绑定</string>
 
     <string name="user_name">用户名</string>
     <string name="user_nickname">昵称</string>

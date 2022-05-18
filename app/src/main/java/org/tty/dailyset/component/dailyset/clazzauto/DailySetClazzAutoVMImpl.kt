@@ -20,7 +20,7 @@ import org.tty.dailyset.component.common.sharedComponents
 @Composable
 fun rememberClazzAutoDailySetVM(dailySetUid: String): DailySetClazzAutoVM {
     val sharedComponents = sharedComponents()
-    return sharedComponents.ltsVMSaver.getVM("dailyset/clazzauto/${dailySetUid}") {
+    return sharedComponents.viewModelStore.getVM("dailyset/clazzauto/${dailySetUid}") {
         DailySetClazzAutoVMImpl(sharedComponents, dailySetUid)
     }
 }

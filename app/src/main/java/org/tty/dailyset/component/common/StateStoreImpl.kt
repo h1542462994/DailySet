@@ -30,7 +30,7 @@ class StateStoreImpl(private val sharedComponents: SharedComponents): StateStore
 
     override val userTicketInfo: Flow<UserTicketInfo> = currentUserUid.flatMapLatest { userUid ->
         sharedComponents.database.userTicketInfoDao().load(userUid).map {
-            it ?: UserTicketInfo.empty()
+            it ?: DefaultEntities.emptyUserTicketInfo()
         }
     }
 

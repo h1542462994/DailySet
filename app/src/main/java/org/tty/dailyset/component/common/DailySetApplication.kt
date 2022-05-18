@@ -57,7 +57,7 @@ class DailySetApplication : Application(), SharedComponents {
         useGrpcSourceCollection(
             GrpcSourceCollectionImpl(mutableSharedComponents)
         )
-        mutableSharedComponents.useLtsVMSaver(LtsVMSaver())
+        mutableSharedComponents.useLtsVMSaver(LtsViewModelStore())
     }
 
     override val applicationScope: CoroutineScope
@@ -78,8 +78,8 @@ class DailySetApplication : Application(), SharedComponents {
         get() = mutableSharedComponents.window
     override val activityContext: Context
         get() = mutableSharedComponents.activityContext
-    override val ltsVMSaver: LtsVMSaver
-        get() = mutableSharedComponents.ltsVMSaver
+    override val viewModelStore: LtsViewModelStore
+        get() = mutableSharedComponents.viewModelStore
 
     override fun useNav(nav: Nav<MainActions>) {
         mutableSharedComponents.useNav(nav)

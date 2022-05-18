@@ -19,7 +19,7 @@ interface SharedComponents {
     val nav: Nav<MainActions>
     val window: Window
     val activityContext: Context
-    val ltsVMSaver: LtsVMSaver
+    val viewModelStore: LtsViewModelStore
     fun useNav(nav: Nav<MainActions>)
     fun useWindow(window: Window)
     fun useActivityContext(context: Context)

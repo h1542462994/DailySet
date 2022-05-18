@@ -1,9 +1,6 @@
 package org.tty.dailyset.ui.page
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
@@ -61,22 +58,7 @@ fun UserPage() {
             }
         }
 
-
-
-        OutlinedButton(
-            onClick = {
-                userLogoutDialogVM.dialogOpen.value = true
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp),
-            colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = DailySetTheme.color.error
-            ),
-            contentPadding = PaddingValues(16.dp)
-        ) {
-            Text(stringResource(R.string.logout), style = DailySetTheme.typography.buttonText)
-        }
+        UserLogoutButton(userLogoutDialogVM = userLogoutDialogVM)
     }
 
     UserShiftDialogCover(userShiftDialogVM = userShiftDialogVM, userVM = userVM)
@@ -179,6 +161,28 @@ private fun UserShiftDialogCover(
             dialogOpen.value = false
         }
     }
+}
+
+@Composable
+private fun ColumnScope.UserLogoutButton(
+    userLogoutDialogVM: DialogVM
+) {
+    OutlinedButton(
+        onClick = {
+            userLogoutDialogVM.dialogOpen.value = true
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp),
+        colors = ButtonDefaults.outlinedButtonColors(
+            contentColor = DailySetTheme.color.error
+        ),
+        contentPadding = PaddingValues(16.dp)
+    ) {
+        Text(stringResource(R.string.logout), style = DailySetTheme.typography.buttonText)
+    }
+
+    Spacer(modifier = Modifier.height(16.dp))
 }
 
 @Composable

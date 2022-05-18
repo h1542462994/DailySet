@@ -1,4 +1,4 @@
-package org.tty.dailyset.component.tickbind
+package org.tty.dailyset.component.ticket.bind
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

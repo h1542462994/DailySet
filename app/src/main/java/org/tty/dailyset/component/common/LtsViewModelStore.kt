@@ -1,6 +1,7 @@
 package org.tty.dailyset.component.common
 
-class LtsVMSaver {
+
+class LtsViewModelStore {
     private val store = HashMap<String, Any>()
 
     @Suppress("UNCHECKED_CAST")

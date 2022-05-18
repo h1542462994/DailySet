@@ -20,7 +20,7 @@ import java.time.LocalDateTime
 fun rememberDebugVM(): DebugVM {
     val sharedComponents = sharedComponents()
     // FIXME: 这里的代码主要是为了将VM与Application的生命周期绑定，从而防止数据显示异常或者丢失的情况。
-    return sharedComponents.ltsVMSaver.getVM("debugVM") {
+    return sharedComponents.viewModelStore.getVM("debugVM") {
         DebugVMImpl(sharedComponents)
     }
 

@@ -23,17 +23,13 @@ data class UserTicketInfo(
     val name: String,
     val grade: Int
 ) {
-    companion object {
-        fun empty(): UserTicketInfo {
-            return UserTicketInfo(
-                userUid = "",
-                status = UnicTickStatus.NotBind,
-                studentUid = "",
-                departmentName = "",
-                clazzName = "",
-                name = "",
-                grade = 0
-            )
+    val shortStudentUid: String get() {
+        val tokens = studentUid.split(".")
+        return if (tokens.size == 3) {
+            // if token like '#school.zjut.xxx'
+            tokens.last()
+        } else {
+            studentUid
         }
     }
 }

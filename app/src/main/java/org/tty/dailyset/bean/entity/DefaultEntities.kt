@@ -3,6 +3,7 @@ package org.tty.dailyset.bean.entity
 import org.tty.dailyset.bean.enums.DailySetPeriodCode
 import org.tty.dailyset.bean.enums.DailySetType
 import org.tty.dailyset.bean.enums.PlatformState
+import org.tty.dailyset.bean.enums.UnicTickStatus
 import org.tty.dailyset.bean.lifetime.DailySetClazzAutoPageInfo
 import org.tty.dailyset.bean.lifetime.DailySetSummary
 import org.tty.dailyset.bean.lifetime.DailySetTRC
@@ -62,6 +63,18 @@ object DefaultEntities {
             token = "",
             localUser = true,
             state = PlatformState.INVALID.state
+        )
+    }
+
+    fun emptyUserTicketInfo(): UserTicketInfo {
+        return UserTicketInfo(
+            userUid = "",
+            status = UnicTickStatus.NotBind,
+            studentUid = "",
+            departmentName = "",
+            clazzName = "",
+            name = "",
+            grade = 2018
         )
     }
 }

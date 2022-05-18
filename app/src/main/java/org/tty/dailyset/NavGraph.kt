@@ -14,6 +14,7 @@ import org.tty.dailyset.common.local.logger
 import org.tty.dailyset.common.util.urlEncode
 import org.tty.dailyset.component.common.sharedComponents
 import org.tty.dailyset.component.login.LoginInput
+import org.tty.dailyset.component.ticket.bind.TicketBindInput
 import org.tty.dailyset.ui.page.*
 
 /**
@@ -27,6 +28,7 @@ internal object MainDestination {
     const val USER_ROUTE = "user"
     const val REGISTER_ROUTE = "register"
     const val TICKET_BIND_ROUTE = "ticket/bind"
+    const val TICKET_INFO_ROUTE = "ticket/info"
     const val DAILYSET_CLAZZAUTO_ROUTE = "dailyset/clazzauto"
 }
 
@@ -95,8 +97,27 @@ fun NavGraph() {
             composable(route = MainDestination.REGISTER_ROUTE) {
                 RegisterPage()
             }
-            composable(route = MainDestination.TICKET_BIND_ROUTE) {
-                TicketBindPage()
+
+            composable(
+                route = MainDestination.TICKET_BIND_ROUTE + "?from={from}&uid={uid}",
+                arguments = listOf(
+                    navArgument("from") {
+                        type = NavType.StringType
+                        defaultValue = ""
+                    },
+                    navArgument("uid") {
+                        type = NavType.StringType
+                        defaultValue = ""
+                    }
+                )
+            ) {
+                val from = it.arguments?.getString("from").toString()
+                val uid = it.arguments?.getString("uid").toString()
+                val ticketBindInput = TicketBindInput(from, uid)
+                TicketBindPage(ticketBindInput)
+            }
+            composable(route = MainDestination.TICKET_INFO_ROUTE) {
+                TicketInfoPage()
             }
             composable(
                 route = MainDestination.DAILYSET_CLAZZAUTO_ROUTE + "?uid={uid}",
@@ -155,8 +176,15 @@ class MainActions(private val navController: NavHostController) {
         navController.navigateExceptEqual(MainDestination.REGISTER_ROUTE)
     }
 
+    @Deprecated("use parameter instead.")
     fun toTicketBind() {
         navController.navigateExceptEqual(MainDestination.TICKET_BIND_ROUTE)
+    }
+
+    fun toTicketBind(input: TicketBindInput) {
+        navController.navigateExceptEqual(MainDestination.TICKET_BIND_ROUTE +
+            "?from=${urlEncode(input.from)}&uid=${urlEncode(input.studentUid)}"
+        )
     }
 
     fun toDailySetClazzAuto(dailySetUid: String) {
@@ -167,6 +195,10 @@ class MainActions(private val navController: NavHostController) {
                 )
             }"
         )
+    }
+
+    fun toTicketInfo() {
+        navController.navigateExceptEqual(MainDestination.TICKET_INFO_ROUTE)
     }
 
     /**
@@ -197,7 +229,7 @@ internal val LocalNav = compositionLocalOf<Nav<MainActions>> {
     error("nav not provided")
 }
 
-fun NavController.navigateExceptEqual(route: String) {
+private fun NavController.navigateExceptEqual(route: String) {
     if (currentDestination?.route != route) {
         navigate(route)
     }

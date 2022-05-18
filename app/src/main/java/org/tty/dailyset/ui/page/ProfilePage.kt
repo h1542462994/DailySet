@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import org.tty.dailyset.LocalNav
+import org.tty.dailyset.MainDestination
 import org.tty.dailyset.R
 import org.tty.dailyset.annotation.UseViewModel
 import org.tty.dailyset.bean.entity.DefaultEntities
@@ -21,6 +22,7 @@ import org.tty.dailyset.bean.lifetime.TicketStatusShow
 import org.tty.dailyset.bean.lifetime.UserStatusShow
 import org.tty.dailyset.component.common.showToast
 import org.tty.dailyset.component.profile.rememberProfileVM
+import org.tty.dailyset.component.ticket.bind.TicketBindInput
 import org.tty.dailyset.ui.component.ProfileMenuGroup
 import org.tty.dailyset.ui.component.ProfileMenuItem
 import org.tty.dailyset.ui.component.TextWithDot
@@ -96,13 +98,15 @@ fun ProfileMenuGroupUserSettings(userTicketInfo: UserTicketInfo) {
             onClick = {
                 when (userTicketInfo.status) {
                     UnicTickStatus.NotBind -> {
-                        nav.action.toTicketBind()
+                        nav.action.toTicketBind(
+                            TicketBindInput(from = MainDestination.MAIN_ROUTE, studentUid = "")
+                        )
                     }
                     UnicTickStatus.Initialized -> {
                         showToast("正在初始化中,请稍后...")
                     }
                     else -> {
-                        showToast("该功能暂未实现.")
+                        nav.action.toTicketInfo()
                     }
                 }
             }

@@ -1,4 +1,4 @@
-package org.tty.dailyset.component.tickbind
+package org.tty.dailyset.component.ticket.bind
 
 import androidx.compose.runtime.Composable
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +14,7 @@ import org.tty.dailyset.component.common.sharedComponents
 @Composable
 fun rememberTicketBindVM(): TicketBindVM {
     val sharedComponents = sharedComponents()
-    return sharedComponents.ltsVMSaver.getVM("ticketBindVM") {
+    return sharedComponents.viewModelStore.getVM("ticketBindVM") {
         TicketBindVMImpl(sharedComponents)
     }
 }

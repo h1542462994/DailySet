@@ -13,7 +13,7 @@ import org.tty.dailyset.component.login.LoginInput
 @Composable
 fun rememberUserVM(): UserVM {
     val sharedComponents = sharedComponents()
-    return sharedComponents.ltsVMSaver.getVM("userVM") {
+    return sharedComponents.viewModelStore.getVM("userVM") {
         UserVMImpl(sharedComponents)
     }
 }

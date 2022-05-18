@@ -15,7 +15,7 @@ import org.tty.dailyset.component.common.sharedComponents
 @UseComponent
 fun rememberProfileVM(): ProfileVM {
     val sharedComponents = sharedComponents()
-    return sharedComponents.ltsVMSaver.getVM("profileVM") {
+    return sharedComponents.viewModelStore.getVM("profileVM") {
         ProfileVMImpl(sharedComponents)
     }
 }
@@ -24,5 +24,5 @@ class ProfileVMImpl(private val sharedComponents: SharedComponents): ProfileVM {
     // warning: must use property initializer.
     override val currentUser: StateFlow<User> = sharedComponents.stateStore.currentUser.asActivityColdStateFlow(DefaultEntities.emptyUser())
     override val userTicketInfo: StateFlow<UserTicketInfo> = sharedComponents.stateStore.userTicketInfo.asActivityHotStateFlow(
-        UserTicketInfo.empty())
+        DefaultEntities.emptyUserTicketInfo())
 }

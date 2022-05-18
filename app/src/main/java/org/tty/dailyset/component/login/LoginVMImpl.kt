@@ -19,7 +19,7 @@ import org.tty.dailyset.component.common.*
 @UseComponent
 fun rememberLoginVM(): LoginVM {
     val sharedComponents = sharedComponents()
-    return sharedComponents.ltsVMSaver.getVM("loginVM") {
+    return sharedComponents.viewModelStore.getVM("loginVM") {
         LoginVMImpl(sharedComponents)
     }
 }

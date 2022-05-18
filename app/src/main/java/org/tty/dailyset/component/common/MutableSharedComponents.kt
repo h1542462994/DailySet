@@ -6,9 +6,6 @@ import kotlinx.coroutines.CoroutineScope
 import org.tty.dailyset.MainActions
 import org.tty.dailyset.Nav
 import org.tty.dailyset.actor.ActorCollection
-import org.tty.dailyset.actor.DailySetActor
-import org.tty.dailyset.actor.PreferenceActor
-import org.tty.dailyset.actor.UserActor
 import org.tty.dailyset.database.DailySetRoomDatabase
 import org.tty.dailyset.datasource.DataSourceCollection
 import org.tty.dailyset.datasource.GrpcSourceCollection
@@ -26,7 +23,7 @@ class MutableSharedComponents : SharedComponents {
     private lateinit var windowInternal: Window
     private lateinit var activityContextInternal:  Context
     private lateinit var activityScopeInternal: CoroutineScope
-    private lateinit var ltsVMSaverInternal: LtsVMSaver
+    private lateinit var ltsViewModelStoreInternal: LtsViewModelStore
 
     override val dataSourceCollection: DataSourceCollection get() = dataSourceCollectionInternal
     override val database: DailySetRoomDatabase get() = databaseInternal
@@ -37,7 +34,7 @@ class MutableSharedComponents : SharedComponents {
     override val window: Window get() = windowInternal
     override val activityContext: Context get() = activityContextInternal
     override val activityScope: CoroutineScope get() = activityScopeInternal
-    override val ltsVMSaver: LtsVMSaver get() = ltsVMSaverInternal
+    override val viewModelStore: LtsViewModelStore get() = ltsViewModelStoreInternal
     class MutableDataSourceCollection: DataSourceCollection {
         internal lateinit var netSourceCollectionInternal: NetSourceCollection
         internal lateinit var runtimeDataSourceInternal: RuntimeDataSource
@@ -80,8 +77,8 @@ class MutableSharedComponents : SharedComponents {
         this.navInternal = nav
     }
 
-    fun useLtsVMSaver(ltsVMSaver: LtsVMSaver) {
-        this.ltsVMSaverInternal = ltsVMSaver
+    fun useLtsVMSaver(ltsViewModelStore: LtsViewModelStore) {
+        this.ltsViewModelStoreInternal = ltsViewModelStore
     }
 
     override fun useWindow(window: Window) {
