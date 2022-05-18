@@ -64,7 +64,9 @@ fun UserPage() {
 
 
         OutlinedButton(
-            onClick = { },
+            onClick = {
+                userLogoutDialogVM.dialogOpen.value = true
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(24.dp),
@@ -73,7 +75,7 @@ fun UserPage() {
             ),
             contentPadding = PaddingValues(16.dp)
         ) {
-            Text("退出登录", style = DailySetTheme.typography.buttonText)
+            Text(stringResource(R.string.logout), style = DailySetTheme.typography.buttonText)
         }
     }
 
@@ -164,10 +166,14 @@ private fun UserShiftDialogCover(
     val dialogOpen = userShiftDialogVM.dialogOpen.asMutableState()
 
     NanoDialog(
-        title = stringResource(R.string.user_shift_confirm_1, shiftToUser.userUid),
+        title = stringResource(R.string.user_shift),
         dialogVM = userShiftDialogVM,
         autoClose = true
     ) {
+        Text(
+            modifier = Modifier.padding(16.dp),
+            text = stringResource(R.string.user_shift_confirm_1, shiftToUser.userUid)
+        )
         NanoDialogButton(text = stringResource(id = R.string.confirm)) {
             userVM.changeCurrentUser(shiftToUser)
             dialogOpen.value = false
@@ -181,6 +187,13 @@ private fun UserLogoutDialogCover(
     userVM: UserVM
 ) {
     NanoDialog(title = stringResource(id = R.string.logout), dialogVM = userLogoutDialogVM) {
-
+        Text(
+            modifier = Modifier.padding(16.dp),
+            text = stringResource(R.string.user_logout_confirm)
+        )
+        NanoDialogButton(text = stringResource(id = R.string.confirm), error = true) {
+            userVM.logout()
+            userLogoutDialogVM.dialogOpen.value = false
+        }
     }
 }

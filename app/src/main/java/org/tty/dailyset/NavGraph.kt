@@ -10,6 +10,7 @@ import androidx.navigation.*
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import org.tty.dailyset.common.local.logger
 import org.tty.dailyset.common.util.urlEncode
 import org.tty.dailyset.component.common.sharedComponents
 import org.tty.dailyset.component.login.LoginInput
@@ -166,6 +167,20 @@ class MainActions(private val navController: NavHostController) {
                 )
             }"
         )
+    }
+
+    /**
+     * rollback to index page. you should only call this after logout.
+     */
+    fun rollbackToIndex() {
+        while (true) {
+            val route = navController.currentBackStackEntry?.destination?.route
+            if (route != MainDestination.INDEX_ROUTE) {
+                navController.popBackStack()
+            } else {
+                break
+            }
+        }
     }
 
 }

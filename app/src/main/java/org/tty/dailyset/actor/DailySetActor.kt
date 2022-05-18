@@ -49,6 +49,13 @@ class DailySetActor(private val sharedComponents: SharedComponents) {
         }
     }
 
+    fun endUpdateData() {
+        if (job != null) {
+            job?.cancel()
+            job = null
+        }
+    }
+
     fun updateData() {
         sharedFlow.tryEmit(1)
     }

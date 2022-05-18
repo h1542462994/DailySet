@@ -77,8 +77,10 @@
     <string name="user_state_leave">离线</string>
     <string name="user_state_invalid">请重新登录</string>
     <string name="user_state_ban">已封禁</string>
+    <string name="user_shift">切换用户</string>
     <string name="user_shift_click">点击切换至该用户</string>
     <string name="user_shift_confirm_1">确认切换至用户%s?</string>
+    <string name="user_logout_confirm">确认退出登录?</string>
 
     <string name="unknown_error">未知错误</string>
     <string name="password_error">密码错误</string>

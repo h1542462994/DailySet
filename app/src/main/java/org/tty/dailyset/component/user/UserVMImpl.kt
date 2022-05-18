@@ -29,7 +29,9 @@ class UserVMImpl(private val sharedComponents: SharedComponents): UserVM {
     override val userLogoutDialogVM: DialogVM = SimpleDialogVMImpl(false)
 
     override fun logout() {
-
+        sharedComponents.activityScope.launch {
+            sharedComponents.actorCollection.userActor.logout()
+        }
     }
 
     override fun changeCurrentUser(user: User) {

@@ -67,6 +67,11 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
         sharedComponents.actorCollection.dailySetActor.updateData()
     }
 
+    private fun beforeLogout() {
+        sharedComponents.actorCollection.dailySetActor.endUpdateData()
+        sharedComponents.actorCollection.messageActor.endConnect()
+    }
+
     /**
      * login
      */
@@ -211,6 +216,14 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
 
     suspend fun reLogin(user: User) {
 
+    }
+
+    suspend fun logout() {
+        sharedComponents.actorCollection.preferenceActor.save(PreferenceName.FIRST_LOAD_USER, false)
+        beforeLogout()
+        // TODO send logout to server.
+        sharedComponents.nav.action.rollbackToIndex()
+        sharedComponents.nav.action.toLogin(LoginInput(MainDestination.INDEX_ROUTE, ""))
     }
 
     suspend fun testHello() {
