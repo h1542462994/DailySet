@@ -121,7 +121,7 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
         } catch (e: Exception) {
             logger.e("UserRepository", "${e.javaClass.simpleName} :: ${e.message}")
             // TODO: 本地化处理
-            showToastOfNetworkError("登录失败", e)
+            showToastAsyncOfNetworkError("登录失败", e)
         }
     }
 
@@ -173,7 +173,7 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
                 )
             )
             // TODO: 本地化处理
-            showToastOfNetworkError("自动登录失败", e)
+            showToastAsyncOfNetworkError("自动登录失败", e)
         }
     }
 
@@ -200,7 +200,7 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
         } catch (e: Exception) {
             logger.e("UserRepository", "${e.javaClass.simpleName} :: ${e.message}")
             // TODO: 本地化处理
-            showToastOfNetworkError("注册失败", e)
+            showToastAsyncOfNetworkError("注册失败", e)
         }
     }
 
@@ -211,6 +211,7 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
         // change the current to the target
         sharedComponents.actorCollection.preferenceActor.save(PreferenceName.CURRENT_USER_UID, user.userUid)
         autoLogin()
+        afterLogin()
         sharedComponents.nav.action.upPress()
     }
 
@@ -228,8 +229,6 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
 
     suspend fun testHello() {
         try {
-            sharedComponents.actorCollection.preferenceActor.save(PreferenceName.CURRENT_HOST, "192.168.31.10")
-
             val helloCoroutineStub = sharedComponents.dataSourceCollection.grpcSourceCollection.helloService()
             val response = helloCoroutineStub.sayHello {
                 name = "你好啊!"
@@ -237,7 +236,7 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
             showToastAsync(response.message)
         } catch (e: Exception) {
             logger.e("UserRepository", "${e.javaClass.simpleName} :: ${e.message}")
-            showToastOfNetworkError("欢迎失败", e)
+            showToastAsyncOfNetworkError("欢迎失败", e)
         }
 
     }
@@ -305,13 +304,79 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
             }
         } catch (e: Exception) {
             logger.e("UserRepository", "bindTicket, ${e.javaClass.simpleName} :: ${e.message}")
-            showToastOfNetworkError("绑定失败", e)
+            showToastAsyncOfNetworkError("绑定失败", e)
         }
     }
 
+
+
+    /**
+     * force fetch course info bind on ticket.
+     */
+    suspend fun forceFetchTicket() {
+        val user = getCurrentUser() ?: return
+        val ticketService = sharedComponents.dataSourceCollection.grpcSourceCollection.ticketService()
+        try {
+            val response = ticketService.forceFetch {
+                this.token = Token.newBuilder().setValue(user.token).build()
+            }
+            if (response.code == ResponseCodes.success) {
+                showToastAsync(response.message)
+                postBindTicket(navAction = sharedComponents.nav.action)
+            }
+        } catch (e: Exception) {
+            logger.e("UserRepository", "forceFetchTicket , ${e.javaClass.simpleName} :: ${e.message}")
+            showToastAsyncOfNetworkError("强制刷新自动课表失败", e)
+        }
+    }
+
+    /**
+     * rebind ticket
+     */
+    suspend fun rebindTicket(studentUid: String, password: String, navAction: MainActions) {
+        val user = getCurrentUser() ?: return
+        val ticketService = sharedComponents.dataSourceCollection.grpcSourceCollection.ticketService()
+        try {
+            val response = ticketService.rebind {
+                this.token = Token.newBuilder().setValue(user.token).build()
+                this.uid = studentUid
+                this.password = password
+            }
+            if (response.code == ResponseCodes.success) {
+                showToastAsync(response.message)
+                postBindTicket(navAction)
+            }
+        } catch (e: Exception) {
+            logger.e("UserRepository", "rebindTicket, ${e.javaClass.simpleName} :: ${e.message}")
+            showToastAsyncOfNetworkError("重新绑定失败", e)
+        }
+    }
+
+    /**
+     * unbind ticket
+     */
+    suspend fun unbindTicket() {
+        val user = getCurrentUser() ?: return
+        val ticketService = sharedComponents.dataSourceCollection.grpcSourceCollection.ticketService()
+        try {
+            val response = ticketService.unbind {
+                this.token = Token.newBuilder().setValue(user.token).build()
+            }
+            if (response.code == ResponseCodes.success) {
+                showToastAsync(response.message)
+                postBindTicket(navAction = sharedComponents.nav.action)
+            }
+        } catch (e: Exception) {
+            logger.e("UserRepository", "forceFetchTicket , ${e.javaClass.simpleName} :: ${e.message}")
+            showToastAsyncOfNetworkError("解绑失败", e)
+        }
+    }
+
+
+
     private suspend fun postBindTicket(navAction: MainActions) {
-        // 退出绑定界面。
-        navAction.upPress()
+        // navigate up until main page.
+        navAction.rollbackToMain()
         updateCurrentBindInfo()
     }
 

@@ -68,7 +68,7 @@ class DailySetActor(private val sharedComponents: SharedComponents) {
 
             val responseDailySetInfos =
                 sharedComponents.dataSourceCollection.netSourceCollection.dailySetService.dailySetInfo()
-            if (responseDailySetInfos.code == ResponseCodes.success) {
+            if (responseDailySetInfos.code == ResponseCodes.success || responseDailySetInfos.code == ResponseCodes.ticketNotExist) {
                 if (responseDailySetInfos.data != null) {
                     withDailySetInfos(responseDailySetInfos.data, userUid)
                 }

@@ -215,6 +215,17 @@ class MainActions(private val navController: NavHostController) {
         }
     }
 
+    fun rollbackToMain() {
+        while (true) {
+            val route = navController.currentBackStackEntry?.destination?.route
+            if (route != MainDestination.MAIN_ROUTE) {
+                navController.popBackStack()
+            } else {
+                break
+            }
+        }
+    }
+
 }
 
 data class Nav<T>(

@@ -35,6 +35,14 @@ class TicketBindVMImpl(private val sharedComponents: SharedComponents): TicketBi
         }
     }
 
+    override fun rebindTicket(navAction: MainActions) {
+        sharedComponents.activityScope.launch {
+            val studentUid = studentUidText.value
+            val password = passwordText.value
+            sharedComponents.actorCollection.userActor.rebindTicket(studentUid, password, navAction)
+        }
+    }
+
     private fun valid(studentUid: String, password: String) {
         val studentUidValid = validStudentUidTextField(studentUid)
         studentUidTipValue.value = studentUidValid ?: ""

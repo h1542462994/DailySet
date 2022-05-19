@@ -80,6 +80,9 @@
     <string name="ticket_force_fetch">强制刷新自动课表</string>
     <string name="ticket_rebind">重新绑定</string>
     <string name="ticket_unbind">解除绑定</string>
+    <string name="ticket_force_fetch_confirm">确认强制刷新自动课表?</string>
+    <string name="ticket_force_fetch_confirm_tip">由于这将会导致自动课表数据的重置，当数据正确时，请不要随意使用该项功能。</string>
+    <string name="ticket_unbind_confirm">确认解除绑定?</string>
 
     <string name="user_name">用户名</string>
     <string name="user_nickname">昵称</string>

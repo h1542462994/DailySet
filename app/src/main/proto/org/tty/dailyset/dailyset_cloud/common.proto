@@ -9,3 +9,12 @@ option java_outer_classname = "CommonProto";
 message Token {
   string value = 1;
 }
+
+message SimpleRequest {
+  Token token = 1;
+}
+
+message SimpleResponse {
+  int32 code = 1;
+  string message = 2;
+}

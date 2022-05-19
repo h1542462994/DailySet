@@ -4,10 +4,8 @@ import android.content.Context
 import android.os.Build
 import android.provider.Settings
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -116,7 +114,7 @@ suspend fun showToastAsync(text: String) {
     }
 }
 
-suspend fun showToastOfNetworkError(title: String, error: Exception) {
+suspend fun showToastAsyncOfNetworkError(title: String, error: Exception) {
     withContext(Dispatchers.Main) {
         val message: String = if (error is SocketException || error is InterruptedIOException) {
             "${title}, 无法连接到目标服务器"

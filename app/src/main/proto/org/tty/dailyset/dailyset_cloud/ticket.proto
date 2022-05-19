@@ -11,24 +11,21 @@ option java_outer_classname = "TicketProto";
 
 service TicketService {
   // bind ticket.
-  rpc bind(TicketBindRequest) returns (TicketBindResponse);
+  rpc bind(TicketBindRequest) returns (SimpleResponse);
+  // rebind ticket.
+  rpc rebind(TicketBindRequest) returns (SimpleResponse);
   // query the current bind info.
-  rpc currentBindInfo(CurrentBindInfoRequest) returns (CurrentBindInfoResponse);
+  rpc currentBindInfo(SimpleRequest) returns (CurrentBindInfoResponse);
+  // unbind ticket.
+  rpc unbind(SimpleRequest) returns (SimpleResponse);
+  // force fetch ticket.
+  rpc forceFetch(SimpleRequest) returns (SimpleResponse);
 }
 
 message TicketBindRequest {
   Token token = 1;
   string uid = 2;
   string password = 3;
-}
-
-message TicketBindResponse {
-  int32 code = 1;
-  string message = 2;
-}
-
-message CurrentBindInfoRequest {
-  Token token = 1;
 }
 
 message CurrentBindInfoResponse {

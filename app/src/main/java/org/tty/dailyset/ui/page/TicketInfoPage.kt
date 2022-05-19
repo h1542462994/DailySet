@@ -11,12 +11,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import org.tty.dailyset.LocalNav
 import org.tty.dailyset.R
 import org.tty.dailyset.annotation.UseViewModel
 import org.tty.dailyset.bean.entity.UserTicketInfo
+import org.tty.dailyset.component.common.DialogVM
 import org.tty.dailyset.component.ticket.info.TicketInfoVM
 import org.tty.dailyset.component.ticket.info.rememberTicketInfoVM
+import org.tty.dailyset.ui.component.NanoDialog
+import org.tty.dailyset.ui.component.NanoDialogButton
 import org.tty.dailyset.ui.component.ProfileMenuItem
 import org.tty.dailyset.ui.component.TopBar
 import org.tty.dailyset.ui.theme.DailySetTheme
@@ -27,6 +31,9 @@ fun TicketInfoPage() {
     val nav = LocalNav.current
     val ticketInfoVM = rememberTicketInfoVM()
     val userTicketInfo by ticketInfoVM.userTicketInfo.collectAsState()
+    val forceFetchDialogVM = ticketInfoVM.forceFetchDialogVM
+    val unbindTicketDialogVM = ticketInfoVM.unbindTicketDialogVM
+
     Column {
         TopBar(title = stringResource(id = R.string.ticket_info_title),
             useBack = true,
@@ -38,8 +45,16 @@ fun TicketInfoPage() {
                 TicketInfoCurrent(userTicketInfo = userTicketInfo)
             }
         }
-        TicketInfoButtons(ticketInfoVM = ticketInfoVM)
+        TicketInfoButtons(
+            forceFetchDialogVM = forceFetchDialogVM,
+            unbindTicketDialogVM = unbindTicketDialogVM,
+            ticketInfoVM = ticketInfoVM
+        )
     }
+
+    ForceFetchDialogCover(forceFetchDialogVM = forceFetchDialogVM, ticketInfoVM = ticketInfoVM)
+    UnBindTicketDialogCover(unbindTicketDialogVM = unbindTicketDialogVM, ticketInfoVM = ticketInfoVM)
+    
 }
 
 @Composable
@@ -70,14 +85,17 @@ fun TicketInfoCurrent(
     }
 }
 
+@Suppress("unused")
 @Composable
 fun ColumnScope.TicketInfoButtons(
+    forceFetchDialogVM: DialogVM,
+    unbindTicketDialogVM: DialogVM,
     ticketInfoVM: TicketInfoVM
 ) {
     val userTicketInfo by ticketInfoVM.userTicketInfo.collectAsState()
 
     OutlinedButton(
-        onClick = { },
+        onClick = { forceFetchDialogVM.dialogOpen.value = true },
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp),
@@ -107,7 +125,7 @@ fun ColumnScope.TicketInfoButtons(
     Spacer(modifier = Modifier.height(16.dp))
 
     OutlinedButton(
-        onClick = { },
+        onClick = { unbindTicketDialogVM.dialogOpen.value = true },
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp),
@@ -121,4 +139,41 @@ fun ColumnScope.TicketInfoButtons(
     }
 
     Spacer(modifier = Modifier.height(16.dp))
+}
+
+@Composable
+fun ForceFetchDialogCover(
+    forceFetchDialogVM: DialogVM, ticketInfoVM: TicketInfoVM
+) {
+    NanoDialog(title = stringResource(R.string.ticket_force_fetch), dialogVM = forceFetchDialogVM) {
+        Text(
+            modifier = Modifier.padding(16.dp),
+            text = stringResource(R.string.ticket_force_fetch_confirm)
+        )
+        Text(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            text = stringResource(R.string.ticket_force_fetch_confirm_tip), fontSize = 14.sp
+        )
+        NanoDialogButton(text = stringResource(R.string.confirm)) {
+            ticketInfoVM.forceFetchTicket()
+            forceFetchDialogVM.dialogOpen.value = false
+        }
+    }
+}
+
+@Composable
+fun UnBindTicketDialogCover(
+    unbindTicketDialogVM: DialogVM,
+    ticketInfoVM: TicketInfoVM
+) {
+    NanoDialog(title = stringResource(R.string.ticket_unbind), dialogVM = unbindTicketDialogVM) {
+        Text(
+            modifier = Modifier.padding(16.dp),
+            text = stringResource(R.string.ticket_unbind_confirm)
+        )
+        NanoDialogButton(text = stringResource(R.string.confirm), error = true) {
+            ticketInfoVM.unbindTicket()
+            unbindTicketDialogVM.dialogOpen.value = false
+        }
+    }
 }

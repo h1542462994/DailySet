@@ -91,7 +91,11 @@ fun TicketBindPage(ticketBindInput: TicketBindInput) {
             isOnAction = isOnTicketBind,
             isEnabled = ticketBindButtonEnabled,
         ) {
-            ticketBindVM.bindTicket(nav.action)
+            if (isRebind) {
+                ticketBindVM.rebindTicket(nav.action)
+            } else {
+                ticketBindVM.bindTicket(nav.action)
+            }
         }
 
         Spacer(modifier = Modifier.weight(1.0f))

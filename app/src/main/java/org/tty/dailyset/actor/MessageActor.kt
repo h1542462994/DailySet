@@ -1,6 +1,7 @@
 package org.tty.dailyset.actor
 
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.ReceiveChannel
 import org.tty.dailyset.bean.enums.MessageTopics
 import org.tty.dailyset.bean.enums.PreferenceName
 import org.tty.dailyset.common.local.logger
@@ -8,6 +9,7 @@ import org.tty.dailyset.component.common.SharedComponents
 import org.tty.dailyset.dailyset_cloud.grpc.MessageBindRequest
 import org.tty.dailyset.dailyset_cloud.grpc.Token
 import org.tty.dailyset.component.common.BaseVM
+import org.tty.dailyset.dailyset_cloud.grpc.MessageBundle
 import org.tty.dailyset.datasource.DataSourceCollection
 
 /**
@@ -38,7 +40,7 @@ class MessageActor(private val sharedComponents: SharedComponents) {
                         }
                     }
                 }
-                job?.invokeOnCompletion { job = null }
+//                job?.invokeOnCompletion { job = null }
             } else {
                 job?.cancel()
                 job = null
@@ -56,27 +58,50 @@ class MessageActor(private val sharedComponents: SharedComponents) {
 
 
     private suspend fun doConnect() {
-        val currentUserUid: String = sharedComponents.actorCollection.preferenceActor.read(PreferenceName.CURRENT_USER_UID)
+        val currentUserUid: String =
+            sharedComponents.actorCollection.preferenceActor.read(PreferenceName.CURRENT_USER_UID)
         val user = sharedComponents.database.userDao().get(currentUserUid) ?: return
+        var receivedChannel: ReceiveChannel<MessageBundle>? = null
+
         try {
-            val receivedChannel = sharedComponents.dataSourceCollection.grpcSourceCollection.messageService()
-                .connect(request = MessageBindRequest.newBuilder().setToken(Token.newBuilder().setValue(user.token)).build())
+            receivedChannel =
+                sharedComponents.dataSourceCollection.grpcSourceCollection.messageService()
+                    .connect(
+                        request = MessageBindRequest.newBuilder()
+                            .setToken(Token.newBuilder().setValue(user.token)).build()
+                    )
 
             logger.d("MessageActor", "正在连接服务器.")
 
+
             while (true) {
                 // the coroutine will be suspend until receive a new message
-                val bundle = receivedChannel.receive()
-                logger.d("MessageActor", "收到了服务器的消息: ${bundle.topic}, ${bundle.referer}, ${bundle.code}, ${bundle.content}")
-
-                if (bundle.topic == MessageTopics.dailySetUnicTicket) {
-                    sharedComponents.actorCollection.userActor.updateCurrentBindInfo()
-                } else if (bundle.topic == MessageTopics.dailySetUnicCourse) {
-                    sharedComponents.actorCollection.dailySetActor.updateData()
+                val result = receivedChannel.tryReceive()
+                if (result.isClosed) {
+                    break
+                } else if (result.isFailure) {
+                    yield()
+                    delay(100)
+                } else {
+                    val bundle = result.getOrThrow()
+                    logger.d(
+                        "MessageActor",
+                        "收到了服务器的消息: ${bundle.topic}, ${bundle.referer}, ${bundle.code}, ${bundle.content}"
+                    )
+                    if (bundle.topic == MessageTopics.dailySetUnicTicket) {
+                        sharedComponents.actorCollection.userActor.updateCurrentBindInfo()
+                    } else if (bundle.topic == MessageTopics.dailySetUnicCourse) {
+                        sharedComponents.actorCollection.dailySetActor.updateData()
+                    }
                 }
             }
+        } catch (e: CancellationException) {
+            logger.e("MessageActor", "cancel")
         } catch (e: Exception) {
             logger.e("MessageActor", "连接消息服务失败: $e")
+        } finally {
+            // cancel the received channel
+            receivedChannel?.cancel()
         }
     }
 }

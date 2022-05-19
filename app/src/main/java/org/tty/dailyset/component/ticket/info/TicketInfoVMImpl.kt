@@ -2,12 +2,11 @@ package org.tty.dailyset.component.ticket.info
 
 import androidx.compose.runtime.Composable
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import org.tty.dailyset.MainDestination
 import org.tty.dailyset.bean.entity.DefaultEntities
 import org.tty.dailyset.bean.entity.UserTicketInfo
-import org.tty.dailyset.component.common.SharedComponents
-import org.tty.dailyset.component.common.asActivityColdStateFlow
-import org.tty.dailyset.component.common.sharedComponents
+import org.tty.dailyset.component.common.*
 import org.tty.dailyset.component.ticket.bind.TicketBindInput
 
 @Composable
@@ -22,8 +21,14 @@ internal class TicketInfoVMImpl(private val sharedComponents: SharedComponents) 
     override val userTicketInfo: StateFlow<UserTicketInfo> =
         sharedComponents.stateStore.userTicketInfo.asActivityColdStateFlow(DefaultEntities.emptyUserTicketInfo())
 
+    override val forceFetchDialogVM: DialogVM = SimpleDialogVMImpl(false)
+
+    override val unbindTicketDialogVM: DialogVM = SimpleDialogVMImpl(false)
+
     override fun forceFetchTicket() {
-        //
+        sharedComponents.activityScope.launch {
+            sharedComponents.actorCollection.userActor.forceFetchTicket()
+        }
     }
 
     override fun rebindTicket(userTicketInfo: UserTicketInfo) {
@@ -34,6 +39,8 @@ internal class TicketInfoVMImpl(private val sharedComponents: SharedComponents) 
     }
 
     override fun unbindTicket() {
-        //
+        sharedComponents.activityScope.launch {
+            sharedComponents.actorCollection.userActor.unbindTicket()
+        }
     }
 }

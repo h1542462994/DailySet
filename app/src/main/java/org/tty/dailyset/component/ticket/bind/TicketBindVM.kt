@@ -12,4 +12,5 @@ interface TicketBindVM {
     val passwordTipValue: StateFlow<String>
     val isOnTicketBind: StateFlow<Boolean>
     fun bindTicket(navAction: MainActions)
+    fun rebindTicket(navAction: MainActions)
 }
