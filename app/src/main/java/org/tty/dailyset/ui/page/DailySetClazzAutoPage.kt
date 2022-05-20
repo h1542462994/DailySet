@@ -45,7 +45,7 @@ import org.tty.dailyset.ui.theme.DailySetTheme
 fun DailySetClazzAutoPage(dailySetUid: String) {
 
     val dailySetClazzAutoVM = rememberClazzAutoDailySetVM(dailySetUid = dailySetUid)
-    val dailySetSummary by dailySetClazzAutoVM.dailySetSummary.collectAsState()
+    val dailySetSummary by dailySetClazzAutoVM.dailySetSummaryDisplay.collectAsState()
     val dailySetClazzAutoViewTypeState =
         dailySetClazzAutoVM.dailySetClazzAutoViewType.asMutableState()
     val dailySetClazzAutoPageInfos by dailySetClazzAutoVM.dailySetClazzAutoPageInfos.collectAsState()
@@ -120,7 +120,8 @@ fun DailySetClazzAutoPage(dailySetUid: String) {
     )
 
     DailySetRenameDialogCover(
-        dailySetRenameDialogVM = dailySetRenameDialogVM
+        dailySetRenameDialogVM = dailySetRenameDialogVM,
+        dailySetClazzAutoVM = dailySetClazzAutoVM
     )
 }
 
@@ -510,15 +511,19 @@ fun DailySetShiftDialogCover(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DailySetRenameDialogCover(
-    dailySetRenameDialogVM: DailySetRenameDialogVM
+    dailySetRenameDialogVM: DailySetRenameDialogVM,
+    dailySetClazzAutoVM: DailySetClazzAutoVM
 ) {
     var selectIcon by dailySetRenameDialogVM.selectIcon.asMutableState()
     var icon by dailySetRenameDialogVM.icon.asMutableState()
     var name by dailySetRenameDialogVM.name.asMutableState()
+    val nameTipValue by dailySetRenameDialogVM.nameTipValue.collectAsState()
+    val buttonEnabled by dailySetRenameDialogVM.buttonEnabled.collectAsState()
 
     NanoDialog(
         title = stringResource(R.string.dailyset_clazz_auto_rename),
-        dialogVM = dailySetRenameDialogVM
+        dialogVM = dailySetRenameDialogVM,
+        autoClose = false
     ) {
         Row {
             val painter = icon?.toImageResource() ?: ImageResource.set_add_emoji()
@@ -537,7 +542,9 @@ fun DailySetRenameDialogCover(
                     .weight(1.0f)
                     .align(Alignment.CenterVertically),
                 onValueChange = { name = it },
-                label = { Text(stringResource(id = R.string.dailyset_list_name_clazz_auto)) })
+                isError = nameTipValue.isNotEmpty(),
+                singleLine = true,
+                label = { Text(stringResource(id = R.string.dailyset_list_name_clazz_auto) + nameTipValue) })
         }
 
         if (selectIcon) {
@@ -568,7 +575,28 @@ fun DailySetRenameDialogCover(
                 icon = null
             }
         } else {
+            val colorsCancel = ButtonDefaults.outlinedButtonColors(
+                contentColor = DailySetTheme.color.primary
+            )
 
+            Row(modifier = Modifier.padding(16.dp)) {
+                Spacer(modifier = Modifier.weight(1.0f))
+                OutlinedButton(
+                    onClick = {
+                        dailySetRenameDialogVM.dialogOpen.value = false
+                    }, colors = colorsCancel
+                ) {
+                    Text(stringResource(R.string.cancel))
+                }
+                Spacer(modifier = Modifier.width(16.dp))
+                OutlinedButton(
+                    onClick = {
+                         dailySetClazzAutoVM.applyRename()
+                    }, enabled = buttonEnabled
+                ) {
+                    Text(stringResource(R.string.confirm))
+                }
+            }
         }
     }
 }

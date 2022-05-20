@@ -20,5 +20,5 @@ interface DailySetBasicMetaDao {
     fun anyFlow(): Flow<DailySetBasicMeta?>
 
     @Query("select * from dailyset_basic_meta where meta_uid = :metaUid limit 1")
-    suspend fun anyByMetaUid(metaUid: String): DailySetBasicMeta
+    suspend fun anyByMetaUid(metaUid: String): DailySetBasicMeta?
 }

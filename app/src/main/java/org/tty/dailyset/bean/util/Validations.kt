@@ -63,6 +63,18 @@ fun validNicknameTextField(value: String): String? {
     }
 }
 
+fun validDailySetNameTextField(value: String): String? {
+    if (value.isEmpty()) {
+        return ""
+    } else {
+        if (value.length < 2 || value.length > 20) {
+            return " (长度必须在2-20之间) "
+        }
+
+        return null
+    }
+}
+
 fun validEmailTextField(value: String): String? {
     if (value.isEmpty()) {
         return ""

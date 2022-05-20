@@ -51,7 +51,7 @@ fun ColumnScope.InputField(
             isError = inputTip.isNotEmpty(),
             placeholder = { Text(inputPlaceHolder) },
             keyboardOptions = keyboardOptions,
-            maxLines = 1,
+            singleLine = true,
 
             leadingIcon = {
                 ImageBox(
@@ -97,7 +97,7 @@ fun ColumnScope.InputFieldWithMore(
             isError = inputTip.isNotEmpty(),
             placeholder = { Text(inputPlaceHolder) },
             keyboardOptions = keyboardOptions,
-            maxLines = 1,
+            singleLine = true,
 
             leadingIcon = {
                 ImageBox(
@@ -169,7 +169,7 @@ fun ColumnScope.PasswordField(
             isError = inputTip.isNotEmpty(),
             placeholder = { Text(inputPlaceHolder) },
             keyboardOptions = keyboardOptions,
-            maxLines = 1,
+            singleLine = true,
             visualTransformation = PasswordVisualTransformation(),
             leadingIcon = {
                 ImageBox(

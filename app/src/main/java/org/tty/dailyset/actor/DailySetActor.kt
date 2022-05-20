@@ -602,26 +602,24 @@ class DailySetActor(private val sharedComponents: SharedComponents) {
     }
 
     private suspend fun getDailySetSummary(dailySet: DailySet): DailySetSummary {
-        val uid = dailySet.uid
-        val uidG = dailySet.uid + ".g"
+        val matchedUid = dailySet.uid.toMatchedUid()
         var dailySetBasicMeta: DailySetBasicMeta? = null
         var link: DailySetMetaLinks? = null
-        // query the basic_meta from uid
+        // query the raw source.
         link = sharedComponents.database.dailySetMetaLinksDao()
-            .anyBySetUidAndMetaType(uid, DailySetMetaType.BasicMeta.value)
+            .anyBySetUidAndMetaType(matchedUid, DailySetMetaType.BasicMeta.value)
         if (link != null) {
             dailySetBasicMeta =
                 sharedComponents.database.dailySetBasicMetaDao().anyByMetaUid(link.metaUid)
+
+            val localDailySetBasicMeta =
+                sharedComponents.database.dailySetBasicMetaDao().anyByMetaUid(link.metaUid.toLocalStarUid())
+            if (localDailySetBasicMeta != null) {
+                dailySetBasicMeta = localDailySetBasicMeta
+            }
         }
-        // query the basic_meta
-        if (dailySetBasicMeta == null) {
-            link = sharedComponents.database.dailySetMetaLinksDao()
-                .anyBySetUidAndMetaType(uidG, DailySetMetaType.BasicMeta.value)
-        }
-        if (link != null) {
-            dailySetBasicMeta =
-                sharedComponents.database.dailySetBasicMetaDao().anyByMetaUid(link.metaUid)
-        }
+
+
         // query ok
         return DailySetSummary(
             uid = dailySet.uid,
@@ -750,5 +748,50 @@ class DailySetActor(private val sharedComponents: SharedComponents) {
         return dailySetCourses
     }
 
+    suspend fun renameDailySet(dailySetSummary: DailySetSummary) {
+        val matchedUid = dailySetSummary.uid.toMatchedUid()
+        sharedComponents.database.dailySetDao().get(matchedUid) ?: return
+        val dailySetMetaLinks =
+            sharedComponents.database.dailySetMetaLinksDao().anyBySetUidAndMetaType(matchedUid, DailySetMetaType.BasicMeta.value) ?: return
+        val dailySetBasicMeta =
+            sharedComponents.database.dailySetBasicMetaDao().anyByMetaUid(dailySetMetaLinks.metaUid) ?: return
+        val localDailySetBasicMeta
+            = dailySetBasicMeta.copy(
+                    metaUid = dailySetBasicMeta.metaUid.toLocalStarUid(),
+                    name = dailySetSummary.name,
+                    icon = dailySetSummary.icon.toStoreValue()
+                )
+        sharedComponents.database.dailySetBasicMetaDao().update(localDailySetBasicMeta)
+    }
+
+
+    companion object {
+        private val CLAZZ_AUTO_REGEX = "^#school.[\\dA-Za-z_-]+.course.[\\dA-Za-z_-]+$".toRegex()
+
+        /**
+         * if the raw uid like [CLAZZ_AUTO_REGEX], then apply **.g** after it
+         */
+        private fun String.toMatchedUid(): String {
+            return if (CLAZZ_AUTO_REGEX.matches(this)) {
+                "$this.g"
+            } else {
+                this
+            }
+        }
+
+        private fun String.isClazzAuto(): Boolean {
+            return CLAZZ_AUTO_REGEX.matches(this)
+        }
+
+        /**
+         * apply **.local** after it
+         */
+        private fun String.toLocalStarUid(): String {
+            return "$this.local"
+        }
+
+
+
+    }
 
 }

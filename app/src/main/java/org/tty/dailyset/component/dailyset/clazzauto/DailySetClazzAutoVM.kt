@@ -26,6 +26,12 @@ interface DailySetClazzAutoVM {
     val dailySetSummary: StateFlow<DailySetSummary>
 
     /**
+     * the displayed dailySetSummary, it will changed on **rename**.
+     * @see dailySetSummary
+     */
+    val dailySetSummaryDisplay: StateFlow<DailySetSummary>
+
+    /**
      * the current dailySetClazzAutoViewType, **week** or **term**
      */
     val dailySetClazzAutoViewType: MutableStateFlow<DailySetClazzAutoViewType>
@@ -59,4 +65,9 @@ interface DailySetClazzAutoVM {
      * **intent** open renameDialog
      */
     fun openRenameDialog()
+
+    /**
+     * **intent** apply rename.
+     */
+    fun applyRename()
 }

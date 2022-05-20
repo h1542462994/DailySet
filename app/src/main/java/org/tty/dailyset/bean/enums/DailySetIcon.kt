@@ -3,6 +3,7 @@ package org.tty.dailyset.bean.enums
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
 import org.tty.dailyset.ui.image.ImageResource
+import org.tty.dioc.util.optional
 
 enum class DailySetIcon(val key: String) {
     Bird("bird"),
@@ -32,6 +33,8 @@ enum class DailySetIcon(val key: String) {
         }
     }
 
+
+
 }
 
 @Composable
@@ -60,3 +63,6 @@ fun DailySetIcon?.toImageResource(): Painter {
         DailySetIcon.Wind -> ImageResource.set_wind()
     }
 }
+
+fun DailySetIcon?.toStoreValue(): String =
+    this.optional { key } ?: ""

@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.tty.dailyset.bean.entity.DailySetCourse
 import org.tty.dailyset.bean.entity.DailySetDuration
@@ -13,6 +14,7 @@ import org.tty.dailyset.bean.enums.DailySetIcon
 import org.tty.dailyset.bean.lifetime.*
 import org.tty.dailyset.bean.lifetime.DailySetClazzAutoPageInfo.Companion.calculateCurrentIndex
 import org.tty.dailyset.bean.lifetime.DailySetClazzAutoPageInfo.Companion.toPageInfoPeriods
+import org.tty.dailyset.bean.util.validDailySetNameTextField
 import org.tty.dailyset.common.observable.flow2
 import org.tty.dailyset.common.observable.flowMulti
 import org.tty.dailyset.component.common.*
@@ -29,12 +31,19 @@ fun rememberClazzAutoDailySetVM(dailySetUid: String): DailySetClazzAutoVM {
 
 private class DailySetClazzAutoVMImpl(val sharedComponents: SharedComponents, val dailySetUid: String) :
     DailySetClazzAutoVM {
+
     override val dailySetRenameDialogVM: DailySetRenameDialogVM = DailySetRenameDialogVMImpl()
 
     override val dailySetShiftDialogVM: DialogVM = SimpleDialogVMImpl(false)
 
     override val dailySetSummary: StateFlow<DailySetSummary> =
         produceDailySetSummaryFlow().asAppStateFlow(DefaultEntities.emptyDailySetSummary())
+
+    override val dailySetSummaryDisplay: StateFlow<DailySetSummary> = produceDailySetSummaryDisplayFlow(
+        dailySetSummary,
+        dailySetRenameDialogVM
+    ).asAppStateFlow(DefaultEntities.emptyDailySetSummary())
+
     override val dailySetClazzAutoViewType: MutableStateFlow<DailySetClazzAutoViewType> =
         MutableStateFlow(DailySetClazzAutoViewType.Week)
     override val dailySetClazzAutoPageInfos: StateFlow<List<DailySetClazzAutoPageInfo>> =
@@ -136,6 +145,14 @@ private class DailySetClazzAutoVMImpl(val sharedComponents: SharedComponents, va
     override fun openRenameDialog() {
         dailySetRenameDialogVM.cloneFrom(dailySetSummary.value)
         dailySetRenameDialogVM.dialogOpen.value = true
+    }
+
+    override fun applyRename() {
+        sharedComponents.applicationScope.launch {
+            val dailySetSummary = dailySetSummaryDisplay.value
+            sharedComponents.actorCollection.dailySetActor.renameDailySet(dailySetSummary)
+            dailySetRenameDialogVM.dialogOpen.value = false
+        }
     }
 
     private fun validPage(): Boolean {
@@ -247,6 +264,28 @@ private class DailySetClazzAutoVMImpl(val sharedComponents: SharedComponents, va
             }
         }
     }
+
+    private fun produceDailySetSummaryDisplayFlow(
+        dailySetSummaryFlow: Flow<DailySetSummary>,
+        dailySetRenameDialogVM: DailySetRenameDialogVM
+    ): Flow<DailySetSummary> {
+        return flowMulti(dailySetSummaryFlow, dailySetRenameDialogVM.dialogOpen, dailySetRenameDialogVM.name, dailySetRenameDialogVM.icon) {
+            val dailySetSummary = it[0] as DailySetSummary
+            val dialogOpen = it[1] as Boolean
+            val name = it[2] as String
+            val icon = it[3] as DailySetIcon?
+
+            if (dialogOpen) {
+                dailySetSummary.copy(
+                    name = name,
+                    icon = icon
+                )
+            } else {
+                dailySetSummary
+            }
+
+        }
+    }
 }
 
 private class DailySetRenameDialogVMImpl: DailySetRenameDialogVM {
@@ -254,11 +293,27 @@ private class DailySetRenameDialogVMImpl: DailySetRenameDialogVM {
     override val selectIcon: MutableStateFlow<Boolean> = MutableStateFlow(false)
     override val icon: MutableStateFlow<DailySetIcon?> = MutableStateFlow(null)
     override val name: MutableStateFlow<String> = MutableStateFlow("")
+    override val nameTipValue = MutableStateFlow("")
+    override val buttonEnabled = MutableStateFlow(false)
+
+    private fun valid(name: String) {
+        val nameValid = validDailySetNameTextField(name)
+        nameTipValue.value = nameValid ?: ""
+        buttonEnabled.value = nameValid == null
+    }
+
+    init {
+        name.observeOnApplicationScope {
+            valid(it)
+        }
+    }
 
     override fun cloneFrom(dailySetSummary: DailySetSummary) {
         this.selectIcon.value = false
         this.icon.value = dailySetSummary.icon
         this.name.value = dailySetSummary.name
     }
+
+
 
 }
