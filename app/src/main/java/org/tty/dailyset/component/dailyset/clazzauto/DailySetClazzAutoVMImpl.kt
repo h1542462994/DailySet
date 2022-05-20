@@ -12,10 +12,13 @@ import org.tty.dailyset.bean.enums.DailySetClazzAutoViewType
 import org.tty.dailyset.bean.lifetime.*
 import org.tty.dailyset.bean.lifetime.DailySetClazzAutoPageInfo.Companion.calculateCurrentIndex
 import org.tty.dailyset.bean.lifetime.DailySetClazzAutoPageInfo.Companion.toPageInfoPeriods
+import org.tty.dailyset.common.observable.flow2
 import org.tty.dailyset.common.observable.flowMulti
 import org.tty.dailyset.component.common.SharedComponents
-import org.tty.dailyset.component.common.asActivityColdStateFlow
+import org.tty.dailyset.component.common.asAppStateFlow
 import org.tty.dailyset.component.common.sharedComponents
+import java.time.DayOfWeek
+import java.time.LocalDate
 
 @Composable
 fun rememberClazzAutoDailySetVM(dailySetUid: String): DailySetClazzAutoVM {
@@ -28,19 +31,32 @@ fun rememberClazzAutoDailySetVM(dailySetUid: String): DailySetClazzAutoVM {
 class DailySetClazzAutoVMImpl(val sharedComponents: SharedComponents, val dailySetUid: String) :
     DailySetClazzAutoVM {
     override val dailySetSummary: StateFlow<DailySetSummary> =
-        produceDailySetSummaryFlow().asActivityColdStateFlow(DefaultEntities.emptyDailySetSummary())
+        produceDailySetSummaryFlow().asAppStateFlow(DefaultEntities.emptyDailySetSummary())
     override val dailySetClazzAutoViewType: MutableStateFlow<DailySetClazzAutoViewType> =
         MutableStateFlow(DailySetClazzAutoViewType.Week)
     override val dailySetClazzAutoPageInfos: StateFlow<List<DailySetClazzAutoPageInfo>> =
-        produceDailySetClazzAutoPagerInfosFlow().asActivityColdStateFlow(listOf())
+        produceDailySetClazzAutoPagerInfosFlow().asAppStateFlow(listOf())
     override val dailySetCurrentPageIndex = MutableStateFlow(-1)
+    override val dailySetClazzAutoPageInfosPeriod: StateFlow<List<DailySetClazzAutoPageInfoPeriod>> = dailySetClazzAutoPageInfos.map {
+        it.toPageInfoPeriods()
+    }.asAppStateFlow(listOf())
+    override val dailySetCurrentPageIndexPeriod: StateFlow<Int> = flow2(dailySetClazzAutoPageInfosPeriod, dailySetCurrentPageIndex) { v1, v2 ->
+        if (dailySetClazzAutoPageInfos.value.isNotEmpty() && v2 >= 0 && v2 < dailySetClazzAutoPageInfos.value.size) {
+            val currentPage = dailySetClazzAutoPageInfos.value[v2]
+            return@flow2 v1.indexOfFirst { it.year == currentPage.year && it.periodCode == currentPage.periodCode }
+        } else {
+            -1
+        }
+    }.asAppStateFlow(-1)
+
     override val dailySetTRC: StateFlow<DailySetTRC> =
-        produceDailySetTRCFlow().asActivityColdStateFlow(DefaultEntities.emptyDailySetTRC())
+        produceDailySetTRCFlow().asAppStateFlow(DefaultEntities.emptyDailySetTRC())
     override val dailySetCourses: StateFlow<List<DailySetCourse>> =
-        produceDailySetCoursesFlow().asActivityColdStateFlow(emptyList())
+        produceDailySetCoursesFlow().asAppStateFlow(emptyList())
     override val dailySetShiftDialogState: DialogState = DialogState(mutableStateOf(false))
-
-
+    override val now: StateFlow<LocalDate> = sharedComponents.dataSourceCollection.runtimeDataSource.nowDate.asAppStateFlow(
+        LocalDate.now())
+    override val selectDayOfWeek: MutableStateFlow<DayOfWeek> = MutableStateFlow(LocalDate.now().dayOfWeek)
 
     override fun toPrev() {
         if (dailySetClazzAutoViewType.value == DailySetClazzAutoViewType.Week) {
@@ -65,7 +81,6 @@ class DailySetClazzAutoVMImpl(val sharedComponents: SharedComponents, val dailyS
         }
 
     }
-
 
     override fun toNext() {
         if (dailySetClazzAutoViewType.value == DailySetClazzAutoViewType.Week) {

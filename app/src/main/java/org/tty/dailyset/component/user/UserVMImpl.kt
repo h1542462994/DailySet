@@ -19,10 +19,10 @@ fun rememberUserVM(): UserVM {
 }
 
 class UserVMImpl(private val sharedComponents: SharedComponents): UserVM {
-    override val users: StateFlow<List<User>> = sharedComponents.stateStore.users.asActivityColdStateFlow(
+    override val users: StateFlow<List<User>> = sharedComponents.stateStore.users.asAppStateFlow(
         listOf())
 
-    override val currentUser: StateFlow<User> = sharedComponents.stateStore.currentUser.asActivityColdStateFlow(DefaultEntities.emptyUser())
+    override val currentUser: StateFlow<User> = sharedComponents.stateStore.currentUser.asAppStateFlow(DefaultEntities.emptyUser())
 
     override val userShiftDialogVM: UserShiftDialogVM = UserShiftDialogVMImpl()
 

@@ -29,7 +29,7 @@ class DailySetApplication : Application(), SharedComponents {
         LocalSharedComponents provides this
 
         logger.d("DailySetApplication", "called DailySetApplication.onCreate()")
-        mutableSharedComponents.useApplicationScope(CoroutineScope(SupervisorJob()))
+        mutableSharedComponents.useApplicationScope(CoroutineScope(SupervisorJob() + Dispatchers.IO))
         mutableSharedComponents.useDatabase(
             DailySetRoomDatabase.getDatabase(
                 this,

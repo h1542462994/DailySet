@@ -18,7 +18,7 @@ class RuntimeDataSourceImpl(private val sharedComponents: SharedComponents) : Ru
             emit(LocalDateTime.now())
             delay(200)
         }
-    }.asActivityColdStateFlow(LocalDateTime.now())
+    }.asAppStateFlow(LocalDateTime.now())
 
     override val nowDate: Flow<LocalDate> = now.map { it.toLocalDate() }.distinctUntilChanged()
 

@@ -2,20 +2,17 @@ package org.tty.dailyset.component.dailyset
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.room.CoroutinesRoom
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
 import org.tty.dailyset.annotation.UseComponent
-import org.tty.dailyset.bean.entity.DailySet
 import org.tty.dailyset.bean.enums.DailySetIcon
 import org.tty.dailyset.bean.enums.DailySetType
 import org.tty.dailyset.bean.lifetime.DailySetSummary
 import org.tty.dailyset.common.local.logger
-import org.tty.dailyset.common.observable.flow2
 import org.tty.dailyset.common.observable.flowMulti
 import org.tty.dailyset.component.common.SharedComponents
-import org.tty.dailyset.component.common.asActivityColdStateFlow
+import org.tty.dailyset.component.common.asAppStateFlow
 import org.tty.dailyset.component.common.sharedComponents0
 
 @Composable
@@ -28,7 +25,7 @@ fun rememberDailySetVM(): DailySetVM {
 }
 
 class DailySetVMImpl(private val sharedComponents: SharedComponents) : DailySetVM {
-    override val dailySetSummaries: StateFlow<List<DailySetSummary>> = produceDailySetSummariesFlow().asActivityColdStateFlow(
+    override val dailySetSummaries: StateFlow<List<DailySetSummary>> = produceDailySetSummariesFlow().asAppStateFlow(
         listOf())
 
     override fun setCurrentDailySetUid(dailySetUid: String) {

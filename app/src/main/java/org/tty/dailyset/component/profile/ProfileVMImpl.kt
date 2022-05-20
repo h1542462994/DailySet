@@ -7,8 +7,7 @@ import org.tty.dailyset.bean.entity.DefaultEntities
 import org.tty.dailyset.bean.entity.User
 import org.tty.dailyset.bean.entity.UserTicketInfo
 import org.tty.dailyset.component.common.SharedComponents
-import org.tty.dailyset.component.common.asActivityColdStateFlow
-import org.tty.dailyset.component.common.asActivityHotStateFlow
+import org.tty.dailyset.component.common.asAppStateFlow
 import org.tty.dailyset.component.common.sharedComponents
 
 @Composable
@@ -22,7 +21,7 @@ fun rememberProfileVM(): ProfileVM {
 
 class ProfileVMImpl(private val sharedComponents: SharedComponents): ProfileVM {
     // warning: must use property initializer.
-    override val currentUser: StateFlow<User> = sharedComponents.stateStore.currentUser.asActivityColdStateFlow(DefaultEntities.emptyUser())
-    override val userTicketInfo: StateFlow<UserTicketInfo> = sharedComponents.stateStore.userTicketInfo.asActivityHotStateFlow(
+    override val currentUser: StateFlow<User> = sharedComponents.stateStore.currentUser.asAppStateFlow(DefaultEntities.emptyUser())
+    override val userTicketInfo: StateFlow<UserTicketInfo> = sharedComponents.stateStore.userTicketInfo.asAppStateFlow(
         DefaultEntities.emptyUserTicketInfo())
 }

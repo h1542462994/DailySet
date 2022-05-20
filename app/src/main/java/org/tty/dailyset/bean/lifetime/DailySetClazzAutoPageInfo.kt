@@ -44,7 +44,7 @@ data class DailySetClazzAutoPageInfo(
             return buildList {
                 var startIndex = 0
                 group.forEach { entry ->
-                    add(                    DailySetClazzAutoPageInfoPeriod(
+                    add(DailySetClazzAutoPageInfoPeriod(
                         year = entry.key.year,
                         periodCode = entry.key.periodCode,
                         startIndex = startIndex,

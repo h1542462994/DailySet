@@ -19,7 +19,7 @@ fun rememberTicketInfoVM(): TicketInfoVM {
 
 internal class TicketInfoVMImpl(private val sharedComponents: SharedComponents) : TicketInfoVM {
     override val userTicketInfo: StateFlow<UserTicketInfo> =
-        sharedComponents.stateStore.userTicketInfo.asActivityColdStateFlow(DefaultEntities.emptyUserTicketInfo())
+        sharedComponents.stateStore.userTicketInfo.asAppStateFlow(DefaultEntities.emptyUserTicketInfo())
 
     override val forceFetchDialogVM: DialogVM = SimpleDialogVMImpl(false)
 

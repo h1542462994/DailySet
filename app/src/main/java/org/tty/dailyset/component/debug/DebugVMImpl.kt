@@ -8,7 +8,7 @@ import org.tty.dailyset.bean.entity.DefaultEntities
 import org.tty.dailyset.bean.entity.User
 import org.tty.dailyset.bean.enums.PreferenceName
 import org.tty.dailyset.component.common.SharedComponents
-import org.tty.dailyset.component.common.asActivityColdStateFlow
+import org.tty.dailyset.component.common.asAppStateFlow
 import org.tty.dailyset.component.common.sharedComponents
 import java.time.DayOfWeek
 import java.time.LocalDateTime
@@ -28,17 +28,17 @@ fun rememberDebugVM(): DebugVM {
 }
 
 class DebugVMImpl(private val sharedComponents: SharedComponents): DebugVM {
-    override val seedVersion: StateFlow<Int> = sharedComponents.stateStore.seedVersion.asActivityColdStateFlow(0)
-    override val currentUserUid: StateFlow<String> = sharedComponents.stateStore.currentUserUid.asActivityColdStateFlow("")
-    override val currentUser: StateFlow<User> = sharedComponents.stateStore.currentUser.asActivityColdStateFlow(DefaultEntities.emptyUser())
-    override val now: StateFlow<LocalDateTime> = sharedComponents.stateStore.now.asActivityColdStateFlow(LocalDateTime.now())
-    override val nowDayOfWeek: StateFlow<DayOfWeek> = sharedComponents.stateStore.nowDayOfWeek.asActivityColdStateFlow(LocalDateTime.now().dayOfWeek)
-    override val startDayOfWeek: StateFlow<DayOfWeek> = sharedComponents.stateStore.startDayOfWeek.asActivityColdStateFlow(DayOfWeek.MONDAY)
-    override val users: StateFlow<List<User>> = sharedComponents.stateStore.users.asActivityColdStateFlow(
+    override val seedVersion: StateFlow<Int> = sharedComponents.stateStore.seedVersion.asAppStateFlow(0)
+    override val currentUserUid: StateFlow<String> = sharedComponents.stateStore.currentUserUid.asAppStateFlow("")
+    override val currentUser: StateFlow<User> = sharedComponents.stateStore.currentUser.asAppStateFlow(DefaultEntities.emptyUser())
+    override val now: StateFlow<LocalDateTime> = sharedComponents.stateStore.now.asAppStateFlow(LocalDateTime.now())
+    override val nowDayOfWeek: StateFlow<DayOfWeek> = sharedComponents.stateStore.nowDayOfWeek.asAppStateFlow(LocalDateTime.now().dayOfWeek)
+    override val startDayOfWeek: StateFlow<DayOfWeek> = sharedComponents.stateStore.startDayOfWeek.asAppStateFlow(DayOfWeek.MONDAY)
+    override val users: StateFlow<List<User>> = sharedComponents.stateStore.users.asAppStateFlow(
         listOf())
-    override val currentHttpServerAddress: StateFlow<String> = sharedComponents.stateStore.currentHttpServerAddress.asActivityColdStateFlow("")
+    override val currentHttpServerAddress: StateFlow<String> = sharedComponents.stateStore.currentHttpServerAddress.asAppStateFlow("")
     override val deviceCode: StateFlow<String> = sharedComponents.stateStore.deviceCode
-    override val currentHost: StateFlow<String> = sharedComponents.stateStore.currentHost.asActivityColdStateFlow("")
+    override val currentHost: StateFlow<String> = sharedComponents.stateStore.currentHost.asAppStateFlow("")
     override fun setFirstLoadUser(value: Boolean) {
         sharedComponents.applicationScope.launch {
             sharedComponents.actorCollection.preferenceActor.save(PreferenceName.FIRST_LOAD_USER, value)

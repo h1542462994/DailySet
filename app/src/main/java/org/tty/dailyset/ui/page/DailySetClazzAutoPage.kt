@@ -8,11 +8,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import org.tty.dailyset.LocalNav
+import org.tty.dailyset.R
 import org.tty.dailyset.annotation.UseViewModel
 import org.tty.dailyset.bean.entity.DailySetCourse
 import org.tty.dailyset.bean.entity.DefaultEntities
@@ -139,10 +141,10 @@ fun DailySetClazzAutoBottom(
                     .clip(shape = CircleShape)
                     .clickable {
                         dailySetClazzAutoViewType =
-                            if (dailySetClazzAutoViewType == DailySetClazzAutoViewType.Term) {
+                            if (dailySetClazzAutoViewType == DailySetClazzAutoViewType.Period) {
                                 DailySetClazzAutoViewType.Week
                             } else {
-                                DailySetClazzAutoViewType.Term
+                                DailySetClazzAutoViewType.Period
                             }
                     }
             ) {
@@ -242,15 +244,12 @@ fun DailySetClazzAutoCenterPeriod(
 ) {
     val measuredWidth = measuredWindowWidth()
     val unit = toPx(dp = 25.dp)
-    val dailySetClazzAutoPeriodPages = dailySetClazzAutoPageInfos.toPageInfoPeriods()
-    val dailySetClazzAutoCurrentPage = dailySetClazzAutoPageInfos[dailySetCurrentPageIndex]
-    val dailySetClazzAutoPeriodPageIndex = dailySetClazzAutoPeriodPages.indexOfFirst {
-        it.year == dailySetClazzAutoCurrentPage.year && it.periodCode == dailySetClazzAutoCurrentPage.periodCode
-    }
+    // FIXME: use not exported stateFlow.
+    val dailySetClazzAutoPageInfosPeriod by dailySetClazzAutoVM.dailySetClazzAutoPageInfosPeriod.collectAsState()
+    val dailySetCurrentPageIndexPeriod by dailySetClazzAutoVM.dailySetCurrentPageIndexPeriod.collectAsState()
 
-    val pagerState = rememberPagerState(initialPage = dailySetClazzAutoPeriodPageIndex)
-    HorizontalPager(count = dailySetClazzAutoPeriodPages.size, state = pagerState) { page ->
-        val currentPageIndex = dailySetClazzAutoPeriodPages[page]
+    val pagerState = rememberPagerState(initialPage = dailySetCurrentPageIndexPeriod)
+    HorizontalPager(count = dailySetClazzAutoPageInfosPeriod.size, state = pagerState) { page ->
         val dailySetCourseCoverage = DailySetCourseCoverage(dailySetCourses, week = null)
 
         val dailyTableCalc = DailyTableCalc(
@@ -268,9 +267,9 @@ fun DailySetClazzAutoCenterPeriod(
         }
     }
 
-    LaunchedEffect(key1 = dailySetClazzAutoPeriodPageIndex, key2 = dailySetClazzAutoPeriodPages) {
-        if (pagerState.currentPage != dailySetClazzAutoPeriodPageIndex) {
-            pagerState.animateScrollToPage(dailySetClazzAutoPeriodPageIndex)
+    LaunchedEffect(key1 = dailySetCurrentPageIndexPeriod, key2 = dailySetClazzAutoPageInfosPeriod) {
+        if (pagerState.currentPage != dailySetCurrentPageIndexPeriod) {
+            pagerState.animateScrollToPage(dailySetCurrentPageIndexPeriod)
         }
     }
     LaunchedEffect(key1 = pagerState.currentPage) {
@@ -290,12 +289,29 @@ fun DailySetClazzAutoBottom(
     dailySetClazzAutoVM: DailySetClazzAutoVM
 ) {
     val dailySetShiftDialogState = dailySetClazzAutoVM.dailySetShiftDialogState
+    // FIXME: use not exported stateFlow.
+    val dailySetClazzAutoPageInfoPeriod by dailySetClazzAutoVM.dailySetClazzAutoPageInfosPeriod.collectAsState()
+    val dailySetCurrentPageIndexPeriod by dailySetClazzAutoVM.dailySetCurrentPageIndexPeriod.collectAsState()
+    val hasPrev by derivedStateOf {
+        if (dailySetClazzAutoViewType == DailySetClazzAutoViewType.Week) {
+            dailySetCurrentPageIndex > 0
+        } else {
+            dailySetCurrentPageIndexPeriod > 0
+        }
+    }
+    val hasNext by derivedStateOf {
+        if (dailySetClazzAutoViewType == DailySetClazzAutoViewType.Week) {
+            dailySetCurrentPageIndex < dailySetClazzAutoPageInfos.size - 1
+        } else {
+            dailySetCurrentPageIndexPeriod < dailySetClazzAutoPageInfoPeriod.size - 1
+        }
+    }
 
     Row(
         modifier = Modifier
             .wrapContentHeight(align = Alignment.CenterVertically)
     ) {
-        if (dailySetCurrentPageIndex > 0) {
+        if (hasPrev) {
             IconClick(painter = ImageResource.left(), useTint = true) {
                 dailySetClazzAutoVM.toPrev()
             }
@@ -307,7 +323,7 @@ fun DailySetClazzAutoBottom(
 
         var displayString = ""
         displayString = if (dailySetClazzAutoViewType == DailySetClazzAutoViewType.Week) {
-            "第${currentPageInfo.serialIndex + 1}周"
+            stringResource(R.string.dailyset_clazz_week_1, (currentPageInfo.serialIndex + 1).toString())
         } else {
             "${currentPageInfo.year}-${currentPageInfo.year + 1} ${currentPageInfo.periodCode.toDisplayString()}"
         }
@@ -318,7 +334,7 @@ fun DailySetClazzAutoBottom(
             dailySetShiftDialogState.dialogOpen.value = true
         }
 
-        if (dailySetCurrentPageIndex < dailySetClazzAutoPageInfos.size - 1) {
+        if (hasNext) {
             IconClick(painter = ImageResource.right(), useTint = true) {
                 dailySetClazzAutoVM.toNext()
             }

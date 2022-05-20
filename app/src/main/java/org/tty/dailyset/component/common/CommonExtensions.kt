@@ -129,12 +129,13 @@ suspend fun showToastAsyncOfNetworkError(title: String, error: Exception) {
  *
  */
 @UseComponent
-fun <T> Flow<T>.asActivityColdStateFlow(initialValue: T): StateFlow<T> {
+fun <T> Flow<T>.asAppStateFlow(initialValue: T): StateFlow<T> {
     val sharedComponents = LocalSharedComponents.current
     return this.stateIn(sharedComponents.applicationScope, SharingStarted.WhileSubscribed(), initialValue)
 }
 
-fun <T> Flow<T>.asActivityHotStateFlow(initialValue: T): StateFlow<T> {
+@Deprecated("please use asAppStateFlow instead.")
+fun <T> Flow<T>.asAppStateFlowEagerly(initialValue: T): StateFlow<T> {
     val sharedComponents = LocalSharedComponents.current
     return this.stateIn(sharedComponents.applicationScope, SharingStarted.Eagerly, initialValue)
 }

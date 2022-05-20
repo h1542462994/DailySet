@@ -53,6 +53,6 @@ class StateStoreImpl(private val sharedComponents: SharedComponents): StateStore
 
     @Suppress("UNCHECKED_CAST")
     private fun <T> loadPreferenceAsStateFlow(preferenceName: PreferenceName, mapper: (it: String) -> T = { it as T }): StateFlow<T> {
-        return loadPreference(preferenceName, mapper).asActivityHotStateFlow(mapper(preferenceName.defaultValue))
+        return loadPreference(preferenceName, mapper).asAppStateFlow(mapper(preferenceName.defaultValue))
     }
 }
