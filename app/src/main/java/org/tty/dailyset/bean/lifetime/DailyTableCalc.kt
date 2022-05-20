@@ -5,7 +5,7 @@
 
 package org.tty.dailyset.bean.lifetime
 
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -13,7 +13,6 @@ import org.tty.dailyset.bean.entity.DailySetCell
 import org.tty.dailyset.bean.entity.DailySetCourse
 import org.tty.dailyset.common.datetime.indexTo
 import org.tty.dailyset.common.util.toIntArray
-import org.tty.dailyset.ui.theme.DailySetTheme
 import java.time.DayOfWeek
 
 /**
@@ -22,6 +21,7 @@ import java.time.DayOfWeek
  * @param measuredWidth the canvas width by pixel.
  * @param unit the unit of the measurement by pixel.
  */
+@Immutable
 class DailyTableCalc(val dailySetTRC: DailySetTRC, val measuredWidth: Float, val unit: Float) {
     /**
      * the column Count for cell.

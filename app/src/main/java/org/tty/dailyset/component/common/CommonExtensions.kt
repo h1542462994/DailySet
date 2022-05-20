@@ -150,7 +150,7 @@ fun <T> Flow<T>.asAppStateFlowEagerly(initialValue: T): StateFlow<T> {
 fun <T> MutableStateFlow<T>.rememberAsMutableState(): MutableState<T> {
 
     // collect the value and save a snapshot.
-    LaunchedEffect(key1 = "", block = {
+    LaunchedEffect(key1 = Unit, block = {
         this@rememberAsMutableState.collect()
     })
 
@@ -190,7 +190,7 @@ fun <T> MutableStateFlow<T>.rememberAsMutableState(): MutableState<T> {
 fun <T> MutableStateFlow<T>.asMutableState(): MutableState<T> {
 
     // collect the value and save a snapshot.
-    LaunchedEffect(key1 = "", block = {
+    LaunchedEffect(key1 = Unit, block = {
         this@asMutableState.collect()
     })
     val snapshotValue by this.collectAsState()
@@ -220,46 +220,11 @@ fun <T> MutableStateFlow<T>.asMutableState(): MutableState<T> {
 
 }
 
-suspend inline fun <T> Flow<T>.collectSkipFirst(crossinline action: suspend (T) -> Unit) {
-    var first = true
-    this.collect {
-        if (first) {
-            first = false
-        } else {
-            action(it)
-        }
-    }
-}
-
-suspend inline fun <T> Flow<T>.collectFirst(crossinline action: suspend (T) -> Unit) {
-    this.take(1).collect {
-        action(it)
-    }
-}
-
 @UseComponent
 inline fun <T> Flow<T>.observeOnApplicationScope(crossinline action: suspend (T) -> Unit) {
     val sharedComponents = sharedComponents()
     sharedComponents.applicationScope.launch {
         this@observeOnApplicationScope.collect {
-            action(it)
-        }
-    }
-}
-
-inline fun <T> Flow<T>.observeOnApplicationScopeDropFirst(crossinline action: suspend (T) -> Unit) {
-    val sharedComponents = sharedComponents()
-    sharedComponents.applicationScope.launch {
-        this@observeOnApplicationScopeDropFirst.drop(1).collect() {
-            action(it)
-        }
-    }
-}
-
-inline fun <T> Flow<T>.observeOnApplicationScopeOnlyFirst(crossinline action: suspend (T) -> Unit) {
-    val sharedComponents = sharedComponents()
-    sharedComponents.applicationScope.launch {
-        this@observeOnApplicationScopeOnlyFirst.take(1).collect {
             action(it)
         }
     }

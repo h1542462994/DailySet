@@ -1,13 +1,18 @@
 package org.tty.dailyset.ui.page
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.GridCells
+import androidx.compose.foundation.lazy.LazyVerticalGrid
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -19,11 +24,17 @@ import org.tty.dailyset.annotation.UseViewModel
 import org.tty.dailyset.bean.entity.DailySetCourse
 import org.tty.dailyset.bean.entity.DefaultEntities
 import org.tty.dailyset.bean.enums.DailySetClazzAutoViewType
+import org.tty.dailyset.bean.enums.DailySetIcon
+import org.tty.dailyset.bean.enums.toImageResource
 import org.tty.dailyset.bean.lifetime.*
 import org.tty.dailyset.bean.lifetime.DailySetClazzAutoPageInfo.Companion.toPageInfoPeriods
 import org.tty.dailyset.common.datetime.DateSpan
-import org.tty.dailyset.component.common.*
+import org.tty.dailyset.component.common.DialogVM
+import org.tty.dailyset.component.common.asMutableState
+import org.tty.dailyset.component.common.measuredWindowWidth
+import org.tty.dailyset.component.common.toPx
 import org.tty.dailyset.component.dailyset.clazzauto.DailySetClazzAutoVM
+import org.tty.dailyset.component.dailyset.clazzauto.DailySetRenameDialogVM
 import org.tty.dailyset.component.dailyset.clazzauto.rememberClazzAutoDailySetVM
 import org.tty.dailyset.ui.component.*
 import org.tty.dailyset.ui.image.ImageResource
@@ -37,13 +48,14 @@ fun DailySetClazzAutoPage(dailySetUid: String) {
     val dailySetSummary by dailySetClazzAutoVM.dailySetSummary.collectAsState()
     val dailySetClazzAutoViewTypeState =
         dailySetClazzAutoVM.dailySetClazzAutoViewType.asMutableState()
-    val dailySetCurrentPageIndex by dailySetClazzAutoVM.dailySetCurrentPageIndex.collectAsState()
     val dailySetClazzAutoPageInfos by dailySetClazzAutoVM.dailySetClazzAutoPageInfos.collectAsState()
+    val dailySetCurrentPageIndex by dailySetClazzAutoVM.dailySetCurrentPageIndex.collectAsState()
+    val dailySetClazzAutoPageInfosPeriod by dailySetClazzAutoVM.dailySetClazzAutoPageInfosPeriod.collectAsState()
+    val dailySetCurrentPageIndexPeriod by dailySetClazzAutoVM.dailySetCurrentPageIndexPeriod.collectAsState()
     val dailySetTRC by dailySetClazzAutoVM.dailySetTRC.collectAsState()
     val dailySetCourses by dailySetClazzAutoVM.dailySetCourses.collectAsState()
-    val dailySetShiftDialogState = dailySetClazzAutoVM.dailySetShiftDialogState
-
-    val nav = LocalNav.current
+    val dailySetShiftDialogVM = dailySetClazzAutoVM.dailySetShiftDialogVM
+    val dailySetRenameDialogVM = dailySetClazzAutoVM.dailySetRenameDialogVM
 
     fun validPage(): Boolean {
         return dailySetClazzAutoPageInfos.isNotEmpty() && dailySetCurrentPageIndex in dailySetClazzAutoPageInfos.indices
@@ -53,27 +65,17 @@ fun DailySetClazzAutoPage(dailySetUid: String) {
         return dailySetTRC != DefaultEntities.emptyDailySetTRC() && dailySetTRC.dailySetRCs.isNotEmpty()
     }
 
-    var followName = ""
-    if (validPage() && dailySetClazzAutoViewTypeState.value == DailySetClazzAutoViewType.Week) {
-        val currentPageInfo = dailySetClazzAutoPageInfos[dailySetCurrentPageIndex]
-        followName =
-            "(${currentPageInfo.year}-${currentPageInfo.year + 1} ${currentPageInfo.periodCode.toDisplayString()})"
-    }
-
     Column {
-        TopBar(
-            title = {
-                Row {
-                    Text(dailySetSummary.name)
-                    // @Shape: difference by dailySetClazzAutoViewType.
-                    if (followName.isNotEmpty()) {
-                        Text(followName, style = DailySetTheme.typography.subTitleText)
-                    }
-                }
-            },
-            useBack = true,
-            onBackPressed = { nav.action.upPress() }
-        )
+        if (validPage()) {
+            val currentPageInfo = dailySetClazzAutoPageInfos[dailySetCurrentPageIndex]
+            DailySetClazzAutoTopBar(
+                dailySetClazzAutoViewType = dailySetClazzAutoViewTypeState.value,
+                dailySetSummary = dailySetSummary,
+                currentPageInfo = currentPageInfo,
+                dailySetClazzAutoVM = dailySetClazzAutoVM
+            )
+        }
+
         Column(
             modifier = Modifier
                 .weight(1.0f)
@@ -90,8 +92,8 @@ fun DailySetClazzAutoPage(dailySetUid: String) {
                     )
                 } else {
                     DailySetClazzAutoCenterPeriod(
-                        dailySetClazzAutoPageInfos = dailySetClazzAutoPageInfos,
-                        dailySetCurrentPageIndex = dailySetCurrentPageIndex,
+                        dailySetClazzAutoPageInfosPeriod = dailySetClazzAutoPageInfosPeriod,
+                        dailySetCurrentPageIndexPeriod = dailySetCurrentPageIndexPeriod,
                         dailySetCourses = dailySetCourses,
                         dailySetTRC = dailySetTRC,
                         dailySetClazzAutoVM = dailySetClazzAutoVM
@@ -100,33 +102,70 @@ fun DailySetClazzAutoPage(dailySetUid: String) {
             }
         }
         DailySetClazzAutoBottom(
-            dailySetClazzAutoViewTypeState,
-            dailySetCurrentPageIndex,
-            dailySetClazzAutoPageInfos,
-            dailySetClazzAutoVM
+            dailySetClazzAutoViewTypeState = dailySetClazzAutoViewTypeState,
+            dailySetClazzAutoPageInfos = dailySetClazzAutoPageInfos,
+            dailySetCurrentPageIndex = dailySetCurrentPageIndex,
+            dailySetClazzAutoPageInfosPeriod = dailySetClazzAutoPageInfosPeriod,
+            dailySetCurrentPageIndexPeriod = dailySetCurrentPageIndexPeriod,
+            dailySetClazzAutoVM = dailySetClazzAutoVM
         )
     }
 
     DailySetShiftDialogCover(
-        dailySetShiftDialogState = dailySetShiftDialogState,
         dailySetClazzAutoViewType = dailySetClazzAutoViewTypeState.value,
         dailySetPagerInfos = dailySetClazzAutoPageInfos,
         dailySetCurrentPageIndex = dailySetCurrentPageIndex,
+        dailySetShiftDialogVM = dailySetShiftDialogVM,
         dailySetClazzAutoVM = dailySetClazzAutoVM
     )
+
+    DailySetRenameDialogCover(
+        dailySetRenameDialogVM = dailySetRenameDialogVM
+    )
+}
+
+@Composable
+fun DailySetClazzAutoTopBar(
+    dailySetClazzAutoViewType: DailySetClazzAutoViewType,
+    dailySetSummary: DailySetSummary,
+    currentPageInfo: DailySetClazzAutoPageInfo,
+    dailySetClazzAutoVM: DailySetClazzAutoVM
+) {
+    val nav = LocalNav.current
+    TopBar(title = {
+        Row {
+            IconText(
+                painter = dailySetSummary.icon.toImageResource(),
+                text = dailySetSummary.name,
+                useTint = dailySetSummary.icon == null
+            )
+            // @Shape: difference by dailySetClazzAutoViewType.
+            if (dailySetClazzAutoViewType == DailySetClazzAutoViewType.Week) {
+                Spacer(modifier = Modifier.width(16.dp))
+                Text(
+                    text = currentPageInfo.toDisplayString(),
+                    modifier = Modifier.align(Alignment.CenterVertically),
+                    style = DailySetTheme.typography.subTitleText
+                )
+            }
+        }
+    }, useBack = true, onBackPressed = { nav.action.upPress() }, onTitleClick = {
+        dailySetClazzAutoVM.openRenameDialog()
+    })
 }
 
 @Composable
 fun DailySetClazzAutoBottom(
     dailySetClazzAutoViewTypeState: MutableState<DailySetClazzAutoViewType>,
-    dailySetCurrentPageIndex: Int,
     dailySetClazzAutoPageInfos: List<DailySetClazzAutoPageInfo>,
+    dailySetCurrentPageIndex: Int,
+    dailySetClazzAutoPageInfosPeriod: List<DailySetClazzAutoPageInfoPeriod>,
+    dailySetCurrentPageIndexPeriod: Int,
     dailySetClazzAutoVM: DailySetClazzAutoVM
 ) {
     var dailySetClazzAutoViewType by dailySetClazzAutoViewTypeState
     Surface(
-        elevation = BottomNavigationDefaults.Elevation,
-        color = DailySetTheme.color.background1
+        elevation = BottomNavigationDefaults.Elevation, color = DailySetTheme.color.background1
     ) {
         Row(
             modifier = Modifier
@@ -134,20 +173,18 @@ fun DailySetClazzAutoBottom(
                 .fillMaxWidth()
                 .wrapContentHeight(align = Alignment.CenterVertically)
         ) {
-            BoxWithConstraints(
-                modifier = Modifier
-                    .size(56.dp)
-                    .wrapContentSize(align = Alignment.Center)
-                    .clip(shape = CircleShape)
-                    .clickable {
-                        dailySetClazzAutoViewType =
-                            if (dailySetClazzAutoViewType == DailySetClazzAutoViewType.Period) {
-                                DailySetClazzAutoViewType.Week
-                            } else {
-                                DailySetClazzAutoViewType.Period
-                            }
-                    }
-            ) {
+            BoxWithConstraints(modifier = Modifier
+                .size(56.dp)
+                .wrapContentSize(align = Alignment.Center)
+                .clip(shape = CircleShape)
+                .clickable {
+                    dailySetClazzAutoViewType =
+                        if (dailySetClazzAutoViewType == DailySetClazzAutoViewType.Period) {
+                            DailySetClazzAutoViewType.Week
+                        } else {
+                            DailySetClazzAutoViewType.Period
+                        }
+                }) {
                 Icon(
                     painter = ImageResource.shift_round(),
                     contentDescription = null,
@@ -168,10 +205,13 @@ fun DailySetClazzAutoBottom(
                     .wrapContentSize(align = Alignment.Center)
             ) {
                 if (dailySetClazzAutoPageInfos.isNotEmpty()) {
-                    DailySetClazzAutoBottom(
-                        dailySetCurrentPageIndex = dailySetCurrentPageIndex,
+                    DailySetClazzAutoBottomCenter(
                         dailySetClazzAutoPageInfos = dailySetClazzAutoPageInfos,
+                        dailySetCurrentPageIndex = dailySetCurrentPageIndex,
+                        dailySetClazzAutoPageInfosPeriod = dailySetClazzAutoPageInfosPeriod,
+                        dailySetCurrentPageIndexPeriod = dailySetCurrentPageIndexPeriod,
                         dailySetClazzAutoViewType = dailySetClazzAutoViewType,
+                        dailySetShiftDialogVM = dailySetClazzAutoVM.dailySetShiftDialogVM,
                         dailySetClazzAutoVM = dailySetClazzAutoVM
                     )
                 }
@@ -187,7 +227,6 @@ fun DailySetClazzAutoBottom(
 }
 
 
-
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun DailySetClazzAutoCenterWeek(
@@ -199,6 +238,8 @@ fun DailySetClazzAutoCenterWeek(
 ) {
     val measuredWidth = measuredWindowWidth()
     val unit = toPx(dp = 25.dp)
+    val nowDate by dailySetClazzAutoVM.nowDate.collectAsState()
+    val currentDayOfWeekState = dailySetClazzAutoVM.selectDayOfWeek.asMutableState()
 
     val pagerState = rememberPagerState(initialPage = dailySetCurrentPageIndex)
     HorizontalPager(dailySetClazzAutoPageInfos.size, state = pagerState) { page: Int ->
@@ -207,17 +248,21 @@ fun DailySetClazzAutoCenterWeek(
             DailySetCourseCoverage(dailySetCourses, currentPageInfo.serialIndex + 1)
 
         val dailyTableCalc = DailyTableCalc(
-            dailySetTRC = dailySetTRC,
-            measuredWidth = measuredWidth,
-            unit = unit
+            dailySetTRC = dailySetTRC, measuredWidth = measuredWidth, unit = unit
         )
 
         Column {
             val dateSpan = DateSpan(currentPageInfo.startDate, currentPageInfo.endDate)
-            DailyTablePreviewHeader(dailyTableCalc = dailyTableCalc, dateSpan = dateSpan)
+            DailyTablePreviewHeader(
+                dailyTableCalc = dailyTableCalc,
+                dateSpan = dateSpan,
+                nowDate = nowDate,
+                currentDayOfWeekState = currentDayOfWeekState
+            )
             DailyTablePreviewBody(
                 dailyTableCalc = dailyTableCalc,
-                dailySetCourseCoverage = dailySetCourseCoverage
+                dailySetCourseCoverage = dailySetCourseCoverage,
+                currentDayOfWeek = currentDayOfWeekState.value
             )
         }
     }
@@ -236,33 +281,36 @@ fun DailySetClazzAutoCenterWeek(
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun DailySetClazzAutoCenterPeriod(
-    dailySetClazzAutoPageInfos: List<DailySetClazzAutoPageInfo>,
-    dailySetCurrentPageIndex: Int,
+    dailySetClazzAutoPageInfosPeriod: List<DailySetClazzAutoPageInfoPeriod>,
+    dailySetCurrentPageIndexPeriod: Int,
     dailySetCourses: List<DailySetCourse>,
     dailySetTRC: DailySetTRC,
     dailySetClazzAutoVM: DailySetClazzAutoVM
 ) {
     val measuredWidth = measuredWindowWidth()
     val unit = toPx(dp = 25.dp)
-    // FIXME: use not exported stateFlow.
-    val dailySetClazzAutoPageInfosPeriod by dailySetClazzAutoVM.dailySetClazzAutoPageInfosPeriod.collectAsState()
-    val dailySetCurrentPageIndexPeriod by dailySetClazzAutoVM.dailySetCurrentPageIndexPeriod.collectAsState()
+    val nowDate by dailySetClazzAutoVM.nowDate.collectAsState()
+    val currentDayOfWeekState = dailySetClazzAutoVM.selectDayOfWeek.asMutableState()
 
     val pagerState = rememberPagerState(initialPage = dailySetCurrentPageIndexPeriod)
     HorizontalPager(count = dailySetClazzAutoPageInfosPeriod.size, state = pagerState) { page ->
         val dailySetCourseCoverage = DailySetCourseCoverage(dailySetCourses, week = null)
 
         val dailyTableCalc = DailyTableCalc(
-            dailySetTRC,
-            measuredWidth,
-            unit
+            dailySetTRC, measuredWidth, unit
         )
 
         Column {
-            DailyTablePreviewHeader(dailyTableCalc = dailyTableCalc, dateSpan = null)
+            DailyTablePreviewHeader(
+                dailyTableCalc = dailyTableCalc,
+                dateSpan = null,
+                nowDate = nowDate,
+                currentDayOfWeekState = currentDayOfWeekState
+            )
             DailyTablePreviewBody(
                 dailyTableCalc = dailyTableCalc,
-                dailySetCourseCoverage = dailySetCourseCoverage
+                dailySetCourseCoverage = dailySetCourseCoverage,
+                currentDayOfWeek = currentDayOfWeekState.value
             )
         }
     }
@@ -282,16 +330,16 @@ fun DailySetClazzAutoCenterPeriod(
 
 
 @Composable
-fun DailySetClazzAutoBottom(
-    dailySetCurrentPageIndex: Int,
+fun DailySetClazzAutoBottomCenter(
     dailySetClazzAutoPageInfos: List<DailySetClazzAutoPageInfo>,
+    dailySetCurrentPageIndex: Int,
+    dailySetClazzAutoPageInfosPeriod: List<DailySetClazzAutoPageInfoPeriod>,
+    dailySetCurrentPageIndexPeriod: Int,
     dailySetClazzAutoViewType: DailySetClazzAutoViewType,
+    dailySetShiftDialogVM: DialogVM,
     dailySetClazzAutoVM: DailySetClazzAutoVM
 ) {
-    val dailySetShiftDialogState = dailySetClazzAutoVM.dailySetShiftDialogState
-    // FIXME: use not exported stateFlow.
-    val dailySetClazzAutoPageInfoPeriod by dailySetClazzAutoVM.dailySetClazzAutoPageInfosPeriod.collectAsState()
-    val dailySetCurrentPageIndexPeriod by dailySetClazzAutoVM.dailySetCurrentPageIndexPeriod.collectAsState()
+    val dailySetShiftDialogState = dailySetShiftDialogVM.dialogOpen.asMutableState()
     val hasPrev by derivedStateOf {
         if (dailySetClazzAutoViewType == DailySetClazzAutoViewType.Week) {
             dailySetCurrentPageIndex > 0
@@ -303,13 +351,12 @@ fun DailySetClazzAutoBottom(
         if (dailySetClazzAutoViewType == DailySetClazzAutoViewType.Week) {
             dailySetCurrentPageIndex < dailySetClazzAutoPageInfos.size - 1
         } else {
-            dailySetCurrentPageIndexPeriod < dailySetClazzAutoPageInfoPeriod.size - 1
+            dailySetCurrentPageIndexPeriod < dailySetClazzAutoPageInfosPeriod.size - 1
         }
     }
 
     Row(
-        modifier = Modifier
-            .wrapContentHeight(align = Alignment.CenterVertically)
+        modifier = Modifier.wrapContentHeight(align = Alignment.CenterVertically)
     ) {
         if (hasPrev) {
             IconClick(painter = ImageResource.left(), useTint = true) {
@@ -323,15 +370,17 @@ fun DailySetClazzAutoBottom(
 
         var displayString = ""
         displayString = if (dailySetClazzAutoViewType == DailySetClazzAutoViewType.Week) {
-            stringResource(R.string.dailyset_clazz_week_1, (currentPageInfo.serialIndex + 1).toString())
+            stringResource(
+                R.string.dailyset_clazz_week_1, (currentPageInfo.serialIndex + 1).toString()
+            )
         } else {
-            "${currentPageInfo.year}-${currentPageInfo.year + 1} ${currentPageInfo.periodCode.toDisplayString()}"
+            currentPageInfo.toDisplayString()
         }
 
         IconText(
             text = displayString
         ) {
-            dailySetShiftDialogState.dialogOpen.value = true
+            dailySetShiftDialogState.value = true
         }
 
         if (hasNext) {
@@ -348,13 +397,14 @@ fun DailySetClazzAutoBottom(
 
 @Composable
 fun DailySetShiftDialogCover(
-    dailySetShiftDialogState: DialogState,
     dailySetClazzAutoViewType: DailySetClazzAutoViewType,
     dailySetPagerInfos: List<DailySetClazzAutoPageInfo>,
     dailySetCurrentPageIndex: Int,
+    dailySetShiftDialogVM: DialogVM,
     dailySetClazzAutoVM: DailySetClazzAutoVM
 ) {
-    BottomDialog(dialogState = dailySetShiftDialogState, autoClose = true) {
+    val dailySetShiftDialogState = dailySetShiftDialogVM.dialogOpen.asMutableState()
+    BottomDialog(dialogVM = dailySetShiftDialogVM, autoClose = true) {
         if (dailySetPagerInfos.isNotEmpty() && dailySetCurrentPageIndex in dailySetPagerInfos.indices) {
             val years = dailySetPagerInfos.map { it.year }.distinct()
             val yearDisplay = years.map { year -> "${year}-${year + 1}" }
@@ -368,28 +418,23 @@ fun DailySetShiftDialogCover(
                         .fillMaxWidth()
                         .wrapContentSize(align = Alignment.Center)
                 ) {
-                    ListSelector(
-                        data = yearDisplay,
+                    ListSelector(data = yearDisplay,
                         height = 192.dp,
                         width = 96.dp,
                         cellHeight = 48.dp,
                         itemIndex = yearIndex,
-                        onItemIndexChanged = { yearIndex = it }
-                    )
+                        onItemIndexChanged = { yearIndex = it })
                     Text(
                         modifier = Modifier.align(Alignment.CenterVertically),
                         text = "学年",
                         color = DailySetTheme.color.primary
                     )
-                    val periodCodes = dailySetPagerInfos
-                        .filter { it.year == years[yearIndex] }
-                        .map { it.periodCode }
-                        .distinct()
+                    val periodCodes = dailySetPagerInfos.filter { it.year == years[yearIndex] }
+                        .map { it.periodCode }.distinct()
                     val periodCodeDisplay = periodCodes.map { it.toDisplayString() }
                     var periodCodeIndex by remember { mutableStateOf(periodCodes.indexOf(periodCode)) }
                     val checkedPeriodCodeIndex = periodCodeIndex.coerceIn(periodCodes.indices)
-                    ListSelector(
-                        data = periodCodeDisplay,
+                    ListSelector(data = periodCodeDisplay,
                         height = 192.dp,
                         width = 96.dp,
                         cellHeight = 48.dp,
@@ -397,25 +442,23 @@ fun DailySetShiftDialogCover(
                         onItemIndexChanged = {
                             periodCodeIndex = it
                             periodCode = periodCodes[periodCodeIndex]
-                        }
-                    )
-                    val weeks = dailySetPagerInfos
-                        .filter { it.year == years[yearIndex] && it.periodCode == periodCodes[checkedPeriodCodeIndex] }
-                        .map { it.serialIndex }
+                        })
+                    val weeks =
+                        dailySetPagerInfos.filter { it.year == years[yearIndex] && it.periodCode == periodCodes[checkedPeriodCodeIndex] }
+                            .map { it.serialIndex }
                     var weekIndex by remember { mutableStateOf(weeks.indexOf(currentSerialIndex)) }
                     val checkedWeekIndex = weekIndex.coerceIn(weeks.indices)
                     if (dailySetClazzAutoViewType == DailySetClazzAutoViewType.Week) {
                         // if the viewType is week, show week change listSelector
-                        ListSelector(
-                            data = weeks.map { (it + 1).toString() },
+                        ListSelector(data = weeks.map { (it + 1).toString() },
                             height = 192.dp,
                             width = 48.dp,
                             cellHeight = 48.dp,
                             itemIndex = checkedWeekIndex,
-                            onItemIndexChanged = { weekIndex = it
+                            onItemIndexChanged = {
+                                weekIndex = it
                                 currentSerialIndex = weeks[weekIndex]
-                            }
-                        )
+                            })
                         Text(
                             modifier = Modifier.align(Alignment.CenterVertically),
                             text = "周",
@@ -434,37 +477,98 @@ fun DailySetShiftDialogCover(
                         modifier = Modifier.weight(1.0f),
                         onClick = {
                             dailySetClazzAutoVM.toNow()
-                            dailySetShiftDialogState.dialogOpen.value = false
+                            dailySetShiftDialogState.value = false
                         },
                         colors = ButtonDefaults.buttonColors(backgroundColor = DailySetTheme.color.background2)
                     ) {
                         Text("跳转到今天")
                     }
                     Spacer(modifier = Modifier.width(16.dp))
-                    Button(
-                        modifier = Modifier.weight(1.0f),
-                        onClick = {
-                            val index: Int = if (dailySetClazzAutoViewType == DailySetClazzAutoViewType.Week) {
+                    Button(modifier = Modifier.weight(1.0f), onClick = {
+                        val index: Int =
+                            if (dailySetClazzAutoViewType == DailySetClazzAutoViewType.Week) {
                                 dailySetPagerInfos.indexOfFirst {
-                                    it.year == years[yearIndex]
-                                            && it.periodCode == periodCode
-                                            && it.serialIndex == currentSerialIndex
+                                    it.year == years[yearIndex] && it.periodCode == periodCode && it.serialIndex == currentSerialIndex
                                 }
                             } else {
-                                dailySetPagerInfos.toPageInfoPeriods()
-                                    .indexOfFirst {
-                                        it.year == years[yearIndex]
-                                                && it.periodCode == periodCode
-                                    }
+                                dailySetPagerInfos.toPageInfoPeriods().indexOfFirst {
+                                    it.year == years[yearIndex] && it.periodCode == periodCode
+                                }
                             }
-                            dailySetClazzAutoVM.toIndex(index)
-                            dailySetShiftDialogState.dialogOpen.value = false
-                        }) {
+                        dailySetClazzAutoVM.toIndex(index)
+                        dailySetShiftDialogState.value = false
+                    }) {
                         Text("确认")
                     }
                 }
             }
         }
 
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun DailySetRenameDialogCover(
+    dailySetRenameDialogVM: DailySetRenameDialogVM
+) {
+    var selectIcon by dailySetRenameDialogVM.selectIcon.asMutableState()
+    var icon by dailySetRenameDialogVM.icon.asMutableState()
+    var name by dailySetRenameDialogVM.name.asMutableState()
+
+    NanoDialog(
+        title = stringResource(R.string.dailyset_clazz_auto_rename),
+        dialogVM = dailySetRenameDialogVM
+    ) {
+        Row {
+            val painter = icon?.toImageResource() ?: ImageResource.set_add_emoji()
+
+            IconClick(
+                modifier = Modifier
+                    .align(Alignment.CenterVertically),
+                painter = painter,
+                useTint = icon == null
+            ) {
+                selectIcon = !selectIcon
+            }
+
+            OutlinedTextField(value = name,
+                modifier = Modifier
+                    .weight(1.0f)
+                    .align(Alignment.CenterVertically),
+                onValueChange = { name = it },
+                label = { Text(stringResource(id = R.string.dailyset_list_name_clazz_auto)) })
+        }
+
+        if (selectIcon) {
+            // icon change area.
+            BoxWithConstraints(
+                modifier = Modifier.padding(8.dp)
+            ) {
+                // show selectIcon area.
+                LazyVerticalGrid(cells = GridCells.Fixed(6)) {
+                    items(DailySetIcon.values()) {
+                        BoxWithConstraints(
+                            modifier = Modifier
+                                .clickable { icon = it }
+                                .padding(8.dp)
+                                .wrapContentSize(align = Alignment.Center)
+                        ) {
+                            Icon(
+                                painter = it.toImageResource(),
+                                modifier = Modifier.fillMaxSize(),
+                                contentDescription = null,
+                                tint = Color.Unspecified
+                            )
+                        }
+                    }
+                }
+            }
+            NanoDialogButton(text = stringResource(R.string.dailyset_delete_emoji)) {
+                icon = null
+            }
+        } else {
+
+        }
     }
 }

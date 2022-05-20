@@ -6,10 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -147,11 +144,11 @@ fun NanoDialogButton(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun BottomDialog(
-    dialogState: DialogState,
+    dialogVM: DialogVM,
     autoClose: Boolean = false,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    var dialogOpen by dialogState.dialogOpen
+    var dialogOpen by dialogVM.dialogOpen.asMutableState()
     val interactionSource1 = remember { MutableInteractionSource() }
     val interactionSource2 = remember { MutableInteractionSource() }
 

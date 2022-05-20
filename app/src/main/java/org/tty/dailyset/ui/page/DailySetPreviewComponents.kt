@@ -5,14 +5,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -41,17 +38,21 @@ import java.time.LocalDate
  * DailyTablePreviewPage .header
  */
 @Composable
-fun DailyTablePreviewHeader(dailyTableCalc: DailyTableCalc, dateSpan: DateSpan?) {
+fun DailyTablePreviewHeader(
+    dailyTableCalc: DailyTableCalc,
+    dateSpan: DateSpan?,
+    nowDate: LocalDate,
+    currentDayOfWeekState: MutableState<DayOfWeek>
+) {
     BoxWithConstraints {
         val palette = LocalPalette.current
         val canvasHeight = dailyTableCalc.canvasHeightHeader
         val canvasWidthDp = toDp(dailyTableCalc.measuredWidth)
         val canvasHeightDp = toDp(canvasHeight)
-        val nowDate = LocalDate.now()
-        val nowWeekDay = nowDate.dayOfWeek
-        var currentWeekDay = DayOfWeek.MONDAY
-        val startWeekDay = DayOfWeek.MONDAY
-        val currentIndex = currentWeekDay.indexTo(startWeekDay)
+        var currentDayOfWeek by currentDayOfWeekState
+        // TODO: dayOfWeek start change support.
+        val startDayOfWeek = DayOfWeek.MONDAY
+        val currentIndex = currentDayOfWeek.indexTo(startDayOfWeek)
 
 
         Canvas(
@@ -73,13 +74,11 @@ fun DailyTablePreviewHeader(dailyTableCalc: DailyTableCalc, dateSpan: DateSpan?)
          * inline function, to createText of weekDay.
          */
         @Composable
-        fun createTextWeekDay(start: LocalDate?, index: Int, value: String, style: Int = 0) {
+        fun createTextWeekDay(start: LocalDate?, index: Int, value: String, strong: Boolean) {
 
-            val color =
-                if (style == 0) LocalPalette.current.sub else LocalPalette.current.primaryColor
-            val color2 =
-                if (style == 0) LocalPalette.current.primary else LocalPalette.current.primaryColor
-            val fontWeight = if (style == 0) FontWeight.Normal else FontWeight.Bold
+            val color1 = if (strong) DailySetTheme.color.primaryColor else DailySetTheme.color.sub
+            val color2 = if (strong) DailySetTheme.color.primaryColor else DailySetTheme.color.primary
+            val fontWeight = if (strong) FontWeight.Bold else FontWeight.Medium
 
             return Column(
                 modifier = Modifier
@@ -89,7 +88,7 @@ fun DailyTablePreviewHeader(dailyTableCalc: DailyTableCalc, dateSpan: DateSpan?)
                     )
                     .absoluteOffset(x = toDp(px = dailyTableCalc.menuWidth + dailyTableCalc.cellWidth * index))
                     .clickable {
-                        currentWeekDay = startWeekDay + index.toLong()
+                        currentDayOfWeek = startDayOfWeek + index.toLong()
                     }
                     .wrapContentSize(align = Alignment.Center),
             ) {
@@ -97,7 +96,7 @@ fun DailyTablePreviewHeader(dailyTableCalc: DailyTableCalc, dateSpan: DateSpan?)
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                     text = value,
                     fontSize = 14.sp,
-                    color = color,
+                    color = color1,
                     fontWeight = fontWeight
                 )
 
@@ -134,21 +133,20 @@ fun DailyTablePreviewHeader(dailyTableCalc: DailyTableCalc, dateSpan: DateSpan?)
             }
         }
 
-        //val start = LocalDate.now().toWeekStart()
-
         (0 until dailyTableCalc.cellColumnCount).forEach { index ->
+            val strong = dateSpan != null && dateSpan.startDate.plusDays(index.toLong()) == nowDate
+
             createTextWeekDay(
                 start = dateSpan?.startDate,
                 index = index,
                 value = index.toWeekDayString(),
-                style = 0
+                strong = strong
             )
         }
 
         if (dateSpan != null) {
             createYearText(start = dateSpan.startDate)
         }
-
     }
 }
 
@@ -159,16 +157,17 @@ fun DailyTablePreviewHeader(dailyTableCalc: DailyTableCalc, dateSpan: DateSpan?)
 @Composable
 fun DailyTablePreviewBody(
     dailyTableCalc: DailyTableCalc,
-    dailySetCourseCoverage: DailySetCourseCoverage
+    dailySetCourseCoverage: DailySetCourseCoverage,
+    currentDayOfWeek: DayOfWeek
 ) {
     val palette = LocalPalette.current
     val canvasHeight = dailyTableCalc.canvasHeightBody
     val canvasWidthDp = toDp(dailyTableCalc.measuredWidth)
     val canvasHeightDp = toDp(canvasHeight)
-    val currentWeekDay = DayOfWeek.MONDAY
-    val startWeekDay = DayOfWeek.MONDAY
+    // TODO: dayOfWeek start change support.
+    val startDayOfWeek = DayOfWeek.MONDAY
     val currentIndex by derivedStateOf {
-        currentWeekDay.indexTo(startWeekDay)
+        currentDayOfWeek.indexTo(startDayOfWeek)
     }
     //val nowIndex= dailyTablePreviewState.weekDayNow - 1
     val courseBackgrounds = DailySetTheme.courseColors.backgrounds
@@ -330,7 +329,7 @@ fun DailyTablePreviewBody(
                 }
 
                 val currentDailyRC = dailyTableCalc.dailySetTRC.dailySetRCs.find {
-                    it.dailySetRow.weekdays.toIntArray().contains(currentWeekDay.value)
+                    it.dailySetRow.weekdays.toIntArray().contains(currentDayOfWeek.value)
                 }
 
                 @Suppress

@@ -9,14 +9,13 @@ import org.tty.dailyset.bean.entity.DailySetCourse
 import org.tty.dailyset.bean.entity.DailySetDuration
 import org.tty.dailyset.bean.entity.DefaultEntities
 import org.tty.dailyset.bean.enums.DailySetClazzAutoViewType
+import org.tty.dailyset.bean.enums.DailySetIcon
 import org.tty.dailyset.bean.lifetime.*
 import org.tty.dailyset.bean.lifetime.DailySetClazzAutoPageInfo.Companion.calculateCurrentIndex
 import org.tty.dailyset.bean.lifetime.DailySetClazzAutoPageInfo.Companion.toPageInfoPeriods
 import org.tty.dailyset.common.observable.flow2
 import org.tty.dailyset.common.observable.flowMulti
-import org.tty.dailyset.component.common.SharedComponents
-import org.tty.dailyset.component.common.asAppStateFlow
-import org.tty.dailyset.component.common.sharedComponents
+import org.tty.dailyset.component.common.*
 import java.time.DayOfWeek
 import java.time.LocalDate
 
@@ -28,8 +27,12 @@ fun rememberClazzAutoDailySetVM(dailySetUid: String): DailySetClazzAutoVM {
     }
 }
 
-class DailySetClazzAutoVMImpl(val sharedComponents: SharedComponents, val dailySetUid: String) :
+private class DailySetClazzAutoVMImpl(val sharedComponents: SharedComponents, val dailySetUid: String) :
     DailySetClazzAutoVM {
+    override val dailySetRenameDialogVM: DailySetRenameDialogVM = DailySetRenameDialogVMImpl()
+
+    override val dailySetShiftDialogVM: DialogVM = SimpleDialogVMImpl(false)
+
     override val dailySetSummary: StateFlow<DailySetSummary> =
         produceDailySetSummaryFlow().asAppStateFlow(DefaultEntities.emptyDailySetSummary())
     override val dailySetClazzAutoViewType: MutableStateFlow<DailySetClazzAutoViewType> =
@@ -53,8 +56,7 @@ class DailySetClazzAutoVMImpl(val sharedComponents: SharedComponents, val dailyS
         produceDailySetTRCFlow().asAppStateFlow(DefaultEntities.emptyDailySetTRC())
     override val dailySetCourses: StateFlow<List<DailySetCourse>> =
         produceDailySetCoursesFlow().asAppStateFlow(emptyList())
-    override val dailySetShiftDialogState: DialogState = DialogState(mutableStateOf(false))
-    override val now: StateFlow<LocalDate> = sharedComponents.dataSourceCollection.runtimeDataSource.nowDate.asAppStateFlow(
+    override val nowDate: StateFlow<LocalDate> = sharedComponents.dataSourceCollection.runtimeDataSource.nowDate.asAppStateFlow(
         LocalDate.now())
     override val selectDayOfWeek: MutableStateFlow<DayOfWeek> = MutableStateFlow(LocalDate.now().dayOfWeek)
 
@@ -131,6 +133,11 @@ class DailySetClazzAutoVMImpl(val sharedComponents: SharedComponents, val dailyS
         dailySetCurrentPageIndex.value = dailySetClazzAutoPageInfos.value.calculateCurrentIndex()
     }
 
+    override fun openRenameDialog() {
+        dailySetRenameDialogVM.cloneFrom(dailySetSummary.value)
+        dailySetRenameDialogVM.dialogOpen.value = true
+    }
+
     private fun validPage(): Boolean {
         return dailySetClazzAutoPageInfos.value.isNotEmpty() && dailySetCurrentPageIndex.value in dailySetClazzAutoPageInfos.value.indices
     }
@@ -139,8 +146,11 @@ class DailySetClazzAutoVMImpl(val sharedComponents: SharedComponents, val dailyS
         return dailySetClazzAutoPageInfos.value[dailySetCurrentPageIndex.value]
     }
 
+    /**
+     * **produce** flow of currentDailySummary.
+     * *super lambda*
+     */
     private fun produceDailySetSummaryFlow(): Flow<DailySetSummary> {
-        // TODO: 这里利用了Android Room流的原理来完成的功能，写法有点奇怪。
         val comp1 = sharedComponents.database.dailySetDao().anyFlow()
         val comp2 = sharedComponents.database.dailySetVisibleDao().anyFlow()
         val comp3 = sharedComponents.database.dailySetMetaLinksDao().anyFlow()
@@ -148,7 +158,6 @@ class DailySetClazzAutoVMImpl(val sharedComponents: SharedComponents, val dailyS
 
         return flowMulti(comp1, comp2, comp3, comp4) {
             return@flowMulti withContext(Dispatchers.IO) {
-//                logger.d("DailySetClazzAutoVMImpl", "??")
                 return@withContext sharedComponents.actorCollection.dailySetActor.getDailySetSummary(
                     dailySetUid = dailySetUid
                 )!!
@@ -156,6 +165,9 @@ class DailySetClazzAutoVMImpl(val sharedComponents: SharedComponents, val dailyS
         }
     }
 
+    /**
+     * **produce** flow of dailySetDuration. *super lambda*
+     */
     private fun produceDailySetDurationFlow(): Flow<List<DailySetDuration>> {
         val comp1 = sharedComponents.database.dailySetDao().anyFlow()
         val comp2 = sharedComponents.database.dailySetSourceLinksDao().anyFlow()
@@ -168,12 +180,12 @@ class DailySetClazzAutoVMImpl(val sharedComponents: SharedComponents, val dailyS
         }
     }
 
+    /**
+     * **produce** flow of dailySetClassAutoPagerInfos. *super lambda*
+     */
     private fun produceDailySetClazzAutoPagerInfosFlow(): Flow<List<DailySetClazzAutoPageInfo>> {
         return produceDailySetDurationFlow().map {
             val pagerInfos = DailySetClazzAutoPageInfo.fromDurations(it)
-//            pagerInfos.forEach { info ->
-//                logger.d("debug", info.toString())
-//            }
             if (dailySetCurrentPageIndex.value == -1) {
                 dailySetCurrentPageIndex.value = pagerInfos.calculateCurrentIndex()
             }
@@ -181,6 +193,9 @@ class DailySetClazzAutoVMImpl(val sharedComponents: SharedComponents, val dailyS
         }
     }
 
+    /**
+     * **produce** flow of DailySetTRC. *super lambda*
+     */
     private fun produceDailySetTRCFlow(): Flow<DailySetTRC> {
         val comp1 = sharedComponents.database.dailySetDao().anyFlow()
         val comp2 = sharedComponents.database.dailySetSourceLinksDao().anyFlow()
@@ -197,10 +212,14 @@ class DailySetClazzAutoVMImpl(val sharedComponents: SharedComponents, val dailyS
     }
 
     // FIXME: 当pager处于学期（period）边界时，可能会出现显示与预期不一致的问题。
+    /**
+     * **produce** flow of DailySetCourses. *super lambda*
+     */
     private fun produceDailySetCoursesFlow(): Flow<List<DailySetCourse>> {
         val comp1 = sharedComponents.database.dailySetDao().anyFlow()
         val comp2 = sharedComponents.database.dailySetSourceLinksDao().anyFlow()
         val comp3 = sharedComponents.database.dailySetCourseDao().anyFlow()
+        // strict..
         val comp4 = dailySetClazzAutoPageInfos.combine(dailySetCurrentPageIndex) { pageInfos, pageIndex ->
             if (pageInfos.isEmpty() || pageIndex < 0 || pageIndex >= pageInfos.size) {
                 null
@@ -215,11 +234,7 @@ class DailySetClazzAutoVMImpl(val sharedComponents: SharedComponents, val dailyS
             comp3,
             comp4
         ) {
-            val yearPeriod = it[3] as YearPeriod?
-//            logger.d("debug", yearPeriod.toString())
-
-//            val pageInfos = dailySetClazzAutoPageInfos.value
-//            val pageIndex = dailySetCurrentPageIndex.value
+            val yearPeriod = it[3] as YearPeriod? // get comp4'value
             if (yearPeriod == null) {
                 emptyList()
             } else {
@@ -228,11 +243,22 @@ class DailySetClazzAutoVMImpl(val sharedComponents: SharedComponents, val dailyS
                     year = yearPeriod.year,
                     periodCode = yearPeriod.periodCode
                 )
-//                for (course in courses) {
-//                    logger.d("debug", course.toString())
-//                }
                 courses
             }
         }
     }
+}
+
+private class DailySetRenameDialogVMImpl: DailySetRenameDialogVM {
+    override val dialogOpen: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    override val selectIcon: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    override val icon: MutableStateFlow<DailySetIcon?> = MutableStateFlow(null)
+    override val name: MutableStateFlow<String> = MutableStateFlow("")
+
+    override fun cloneFrom(dailySetSummary: DailySetSummary) {
+        this.selectIcon.value = false
+        this.icon.value = dailySetSummary.icon
+        this.name.value = dailySetSummary.name
+    }
+
 }

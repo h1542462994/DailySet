@@ -4,13 +4,10 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -23,9 +20,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.tty.dailyset.ui.image.ImageResource
 import org.tty.dailyset.ui.theme.LocalPalette
-import org.tty.dailyset.ui.theme.Shapes
 
 @Composable
 fun Oval(color: Color) {
@@ -174,6 +169,7 @@ fun RoundBadge(
 @Composable
 fun IconClick(
     painter: Painter,
+    modifier: Modifier = Modifier,
     useTint: Boolean = false,
     onClick: () -> Unit
 
@@ -184,13 +180,14 @@ fun IconClick(
             .wrapContentSize(align = Alignment.Center)
             .clip(shape = CircleShape)
             .clickable { onClick() }
+            .then(modifier)
     ) {
         Icon(
             painter = painter,
             contentDescription = null,
             modifier = Modifier
                 .padding(12.dp)
-                .size(18.dp),
+                .align(alignment = Alignment.Center),
             tint = if (useTint) { LocalPalette.current.primary } else { Color.Unspecified }
         )
     }

@@ -16,6 +16,10 @@ data class DailySetClazzAutoPageInfo(
     val startDate: LocalDate,
     val endDate: LocalDate
 ) {
+    fun toDisplayString(): String {
+        return "${year}-${year + 1} ${periodCode.toDisplayString()}"
+    }
+
     companion object {
         fun fromDurations(dailySetDurations: List<DailySetDuration>): List<DailySetClazzAutoPageInfo> {
             return buildList {
