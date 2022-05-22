@@ -6,14 +6,15 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 import org.tty.dailyset.bean.entity.DailySetCourse
+import org.tty.dailyset.datasource.UpdatableResourceDao
 
 @Dao
 interface DailySetCourseDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun update(dailySetCourse: DailySetCourse)
+    suspend fun update(item: DailySetCourse)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun updateBatch(dailySetCourses: List<DailySetCourse>)
+    suspend fun updateBatch(items: List<DailySetCourse>)
 
     @Query("select * from dailyset_course limit 1")
     fun anyFlow(): Flow<DailySetCourse?>

@@ -7,17 +7,18 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 import org.tty.dailyset.bean.entity.DailySetCell
+import org.tty.dailyset.datasource.UpdatableResourceDao
 
 @Dao
 interface DailySetCellDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun update(dailySetCell: DailySetCell)
+    suspend fun update(item: DailySetCell)
 
     @Delete
     suspend fun delete(dailySetCell: DailySetCell)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun updateBatch(dailySetCells: List<DailySetCell>)
+    suspend fun updateBatch(items: List<DailySetCell>)
 
     @Query("select * from dailyset_cell limit 1")
     fun anyFlow(): Flow<DailySetCell?>

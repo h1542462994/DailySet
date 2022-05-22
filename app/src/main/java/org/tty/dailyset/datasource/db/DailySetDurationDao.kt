@@ -3,11 +3,13 @@ package org.tty.dailyset.datasource.db
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 import org.tty.dailyset.bean.entity.DailySetDuration
+import org.tty.dailyset.datasource.UpdatableResourceDao
 
 @Dao
 interface DailySetDurationDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun update(dailySetDuration: DailySetDuration)
+    suspend fun update(item: DailySetDuration)
+
     @Delete
     suspend fun delete(dailySetDuration: DailySetDuration)
 
@@ -21,7 +23,7 @@ interface DailySetDurationDao {
     suspend fun countOfType(type: Int): Int
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun updateBatch(dailySetDurations: List<DailySetDuration>)
+    suspend fun updateBatch(items: List<DailySetDuration>)
 
     @Query("select * from dailyset_duration where source_uid in (:sourceUids)")
     suspend fun allDurationsBySourceUids(sourceUids: List<String>): List<DailySetDuration>

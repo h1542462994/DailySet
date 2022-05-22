@@ -4,12 +4,13 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import org.tty.dailyset.bean.entity.DailySetSchoolInfoMeta
+import org.tty.dailyset.datasource.UpdatableResourceDao
 
 @Dao
 interface DailySetSchoolInfoMetaDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun update(dailySetSchoolInfoMeta: DailySetSchoolInfoMeta)
+    suspend fun update(item: DailySetSchoolInfoMeta)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun updateBatch(dailySetSchoolInfoMetas: List<DailySetSchoolInfoMeta>)
+    suspend fun updateBatch(items: List<DailySetSchoolInfoMeta>)
 }

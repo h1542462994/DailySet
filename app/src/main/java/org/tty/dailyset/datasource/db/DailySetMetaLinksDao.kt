@@ -13,8 +13,8 @@ interface DailySetMetaLinksDao {
     @Query("select * from dailyset_meta_links where dailyset_uid = :dailySetUid and meta_type = :metaType")
     suspend fun allBySetUidAndMetaType(dailySetUid: String, metaType: Int): List<DailySetMetaLinks>
 
-    @Query("select * from dailyset_meta_links where dailyset_uid = :dailySetUid and meta_type = :metaType limit 1")
-    suspend fun anyBySetUidAndMetaType(dailySetUid: String, metaType: Int): DailySetMetaLinks?
+    @Query("select * from dailyset_meta_links where dailyset_uid = :dailySetUid and meta_type = :metaType and meta_uid not like '%.local' limit 1")
+    suspend fun anyBySetUidAndMetaTypeNoLocal(dailySetUid: String, metaType: Int): DailySetMetaLinks?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun updateBatch(dailySetMetaLinks: List<DailySetMetaLinks>)

@@ -77,4 +77,7 @@ object DefaultEntities {
             grade = 2018
         )
     }
+
+    val LOCAL_VERSION_ENABLE = 1
+    val LOCAL_VERSION_DISABLE = 0
 }

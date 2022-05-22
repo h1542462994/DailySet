@@ -6,15 +6,16 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 import org.tty.dailyset.bean.entity.DailySetBasicMeta
+import org.tty.dailyset.datasource.UpdatableResourceDao
 
 @Dao
 interface DailySetBasicMetaDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun update(dailySetBasicMeta: DailySetBasicMeta)
+    suspend fun update(item: DailySetBasicMeta)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun updateBatch(dailySetBasicMetas: List<DailySetBasicMeta>)
+    suspend fun updateBatch(items: List<DailySetBasicMeta>)
 
     @Query("select * from dailyset_basic_meta limit 1")
     fun anyFlow(): Flow<DailySetBasicMeta?>
