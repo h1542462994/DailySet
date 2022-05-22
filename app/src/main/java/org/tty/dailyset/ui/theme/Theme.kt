@@ -79,18 +79,7 @@ private val DarkPalette = Palette(
     statusRed = DarkRed,
 )
 
-private val MTypography = DailyTypography(
-    linkText = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Bold,
-        fontSize = 18.sp
-    ),
-    buttonText = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Medium,
-        fontSize = 16.sp
-    )
-)
+private val MTypography = DailyTypography()
 
 object DailySetTheme {
     val color

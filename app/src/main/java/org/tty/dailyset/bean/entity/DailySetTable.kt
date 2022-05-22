@@ -12,4 +12,4 @@ data class DailySetTable(
     @ColumnInfo(name = "source_uid")
     val sourceUid: String,
     val name: String
-)
+): DailySetResource

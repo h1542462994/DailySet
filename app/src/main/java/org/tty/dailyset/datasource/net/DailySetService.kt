@@ -2,6 +2,7 @@ package org.tty.dailyset.datasource.net
 
 import org.tty.dailyset.bean.Responses
 import org.tty.dailyset.bean.entity.DailySet
+import org.tty.dailyset.bean.req.DailySetSubmitReq
 import org.tty.dailyset.bean.req.DailySetUpdateReq
 import org.tty.dailyset.bean.resp.DailySetUpdateRawResult
 import retrofit2.http.Body
@@ -13,4 +14,8 @@ interface DailySetService {
 
     @POST("/dailyset/update")
     suspend fun dailySetUpdate(@Body dailySetUpdateReq: DailySetUpdateReq): Responses<DailySetUpdateRawResult>
+
+    @POST("/dailyset/submit")
+    suspend fun dailySetSubmit(@Body dailySetUpdateSubmitReq: DailySetSubmitReq): Responses<Unit>
+
 }

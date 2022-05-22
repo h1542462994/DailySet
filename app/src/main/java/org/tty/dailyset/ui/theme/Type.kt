@@ -40,6 +40,11 @@ class DailyTypography(
         fontWeight = FontWeight.Medium,
         fontSize = 16.sp
     ),
+    titleText: TextStyle = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Medium,
+        fontSize = 18.sp
+    ),
     subTitleText: TextStyle = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Medium,
@@ -50,15 +55,23 @@ class DailyTypography(
         internal set
     var buttonText by mutableStateOf(buttonText, structuralEqualityPolicy())
         internal set
+    var titleText by mutableStateOf(titleText, structuralEqualityPolicy())
+        internal set
     var subTitleText by mutableStateOf(subTitleText, structuralEqualityPolicy())
         internal set
 
     fun copy(
         linkText: TextStyle = this.linkText,
         buttonText: TextStyle = this.buttonText,
+        titleText: TextStyle = this.titleText,
         subTitleText: TextStyle = this.subTitleText
     ): DailyTypography {
-        return DailyTypography(linkText = linkText, buttonText = buttonText, subTitleText = subTitleText)
+        return DailyTypography(
+            linkText = linkText,
+            buttonText = buttonText,
+            titleText = titleText,
+            subTitleText = subTitleText
+        )
     }
 }
 

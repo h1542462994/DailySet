@@ -33,4 +33,4 @@ data class DailySetCell(
     val normalType: Int,
     @ColumnInfo(name = "serial_index")
     val serialIndex: Int
-)
+): DailySetResource

@@ -16,4 +16,4 @@ data class DailySetUsageMeta(
     val userUid: String,
     @ColumnInfo(name = "auth_type")
     val authType: Int
-)
+): DailySetResource

@@ -33,4 +33,4 @@ data class DailySetCourse(
     @ColumnInfo(name = "section_end")
     val sectionEnd: Int,
     val digest: String
-)
+): DailySetResource

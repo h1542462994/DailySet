@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.tty.dailyset.ui.theme.DailySetTheme
 import org.tty.dailyset.ui.theme.LocalPalette
 
 /**
@@ -408,16 +409,13 @@ fun IconText(imageVector: ImageVector, text: String) {
     }
 }
 
-/**
- * icon and text
- */
 @Composable
-fun IconText(
+fun IconContent(
     painter: Painter,
     scale: Float = 1.0f,
     useTint: Boolean = false,
-    text: String,
-    onClick: (() -> Unit)? = null
+    onClick: (() -> Unit)? = null,
+    content: @Composable RowScope.() -> Unit,
 ) {
     val modifier = if (onClick == null) {
         Modifier.wrapContentHeight(align = Alignment.CenterVertically)
@@ -447,13 +445,28 @@ fun IconText(
             contentDescription = null,
             tint = color
         )
+        content()
+    }
+}
+
+/**
+ * icon and text
+ */
+@Composable
+fun IconText(
+    painter: Painter,
+    scale: Float = 1.0f,
+    useTint: Boolean = false,
+    text: String,
+    onClick: (() -> Unit)? = null
+) {
+    IconContent(painter = painter, scale = scale, useTint = useTint, onClick = onClick) {
         Text(
             text = text,
             modifier = Modifier
                 .align(alignment = Alignment.CenterVertically),
-            color = LocalPalette.current.primary,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Medium
+            color = DailySetTheme.color.primary,
+            style = DailySetTheme.typography.titleText
         )
     }
 }

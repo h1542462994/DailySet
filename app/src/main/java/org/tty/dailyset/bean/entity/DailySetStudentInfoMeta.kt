@@ -16,4 +16,4 @@ data class DailySetStudentInfoMeta(
     val className: String,
     val name: String,
     val grade: Int
-)
+): DailySetResource

@@ -16,4 +16,4 @@ data class DailySetBasicMeta(
     val metaUid: String,
     val name: String,
     val icon: String
-)
+): DailySetResource

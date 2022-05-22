@@ -28,7 +28,7 @@ class DailySetTypedUpdateAdapter(
         val subType: Int
     )
 
-    private fun castToRealType(rawUpdateItemCollection: DailySetUpdateItemCollection<JsonElement>): DailySetUpdateItemCollection<*> {
+    private fun castToRealType(rawUpdateItemCollection: DailySetUpdateItemCollection<JsonElement>): DailySetUpdateItemCollection<DailySetResource> {
         val updateType = UpdateType(rawUpdateItemCollection.type, rawUpdateItemCollection.subType)
         return DailySetUpdateItemCollection(
             type = updateType.type,
@@ -39,7 +39,7 @@ class DailySetTypedUpdateAdapter(
                     updateVersion = it.updateVersion,
                     removeVersion = it.removeVersion,
                     lastTick = it.lastTick,
-                    data = Json.decodeFromJsonElement(serializer(updateType.findType()), it.data) as Any
+                    data = Json.decodeFromJsonElement(serializer(updateType.findType()), it.data) as DailySetResource
                 )
             }
         )
@@ -65,7 +65,7 @@ class DailySetTypedUpdateAdapter(
             DailySetSourceLinks(
                 dailySetUid = dailySet.uid,
                 sourceType = itemCollection.subType,
-                sourceUid = updateType.findUidRetrieval(updateType.findType(), it.data),
+                sourceUid = updateType.findUidRetrieval(it.data),
                 insertVersion = it.insertVersion,
                 updateVersion = it.updateVersion,
                 removeVersion = it.removeVersion,
@@ -100,7 +100,7 @@ class DailySetTypedUpdateAdapter(
             DailySetMetaLinks(
                 dailySetUid = dailySet.uid,
                 metaType = itemCollection.subType,
-                metaUid = updateType.findUidRetrieval(updateType.findType(), it.data),
+                metaUid = updateType.findUidRetrieval(it.data),
                 insertVersion = it.insertVersion,
                 updateVersion = it.updateVersion,
                 removeVersion = it.removeVersion,
@@ -163,6 +163,7 @@ class DailySetTypedUpdateAdapter(
         *updateTypes.map { it.findUpdater() }.toTypedArray()
     )
 
+    @Suppress("UNCHECKED_CAST")
     private fun UpdateType.findUpdater(): Pair<UpdateType, UpdatableResourceDao> {
         val dao = when (this) {
             UpdateType(DailySetDataType.Source.value, DailySetSourceType.Table.value) -> {
@@ -273,8 +274,8 @@ class DailySetTypedUpdateAdapter(
         return Pair(this, dao)
     }
 
-    private fun UpdateType.findUidRetrieval(type: KType, entity: Any): String {
-        when (type) {
+    private fun UpdateType.findUidRetrieval(entity: Any): String {
+        when (this.findType()) {
             typeOf<DailySetTable>() -> {
                 return (entity as DailySetTable).sourceUid
             }

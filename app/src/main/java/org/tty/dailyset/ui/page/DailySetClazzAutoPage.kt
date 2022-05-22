@@ -14,7 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -39,6 +41,7 @@ import org.tty.dailyset.component.dailyset.clazzauto.rememberClazzAutoDailySetVM
 import org.tty.dailyset.ui.component.*
 import org.tty.dailyset.ui.image.ImageResource
 import org.tty.dailyset.ui.theme.DailySetTheme
+import org.tty.dailyset.ui.theme.LocalPalette
 
 @Composable
 @UseViewModel("/dailyset/clazzauto/:uid")
@@ -135,19 +138,30 @@ fun DailySetClazzAutoTopBar(
     val nav = LocalNav.current
     TopBar(title = {
         Row {
-            IconText(
-                painter = dailySetSummary.icon.toImageResource(),
-                text = dailySetSummary.name,
-                useTint = dailySetSummary.icon == null
-            )
-            // @Shape: difference by dailySetClazzAutoViewType.
             if (dailySetClazzAutoViewType == DailySetClazzAutoViewType.Week) {
-                Spacer(modifier = Modifier.width(16.dp))
-                Text(
-                    text = currentPageInfo.toDisplayString(),
-                    modifier = Modifier.align(Alignment.CenterVertically),
-                    style = DailySetTheme.typography.subTitleText
+                IconText(
+                    painter = dailySetSummary.icon.toImageResource(),
+                    text = dailySetSummary.name,
+                    useTint = dailySetSummary.icon == null
                 )
+            } else {
+                IconContent(
+                    painter = dailySetSummary.icon.toImageResource(),
+                    useTint = dailySetSummary.icon == null
+                ) {
+                    Column(modifier = Modifier.align(Alignment.CenterVertically)) {
+                        Text(
+                            text = dailySetSummary.name,
+                            color = DailySetTheme.color.primary,
+                            style = DailySetTheme.typography.titleText
+                        )
+                        Text(
+                            text = currentPageInfo.toDisplayString(),
+                            color = DailySetTheme.color.sub,
+                            style = DailySetTheme.typography.subTitleText
+                        )
+                    }
+                }
             }
         }
     }, useBack = true, onBackPressed = { nav.action.upPress() }, onTitleClick = {

@@ -42,4 +42,4 @@ data class DailySetDuration(
      */
     @ColumnInfo(name = "binding_period_code")
     val bindingPeriodCode: Int
-)
+): DailySetResource

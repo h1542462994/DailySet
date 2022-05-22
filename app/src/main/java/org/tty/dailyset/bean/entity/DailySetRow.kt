@@ -18,4 +18,4 @@ data class DailySetRow(
     val currentIndex: Int,
     val weekdays: String,
     val counts: String
-)
+): DailySetResource
