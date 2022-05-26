@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.tty.dailyset.annotation.UseComponent
-import org.tty.dailyset.bean.entity.DefaultEntities
+import org.tty.dailyset.bean.entity.EntityDefaults
 import org.tty.dailyset.bean.entity.User
 import org.tty.dailyset.bean.enums.PreferenceName
 import org.tty.dailyset.component.common.SharedComponents
@@ -30,7 +30,7 @@ fun rememberDebugVM(): DebugVM {
 class DebugVMImpl(private val sharedComponents: SharedComponents): DebugVM {
     override val seedVersion: StateFlow<Int> = sharedComponents.stateStore.seedVersion.asAppStateFlow(0)
     override val currentUserUid: StateFlow<String> = sharedComponents.stateStore.currentUserUid.asAppStateFlow("")
-    override val currentUser: StateFlow<User> = sharedComponents.stateStore.currentUser.asAppStateFlow(DefaultEntities.emptyUser())
+    override val currentUser: StateFlow<User> = sharedComponents.stateStore.currentUser.asAppStateFlow(EntityDefaults.emptyUser())
     override val now: StateFlow<LocalDateTime> = sharedComponents.stateStore.now.asAppStateFlow(LocalDateTime.now())
     override val nowDayOfWeek: StateFlow<DayOfWeek> = sharedComponents.stateStore.nowDayOfWeek.asAppStateFlow(LocalDateTime.now().dayOfWeek)
     override val startDayOfWeek: StateFlow<DayOfWeek> = sharedComponents.stateStore.startDayOfWeek.asAppStateFlow(DayOfWeek.MONDAY)

@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.tty.dailyset.MainDestination
-import org.tty.dailyset.bean.entity.DefaultEntities
+import org.tty.dailyset.bean.entity.EntityDefaults
 import org.tty.dailyset.bean.entity.User
 import org.tty.dailyset.component.common.*
 import org.tty.dailyset.component.login.LoginInput
@@ -22,7 +22,7 @@ class UserVMImpl(private val sharedComponents: SharedComponents): UserVM {
     override val users: StateFlow<List<User>> = sharedComponents.stateStore.users.asAppStateFlow(
         listOf())
 
-    override val currentUser: StateFlow<User> = sharedComponents.stateStore.currentUser.asAppStateFlow(DefaultEntities.emptyUser())
+    override val currentUser: StateFlow<User> = sharedComponents.stateStore.currentUser.asAppStateFlow(EntityDefaults.emptyUser())
 
     override val userShiftDialogVM: UserShiftDialogVM = UserShiftDialogVMImpl()
 
@@ -47,5 +47,5 @@ class UserVMImpl(private val sharedComponents: SharedComponents): UserVM {
 
 class UserShiftDialogVMImpl(): UserShiftDialogVM {
     override val dialogOpen: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    override val shiftToUser: MutableStateFlow<User> = MutableStateFlow(DefaultEntities.emptyUser())
+    override val shiftToUser: MutableStateFlow<User> = MutableStateFlow(EntityDefaults.emptyUser())
 }

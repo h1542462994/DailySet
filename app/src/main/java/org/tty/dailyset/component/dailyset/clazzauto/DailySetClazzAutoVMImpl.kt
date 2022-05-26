@@ -1,14 +1,13 @@
 package org.tty.dailyset.component.dailyset.clazzauto
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.tty.dailyset.bean.entity.DailySetCourse
 import org.tty.dailyset.bean.entity.DailySetDuration
-import org.tty.dailyset.bean.entity.DefaultEntities
+import org.tty.dailyset.bean.entity.EntityDefaults
 import org.tty.dailyset.bean.enums.DailySetClazzAutoViewType
 import org.tty.dailyset.bean.enums.DailySetIcon
 import org.tty.dailyset.bean.lifetime.*
@@ -37,12 +36,12 @@ private class DailySetClazzAutoVMImpl(val sharedComponents: SharedComponents, va
     override val dailySetShiftDialogVM: DialogVM = SimpleDialogVMImpl(false)
 
     override val dailySetSummary: StateFlow<DailySetSummary> =
-        produceDailySetSummaryFlow().asAppStateFlow(DefaultEntities.emptyDailySetSummary())
+        produceDailySetSummaryFlow().asAppStateFlow(EntityDefaults.emptyDailySetSummary())
 
     override val dailySetSummaryDisplay: StateFlow<DailySetSummary> = produceDailySetSummaryDisplayFlow(
         dailySetSummary,
         dailySetRenameDialogVM
-    ).asAppStateFlow(DefaultEntities.emptyDailySetSummary())
+    ).asAppStateFlow(EntityDefaults.emptyDailySetSummary())
 
     override val dailySetClazzAutoViewType: MutableStateFlow<DailySetClazzAutoViewType> =
         MutableStateFlow(DailySetClazzAutoViewType.Week)
@@ -62,7 +61,7 @@ private class DailySetClazzAutoVMImpl(val sharedComponents: SharedComponents, va
     }.asAppStateFlow(-1)
 
     override val dailySetTRC: StateFlow<DailySetTRC> =
-        produceDailySetTRCFlow().asAppStateFlow(DefaultEntities.emptyDailySetTRC())
+        produceDailySetTRCFlow().asAppStateFlow(EntityDefaults.emptyDailySetTRC())
     override val dailySetCourses: StateFlow<List<DailySetCourse>> =
         produceDailySetCoursesFlow().asAppStateFlow(emptyList())
     override val nowDate: StateFlow<LocalDate> = sharedComponents.dataSourceCollection.runtimeDataSource.nowDate.asAppStateFlow(
@@ -223,7 +222,7 @@ private class DailySetClazzAutoVMImpl(val sharedComponents: SharedComponents, va
         return flowMulti(comp1, comp2, comp3, comp4, comp5) {
             withContext(Dispatchers.IO) {
                 sharedComponents.actorCollection.dailySetActor.getDailySetTRC(dailySetUid = dailySetUid)
-                    ?: DefaultEntities.emptyDailySetTRC()
+                    ?: EntityDefaults.emptyDailySetTRC()
             }
         }
     }

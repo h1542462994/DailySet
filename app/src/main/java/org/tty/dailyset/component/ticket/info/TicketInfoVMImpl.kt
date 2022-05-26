@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.tty.dailyset.MainDestination
-import org.tty.dailyset.bean.entity.DefaultEntities
+import org.tty.dailyset.bean.entity.EntityDefaults
 import org.tty.dailyset.bean.entity.UserTicketInfo
 import org.tty.dailyset.component.common.*
 import org.tty.dailyset.component.ticket.bind.TicketBindInput
@@ -19,7 +19,7 @@ fun rememberTicketInfoVM(): TicketInfoVM {
 
 internal class TicketInfoVMImpl(private val sharedComponents: SharedComponents) : TicketInfoVM {
     override val userTicketInfo: StateFlow<UserTicketInfo> =
-        sharedComponents.stateStore.userTicketInfo.asAppStateFlow(DefaultEntities.emptyUserTicketInfo())
+        sharedComponents.stateStore.userTicketInfo.asAppStateFlow(EntityDefaults.emptyUserTicketInfo())
 
     override val forceFetchDialogVM: DialogVM = SimpleDialogVMImpl(false)
 

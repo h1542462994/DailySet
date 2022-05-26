@@ -82,7 +82,7 @@ class UserActor(private val sharedComponents: SharedComponents): SuspendInit {
             var deviceCode: String? = sharedComponents.stateStore.deviceCode.value
             if (deviceCode == "") deviceCode = null
             val platformCode = PlatformCode.PORTABLE.code
-            val userLoginReq = UserLoginReq(uid.toInt(), password, deviceCode, deviceName, platformCode)
+            val userLoginReq = UserLoginReq(uid, password, deviceCode, deviceName, platformCode)
 
             val userLoginResp = userService.login(userLoginReq)
             if (userLoginResp.code == ResponseCodes.success) {

@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 class UserLoginReq(
-    val uid: Int,
+    val uid: String,
     val password: String,
     val deviceCode: String?,
     val deviceName: String,

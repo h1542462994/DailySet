@@ -14,7 +14,7 @@ import org.tty.dailyset.LocalNav
 import org.tty.dailyset.MainDestination
 import org.tty.dailyset.R
 import org.tty.dailyset.annotation.UseViewModel
-import org.tty.dailyset.bean.entity.DefaultEntities
+import org.tty.dailyset.bean.entity.EntityDefaults
 import org.tty.dailyset.bean.entity.User
 import org.tty.dailyset.bean.entity.UserTicketInfo
 import org.tty.dailyset.bean.enums.UnicTickStatus
@@ -135,7 +135,7 @@ fun ProfileMenuGroupGlobalSettings() {
 @Preview
 @Composable
 fun ProfileMenuGroupUserPreview() {
-    ProfileMenuGroupUser(user = DefaultEntities.emptyUser())
+    ProfileMenuGroupUser(user = EntityDefaults.emptyUser())
 }
 
 @Preview

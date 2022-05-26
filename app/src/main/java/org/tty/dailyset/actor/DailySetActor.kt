@@ -8,11 +8,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.decodeFromJsonElement
-import org.tty.dailyset.bean.DailySetUpdateItem
-import org.tty.dailyset.bean.DailySetUpdateItemCollection
 import org.tty.dailyset.bean.ResponseCodes
 import org.tty.dailyset.bean.entity.*
 import org.tty.dailyset.bean.enums.*
@@ -343,9 +338,9 @@ class DailySetActor(private val sharedComponents: SharedComponents) {
                     metaUid = dailySetBasicMeta.metaUid.toLocalStarUid(),
                     dailySetUid = matchedUid,
                     metaType = DailySetMetaType.BasicMeta.value,
-                    insertVersion = DefaultEntities.LOCAL_VERSION_DISABLE,
-                    updateVersion = DefaultEntities.LOCAL_VERSION_ENABLE,
-                    removeVersion = DefaultEntities.LOCAL_VERSION_DISABLE,
+                    insertVersion = EntityDefaults.LOCAL_VERSION_DISABLE,
+                    updateVersion = EntityDefaults.LOCAL_VERSION_ENABLE,
+                    removeVersion = EntityDefaults.LOCAL_VERSION_DISABLE,
                     lastTick = LocalDateTime.now()
                 )
             val localDailySetBasicMeta =

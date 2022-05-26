@@ -14,9 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -24,7 +22,7 @@ import org.tty.dailyset.LocalNav
 import org.tty.dailyset.R
 import org.tty.dailyset.annotation.UseViewModel
 import org.tty.dailyset.bean.entity.DailySetCourse
-import org.tty.dailyset.bean.entity.DefaultEntities
+import org.tty.dailyset.bean.entity.EntityDefaults
 import org.tty.dailyset.bean.enums.DailySetClazzAutoViewType
 import org.tty.dailyset.bean.enums.DailySetIcon
 import org.tty.dailyset.bean.enums.toImageResource
@@ -41,7 +39,6 @@ import org.tty.dailyset.component.dailyset.clazzauto.rememberClazzAutoDailySetVM
 import org.tty.dailyset.ui.component.*
 import org.tty.dailyset.ui.image.ImageResource
 import org.tty.dailyset.ui.theme.DailySetTheme
-import org.tty.dailyset.ui.theme.LocalPalette
 
 @Composable
 @UseViewModel("/dailyset/clazzauto/:uid")
@@ -65,7 +62,7 @@ fun DailySetClazzAutoPage(dailySetUid: String) {
     }
 
     fun validTRC(): Boolean {
-        return dailySetTRC != DefaultEntities.emptyDailySetTRC() && dailySetTRC.dailySetRCs.isNotEmpty()
+        return dailySetTRC != EntityDefaults.emptyDailySetTRC() && dailySetTRC.dailySetRCs.isNotEmpty()
     }
 
     Column {

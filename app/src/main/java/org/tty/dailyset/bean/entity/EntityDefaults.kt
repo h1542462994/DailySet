@@ -7,10 +7,9 @@ import org.tty.dailyset.bean.enums.UnicTickStatus
 import org.tty.dailyset.bean.lifetime.DailySetClazzAutoPageInfo
 import org.tty.dailyset.bean.lifetime.DailySetSummary
 import org.tty.dailyset.bean.lifetime.DailySetTRC
-import org.tty.dailyset.bean.lifetime.UserState
 import java.time.LocalDate
 
-object DefaultEntities {
+object EntityDefaults {
     fun emptyDailySet(): DailySet {
         return DailySet(
             uid = "#local",
@@ -78,6 +77,6 @@ object DefaultEntities {
         )
     }
 
-    val LOCAL_VERSION_ENABLE = 1
-    val LOCAL_VERSION_DISABLE = 0
+    const val LOCAL_VERSION_ENABLE = 1
+    const val LOCAL_VERSION_DISABLE = 0
 }
